@@ -1,0 +1,97 @@
+{
+    "AirlineFilterType": {
+        "PAINTED_AS": 0,
+        "OPERATED_BY": 1
+    },
+    "AirportFilterType": {
+        "BOTH": 0,
+        "INBOUND": 1,
+        "OUTBOUND": 2
+    },
+    "DataSource": {
+        "ADSB": 0,
+        "MLAT": 1,
+        "FLARM": 2,
+        "FAA": 3,
+        "ESTIMATED": 4,
+        "SATELLITE": 5,
+        "OTHER_DATA_SOURCE": 6,
+        "UAT": 7,
+        "SPIDERTRACKS": 8,
+        "AUS": 9
+    },
+    "EmergencyStatus": {
+        "NO_EMERGENCY": 0,
+        "GENERAL_EMERGENCY": 1,
+        "LIFEGUARD_MEDICAL_EMERGENCY": 2,
+        "MINIMUM_FUEL": 3,
+        "NO_COMMUNICATIONS": 4,
+        "UNLAWFUL_INTERFERENCE": 5,
+        "DOWNED_AIRCRAFT": 6,
+        "RESERVED": 7
+    },
+    "Icon": {
+        "B738": 0,
+        "FGTR": 1,
+        "ASW20": 2,
+        "C206": 3,
+        "C303": 4,
+        "LJ60": 5,
+        "Q300": 6,
+        "B736": 7,
+        "FOKKER100": 8,
+        "RJ85": 9,
+        "A320": 10,
+        "B757": 11,
+        "B767": 12,
+        "A3ST": 13,
+        "MD11": 14,
+        "A330": 15,
+        "A343": 16,
+        "A346": 17,
+        "B777": 18,
+        "B747": 19,
+        "A380": 20,
+        "A225": 21,
+        "SI2": 22,
+        "EC": 23,
+        "BALL": 24,
+        "GRND": 25,
+        "SLEI": 26,
+        "DRON": 27,
+        "SAT": 28,
+        "ISS": 29
+    },
+    "RestrictionVisibility": {
+        "NOT_VISIBLE": 0,
+        "RESTRICTED_INCLUDED": 1,
+        "RESTRICTED_ONLY": 2
+    },
+    "Service": {
+        "PASSENGER": 0,
+        "CARGO": 1,
+        "MILITARY_AND_GOVERNMENT": 2,
+        "BUSINESS_JETS": 3,
+        "GENERAL_AVIATION": 4,
+        "HELICOPTERS": 5,
+        "LIGHTER_THAN_AIR": 6,
+        "GLIDERS": 7,
+        "DRONES": 8,
+        "GROUND_VEHICLES": 9,
+        "OTHER_SERVICE": 10,
+        "NON_CATEGORIZED": 11
+    },
+    "Status": {
+        "NORMAL": 0,
+        "BACKGROUND": 1,
+        "EMERGENCY": 2,
+        "NOT_AVAILABLE": 3,
+        "LIVE": 4
+    },
+    "TrafficType": {
+        "NONE": 0,
+        "GROUND_ONLY": 1,
+        "AIRBORNE_ONLY": 2,
+        "ALL": 3
+    }
+}

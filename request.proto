@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+enum Service {
+    PASSENGER = 0;
+    CARGO = 1;
+    MILITARY_AND_GOVERNMENT = 2;
+    BUSINESS_JETS = 3;
+    GENERAL_AVIATION = 4;
+    HELICOPTERS = 5;
+    LIGHTER_THAN_AIR = 6;
+    GLIDERS = 7;
+    DRONES = 8;
+    GROUND_VEHICLES = 9;
+    OTHER_SERVICE = 10;
+    NON_CATEGORIZED = 11;
+}
+
+enum DataSource {
+    ADSB = 0;
+    MLAT = 1;
+    FLARM = 2;
+    FAA = 3;
+    ESTIMATED = 4;
+    SATELLITE = 5;
+    OTHER_DATA_SOURCE = 6;
+    UAT = 7;
+    SPIDERTRACKS = 8;
+    AUS = 9;
+}
+
+enum TrafficType {
+    NONE = 0;
+    GROUND_ONLY = 1;
+    AIRBORNE_ONLY = 2;
+    ALL = 3;
+}
+
+message Bounds {
+    float north = 1; // 0-5
+    float south = 2; // 5-10
+    float west = 3; // 10-15
+    float east = 4; // 15-20
+}
+
+message Settings {
+    string sourcesList = 1; // 0-12
+    string servicesList = 2; // 12-16
+    TrafficType trafficType = 3; // 26-28, default=3, int32
+}
+
+message Message {
+    // 0: array?
+    Bounds bounds = 1; // 5-27
+    Settings options = 2; // 27-57
+    // 3: array
+    // 4: array
+    // 5: null
+    int32 stats = 6; // 57-59
+    int32 limit = 7; // 59-62, default 1500
+    int32 maxage = 8; // 62-65, default 14400
+    // 9: array[array]
+    // 10: array
+}
