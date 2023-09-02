@@ -1,3 +1,5 @@
-urllib3
-rich
-loguru
+httpx==0.24.1
+rich==13.4.2
+loguru==0.7.0
+protobuf==4.24.2
+pyarrow==13.0.0

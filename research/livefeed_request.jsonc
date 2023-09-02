@@ -1,10 +1,10 @@
 {
     "bounds": {
-        "north": 25.73,
-        "south": 24.349999999999998,
-        "west": 109.25,
-        "east": 126.15
-    },
+        "north": 22.650000000000002,
+        "south": 21.83,
+        "west": 111.92999999999999,
+        "east": 116.18
+    }, // 1
     "settings": {
         "sourcesList": [
             0,
@@ -33,18 +33,39 @@
             11
         ],
         "trafficType": 3
-    },
+    }, // 2
+    "filtersList": [
+        {
+            "altitudeRangesList": [],
+            "speedRangesList": [],
+            "airlinesList": [
+                {
+                    "icao": "CPA",
+                    "type": 0
+                }
+            ],
+            "callsignsList": [],
+            "radarsList": [],
+            "regsList": [],
+            "airportsList": [],
+            "flightsList": [],
+            "typesList": [],
+            "birthYearRangesList": [],
+            "squawksList": [],
+            "originsList": [],
+            "destinationsList": [],
+            "categoriesList": []
+        }
+    ], // 3
+    "fleetsList": [],
+    "highlightMode": false,
+    "stats": true, // 6
+    "limit": 1500, // 7
+    "maxage": 14400, // 8
     "fieldMask": {
         "pathsList": []
-    },
-    "filtersList": [],
-    "fleetsList": [],
-    "stats": true,
-    "limit": 1500,
-    "maxage": 14400,
-    "selectedFlightIdsList": [
-        835940584
-    ]
+    }, // 10
+    "selectedFlightIdsList": [] // 11
 }
 
 // g: [[22.700000000000003,21.88,112.25,116.5],[[0,1,2,3,4,5,6,7,8,9],[0,1,2,3,4,5,6,7,8,9,10,11],3],[],[],null,true,1500,14400,null,[[]],[]]
