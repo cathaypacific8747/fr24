@@ -1,12 +1,5 @@
 syntax = "proto3";
 
-message Bounds {
-    float north = 1; // 0-5
-    float south = 2; // 5-10
-    float west = 3; // 10-15
-    float east = 4; // 15-20
-}
-
 enum Service {
     PASSENGER = 0;
     CARGO = 1;
@@ -35,62 +28,166 @@ enum DataSource {
     AUS = 9;
 }
 
-enum TrafficType {
-    NONE = 0;
-    GROUND_ONLY = 1;
-    AIRBORNE_ONLY = 2;
-    ALL = 3;
-}
-
-message Settings {
-    // string sourcesList = 1; // 0-12
-    // string servicesList = 2; // 12-16
-    repeated DataSource sources_list = 1;
-    repeated Service services_list = 2;
-    TrafficType traffic_type = 3; // 26-28, default=3, int32
-}
-
 message FiltersList {
-    message Airline {
-        string icao = 1; // CPA
-        int32 type = 2; // default=0
+    message AltitudeRange {
+        int32 min = 1;
+        int32 max = 2;
+    } // feet
+
+    message SpeedRange {
+        int32 min = 1;
+        int32 max = 2;
+    } // knots
+
+    message AirlineFilter {
+        enum Type {
+            PAINTED_AS = 0;
+            OPERATED_AS = 1;
+        }
+        string icao = 1; // e.g. CPA
+        Type type = 2;
     }
 
-    // repeated AltitudeRange altitude_ranges_list = 1;
-    // repeated SpeedRange speed_ranges_list = 2;
-    repeated Airline airlines_list = 3;
-    // repeated CallSign callsigns_list = 4;
-    // repeated Radar radars_list = 5;
-    // repeated Reg regs_list = 6;
-    // repeated Airport airports_list = 7;
+    message AirportFilter {
+        enum Type {
+            BOTH = 0;
+            INBOUND = 1;
+            OUTBOUND = 2;
+        }
+        string iata = 1;
+        int32 country_id = 2;
+        Type type = 3;
+    }
+
+    message BirthYearRange {
+        int32 min = 1;
+        int32 max = 2;
+    }
+
+    message ODFilter {
+        string iata = 1;
+        int32 country_id = 2;
+    }
+
+    repeated AltitudeRange altitude_ranges_list = 1;
+    repeated SpeedRange speed_ranges_list = 2; // NOTE: ground speed
+    repeated AirlineFilter airline_filters_list = 3;
+    repeated string callsigns_list = 4;
+    repeated string radars_list = 5; // receiver: e.g. T-VHST000
+    repeated string regs_list = 6;
+    repeated AirportFilter airports_list = 7;
     // repeated Flight flights_list = 8;
-    // repeated Type types_list = 9;
-    // repeated BirthYearRange birth_year_ranges_list = 10;
+    repeated string types_list = 9; // e.g. B7*
+    repeated BirthYearRange birth_year_ranges_list = 10;
     // repeated Squawk squawks_list = 11;
-    // repeated Origin origins_list = 12;
-    // repeated Destination destinations_list = 13;
-    // repeated Category categories_list = 14;
+    repeated ODFilter origins_list = 12;
+    repeated ODFilter destinations_list = 13;
+    repeated Service categories_list = 14;
 }
 
 // ChQNw/XgQRVxPU5BHXsUwEIl7NEBQxIcCgoAAQIDBAUGBwgJEgwAAQIDBAUGBwgJCgsYAzABONwLQMBwUgsKA3JlZwoEdHlwZQ==
 message LiveFeedRequest {
-    message UnknownMsg {}
+    message Bounds {
+        float north = 1;
+        float south = 2;
+        float west = 3;
+        float east = 4;
+    }
 
-    Bounds bounds = 1; // 5-27
-    Settings settings = 2; // 27-57
+    message Settings {
+        enum TrafficType {
+            NONE = 0;
+            GROUND_ONLY = 1;
+            AIRBORNE_ONLY = 2;
+            ALL = 3;
+        }
+
+        repeated DataSource sources_list = 1;
+        repeated Service services_list = 2;
+        TrafficType traffic_type = 3;
+    }
+
+    message FieldMask {
+        repeated string field_name = 1;
+    }
+
+    Bounds bounds = 1;
+    Settings settings = 2;
     optional FiltersList filters_list = 3;
-    // 4: ???
+    optional string custom_fleet_id = 4; // requires auth
     // 5: ???
-    bool stats = 6; // 57-59
-    int32 limit = 7; // 59-62, default 1500
-    int32 maxage = 8; // 62-65, default 14400
+    bool stats = 6;
+    int32 limit = 7; // default 1500
+    int32 maxage = 8; // default 14400
     // 9: ???
-    optional UnknownMsg unknown_msg = 10; // possibly: fieldMask?
-    optional int32 selected_flightid = 11;
+    FieldMask field_mask = 10;
+    repeated fixed32 selected_flightid = 11;
 }
 
 message LiveFeedResponse {
     message FlightData {
+        message ExtraInfo {
+            message Route {
+                string from = 1;
+                string to = 2;
+            }
+
+            message Schedule {
+                int32 std = 1;
+                int32 etd = 2;
+                int32 atd = 3;
+                int32 sta = 4;
+                int32 eta = 5; //!
+                int32 ata = 6;
+            }
+
+            // a =? altitude
+            message EMS {
+                optional int32 qnh = 1; // often null
+                optional int32 amcp = 2; // likely barometric altitude
+                optional int32 afms = 3; // often null
+                optional int32 oat = 4;
+                optional int32 ias = 5;
+                optional int32 tas = 6;
+                optional int32 mach = 7; // NOTE: 1000 = mach 1
+                optional int32 agps = 8;
+                optional int32 agpsdiff = 9; // |amcp - agps|
+                optional int32 apflags = 10; // often null
+                optional int32 wind_dir = 11;
+                optional int32 wind_speed = 12;
+                optional int32 rs = 13; // unknown
+            }
+
+            message EMSAvailability {
+                optional bool qnh_availability = 1;
+                optional bool amcp_availability = 2;
+                optional bool afms_availability = 3;
+                optional bool oat_availability = 4;
+                optional bool ias_availability = 5;
+                optional bool tas_availability = 6;
+                optional bool mach_availability = 7;
+                optional bool agps_availability = 8;
+                optional bool agpsdiff_availability = 9;
+                optional bool apflags_availability = 10;
+                optional bool wind_dir_availability = 11;
+                optional bool wind_speed_availability = 12;
+                optional bool rs_availability = 13;
+            }
+            
+            optional string flight = 1; // iata flight number
+            optional string reg = 2;
+            optional Route route = 3;
+            optional string type = 4;
+            optional int32 squawk = 5; // NOTE: 20852 -> 0x5174
+            optional int32 vspeed = 6;
+            optional string ac_birthday = 7;
+            optional int32 country_of_reg = 8;
+            optional Schedule schedule = 9;
+            optional int32 logo_id = 10;
+            optional int32 airspace = 11; // FIR
+            optional EMS ems_info = 12;
+            optional EMSAvailability ems_availability = 13;
+        }
         int32 flightid = 1; // to hex
         float latitude = 2;
         float longitude = 3;
@@ -103,18 +200,19 @@ message LiveFeedResponse {
         bool on_ground = 10;
         string callsign = 11;
         DataSource source = 12;
+        ExtraInfo extra_info = 13;
     }
 
-    message ExtraInfo {
-        message Stats {
+    message Statistics {
+        message SourceKV {
             DataSource source = 1;
             int32 count = 2;
         }
 
-        repeated Stats stats_list = 1;
+        repeated SourceKV sources = 1;
     }
 
     repeated FlightData flights_list = 1;
-    ExtraInfo extra_info = 2;
-    // extra flight info = 3
+    Statistics stats = 2;
+    repeated FlightData selected_flight_info = 3;
 }

@@ -1,13 +1,15 @@
-import urllib3
-import httpx
 import time
 import secrets
+import base64
+import struct
+from collections.abc import MutableMapping
+import rich
+import urllib3
+import httpx
 import asyncio
 from loguru import logger
-import rich
-import struct
 from proto.request_pb2 import (
-    LiveFeedRequest, Bounds, Settings, TrafficType,
+    LiveFeedRequest,
     LiveFeedResponse
 )
 from google.protobuf.json_format import MessageToDict
@@ -16,22 +18,29 @@ import pyarrow.parquet as pq
 import pyarrow.csv as csv
 
 DEFAULT_REQUEST = LiveFeedRequest(
-    bounds=Bounds(
+    bounds=LiveFeedRequest.Bounds(
         north=28.12,
         south=12.89,
         west=96.04,
         east=129.82
     ),
-    settings=Settings(
+    settings=LiveFeedRequest.Settings(
         sources_list=list(range(10)),
         services_list=list(range(12)),
-        traffic_type=TrafficType.ALL,
+        traffic_type=LiveFeedRequest.Settings.TrafficType.ALL,
     ),
-    stats=False,
+    field_mask=LiveFeedRequest.FieldMask(
+        field_name=["flight", "reg", "route", "type", "schedule"]
+        # auth required: squawk, vspeed, airspace
+    ),
+    stats=True,
     limit=1500,
     maxage=14400,
-    # selected_flightid=0x31da4a31,
+    # selected_flightid=[0x31da4a31, 0x31da4a31],
+    selected_flightid=[ 836705876, 836711386, 836709426, 836686454 ],
 )
+# print(base64.b64encode(DEFAULT_REQUEST.SerializeToString()).decode("utf-8"))
+# raise SystemExit
 DEFAULT_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0',
     'Accept': '*/*',
@@ -62,30 +71,28 @@ FLIGHTINFO_SCHEMA = pa.schema([
     pa.field("on_ground", pa.bool_()),
     pa.field("callsign", pa.string()),
     pa.field("source", pa.uint8()),
+    pa.field("extra_info.reg", pa.string()),
+    pa.field("extra_info.route.from", pa.string()),
+    pa.field("extra_info.route.to", pa.string()),
+    pa.field("extra_info.type", pa.string()),
+    pa.field("extra_info.schedule.eta", pa.uint32()),
 ])
-BOUNDS = [
-    (-180, -117),
-    (-117, -110),
-    (-110, -100),
-    (-100, -95),
-    (-95, -90),
-    (-90, -85),
-    (-85, -82),
-    (-82, -79),
-    (-79, -75),
-    (-75, -68),
-    (-68, -30),
-    (-30, -2),
-    (-2, 5),
-    (5, 10),
-    (10, 20),
-    (20, 40),
-    (40, 60),
-    (60, 100),
-    (100, 110),
-    (110, 120),
-    (120, 180),
+LNG_BOUNDS = [
+    -180, -117, -110, -100, -95, -90, -85, -82, -79, -75, -68, -30, -2,
+    1, 5, 8, 11, 15, 20, 30, 40, 60, 100, 110, 120, 140, 180
 ]
+BOUNDS = [(LNG_BOUNDS[i], LNG_BOUNDS[i+1]) for i in range(len(LNG_BOUNDS)-1)]
+
+# copied from: https://stackoverflow.com/questions/6027558/flatten-nested-dictionaries-compressing-keys
+def flatten(d: dict, parent_key='', sep='.'):
+    items = []
+    for key, value in d.items():
+        new_key = parent_key + sep + key if parent_key else key
+        if isinstance(value, MutableMapping):
+            items.extend(flatten(value, new_key, sep=sep).items())
+        else:
+            items.append((new_key, value))
+    return dict(items)
 
 def download(device_id: str = None):
     if not device_id:
@@ -130,7 +137,7 @@ def scrape():
 def generate_post_data(west, east):
     request = LiveFeedRequest()
     request.CopyFrom(DEFAULT_REQUEST)
-    request.bounds.CopyFrom(Bounds(
+    request.bounds.CopyFrom(LiveFeedRequest.Bounds(
         north=90,
         south=-90,
         west=west,
@@ -160,6 +167,7 @@ def handle_response(data: bytes, i=0) -> LiveFeedResponse:
     assert len(data) and data[0] == 0
     data_len = int.from_bytes(data[1:5])
     # print("len", data[1:5], data_len)
+    print(base64.b64encode(data[5:5+data_len]).decode("utf-8"))
     lfr = LiveFeedResponse()
     lfr.ParseFromString(data[5:5+data_len])
     return lfr, i
@@ -174,11 +182,14 @@ async def main():
         data = await asyncio.gather(*[do_request(client, request, i) for i, request in enumerate(requests)])
         all_flights = []
         for d, i in data:
-            d2 = MessageToDict(d, including_default_value_fields=True, use_integers_for_enums=True, preserving_proto_field_name=True)
-            all_flights.extend(d2["flights_list"])
-            logger.debug(f"{BOUNDS[i]}: {len(d2['flights_list'])} flights")
+            d2 = MessageToDict(d, including_default_value_fields=True, use_integers_for_enums=True, preserving_proto_field_name=True)["flights_list"]
+            for d3 in d2:
+                all_flights.append(flatten(d3))
+            # all_flights.extend(d2)
+            logger.debug(f"{BOUNDS[i]}: {len(d2)} flights")
         tbl = pa.Table.from_pylist(all_flights, schema=FLIGHTINFO_SCHEMA)
-        pq.write_table(tbl, "test.parquet")
+        pq.write_table(tbl, "tmp/test.parquet")
+        csv.write_csv(tbl, "tmp/test.csv")
 
 # def req():
 #     data = generate_post_data(100, 110)

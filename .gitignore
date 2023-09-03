@@ -1,6 +1,7 @@
 log/*.txt
 research/index.js
 research/vendor.js
+tmp/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,626 @@
+[
+    {
+        "id": "0",
+        "name": "Airbus A220 family",
+        "models": [
+            {
+                "id": "BCS1",
+                "name": "Airbus A220-100"
+            },
+            {
+                "id": "BCS3",
+                "name": "Airbus A220-300"
+            }
+        ]
+    },
+    {
+        "id": "1",
+        "name": "Airbus A300 family",
+        "models": [
+            {
+                "id": "A30B",
+                "name": "Airbus A300"
+            },
+            {
+                "id": "A306",
+                "name": "Airbus A300-600"
+            },
+            {
+                "id": "A3ST",
+                "name": "Airbus A300-600ST Beluga"
+            }
+        ]
+    },
+    {
+        "id": "10",
+        "name": "ATR 72 family",
+        "models": [
+            {
+                "id": "AT72",
+                "name": "ATR 72-200"
+            },
+            {
+                "id": "AT75",
+                "name": "ATR 72-500"
+            },
+            {
+                "id": "AT76",
+                "name": "ATR 72-600"
+            }
+        ]
+    },
+    {
+        "id": "11",
+        "name": "Avro RJ family",
+        "models": [
+            {
+                "id": "RJ1H",
+                "name": "Avro RJ100"
+            },
+            {
+                "id": "RJ70",
+                "name": "Avro RJ70"
+            },
+            {
+                "id": "RJ85",
+                "name": "Avro RJ85"
+            }
+        ]
+    },
+    {
+        "id": "12",
+        "name": "Beech 1900",
+        "models": [
+            {
+                "id": "B190",
+                "name": "Beech 1900"
+            }
+        ]
+    },
+    {
+        "id": "13",
+        "name": "Boeing 737 family",
+        "models": [
+            {
+                "id": "B3XM",
+                "name": "Boeing 737 MAX 10"
+            },
+            {
+                "id": "B37M",
+                "name": "Boeing 737 MAX 7"
+            },
+            {
+                "id": "B38M",
+                "name": "Boeing 737 MAX 8"
+            },
+            {
+                "id": "B39M",
+                "name": "Boeing 737 MAX 9"
+            },
+            {
+                "id": "B732",
+                "name": "Boeing 737-200"
+            },
+            {
+                "id": "B733",
+                "name": "Boeing 737-300"
+            },
+            {
+                "id": "B734",
+                "name": "Boeing 737-400"
+            },
+            {
+                "id": "B735",
+                "name": "Boeing 737-500"
+            },
+            {
+                "id": "B736",
+                "name": "Boeing 737-600"
+            },
+            {
+                "id": "B737",
+                "name": "Boeing 737-700"
+            },
+            {
+                "id": "B738",
+                "name": "Boeing 737-800"
+            },
+            {
+                "id": "B739",
+                "name": "Boeing 737-900"
+            }
+        ]
+    },
+    {
+        "id": "14",
+        "name": "Boeing 747 family",
+        "models": [
+            {
+                "id": "B742",
+                "name": "Boeing 747-200"
+            },
+            {
+                "id": "B743",
+                "name": "Boeing 747-300"
+            },
+            {
+                "id": "B744",
+                "name": "Boeing 747-400"
+            },
+            {
+                "id": "B748",
+                "name": "Boeing 747-8"
+            },
+            {
+                "id": "B74S",
+                "name": "Boeing 747SP"
+            }
+        ]
+    },
+    {
+        "id": "15",
+        "name": "Boeing 757 family",
+        "models": [
+            {
+                "id": "B752",
+                "name": "Boeing 757-200"
+            },
+            {
+                "id": "B753",
+                "name": "Boeing 757-300"
+            }
+        ]
+    },
+    {
+        "id": "16",
+        "name": "Boeing 767 family",
+        "models": [
+            {
+                "id": "B762",
+                "name": "Boeing 767-200"
+            },
+            {
+                "id": "B763",
+                "name": "Boeing 767-300"
+            },
+            {
+                "id": "B764",
+                "name": "Boeing 767-400"
+            }
+        ]
+    },
+    {
+        "id": "17",
+        "name": "Boeing 777 family",
+        "models": [
+            {
+                "id": "B772",
+                "name": "Boeing 777-200"
+            },
+            {
+                "id": "B77L",
+                "name": "Boeing 777-200LR"
+            },
+            {
+                "id": "B773",
+                "name": "Boeing 777-300"
+            },
+            {
+                "id": "B77W",
+                "name": "Boeing 777-300ER"
+            },
+            {
+                "id": "B779",
+                "name": "Boeing 777-9"
+            }
+        ]
+    },
+    {
+        "id": "18",
+        "name": "Boeing 787 family",
+        "models": [
+            {
+                "id": "B78X",
+                "name": "Boeing 787-10"
+            },
+            {
+                "id": "B788",
+                "name": "Boeing 787-8"
+            },
+            {
+                "id": "B789",
+                "name": "Boeing 787-9"
+            }
+        ]
+    },
+    {
+        "id": "19",
+        "name": "Boeing C-17A Globemaster III",
+        "models": [
+            {
+                "id": "C17",
+                "name": "Boeing C-17A Globemaster III"
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "name": "Airbus A310 family",
+        "models": [
+            {
+                "id": "A310",
+                "name": "Airbus A310"
+            }
+        ]
+    },
+    {
+        "id": "20",
+        "name": "Bombardier Dash 8 family",
+        "models": [
+            {
+                "id": "DH8A",
+                "name": "Bombardier Dash 8-100"
+            },
+            {
+                "id": "DH8B",
+                "name": "Bombardier Dash 8-200"
+            },
+            {
+                "id": "DH8C",
+                "name": "Bombardier Dash 8-300"
+            },
+            {
+                "id": "DH8D",
+                "name": "Bombardier Dash 8-400"
+            }
+        ]
+    },
+    {
+        "id": "21",
+        "name": "DHC-6 Twin Otter",
+        "models": [
+            {
+                "id": "DHC6",
+                "name": "DHC-6 Twin Otter"
+            }
+        ]
+    },
+    {
+        "id": "22",
+        "name": "Embraer E-Jet family",
+        "models": [
+            {
+                "id": "E170",
+                "name": "Embraer E170"
+            },
+            {
+                "id": "E75L",
+                "name": "Embraer E175 (long)"
+            },
+            {
+                "id": "E75S",
+                "name": "Embraer E175 (short)"
+            },
+            {
+                "id": "E190",
+                "name": "Embraer E190"
+            },
+            {
+                "id": "E290",
+                "name": "Embraer E190-E2"
+            },
+            {
+                "id": "E195",
+                "name": "Embraer E195"
+            },
+            {
+                "id": "E295",
+                "name": "Embraer E195-E2"
+            }
+        ]
+    },
+    {
+        "id": "23",
+        "name": "Embraer RJ135",
+        "models": [
+            {
+                "id": "E135",
+                "name": "Embraer RJ135"
+            }
+        ]
+    },
+    {
+        "id": "24",
+        "name": "Embraer RJ145",
+        "models": [
+            {
+                "id": "E145",
+                "name": "Embraer RJ145"
+            }
+        ]
+    },
+    {
+        "id": "25",
+        "name": "Fokker family",
+        "models": [
+            {
+                "id": "F100",
+                "name": "Fokker 100"
+            },
+            {
+                "id": "F50",
+                "name": "Fokker 50"
+            },
+            {
+                "id": "F70",
+                "name": "Fokker 70"
+            }
+        ]
+    },
+    {
+        "id": "26",
+        "name": "McDonnell Douglas DC-10",
+        "models": [
+            {
+                "id": "DC10",
+                "name": "McDonnell Douglas DC-10"
+            }
+        ]
+    },
+    {
+        "id": "27",
+        "name": "McDonnell Douglas MD-11",
+        "models": [
+            {
+                "id": "MD11",
+                "name": "McDonnell Douglas MD-11"
+            }
+        ]
+    },
+    {
+        "id": "28",
+        "name": "McDonnell Douglas MD-80 family",
+        "models": [
+            {
+                "id": "MD81",
+                "name": "McDonnell Douglas MD-81"
+            },
+            {
+                "id": "MD82",
+                "name": "McDonnell Douglas MD-82"
+            },
+            {
+                "id": "MD83",
+                "name": "McDonnell Douglas MD-83"
+            },
+            {
+                "id": "MD87",
+                "name": "McDonnell Douglas MD-87"
+            },
+            {
+                "id": "MD88",
+                "name": "McDonnell Douglas MD-88"
+            }
+        ]
+    },
+    {
+        "id": "29",
+        "name": "McDonnell Douglas MD-90",
+        "models": [
+            {
+                "id": "MD90",
+                "name": "McDonnell Douglas MD-90"
+            }
+        ]
+    },
+    {
+        "id": "3",
+        "name": "Airbus A320 family",
+        "models": [
+            {
+                "id": "A318",
+                "name": "Airbus A318"
+            },
+            {
+                "id": "A319",
+                "name": "Airbus A319"
+            },
+            {
+                "id": "A19N",
+                "name": "Airbus A319neo"
+            },
+            {
+                "id": "A320",
+                "name": "Airbus A320"
+            },
+            {
+                "id": "A20N",
+                "name": "Airbus A320neo"
+            },
+            {
+                "id": "A321",
+                "name": "Airbus A321"
+            },
+            {
+                "id": "A21N",
+                "name": "Airbus A321neo"
+            }
+        ]
+    },
+    {
+        "id": "30",
+        "name": "Mitsubishi CRJ family",
+        "models": [
+            {
+                "id": "CRJ1",
+                "name": "Mitsubishi CRJ-100"
+            },
+            {
+                "id": "CRJX",
+                "name": "Mitsubishi CRJ-1000"
+            },
+            {
+                "id": "CRJ2",
+                "name": "Mitsubishi CRJ-200"
+            },
+            {
+                "id": "CRJ7",
+                "name": "Mitsubishi CRJ-700"
+            },
+            {
+                "id": "CRJ9",
+                "name": "Mitsubishi CRJ-900"
+            }
+        ]
+    },
+    {
+        "id": "31",
+        "name": "Saab 2000",
+        "models": [
+            {
+                "id": "SB20",
+                "name": "Saab 2000"
+            }
+        ]
+    },
+    {
+        "id": "32",
+        "name": "Saab 340",
+        "models": [
+            {
+                "id": "SF34",
+                "name": "Saab 340"
+            }
+        ]
+    },
+    {
+        "id": "33",
+        "name": "Sukhoi Superjet 100",
+        "models": [
+            {
+                "id": "SU95",
+                "name": "Sukhoi Superjet 100"
+            }
+        ]
+    },
+    {
+        "id": "34",
+        "name": "Swearingen Merlin 3",
+        "models": [
+            {
+                "id": "SW3",
+                "name": "Swearingen Merlin 3"
+            }
+        ]
+    },
+    {
+        "id": "35",
+        "name": "Swearingen Metroliner",
+        "models": [
+            {
+                "id": "SW4",
+                "name": "Swearingen Metroliner"
+            }
+        ]
+    },
+    {
+        "id": "4",
+        "name": "Airbus A330 family",
+        "models": [
+            {
+                "id": "A332",
+                "name": "Airbus A330-200"
+            },
+            {
+                "id": "A333",
+                "name": "Airbus A330-300"
+            },
+            {
+                "id": "A337",
+                "name": "Airbus A330-700 Beluga XL"
+            },
+            {
+                "id": "A338",
+                "name": "Airbus A330-800 Neo"
+            },
+            {
+                "id": "A339",
+                "name": "Airbus A330-900 Neo"
+            }
+        ]
+    },
+    {
+        "id": "5",
+        "name": "Airbus A340 family",
+        "models": [
+            {
+                "id": "A342",
+                "name": "Airbus A340-200"
+            },
+            {
+                "id": "A343",
+                "name": "Airbus A340-300"
+            },
+            {
+                "id": "A345",
+                "name": "Airbus A340-500"
+            },
+            {
+                "id": "A346",
+                "name": "Airbus A340-600"
+            }
+        ]
+    },
+    {
+        "id": "6",
+        "name": "Airbus A350 family",
+        "models": [
+            {
+                "id": "A35K",
+                "name": "Airbus A350-1000"
+            },
+            {
+                "id": "A359",
+                "name": "Airbus A350-900"
+            }
+        ]
+    },
+    {
+        "id": "7",
+        "name": "Airbus A380-800",
+        "models": [
+            {
+                "id": "A388",
+                "name": "Airbus A380-800"
+            }
+        ]
+    },
+    {
+        "id": "8",
+        "name": "Airbus A400M Atlas",
+        "models": [
+            {
+                "id": "A400",
+                "name": "Airbus A400M Atlas"
+            }
+        ]
+    },
+    {
+        "id": "9",
+        "name": "ATR 42 family",
+        "models": [
+            {
+                "id": "AT43",
+                "name": "ATR 42-300"
+            },
+            {
+                "id": "AT45",
+                "name": "ATR 42-500"
+            },
+            {
+                "id": "AT46",
+                "name": "ATR 42-600"
+            }
+        ]
+    }
+]
