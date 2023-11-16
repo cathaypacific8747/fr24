@@ -187,6 +187,8 @@ message LiveFeedResponse {
             optional int32 airspace = 11; // FIR
             optional EMS ems_info = 12;
             optional EMSAvailability ems_availability = 13;
+            optional int32 icao_address = 14;
+            // 15-18 are unknown int32s (only when flight is selected)
         }
         int32 flightid = 1; // to hex
         float latitude = 2;

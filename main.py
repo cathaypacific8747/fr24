@@ -100,7 +100,7 @@ def generate_post_data(west, east):
     post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
     return post_data
 
-def construct_requests(we_bounds: list[tuple[int, int]]):
+def construct_requests(we_bounds: list[tuple[int, int]]) -> list[httpx.Request]:
     requests = []
     for west, east in we_bounds:
         data = generate_post_data(west, east)
@@ -110,7 +110,7 @@ def construct_requests(we_bounds: list[tuple[int, int]]):
             "POST",
             "https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/LiveFeed",
             headers=headers,
-            data=data
+            content=data
         ))
     return requests
 
@@ -118,9 +118,9 @@ def handle_response(data: bytes, i=0) -> LiveFeedResponse:
     # print(data[:500])
     # print(base64.b64encode(data).decode("utf-8"))
     assert len(data) and data[0] == 0
-    data_len = int.from_bytes(data[1:5])
+    data_len = int.from_bytes(data[1:5], byteorder="big")
     # print("len", data[1:5], data_len)
-    print(base64.b64encode(data[5:5+data_len]).decode("utf-8"))
+    # print(base64.b64encode(data[5:5+data_len]).decode("utf-8"))
     lfr = LiveFeedResponse()
     lfr.ParseFromString(data[5:5+data_len])
     return lfr, i
@@ -129,7 +129,7 @@ async def do_request(client: httpx.AsyncClient, request: httpx.Request, i=0):
     response = await client.send(request)
     return handle_response(response.content, i)
 
-async def main():
+async def download_full():
     requests = construct_requests(we_bounds=BOUNDS)
     async with httpx.AsyncClient() as client:
         data = await asyncio.gather(*[do_request(client, request, i) for i, request in enumerate(requests)])
@@ -138,12 +138,20 @@ async def main():
             d2 = MessageToDict(d, including_default_value_fields=True, use_integers_for_enums=True, preserving_proto_field_name=True)["flights_list"]
             for d3 in d2:
                 all_flights.append(flatten(d3))
-            # all_flights.extend(d2)
             logger.debug(f"{BOUNDS[i]}: {len(d2)} flights")
         tbl = pa.Table.from_pylist(all_flights, schema=FLIGHTINFO_SCHEMA)
         pq.write_table(tbl, "tmp/test.parquet")
         csv.write_csv(tbl, "tmp/test.csv")
 
+async def download_simple():
+    req = construct_requests(we_bounds=[(1, 5)])[0] # filter all flights between lngs 1-5
+    # print(req.__dict__)
+    # print(base64.b64encode(req._content).decode("utf-8"))
+    async with httpx.AsyncClient() as client:
+        data = await do_request(client, req)
+        assert len(data) > 0
+        print(data)
+
 if __name__ == '__main__':
-    # scrape()
-    asyncio.run(main())
+    asyncio.run(download_simple())
+    # asyncio.run(download_full())
