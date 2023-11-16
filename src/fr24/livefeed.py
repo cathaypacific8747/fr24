@@ -1,0 +1,146 @@
+from __future__ import annotations
+
+import asyncio
+import secrets
+import struct
+
+import httpx
+from google.protobuf.json_format import MessageToDict
+
+import pandas as pd
+
+from .proto.request_pb2 import LiveFeedRequest, LiveFeedResponse
+
+DEFAULT_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0",
+    "Accept": "*/*",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    "fr24-device-id": "web-00000000000000000000000000000000",
+    "x-envoy-retry-grpc-on": "unavailable",
+    "Content-Type": "application/grpc-web+proto",
+    "X-User-Agent": "grpc-web-javascript/0.1",
+    "X-Grpc-Web": "1",
+    "Origin": "https://www.flightradar24.com",
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Referer": "https://www.flightradar24.com/",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-site",
+    "TE": "trailers",
+}
+
+
+world_zones = [
+    (90, 70, -180, 180),
+    (70, 50, -180, -20),
+    (70, 50, -20, 0),
+    (70, 50, 0, 20),
+    (70, 50, 20, 40),
+    (70, 50, 40, 180),
+    (50, 30, -180, -120),
+    (50, 40, -120, -110),
+    (50, 40, -110, -100),
+    (40, 30, -120, -110),
+    (40, 30, -110, -100),
+    (50, 40, -100, -90),
+    (50, 40, -90, -80),
+    (40, 30, -100, -90),
+    (40, 30, -90, -80),
+    (50, 30, -80, -60),
+    (50, 30, -60, -40),
+    (50, 30, -40, -20),
+    (50, 30, -20, 0),
+    (50, 40, 0, 10),
+    (50, 40, 10, 20),
+    (40, 30, 0, 10),
+    (40, 30, 10, 20),
+    (50, 30, 20, 40),
+    (50, 30, 40, 60),
+    (50, 30, 60, 180),
+    (30, 10, -180, -100),
+    (30, 10, -100, -80),
+    (30, 10, -80, 100),
+    (30, 10, 100, 180),
+    (10, -10, -180, 180),
+    (-10, -30, -180, 180),
+    (-30, -90, -180, 180),
+]
+
+
+def create_request(
+    north: float = 50,
+    south: float = 40,
+    west: float = 0,
+    east: float = 10,
+) -> httpx.Request:
+    request = LiveFeedRequest(
+        bounds=LiveFeedRequest.Bounds(
+            north=north, south=south, west=west, east=east
+        ),
+        settings=LiveFeedRequest.Settings(
+            sources_list=range(10),
+            services_list=range(12),
+            traffic_type=LiveFeedRequest.Settings.ALL,
+        ),
+        field_mask=LiveFeedRequest.FieldMask(
+            field_name=[
+                "flight",
+                "reg",
+                "route",
+                "type",
+                "schedule",
+            ]
+            # auth required: squawk, vspeed, airspace
+        ),
+        stats=False,
+        limit=1500,
+        maxage=14400,
+    )
+    request_s = request.SerializeToString()
+    post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
+
+    headers = DEFAULT_HEADERS.copy()
+    headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
+
+    return httpx.Request(
+        "POST",
+        "https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/LiveFeed",
+        headers=headers,
+        content=post_data,
+    )
+
+
+async def post_request(
+    client: httpx.AsyncClient, request: httpx.Request
+) -> LiveFeedResponse:
+    response = await client.send(request)
+    data = response.content
+    assert len(data) and data[0] == 0
+    data_len = int.from_bytes(data[1:5], byteorder="big")
+    lfr = LiveFeedResponse()
+    lfr.ParseFromString(data[5 : 5 + data_len])
+    return lfr
+
+
+async def world_data(client: httpx.AsyncClient) -> pd.DataFrame:
+    async with httpx.AsyncClient() as client:
+        results = await asyncio.gather(
+            *[
+                post_request(client, create_request(*bounds))
+                for bounds in world_zones
+            ]
+        )
+
+        return pd.concat(
+            pd.json_normalize(
+                MessageToDict(
+                    data,
+                    including_default_value_fields=True,
+                    preserving_proto_field_name=True,
+                    use_integers_for_enums=False,
+                )["flights_list"]
+            )
+            for data in results
+        )
