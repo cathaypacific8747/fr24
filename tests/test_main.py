@@ -26,4 +26,4 @@ async def test_simple() -> None:
 async def test_world() -> None:
     async with httpx.AsyncClient() as client:
         df = await world_data(client)
-        assert df.shape[0] > 100
+        assert df.shape[0] > 100  # why 100? same, because...

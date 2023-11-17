@@ -5,6 +5,7 @@ import secrets
 import struct
 import uuid
 from pathlib import Path
+from typing import Any
 
 import httpx
 from google.protobuf.json_format import MessageToDict
@@ -14,7 +15,8 @@ import pandas as pd
 from .proto.request_pb2 import LiveFeedRequest, LiveFeedResponse
 
 DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) "
+    "Gecko/20100101 Firefox/116.0",
     "Accept": "*/*",
     "Accept-Language": "en-US,en;q=0.5",
     "Accept-Encoding": "gzip, deflate, br",
@@ -76,18 +78,18 @@ def create_request(
     south: float = 40,
     west: float = 0,
     east: float = 10,
-    stats=False,
-    limit=1500,
-    maxage=14400,
-    **kwargs,
+    stats: bool = False,
+    limit: int = 1500,
+    maxage: int = 14400,
+    **kwargs: Any,
 ) -> httpx.Request:
     request = LiveFeedRequest(
         bounds=LiveFeedRequest.Bounds(
             north=north, south=south, west=west, east=east
         ),
         settings=LiveFeedRequest.Settings(
-            sources_list=range(10),
-            services_list=range(12),
+            sources_list=range(10),  # type: ignore
+            services_list=range(12),  # type: ignore
             traffic_type=LiveFeedRequest.Settings.ALL,
         ),
         field_mask=LiveFeedRequest.FieldMask(
@@ -160,5 +162,5 @@ def snapshot() -> None:
 
     filename = Path(str(uuid.uuid4())).with_suffix(".parquet")
 
-    asyncio.run(export_parquet(filename.name))
+    asyncio.run(export_parquet(filename))
     print(f"{filename.name} written")

@@ -105,7 +105,7 @@ async def lookup_registration(
 async def update_aircraft(
     collection: AsyncIOMotorCollection,
     flightdata: LiveFeedResponse.FlightData,
-) -> AircraftType:
+) -> None | AircraftType:
     ac: AircraftType = {
         "icao24": f"{flightdata.extra_info.icao_address:x}",
         "registration": flightdata.extra_info.reg,
@@ -119,19 +119,19 @@ async def update_aircraft(
     }
 
     if ac["registration"] == "00000000":
-        return {}
+        return None
 
     if ac["icao24"] == "0":
-        return {}
+        return None
 
     ac_old = await collection.find_one({"icao24": ac["icao24"]})
     if ac_old is not None:
         if ac["callsign"] == "":  # safeguard
-            del ac["callsign"]
+            del ac["callsign"]  # type: ignore
 
         if ac["registration"] == "":  # safeguard
-            del ac["registration"]
-            del ac["typecode"]
+            del ac["registration"]  # type: ignore
+            del ac["typecode"]  # type: ignore
 
         elif ac["registration"] != ac_old["registration"]:
             await collection.update_one(
@@ -159,7 +159,7 @@ async def update_aircraft(
     return ac
 
 
-def aircraft_db(ssh_server: str = "eyjafjallajokull"):
+def aircraft_db(ssh_server: str = "eyjafjallajokull") -> None:
     columns = [
         "icao24",
         "registration",
@@ -171,7 +171,7 @@ def aircraft_db(ssh_server: str = "eyjafjallajokull"):
         "age",
     ]
 
-    async def get_database():
+    async def get_database() -> pd.DataFrame:
         with Mongo(ssh_server=ssh_server).async_client() as client:
             query = client.adb.aircraft.find(
                 {},
