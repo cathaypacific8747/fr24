@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import secrets
 import struct
+import uuid
+from pathlib import Path
 
 import httpx
 from google.protobuf.json_format import MessageToDict
@@ -74,6 +76,10 @@ def create_request(
     south: float = 40,
     west: float = 0,
     east: float = 10,
+    stats=False,
+    limit=1500,
+    maxage=14400,
+    **kwargs,
 ) -> httpx.Request:
     request = LiveFeedRequest(
         bounds=LiveFeedRequest.Bounds(
@@ -94,9 +100,10 @@ def create_request(
             ]
             # auth required: squawk, vspeed, airspace
         ),
-        stats=False,
-        limit=1500,
-        maxage=14400,
+        stats=stats,
+        limit=limit,
+        maxage=maxage,
+        **kwargs,
     )
     request_s = request.SerializeToString()
     post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
@@ -125,22 +132,33 @@ async def post_request(
 
 
 async def world_data(client: httpx.AsyncClient) -> pd.DataFrame:
-    async with httpx.AsyncClient() as client:
-        results = await asyncio.gather(
-            *[
-                post_request(client, create_request(*bounds))
-                for bounds in world_zones
-            ]
-        )
+    results = await asyncio.gather(
+        *[
+            post_request(client, create_request(*bounds))
+            for bounds in world_zones
+        ]
+    )
 
-        return pd.concat(
-            pd.json_normalize(
-                MessageToDict(
-                    data,
-                    including_default_value_fields=True,
-                    preserving_proto_field_name=True,
-                    use_integers_for_enums=False,
-                )["flights_list"]
-            )
-            for data in results
+    return pd.concat(
+        pd.json_normalize(
+            MessageToDict(
+                data,
+                including_default_value_fields=True,
+                preserving_proto_field_name=True,
+                use_integers_for_enums=False,
+            )["flights_list"]
         )
+        for data in results
+    )
+
+
+def snapshot() -> None:
+    async def export_parquet(filename: Path) -> None:
+        async with httpx.AsyncClient() as client:
+            df = await world_data(client)
+            df.to_parquet(filename)
+
+    filename = Path(str(uuid.uuid4())).with_suffix(".parquet")
+
+    asyncio.run(export_parquet(filename.name))
+    print(f"{filename.name} written")
