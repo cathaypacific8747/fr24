@@ -20,7 +20,7 @@ mongo = ['pymongo', 'motor', 'sshtunnel']
 python = ">=3.9,<4.0"
 pandas = "^2.1.3"
 pyarrow = "^14.0.1"
-requests = "^2.31.0"
+httpx = "^0.25.1"
 protobuf = "^4.25.0"
 brotli = "^1.1.0"
 pymongo = { version = "^4.6.0", optional = true }
