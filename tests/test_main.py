@@ -2,7 +2,7 @@ import asyncio
 
 import httpx
 import pytest
-from fr24.history import flight_list, flight_list_df, playback, playback_df
+from fr24.history import flight_list, flight_list_df, playback
 from fr24.livefeed import create_request, post_request, world_data
 from google.protobuf.json_format import MessageToDict
 
