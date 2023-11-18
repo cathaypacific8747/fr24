@@ -107,11 +107,11 @@ async def update_aircraft(
     flightdata: LiveFeedResponse.FlightData,
 ) -> None | AircraftType:
     ac: AircraftType = {
-        "icao24": f"{flightdata.extra_info.icao_address:x}",
+        "icao24": f"{flightdata.extra_info.icao_address:06x}",
         "registration": flightdata.extra_info.reg,
         "typecode": flightdata.extra_info.type,
         "callsign": flightdata.callsign,
-        "fr24id": flightdata.flightid,
+        "fr24id": f"{flightdata.flightid:x}",
         "ts": flightdata.timestamp,
         "latitude": flightdata.latitude,
         "longitude": flightdata.longitude,
