@@ -1,7 +1,0 @@
-httpx==0.24.1
-loguru==0.7.0
-protobuf==4.24.2
-pyarrow==13.0.0
-brotli==1.1.0
-pytest==7.4.3
-pytest-asyncio==0.21.1
