@@ -3,6 +3,53 @@ from __future__ import annotations
 from typing import Literal, TypedDict
 
 
+class User(TypedDict):
+    id: int
+    identity: str
+    locale: str
+
+
+class Features(TypedDict):
+    ...  # useless anyway
+
+
+class UserData(TypedDict):
+    accessToken: str
+    accountType: str
+    countryCode: None | str
+    dateExpires: int
+    dateLastLogin: str
+    features: Features
+    hasConsented: bool
+    hasPassword: bool
+    idUser: int
+    identity: str
+    isActive: bool
+    isAnonymousAccount: bool
+    isLoggedIn: bool
+    localeCode: str
+    name: None
+    oAuth: None
+    oAuthType: None
+    publicKey: None
+    subscriptionKey: str
+    tokenLogin: str
+    typeSource: str
+
+
+class Authentication(TypedDict):
+    message: str
+    msg: str
+    response_code: int
+    responseCode: int
+    status: str
+    success: bool
+    token: str
+    user: User
+    features: Features
+    userData: UserData
+
+
 class APIResult(TypedDict):
     copyright: str
     legalNotice: str
@@ -58,6 +105,7 @@ class AircraftModel(TypedDict):
 
 class AircraftAge(TypedDict):
     availability: bool
+    date: str
 
 
 class AircraftAvailability(TypedDict):
@@ -69,7 +117,7 @@ class AircraftIdentification(TypedDict):
     modes: str
     registration: str
     serialNo: None | str
-    age: AircraftAge
+    age: None | AircraftAge
     availability: AircraftAvailability
 
 
@@ -161,6 +209,27 @@ class VerticalSpeed(TypedDict):
     ms: int
 
 
+class EMS(TypedDict):
+    ts: int
+    ias: int
+    tas: int
+    mach: int
+    mcp: int
+    fms: int
+    autopilot: None
+    oat: int
+    trueTrack: None
+    rollAngle: None
+    qnh: None
+    windDir: int
+    windSpd: int
+    precision: None
+    altGps: int
+    emergencyStatus: None
+    tcasAcasDtatus: None | int
+    heading: int
+
+
 class TrackData(TypedDict):
     latitude: float
     longitude: float
@@ -170,7 +239,7 @@ class TrackData(TypedDict):
     heading: int
     squawk: str
     timestamp: int
-    ems: None  # | EMS
+    ems: None | EMS
 
 
 class Thumbnail(TypedDict):
@@ -188,8 +257,8 @@ class FlightData(TypedDict):
     identification: FlightIdentification
     status: StatusData
     aircraft: AircraftData
-    owner: OwnerData
-    airline: AirlineData
+    owner: None | OwnerData
+    airline: None | AirlineData
     airport: AirportPairData
     median: Median
     track: list[TrackData]

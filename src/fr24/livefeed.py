@@ -81,6 +81,7 @@ def create_request(
     stats: bool = False,
     limit: int = 1500,
     maxage: int = 14400,
+    token: None | str = None,
     **kwargs: Any,
 ) -> httpx.Request:
     request = LiveFeedRequest(
@@ -112,6 +113,8 @@ def create_request(
 
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
+    if token is not None:
+        headers["authorization"] = f"Bearer {token}"
 
     return httpx.Request(
         "POST",
@@ -133,10 +136,12 @@ async def post_request(
     return lfr
 
 
-async def world_data(client: httpx.AsyncClient) -> pd.DataFrame:
+async def world_data(
+    client: httpx.AsyncClient, token: None | str
+) -> pd.DataFrame:
     results = await asyncio.gather(
         *[
-            post_request(client, create_request(*bounds))
+            post_request(client, create_request(*bounds, token=token))
             for bounds in world_zones
         ]
     )
