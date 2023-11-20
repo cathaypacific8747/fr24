@@ -10,10 +10,11 @@ from pathlib import Path
 import httpx
 from appdirs import user_config_dir
 
-from .json_types import Authentication
+from .json_types import Authentication, UserData
 
 username = os.environ.get("fr24_username", None)
 password = os.environ.get("fr24_password", None)
+token = os.environ.get("fr24_token", None)
 
 if (config_file := (Path(user_config_dir("fr24")) / "fr24.conf")).exists():
     config = configparser.ConfigParser()
@@ -21,6 +22,7 @@ if (config_file := (Path(user_config_dir("fr24")) / "fr24.conf")).exists():
 
     username = config.get("global", "username", fallback=None)
     password = config.get("global", "password", fallback=None)
+    token = config.get("global", "token", fallback=None)
 
 
 _log = logging.getLogger()
@@ -54,6 +56,16 @@ async def login(client: httpx.AsyncClient) -> None | Authentication:
     return res.json()  # type: ignore
     # json['userData']['accessToken']  => Bearer
     # json['userData']['subscriptionKey']  => token
+
+
+def use_headless_auth() -> None | Authentication:
+    if token is None:
+        raise ValueError("envvar `fr24_token` not found")
+    return Authentication(  # type: ignore[no-any-return]
+        userData=UserData(
+            subscriptionKey=token,
+        )
+    )  # type: ignore
 
 
 async def async_main() -> None:

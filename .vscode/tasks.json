@@ -8,6 +8,12 @@
             "type": "shell",
             "command": "protoc -Iproto --python_out=./proto --pyi_out=./proto ./proto/request.proto",
             "problemMatcher": []
+        },
+        {
+            "label": "reformat",
+            "type": "shell",
+            "command": "poetry run ruff format src tests scripts",
+            "problemMatcher": []
         }
     ]
 }

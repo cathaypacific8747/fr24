@@ -1,6 +1,6 @@
-log/*.txt
-research/index.js
-research/vendor.js
+data/research/index.js
+data/research/vendor.js
+fr24.conf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -7,7 +7,13 @@ import httpx
 
 import pandas as pd
 
-from .json_types import Authentication, FlightList, Playback
+from .json_types import (
+    Authentication,
+    FlightList,
+    FlightListRequest,
+    Playback,
+    PlaybackRequest,
+)
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) "
@@ -33,21 +39,9 @@ async def flight_list(
     flight: None | str = None,
     page: int = 1,
     limit: int = 10,
-    timestamp: int | datetime | pd.Timestamp | str = "now",
+    timestamp: int | datetime | pd.Timestamp | str | None = "now",
     auth: None | Authentication = None,
 ) -> FlightList:
-    request_str = (
-        "https://api.flightradar24.com/common/v1/flight/"
-        "list.json?query={value}&timestamp={timestamp}"
-        "&fetchBy={key}&page={page}&limit={limit}&device={device}"
-    )
-
-    if auth is not None:
-        request_str += f"&token={auth['userData']['subscriptionKey']}"
-
-    headers = DEFAULT_HEADERS.copy()
-    headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
-
     if isinstance(timestamp, (str, datetime)):
         timestamp = pd.Timestamp(timestamp)
     if isinstance(timestamp, pd.Timestamp):
@@ -61,17 +55,30 @@ async def flight_list(
         msg = "One named arguments among `reg` and `flight` is expected"
         raise TypeError(msg)
 
+    device = f"web-{secrets.token_urlsafe(32)}"
+    headers = DEFAULT_HEADERS.copy()
+    headers["fr24-device-id"] = device
+    params = FlightListRequest(
+        query=value,
+        timestamp=timestamp,
+        fetchBy=key,
+        page=page,
+        limit=limit,
+    )  # type: ignore
+
+    if timestamp is None:
+        del params["timestamp"]
+
+    if auth is not None:
+        params["token"] = auth["userData"]["subscriptionKey"]
+    else:
+        params["device"] = device
+
     request = httpx.Request(
         "GET",
-        request_str.format(
-            key=key,
-            value=value,
-            page=page,
-            limit=limit,
-            timestamp=timestamp,
-            device=f"web-{secrets.token_urlsafe(32)}",
-        ),
+        "https://api.flightradar24.com/common/v1/flight/list.json",
         headers=DEFAULT_HEADERS,
+        params=params,
     )
 
     response = await client.send(request)
@@ -85,34 +92,31 @@ async def playback(
     timestamp: int | str | datetime | pd.Timestamp,
     auth: None | Authentication = None,
 ) -> Playback:
-    request_str = (
-        "https://api.flightradar24.com/common/v1/flight-playback.json?"
-        "flightId={flight_id}&timestamp={timestamp}"
-    )
-
-    device = secrets.token_urlsafe(32)
-    if auth is not None:
-        request_str += f"&token={auth['userData']['subscriptionKey']}"
-    else:
-        request_str += f"&device=web-{device}"
-
+    # NOTE: timestamp must match ATOD
     if isinstance(timestamp, (str, datetime)):
         timestamp = pd.Timestamp(timestamp, tz="utc")
     if isinstance(timestamp, pd.Timestamp):
         timestamp = int(timestamp.timestamp())
+    if not isinstance(flight_id, str):
+        flight_id = f"{flight_id:x}"
 
+    device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
-    headers["fr24-device-id"] = f"web-{device}"
+    headers["fr24-device-id"] = device
+    params = PlaybackRequest(
+        flightId=flight_id,
+        timestamp=timestamp,
+    )  # type: ignore
+    if auth is not None:
+        params["token"] = auth["userData"]["subscriptionKey"]
+    else:
+        params["device"] = device
 
     request = httpx.Request(
         "GET",
-        request_str.format(
-            flight_id=flight_id
-            if isinstance(flight_id, str)
-            else f"{flight_id:x}",
-            timestamp=timestamp,
-        ),
+        "https://api.flightradar24.com/common/v1/flight-playback.json",
         headers=DEFAULT_HEADERS,
+        params=params,
     )
 
     response = await client.send(request)
@@ -153,12 +157,13 @@ flight_id = @flight['identification']["id"]
 
 def flight_list_df(result: FlightList) -> pd.DataFrame:
     list_ = result["result"]["response"]["data"]
-    return pd.DataFrame.from_records(
+    # print(f'{result["result"]["response"]["page"]["more"]=}')
+    df = pd.DataFrame.from_records(
         {
             "flight_id": entry["identification"]["id"],
             "number": entry["identification"]["number"]["default"],
             "callsign": entry["identification"]["callsign"],
-            "icao24": entry["aircraft"]["hex"].lower(),  # type: ignore
+            "icao24": entry["aircraft"]["hex"],
             "registration": entry["aircraft"]["registration"],
             "typecode": entry["aircraft"]["model"]["code"],
             "origin": entry["airport"]["origin"]["code"]["icao"],
@@ -172,13 +177,15 @@ def flight_list_df(result: FlightList) -> pd.DataFrame:
             "ATOA": entry["time"]["real"]["arrival"],
         }
         for entry in list_
-    ).eval(
+    )
+    return df.eval(
         """
+icao24 = icao24.str.lower()
 STOD = @pd.to_datetime(STOD, unit="s", utc=True)
 ETOD = @pd.to_datetime(ETOD, unit="s", utc=True)
-ATOD = @pd.to_datetime(ETOD, unit="s", utc=True)
+ATOD = @pd.to_datetime(ATOD, unit="s", utc=True)
 STOA = @pd.to_datetime(STOA, unit="s", utc=True)
 ETOA = @pd.to_datetime(ETOA, unit="s", utc=True)
-ATOA = @pd.to_datetime(ETOA, unit="s", utc=True)
+ATOA = @pd.to_datetime(ATOA, unit="s", utc=True)
 """
     )

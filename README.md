@@ -3,6 +3,16 @@
 Download and parse data from flightradar24.com with gRPC.
 For educational and research purposes only.
 
+# Installation
+
+```bash
+poetry install
+poetry run fr24_snapshot
+mkdir -p $HOME/.config/fr24/
+cp fr24.example.conf $HOME/.config/fr24/fr24.conf
+poetry run fr24_login
+```
+
 # References
 
 https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
@@ -26,4 +36,3 @@ request.onsuccess = function(event) {
     console.log(JSON.stringify(event.target.result))
   };
 };
-```
