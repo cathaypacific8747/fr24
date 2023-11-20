@@ -82,7 +82,7 @@ async def flight_list(
 async def playback(
     client: httpx.AsyncClient,
     flight_id: int | str,
-    timestamp: int,
+    timestamp: int | str | datetime | pd.Timestamp,
     auth: None | Authentication = None,
 ) -> Playback:
     request_str = (

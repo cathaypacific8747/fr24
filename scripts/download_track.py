@@ -1,8 +1,9 @@
+# ruff: noqa: F704, F811, E402
 # %%
-from fr24.history import flight_list, flight_list_df
-from fr24.authentication import login
-
 import httpx
+from fr24.authentication import login
+from fr24.history import flight_list, flight_list_df
+
 import pandas as pd
 
 
@@ -21,14 +22,14 @@ async def my_list() -> pd.DataFrame:
         return flight_list_df(list_)
 
 
-df = await my_list()
+df = await my_list()  # type: ignore
 df
 
 # %%
-from fr24.history import playback, playback_df
-from fr24.authentication import login
-
 import httpx
+from fr24.authentication import login
+from fr24.history import playback, playback_df
+
 import pandas as pd
 
 
@@ -43,10 +44,11 @@ async def my_track() -> pd.DataFrame:
             timestamp="2023-09-05",
             auth=auth,
         )
-        return playback_df(list_)
+        return list_
 
 
-df = await my_track()
+list_ = await my_track()  # type: ignore
+df = playback_df(list_)
 df
 
 # %%

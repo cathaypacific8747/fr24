@@ -46,7 +46,7 @@ async def test_aircraft() -> None:
                 playback(
                     client,
                     entry["identification"]["id"],  # type: ignore
-                    entry["time"]["scheduled"]["arrival"],  # type: ignore
+                    entry["time"]["scheduled"]["arrival"],
                 )
                 for entry in list_["result"]["response"]["data"]
                 if entry["status"]["text"].startswith("Landed")

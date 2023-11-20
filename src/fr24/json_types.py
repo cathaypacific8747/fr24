@@ -313,7 +313,7 @@ class Page(TypedDict):
 
 
 class Identification(TypedDict):
-    id: None
+    id: str | None
     row: int
     number: FlightNumber
     callsign: str | None
