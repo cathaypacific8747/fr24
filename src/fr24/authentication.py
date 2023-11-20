@@ -8,8 +8,8 @@ import os
 from pathlib import Path
 
 import httpx
-
 from appdirs import user_config_dir
+
 from .json_types import Authentication
 
 username = os.environ.get("fr24_username", None)

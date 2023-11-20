@@ -12,6 +12,7 @@ from google.protobuf.json_format import MessageToDict
 
 import pandas as pd
 
+from .json_types import Authentication
 from .proto.request_pb2 import LiveFeedRequest, LiveFeedResponse
 
 DEFAULT_HEADERS = {
@@ -81,7 +82,7 @@ def create_request(
     stats: bool = False,
     limit: int = 1500,
     maxage: int = 14400,
-    token: None | str = None,
+    auth: None | Authentication = None,
     **kwargs: Any,
 ) -> httpx.Request:
     request = LiveFeedRequest(
@@ -113,7 +114,8 @@ def create_request(
 
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
-    if token is not None:
+    if auth is not None:
+        token = auth["userData"]["accessToken"] if auth is not None else None
         headers["authorization"] = f"Bearer {token}"
 
     return httpx.Request(
@@ -137,11 +139,11 @@ async def post_request(
 
 
 async def world_data(
-    client: httpx.AsyncClient, token: None | str
+    client: httpx.AsyncClient, auth: None | Authentication = None
 ) -> pd.DataFrame:
     results = await asyncio.gather(
         *[
-            post_request(client, create_request(*bounds, token=token))
+            post_request(client, create_request(*bounds, auth=auth))
             for bounds in world_zones
         ]
     )

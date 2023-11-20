@@ -148,7 +148,7 @@ registration = @flight["aircraft"]["identification"]["registration"]
 flight_id = @flight['identification']["id"]
 """
     )
-    return df.drop(columns=['ems'])
+    return df.drop(columns=["ems"])
 
 
 def flight_list_df(result: FlightList) -> pd.DataFrame:
