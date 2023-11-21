@@ -58,18 +58,18 @@ async def flight_list(
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params = FlightListRequest(
-        query=value,
-        timestamp=timestamp,
-        fetchBy=key,
-        page=page,
-        limit=limit,
-    )  # type: ignore
+    params: FlightListRequest = {
+        "query": value,
+        "timestamp": timestamp,
+        "fetchBy": key,
+        "page": page,
+        "limit": limit,
+    }
 
     if timestamp is None:
         del params["timestamp"]
 
-    if auth is not None:
+    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
         params["token"] = auth["userData"]["subscriptionKey"]
     else:
         params["device"] = device
@@ -78,7 +78,7 @@ async def flight_list(
         "GET",
         "https://api.flightradar24.com/common/v1/flight/list.json",
         headers=DEFAULT_HEADERS,
-        params=params,
+        params=params,  # type: ignore[arg-type]
     )
 
     response = await client.send(request)
@@ -106,8 +106,8 @@ async def playback(
     params = PlaybackRequest(
         flightId=flight_id,
         timestamp=timestamp,
-    )  # type: ignore
-    if auth is not None:
+    )
+    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
         params["token"] = auth["userData"]["subscriptionKey"]
     else:
         params["device"] = device
@@ -116,7 +116,7 @@ async def playback(
         "GET",
         "https://api.flightradar24.com/common/v1/flight-playback.json",
         headers=DEFAULT_HEADERS,
-        params=params,
+        params=params,  # type: ignore[arg-type]
     )
 
     response = await client.send(request)

@@ -36,3 +36,12 @@ request.onsuccess = function(event) {
     console.log(JSON.stringify(event.target.result))
   };
 };
+```
+
+```sql
+CREATE TABLE log AS SELECT data.flight.identification.id, unnest(data.flight.track, max_depth := 2) FROM read_json_auto("*.json");
+DESCRIBE log;
+SELECT * FROM log ORDER BY abs(verticalSpeed.fpm) DESC;
+COPY log TO 'log.parquet';
+
+```

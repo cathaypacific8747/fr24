@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Literal, TypedDict
 
+from typing_extensions import Required
+
 
 class User(TypedDict):
     id: int
@@ -13,8 +15,8 @@ class Features(TypedDict):
     ...  # useless anyway
 
 
-class UserData(TypedDict):
-    accessToken: str
+class UserData(TypedDict, total=False):
+    accessToken: None | str
     accountType: str
     countryCode: None | str
     dateExpires: int
@@ -32,12 +34,12 @@ class UserData(TypedDict):
     oAuth: None
     oAuthType: None
     publicKey: None
-    subscriptionKey: str
+    subscriptionKey: None | str
     tokenLogin: str
     typeSource: str
 
 
-class Authentication(TypedDict):
+class Authentication(TypedDict, total=False):
     message: str
     msg: str
     response_code: int
@@ -47,7 +49,7 @@ class Authentication(TypedDict):
     token: str
     user: User
     features: Features
-    userData: UserData
+    userData: Required[UserData]
 
 
 class APIResult(TypedDict):
@@ -55,13 +57,13 @@ class APIResult(TypedDict):
     legalNotice: str
 
 
-class PlaybackRequest(TypedDict):
+class PlaybackRequest(TypedDict, total=False):
     callback: None
     device: None | str
-    flightId: str
+    flightId: Required[str]
     format: Literal["json"]
     pk: None
-    timestamp: int
+    timestamp: Required[int]
     token: None | str
 
 
@@ -285,17 +287,17 @@ class Playback(TypedDict):
     _api: APIResult
 
 
-class FlightListRequest(TypedDict):
+class FlightListRequest(TypedDict, total=False):
     callback: None
     device: None | str
-    fetchBy: str
+    fetchBy: Required[str]
     filterBy: str
     format: Literal["json"]
-    limit: int
+    limit: Required[int]
     olderThenFlightID: None
     page: int
     pk: None
-    query: str
+    query: Required[str]
     timestamp: int
     token: None | str
 

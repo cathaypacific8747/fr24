@@ -26,7 +26,7 @@ df
 
 # %%
 import httpx
-from fr24.authentication import login  # , use_headless_auth
+from fr24.authentication import login
 from fr24.history import playback, playback_df
 
 import pandas as pd
@@ -37,7 +37,6 @@ async def my_track() -> pd.DataFrame:
         auth = await login(client)
         if auth is not None:
             print(auth["message"])
-        # auth = use_headless_auth()
         list_ = await playback(
             client,
             flight_id="32ddcf4e",

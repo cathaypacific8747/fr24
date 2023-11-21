@@ -114,9 +114,8 @@ def create_request(
 
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
-    if auth is not None:
-        token = auth["userData"]["accessToken"] if auth is not None else None
-        headers["authorization"] = f"Bearer {token}"
+    if auth is not None and auth["userData"]["accessToken"] is not None:
+        headers["authorization"] = f"Bearer {auth['userData']['accessToken']}"
 
     return httpx.Request(
         "POST",

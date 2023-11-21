@@ -10,10 +10,11 @@ from pathlib import Path
 import httpx
 from appdirs import user_config_dir
 
-from .json_types import Authentication, UserData
+from .json_types import Authentication
 
 username = os.environ.get("fr24_username", None)
 password = os.environ.get("fr24_password", None)
+subscription_key = os.environ.get("fr24_subscription_key", None)
 token = os.environ.get("fr24_token", None)
 
 if (config_file := (Path(user_config_dir("fr24")) / "fr24.conf")).exists():
@@ -22,6 +23,7 @@ if (config_file := (Path(user_config_dir("fr24")) / "fr24.conf")).exists():
 
     username = config.get("global", "username", fallback=None)
     password = config.get("global", "password", fallback=None)
+    subscription_key = config.get("global", "subscription_key", fallback=None)
     token = config.get("global", "token", fallback=None)
 
 
@@ -45,7 +47,14 @@ DEFAULT_HEADERS = {
 
 async def login(client: httpx.AsyncClient) -> None | Authentication:
     if username is None or password is None:
-        return None
+        if subscription_key is None:
+            return None
+        return {
+            "userData": {
+                "subscriptionKey": subscription_key,
+                "accessToken": token,
+            }
+        }
 
     res = await client.post(
         "https://www.flightradar24.com/user/login",
@@ -58,25 +67,14 @@ async def login(client: httpx.AsyncClient) -> None | Authentication:
     # json['userData']['subscriptionKey']  => token
 
 
-def use_headless_auth() -> None | Authentication:
-    if token is None:
-        raise ValueError("envvar `fr24_token` not found")
-    return Authentication(  # type: ignore[no-any-return]
-        userData=UserData(
-            subscriptionKey=token,
-        )
-    )  # type: ignore
-
-
 async def async_main() -> None:
     async with httpx.AsyncClient() as client:
         auth = await login(client)
         if auth is None:
             _log.warning(
-                "Provide credentials in environment variables "
-                + " and ".join(
-                    f"`{env}`" for env in ["fr24_username", "fr24_password"]
-                )
+                "Provide credentials in environment variables: either "
+                "fr24_username + fr24_password or "
+                "fr24_subscription_key + fr24_token (optional)"
             )
         else:
             print(f"Login successful: {json.dumps(auth, indent=2)}")
