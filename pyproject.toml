@@ -11,9 +11,6 @@ include = [ "request.proto" ]
 fr24_snapshot = 'fr24.livefeed:snapshot'
 fr24_login = 'fr24.authentication:main'
 
-[tool.poetry.extras]
-mongo = ['pymongo', 'motor', 'sshtunnel']
-
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 pandas = "^2.1.3"
