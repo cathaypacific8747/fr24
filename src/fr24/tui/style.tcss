@@ -1,0 +1,31 @@
+SearchBlock {
+    dock: left;
+    width: 16;
+    margin: 1;
+}
+SearchBlock.hidden {
+    width: 0;
+    margin: 0
+}
+SearchButton Label {
+    text-align: center;
+}
+SearchButton Input {
+    border: none;
+}
+SearchButton Input:focus {
+    border: $success;
+    padding-left: 1
+}
+DataTable {
+    height: 1fr
+}
+Header.authenticated {
+    background: $secondary-lighten-1
+}
+Footer.authenticated {
+    background: $secondary-lighten-1
+}
+Footer.authenticated > .footer--key {
+    color: white
+}

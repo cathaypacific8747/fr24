@@ -8,6 +8,7 @@ license = "MIT"
 include = [ "request.proto" ]
 
 [tool.poetry.scripts]
+fr24 = 'fr24.tui.tui:main'
 fr24_snapshot = 'fr24.livefeed:snapshot'
 fr24_login = 'fr24.authentication:main'
 

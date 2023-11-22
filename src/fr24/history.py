@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import secrets
 from datetime import datetime
+from typing import Literal
 
 import httpx
 
 import pandas as pd
 
 from .json_types import (
+    AirportList,
+    AirportRequest,
     Authentication,
     FlightList,
     FlightListRequest,
@@ -78,7 +81,54 @@ async def flight_list(
         "GET",
         "https://api.flightradar24.com/common/v1/flight/list.json",
         headers=DEFAULT_HEADERS,
-        params=params,  # type: ignore[arg-type]
+        params=params,  # type: ignore
+    )
+
+    response = await client.send(request)
+    response.raise_for_status()
+    return response.json()  # type: ignore
+
+
+async def airport_list(
+    client: httpx.AsyncClient,
+    airport: str,
+    mode: Literal["arrivals"] | Literal["departures"],
+    page: int = 1,
+    limit: int = 10,
+    timestamp: int | datetime | pd.Timestamp | str | None = "now",
+    auth: None | Authentication = None,
+) -> AirportList:
+    if isinstance(timestamp, (str, datetime)):
+        timestamp = pd.Timestamp(timestamp)
+    if isinstance(timestamp, pd.Timestamp):
+        timestamp = int(timestamp.timestamp())
+
+    device = f"web-{secrets.token_urlsafe(32)}"
+    headers = DEFAULT_HEADERS.copy()
+    headers["fr24-device-id"] = device
+
+    params: AirportRequest = {
+        "code": airport,
+        "plugin[]": ["schedule"],
+        "plugin-setting[schedule][mode]": mode,
+        "plugin-setting[schedule][timestamp]": timestamp,
+        "page": page,
+        "limit": limit,
+    }
+
+    if timestamp is None:
+        del params["plugin-setting[schedule][timestamp]"]
+
+    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
+        params["token"] = auth["userData"]["subscriptionKey"]
+    else:
+        params["device"] = device
+
+    request = httpx.Request(
+        "GET",
+        "https://api.flightradar24.com/common/v1/airport.json",
+        headers=DEFAULT_HEADERS,
+        params=params,  # type: ignore
     )
 
     response = await client.send(request)
