@@ -1,4 +1,13 @@
-from typing import Generic, Literal, TypedDict, TypeVar, Union
+import sys
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Literal,
+    TypedDict,
+    TypeVar,
+    Union,
+)
 
 
 class Live(TypedDict):
@@ -42,13 +51,25 @@ class Aircraft(TypedDict):
 T = TypeVar("T", Airport, Operator, Live, Schedule, Aircraft)
 
 
-class Entry(Generic[T], TypedDict):
-    id: str
-    label: str
-    detail: T
-    type: Literal["airport", "operator", "live", "schedule", "aircraft"]
-    match: Literal["icao", "iata", "begins"]
-    name: str
+if sys.version_info >= (3, 11) or TYPE_CHECKING:
+
+    class Entry(Generic[T], TypedDict):
+        id: str
+        label: str
+        detail: T
+        type: Literal["airport", "operator", "live", "schedule", "aircraft"]
+        match: Literal["icao", "iata", "begins"]
+        name: str
+
+else:
+
+    class Entry(TypedDict):
+        id: str
+        label: str
+        detail: dict[str, Any]
+        type: Literal["airport", "operator", "live", "schedule", "aircraft"]
+        match: Literal["icao", "iata", "begins"]
+        name: str
 
 
 class StatsEntry(TypedDict):
