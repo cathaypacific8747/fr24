@@ -12,8 +12,8 @@ from google.protobuf.json_format import MessageToDict
 
 import pandas as pd
 
-from .json_types import Authentication
 from .proto.request_pb2 import LiveFeedRequest, LiveFeedResponse
+from .types.fr24 import Authentication
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) "

@@ -10,7 +10,7 @@ from pathlib import Path
 import httpx
 from appdirs import user_config_dir
 
-from .json_types import Authentication
+from .types.fr24 import Authentication
 
 username = os.environ.get("fr24_username", None)
 password = os.environ.get("fr24_password", None)

@@ -2,6 +2,7 @@ import asyncio
 
 import httpx
 import pytest
+from fr24.find import find
 from fr24.history import flight_list, flight_list_df, playback
 from fr24.livefeed import create_request, post_request, world_data
 from google.protobuf.json_format import MessageToDict
@@ -53,3 +54,10 @@ async def test_aircraft() -> None:
             ]
         )
         assert len(result) == landed.shape[0]
+
+
+@pytest.mark.asyncio
+async def test_find() -> None:
+    list_ = await find("Toulouse")
+    assert list_ is not None
+    assert list_["stats"]["count"]["airport"] >= 2  # includes Francazal

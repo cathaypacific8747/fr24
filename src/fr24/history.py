@@ -8,7 +8,7 @@ import httpx
 
 import pandas as pd
 
-from .json_types import (
+from .types.fr24 import (
     AirportList,
     AirportRequest,
     Authentication,

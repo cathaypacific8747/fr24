@@ -5,7 +5,7 @@ version = "0.1.0"
 description = "Parse gRPC and JSON data from FlightRadar24"
 authors = ["Abraham Cheung <abraham@ylcheung.com>", "Xavier Olive <git@xoolive.org>"]
 license = "MIT"
-include = [ "request.proto" ]
+include = [ "LICENSE", "py.typed", "request.proto", "style.tcss" ]
 
 [tool.poetry.scripts]
 fr24 = 'fr24.tui.tui:main'
@@ -29,6 +29,7 @@ pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
 ruff = "^0.1.5"
 mypy = "^1.7.0"
+textual-dev = "^1.2.1"
 types-protobuf = "^4.24.0.4"
 
 [build-system]

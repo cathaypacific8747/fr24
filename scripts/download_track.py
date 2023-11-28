@@ -32,7 +32,7 @@ from fr24.history import playback, playback_df
 import pandas as pd
 
 
-async def my_track() -> pd.DataFrame:
+async def my_playback() -> pd.DataFrame:
     async with httpx.AsyncClient() as client:
         auth = await login(client)
         if auth is not None:
@@ -46,8 +46,40 @@ async def my_track() -> pd.DataFrame:
         return list_
 
 
-list_ = await my_track()  # type: ignore
+list_ = await my_playback()  # type: ignore
 df = playback_df(list_)
 df
 
 # %%
+
+import httpx
+from fr24.history import airport_list
+from fr24.types.fr24 import AirportList
+
+import pandas as pd
+
+
+async def my_arrivals() -> AirportList:
+    async with httpx.AsyncClient() as client:
+        list_ = await airport_list(
+            client,
+            airport="tls",
+            mode="arrivals",
+        )
+        return list_
+
+
+airports = await my_arrivals()  # type: ignore
+
+# %%
+from fr24.find import find
+from fr24.types.find import FindResult
+
+
+async def my_find() -> FindResult:
+    results = await find("paris")
+    assert results is not None
+    return results
+
+
+results = await my_find()  # type: ignore

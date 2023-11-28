@@ -1,31 +1,86 @@
 SearchBlock {
     dock: left;
-    width: 16;
+    width: 18;
     margin: 1;
 }
 SearchBlock.hidden {
-    width: 0;
-    margin: 0
+    display: none;
 }
-SearchButton Label {
-    text-align: center;
-}
-SearchButton Input {
+Input {
     border: none;
+    height: 2;
 }
-SearchButton Input:focus {
-    border: $success;
-    padding-left: 1
+Input:focus {
+    border-bottom: $success;
+    padding-left: 1;
+    height: 2;
 }
 DataTable {
-    height: 1fr
+    height: 1fr;
 }
-Header.authenticated {
-    background: $secondary-lighten-1
+Header.authenticated  > HeaderTitle {
+    text-style: bold;
+    color: $secondary
 }
 Footer.authenticated {
     background: $secondary-lighten-1
 }
 Footer.authenticated > .footer--key {
     color: white
+}
+AirportWidget {
+    height: 5
+}
+#iata {
+    dock: left;
+    margin-left: 1;
+    text-style: bold;
+    width: 3;
+    color: $success;
+}
+#icao {
+    dock: right;
+    margin-right: 1;
+    text-style: bold;
+    width: 4;
+    color: $secondary;
+}
+#name {
+    height: 1;
+    margin-left: 1;
+    text-opacity: 60%
+}
+AircraftWidget {
+    height: 5
+}
+#hex {
+    dock: left;
+    margin-left: 1;
+    width: 6;
+    text-opacity: 70%
+}
+#type {
+    dock: right;
+    margin-right: 1;
+    width: 4;
+    color: $secondary;
+}
+#reg {
+    text-align: center;
+}
+FlightWidget {
+    height: 5
+}
+#flight {
+    dock: left;
+    margin-left: 1;
+    color: $secondary;
+    text-style: bold;
+}
+#callsign {
+    dock: right;
+    margin-right: 1;
+    width: 7;
+    text-opacity: 70%;
+    text-style: bold;
 }

@@ -1,136 +1,42 @@
 from __future__ import annotations
 
 import httpx
+from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import ScrollableContainer
-from textual.widgets import DataTable, Footer, Header, Input, Label, Static
+from textual.widgets import (
+    DataTable,
+    Footer,
+    Header,
+    Input,
+    Label,
+    Static,
+)
 
 import pandas as pd
 from fr24.authentication import login
 from fr24.history import airport_list, flight_list
-from fr24.json_types import Airport as AirportJSON
-from fr24.json_types import (
+from fr24.tui.formatters import Aircraft, Airport, Time
+from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
+from fr24.types.fr24 import (
     AirportList,
     Authentication,
     FlightList,
-    FlightListAircraftData,
     FlightListItem,
 )
-
-# -- Formatters --
-
-
-class Time:
-    def __init__(self, timestamp: None | int | str | pd.Timestamp):
-        self.ts = timestamp
-
-    def __format__(self, __format_spec: str) -> str:
-        if self.ts is None:
-            return ""
-        if isinstance(self.ts, int):
-            ts = pd.Timestamp(self.ts, unit="s", tz="utc")
-        else:
-            ts = pd.Timestamp(self.ts, tz="utc")
-        return format(ts, __format_spec)
-
-
-class Airport:
-    def __init__(self, airport: AirportJSON):
-        self.airport = airport
-
-    def __format__(self, __format_spec: str) -> str:
-        if self.airport is None:
-            return ""
-        output = __format_spec
-        if code := self.airport.get("code"):
-            output = output.replace("%a", code["iata"])
-            output = output.replace("%o", code["icao"])
-        else:
-            output = output.replace("%a", "")
-            output = output.replace("%o", "")
-        if name := self.airport.get("name"):
-            output.replace("%n", name)
-        else:
-            output = output.replace("%n", "")
-        if position := self.airport.get("position"):
-            output = output.replace("%y", position["region"]["city"])
-        else:
-            output = output.replace("%y", "")
-        return output
-
-
-class Aircraft:
-    def __init__(self, aircraft: FlightListAircraftData):
-        self.aircraft = aircraft
-
-    def __format__(self, __format_spec: str) -> str:
-        if self.aircraft is None:
-            return ""
-        registration = self.aircraft["registration"]
-        hexcode = self.aircraft["hex"]
-        model_text = self.aircraft["model"]["text"]
-        return (
-            __format_spec.replace("%c", self.aircraft["model"]["code"])
-            .replace("%r", registration if registration else "")
-            .replace("%x", hexcode if hexcode else "")
-            .replace("%p", model_text if model_text else "")
-        )
-
-
-# -- Widgets --
 
 
 class SearchBlock(Static):
     def compose(self) -> ComposeResult:
-        yield SearchButton(id="date")
-        yield SearchButton(id="aircraft")
-        yield SearchButton(id="flight number")
-        yield SearchButton(id="origin")
-        yield SearchButton(id="destination")
-
-
-class SearchButton(Static):
-    def compose(self) -> ComposeResult:
-        assert self.id is not None
-        yield Label(self.id)
-        yield Input(id=self.id)
-
-    def on_mount(self) -> None:
-        input = self.query(Input).first()
-        if input.id == "date":
-            input.value = f"{pd.Timestamp('now'):%d %b %y}"
-        if input.id == "flight number":
-            input.focus()
-
-    def on_input_changed(self, message: Input.Changed) -> None:
-        if message.input.id == "aircraft":
-            for input in self.app.query(Input):
-                if input.id in ["flight number", "origin", "destination"]:
-                    input.value = ""
-        if message.input.id == "flight number":
-            for input in self.app.query(Input):
-                if input.id in ["aircraft", "origin", "destination"]:
-                    input.value = ""
-
-    async def on_input_submitted(self, message: Input.Submitted) -> None:
-        ts_widget = next(
-            input for input in self.app.query(Input) if input.id == "date"
-        )
-        ts = pd.Timestamp(
-            ts_widget.value if ts_widget.value != "" else "now",
-            tz="utc",
-        )
-
-        if message.value:
-            if message.input.id == "aircraft":
-                await self.app.lookup_aircraft(message.value, ts=ts)  # type: ignore
-            if message.input.id == "flight number":
-                await self.app.lookup_number(message.value, ts=ts)  # type: ignore
-            if message.input.id == "origin":
-                await self.app.lookup_departure(message.value, ts=ts)  # type: ignore
-            if message.input.id == "destination":
-                await self.app.lookup_arrival(message.value, ts=ts)  # type: ignore
+        yield Label("date")
+        self.date_input = Input(id="date")
+        self.date_input.value = f"{pd.Timestamp('now'):%d %b %y}"
+        yield self.date_input
+        yield AircraftWidget(name="aircraft")
+        yield FlightWidget(name="number")
+        yield AirportWidget(id="departure", name="origin")
+        yield AirportWidget(id="arrival", name="destination")
 
 
 # -- Application --
@@ -143,6 +49,7 @@ class FR24(App[None]):
         ("l", "login", "Log in"),
         ("r", "refresh", "Refresh"),  # TODO
         ("s", "search", "Search"),
+        ("c", "clear", "Clear"),
         Binding("escape", "escape", show=False),
     ]
 
@@ -180,6 +87,11 @@ class FR24(App[None]):
             self.query_one(SearchBlock).add_class("hidden")
             self.query_one(DataTable).focus()
 
+    def action_clear(self) -> None:
+        for widget in self.query(Input):
+            if widget.id != "date":
+                widget.value = ""
+
     async def action_escape(self) -> None:
         if not self.search_visible:
             await self.action_quit()
@@ -191,9 +103,31 @@ class FR24(App[None]):
     async def action_login(self) -> None:
         self.auth = await login(self.client)
         if self.auth is not None:
-            self.sub_title = "authenticated"
+            self.sub_title = f"(authenticated: {self.auth['user']['identity']})"
             self.query_one(Header).add_class("authenticated")
             self.query_one(Footer).add_class("authenticated")
+
+    @on(Input.Submitted)
+    async def action_refresh(self) -> None:
+        ts_str = self.query_one("#date", Input).value
+        ts = pd.Timestamp(ts_str if ts_str else "now", tz="utc")
+
+        aircraft_widget = self.query_one(AircraftWidget)
+        if aircraft := aircraft_widget.aircraft_id:
+            await self.lookup_aircraft(aircraft, ts=ts)
+            return
+        number_widget = self.query_one(FlightWidget)
+        if number := number_widget.number:
+            await self.lookup_number(number, ts=ts)
+            return
+        departure_widget = self.query_one("#departure", AirportWidget)
+        if departure := departure_widget.airport_id:
+            await self.lookup_departure(departure, ts=ts)
+            return
+        arrival_widget = self.query_one("#arrival", AirportWidget)
+        if arrival := arrival_widget.airport_id:
+            await self.lookup_arrival(arrival, ts=ts)
+            return
 
     async def lookup_aircraft(self, value: str, ts: str) -> None:
         results: FlightList = await flight_list(
