@@ -20,7 +20,7 @@ class Time:
 
 
 class Airport:
-    def __init__(self, airport: AirportJSON):
+    def __init__(self, airport: AirportJSON | None):
         self.airport = airport
 
     def __format__(self, __format_spec: str) -> str:

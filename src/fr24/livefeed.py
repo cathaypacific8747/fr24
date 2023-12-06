@@ -12,30 +12,9 @@ from google.protobuf.json_format import MessageToDict
 
 import pandas as pd
 
+from .common import DEFAULT_HEADERS_GRPC
 from .proto.request_pb2 import LiveFeedRequest, LiveFeedResponse
 from .types.fr24 import Authentication
-
-DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) "
-    "Gecko/20100101 Firefox/116.0",
-    "Accept": "*/*",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
-    "fr24-device-id": "web-00000000000000000000000000000000",
-    "x-envoy-retry-grpc-on": "unavailable",
-    "Content-Type": "application/grpc-web+proto",
-    "X-User-Agent": "grpc-web-javascript/0.1",
-    "X-Grpc-Web": "1",
-    "Origin": "https://www.flightradar24.com",
-    "DNT": "1",
-    "Connection": "keep-alive",
-    "Referer": "https://www.flightradar24.com/",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
-    "TE": "trailers",
-}
-
 
 world_zones = [
     (90, 70, -180, 180),
@@ -112,7 +91,7 @@ def create_request(
     request_s = request.SerializeToString()
     post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
 
-    headers = DEFAULT_HEADERS.copy()
+    headers = DEFAULT_HEADERS_GRPC.copy()
     headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
     if auth is not None and auth["userData"]["accessToken"] is not None:
         headers["authorization"] = f"Bearer {auth['userData']['accessToken']}"

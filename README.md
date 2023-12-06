@@ -59,36 +59,11 @@ This code has been developed for educational purposes only. Do not abuse it.
 }
 ```
 
-## References
+## Notes
 
 https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
 
-Notes:
-
-```js
-uc(o, l, i); // vendor bp @ 27660:9 f
-copy(btoa(String.fromCharCode.apply(null, i))); // i: Uint8Array
-
-w = await Po(); // index bp @ 29516:8 f
-
-dbName = "MobileCountries"; // AircraftFamily, Airlines, Airports, MobileCountries
-request = indexedDB.open(dbName);
-request.onsuccess = function (event) {
-  const db = event.target.result;
-  const transaction = db.transaction(dbName, "readonly");
-  const objectStore = transaction.objectStore(dbName);
-  const request = objectStore.getAll();
-
-  request.onsuccess = function (event) {
-    console.log(JSON.stringify(event.target.result));
-  };
-};
-```
-
-```sql
-CREATE TABLE log AS SELECT data.flight.identification.id, unnest(data.flight.track, max_depth := 2) FROM read_json_auto("*.json");
-DESCRIBE log;
-SELECT * FROM log ORDER BY abs(verticalSpeed.fpm) DESC;
-COPY log TO 'log.parquet';
-
+Generate stubs for pyarrow
+```bash
+stubgen -p pyarrow -o $PATH_TO_SITE_PACKAGES
 ```

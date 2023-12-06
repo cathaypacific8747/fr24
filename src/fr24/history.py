@@ -8,36 +8,22 @@ import httpx
 
 import pandas as pd
 
+from .common import DEFAULT_HEADERS
+from .types.cache import FlightListRecord
 from .types.fr24 import (
     AirportList,
     AirportRequest,
     Authentication,
     FlightList,
+    FlightListItem,
     FlightListRequest,
     Playback,
     PlaybackRequest,
 )
 
-DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) "
-    "Gecko/20100101 Firefox/116.0",
-    "Accept": "text/html,application/xhtml+xml,application/xml;"
-    "q=0.9,image/avif,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Origin": "https://www.flightradar24.com",
-    "Connection": "keep-alive",
-    "Referer": "https://www.flightradar24.com/",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
-    "TE": "trailers",
-}
-
 
 async def flight_list(
     client: httpx.AsyncClient,
-    *,
     reg: None | str = None,
     flight: None | str = None,
     page: int = 1,
@@ -80,7 +66,7 @@ async def flight_list(
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/flight/list.json",
-        headers=DEFAULT_HEADERS,
+        headers=headers,
         params=params,  # type: ignore
     )
 
@@ -127,7 +113,7 @@ async def airport_list(
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/airport.json",
-        headers=DEFAULT_HEADERS,
+        headers=headers,
         params=params,  # type: ignore
     )
 
@@ -165,7 +151,7 @@ async def playback(
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/flight-playback.json",
-        headers=DEFAULT_HEADERS,
+        headers=headers,
         params=params,  # type: ignore[arg-type]
     )
 
@@ -205,32 +191,35 @@ flight_id = @flight['identification']["id"]
     return df.drop(columns=["ems"])
 
 
+def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
+    orig = entry["airport"]["origin"]
+    dest = entry["airport"]["destination"]
+    icao24 = entry["aircraft"]["hex"]
+    id_ = entry["identification"]["id"]
+    return {
+        "flight_id": int(id_, 16) if id_ is not None else None,
+        "number": entry["identification"]["number"]["default"],
+        "callsign": entry["identification"]["callsign"],
+        "icao24": int(icao24, 16) if icao24 is not None else None,
+        "registration": entry["aircraft"]["registration"],
+        "typecode": entry["aircraft"]["model"]["code"],
+        "origin": orig["code"]["icao"] if orig is not None else None,
+        "destination": dest["code"]["icao"] if dest is not None else None,
+        "status": entry["status"]["text"],
+        "STOD": entry["time"]["scheduled"]["departure"],
+        "ETOD": entry["time"]["estimated"]["departure"],
+        "ATOD": entry["time"]["real"]["departure"],
+        "STOA": entry["time"]["scheduled"]["arrival"],
+        "ETOA": entry["time"]["estimated"]["arrival"],
+        "ATOA": entry["time"]["real"]["arrival"],
+    }
+
+
 def flight_list_df(result: FlightList) -> pd.DataFrame:
     list_ = result["result"]["response"]["data"]
-    # print(f'{result["result"]["response"]["page"]["more"]=}')
-    df = pd.DataFrame.from_records(
-        {
-            "flight_id": entry["identification"]["id"],
-            "number": entry["identification"]["number"]["default"],
-            "callsign": entry["identification"]["callsign"],
-            "icao24": entry["aircraft"]["hex"],
-            "registration": entry["aircraft"]["registration"],
-            "typecode": entry["aircraft"]["model"]["code"],
-            "origin": entry["airport"]["origin"]["code"]["icao"],
-            "destination": entry["airport"]["destination"]["code"]["icao"],
-            "status": entry["status"]["text"],
-            "STOD": entry["time"]["scheduled"]["departure"],
-            "ETOD": entry["time"]["estimated"]["departure"],
-            "ATOD": entry["time"]["real"]["departure"],
-            "STOA": entry["time"]["scheduled"]["arrival"],
-            "ETOA": entry["time"]["estimated"]["arrival"],
-            "ATOA": entry["time"]["real"]["arrival"],
-        }
-        for entry in list_
-    )
+    df = pd.DataFrame.from_records(flight_list_dict(entry) for entry in list_)
     return df.eval(
         """
-icao24 = icao24.str.lower()
 STOD = @pd.to_datetime(STOD, unit="s", utc=True)
 ETOD = @pd.to_datetime(ETOD, unit="s", utc=True)
 ATOD = @pd.to_datetime(ATOD, unit="s", utc=True)

@@ -10,6 +10,7 @@ from pathlib import Path
 import httpx
 from appdirs import user_config_dir
 
+from .common import DEFAULT_HEADERS
 from .types.fr24 import Authentication
 
 username = os.environ.get("fr24_username", None)
@@ -29,21 +30,6 @@ if (config_file := (Path(user_config_dir("fr24")) / "fr24.conf")).exists():
 
 _log = logging.getLogger()
 
-DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) "
-    "Gecko/20100101 Firefox/116.0",
-    "Accept": "*/*",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Origin": "https://www.flightradar24.com",
-    "Connection": "keep-alive",
-    "Referer": "https://www.flightradar24.com/",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
-    "TE": "trailers",
-}
-
 
 async def login(client: httpx.AsyncClient) -> None | Authentication:
     if username is None or password is None:
@@ -53,7 +39,8 @@ async def login(client: httpx.AsyncClient) -> None | Authentication:
             "userData": {
                 "subscriptionKey": subscription_key,
                 "accessToken": token,
-            }
+            },
+            "message": "using subscriptionKey and/or accessToken.",
         }
 
     res = await client.post(

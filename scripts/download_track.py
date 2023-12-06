@@ -83,3 +83,28 @@ async def my_find() -> FindResult:
 
 
 results = await my_find()  # type: ignore
+# %%
+import asyncio
+
+import httpx
+from fr24.authentication import login
+from fr24.core import FR24
+from fr24.history import flight_list_df
+from loguru import logger
+
+import pandas as pd
+
+
+async def my_full_list() -> None:
+    async with FR24() as fr24:
+        if fr24.auth is not None:
+            logger.info(fr24.auth["message"])
+        for reg in ["B-KJA", "B-KJB", "B-KJC", "B-KJD"]:
+            logger.info(f"Updating {reg}")
+            await fr24.flight_list_cache_update(reg=reg)
+            await asyncio.sleep(2)
+
+
+await my_full_list()  # type: ignore
+
+# %%

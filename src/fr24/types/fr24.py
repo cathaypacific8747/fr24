@@ -183,9 +183,10 @@ class Airport(TypedDict):
     real: None
 
 
+# O/D can be null when status is "unknown"
 class AirportPairData(TypedDict):
-    origin: Airport
-    destination: Airport
+    origin: None | Airport
+    destination: None | Airport
     real: None | str
 
 
