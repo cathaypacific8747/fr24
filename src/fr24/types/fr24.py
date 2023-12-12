@@ -63,7 +63,7 @@ class PlaybackRequest(TypedDict, total=False):
     flightId: Required[str]
     format: Literal["json"]
     pk: None
-    timestamp: Required[int]
+    timestamp: int
     token: None | str
 
 
@@ -91,13 +91,23 @@ class GenericStatus(TypedDict):
     eventTime: EventTime
 
 
+class GenericEventTime(TypedDict):
+    utc: int
+    local: int
+
+
+class StatusGeneric(TypedDict):
+    status: GenericStatus
+    eventTime: GenericEventTime
+
+
 class StatusData(TypedDict):
     live: bool
     text: str
     icon: str
     estimated: None
     ambiguous: bool
-    generic: GenericStatus
+    generic: StatusGeneric
 
 
 class AircraftModel(TypedDict):
@@ -214,23 +224,23 @@ class VerticalSpeed(TypedDict):
 
 class EMS(TypedDict):
     ts: int
-    ias: int
-    tas: int
-    mach: int
-    mcp: int
-    fms: int
+    ias: int | None
+    tas: int | None
+    mach: int | None
+    mcp: int | None
+    fms: int | None
     autopilot: None
-    oat: int
-    trueTrack: None
-    rollAngle: None
+    oat: int | None
+    trueTrack: float | None
+    rollAngle: float | None
     qnh: None
-    windDir: int
-    windSpd: int
-    precision: None
-    altGps: int
-    emergencyStatus: None
-    tcasAcasDtatus: None | int
-    heading: int
+    windDir: int | None
+    windSpd: int | None
+    precision: int | None
+    altGPS: int | None
+    emergencyStatus: int | None
+    tcasAcasDtatus: int | None
+    heading: int | None
 
 
 class TrackData(TypedDict):

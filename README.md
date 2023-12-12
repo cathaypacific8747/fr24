@@ -10,47 +10,53 @@ Clone the repository and run in the directory:
 pip install .
 ```
 
-For a development version, you may want to the poetry system:
+For a development version, you may want to the poetry virtual environment:
 
 ```sh
 poetry install
+poetry shell
 ```
 
 Few endpoints are available:
 
-- The following will dump the current state vectors in a tidy parquet file:
+- Dump the current state vectors in a tidy parquet file:
 
   ```sh
-  poetry run fr24_snapshot  # or just fr24_snapshot if installed with pip
+  fr24_snapshot
   ```
 
-- You may want to be authenticated for access to more history. Use environment variables `fr24_username` and `fr24_password`, then check you are properly authenticated with the following:
+- You may want to be authenticated for access to more history. Use environment variables `fr24_username` and `fr24_password`, then check that you are properly authenticated with the following:
 
   ```sh
-  poetry run fr24_login
+  fr24_login
   ```
 
   You can also create a configuration file in the appropriate directory. For Linux, copy the content of `fr24.example.conf` to `$HOME/.config/fr24/fr24.conf`. For other operating systems, you will find the proper directory with the following code:
 
-  ```pycon
-  >>> from fr24.authentication import user_config_dir
-  >>> user_config_dir("fr24")
-  '/home/me/.config/fr24
+  ```sh
+  python3 -c "from appdirs import user_config_dir; print(user_config_dir('fr24'))"
   ```
 
 ## Usage
 
-All the code developed is written in asynchronous mode.  
-If you are not familiar with that programming style, wrap your code in an `async` function called `async_main`, and:
+Most code is developed in asynchronous mode: if you are not familiar with that programming style, wrap your code in an `async` function called `async_main`, and
+  - run `asyncio.run(main())` in a Python script;
+  - run `await main()` in a Jupyter notebook.
 
-- run `asyncio.run(main())` in a Python script;
-- run `await main()` in a Jupyter notebook.
+You can find usage examples in the `examples/` folder.
 
-You can find usage examples in the `scripts/` folder.
+### Caching
+
+To avoid repeated requests, a [simple file-based cache](`src/fr24/core.py`) is under development. It saves parquet files under `$HOME/.cache/fr24` on Linux. You can find the cache directory on other operating systems with:
+
+```sh
+python3 -c "from appdirs import user_cache_dir; print(user_cache_dir('fr24'))"
+```
 
 ## License
 
-This code has been developed for educational purposes only. Do not abuse it.
+> [!IMPORTANT]  
+> This code has been developed for educational purposes ONLY. Do not abuse it.
 
 ```json
 {

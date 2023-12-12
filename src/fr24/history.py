@@ -9,16 +9,22 @@ import httpx
 import pandas as pd
 
 from .common import DEFAULT_HEADERS
-from .types.cache import FlightListRecord
+from .types.cache import (
+    FlightListRecord,
+    PlaybackTrackEMSRecord,
+    PlaybackTrackRecord,
+)
 from .types.fr24 import (
     AirportList,
     AirportRequest,
     Authentication,
+    FlightData,
     FlightList,
     FlightListItem,
     FlightListRequest,
     Playback,
     PlaybackRequest,
+    TrackData,
 )
 
 
@@ -125,10 +131,10 @@ async def airport_list(
 async def playback(
     client: httpx.AsyncClient,
     flight_id: int | str,
-    timestamp: int | str | datetime | pd.Timestamp,
+    timestamp: int | str | datetime | pd.Timestamp | None = None,
     auth: None | Authentication = None,
 ) -> Playback:
-    # NOTE: timestamp must match ATOD
+    # NOTE: while `timestamp` is optional, we should always include it (ATOD)
     if isinstance(timestamp, (str, datetime)):
         timestamp = pd.Timestamp(timestamp, tz="utc")
     if isinstance(timestamp, pd.Timestamp):
@@ -139,10 +145,11 @@ async def playback(
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params = PlaybackRequest(
-        flightId=flight_id,
-        timestamp=timestamp,
-    )
+    params: PlaybackRequest = {
+        "flightId": flight_id,
+    }
+    if timestamp is not None:
+        params["timestamp"] = timestamp
     if auth is not None and auth["userData"]["subscriptionKey"] is not None:
         params["token"] = auth["userData"]["subscriptionKey"]
     else:
@@ -160,35 +167,83 @@ async def playback(
     return response.json()  # type: ignore
 
 
+def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg]
+    ident = flight["identification"]
+    sta = flight["status"]["generic"]
+    owner = flight["owner"]
+    airline = flight["airline"]
+    origin = flight["airport"]["origin"]
+    dest = flight["airport"]["destination"]
+    return {
+        "flight_id": int(ident["id"], 16),
+        "callsign": ident["callsign"],
+        "flight_number": ident["number"].get("default", None),
+        "status_type": sta["status"]["type"],
+        "status_text": sta["status"]["text"],
+        "status_diverted": sta["status"]["diverted"],
+        "status_time": int(sta["eventTime"]["utc"]),
+        "model_code": flight["aircraft"]["model"]["code"],
+        "icao24": int(flight["aircraft"]["identification"]["modes"], 16),
+        "registration": flight["aircraft"]["identification"]["registration"],
+        "owner": owner["code"]["icao"] if owner is not None else None,
+        "airline": airline["code"]["icao"] if airline is not None else None,
+        "origin": origin["code"]["icao"] if origin is not None else None,
+        "destination": dest["code"]["icao"] if dest is not None else None,
+        "median_delay": flight["median"]["delay"],
+        "median_time": int(flight["median"]["timestamp"]),
+    }
+
+
+def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
+    return {
+        "timestamp": point["timestamp"],
+        "latitude": point["latitude"],
+        "longitude": point["longitude"],
+        "altitude": point["altitude"]["feet"],
+        "ground_speed": point["speed"]["kts"],
+        "vertical_speed": point["verticalSpeed"]["fpm"],
+        "heading": point["heading"],
+        "squawk": int(point["squawk"], base=8),
+    }
+
+
+def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
+    if e := point["ems"]:
+        return {
+            "timestamp": e["ts"],
+            "ias": e["ias"],
+            "mach": e["mach"],
+            "mcp": e["mcp"],
+            "fms": e["fms"],
+            "autopilot": e["autopilot"],
+            "oat": e["oat"],
+            "track": e["trueTrack"],
+            "roll": e["rollAngle"],
+            "qnh": e["qnh"],
+            "wind_dir": e["windDir"],
+            "wind_speed": e["windSpd"],
+            "precision": e["precision"],
+            "altitude_gps": e["altGPS"],
+            "emergency": e["emergencyStatus"],
+            "tcas_acas": e["tcasAcasDtatus"],
+            "heading": e["heading"],
+        }
+    return None
+
+
+# TODO: add ems, metadata.
 def playback_df(result: Playback) -> pd.DataFrame:
     flight = result["result"]["response"]["data"]["flight"]
     df = pd.DataFrame.from_records(
-        {
-            **point,
-            "altitude": point["altitude"]["feet"],
-            "speed": point["speed"]["kts"],
-            "verticalSpeed": point["verticalSpeed"]["fpm"],
-        }
-        for point in flight["track"]
-    ).rename(columns=dict(speed="groundspeed", verticalSpeed="vertical_rate"))
-    ems = [
-        point["ems"] for point in flight["track"] if point["ems"] is not None
-    ]
-    if len(ems) > 0:
-        ems_df = pd.json_normalize(ems).rename(columns=dict(ts="timestamp"))
-        df = pd.concat([df, ems_df]).sort_values("timestamp")
+        playback_track_dict(point) for point in flight["track"]
+    )
 
     df = df.eval(
         """
 timestamp = @pd.to_datetime(timestamp, unit='s', utc=True)
-callsign = @flight["identification"]["callsign"]
-number = @flight["identification"]["number"]["default"]
-icao24 = @flight["aircraft"]["identification"]["modes"].lower()
-registration = @flight["aircraft"]["identification"]["registration"]
-flight_id = @flight['identification']["id"]
-"""
+    """
     )
-    return df.drop(columns=["ems"])
+    return df
 
 
 def flight_list_dict(entry: FlightListItem) -> FlightListRecord:

@@ -6,7 +6,7 @@
         {
             "label": "regenerate proto",
             "type": "shell",
-            "command": "protoc -Iproto --python_out=./proto --pyi_out=./proto ./proto/request.proto",
+            "command": "protoc --python_out=src/fr24/proto --pyi_out=src/fr24/proto --proto_path src/fr24/proto request.proto",
             "problemMatcher": []
         }
     ]

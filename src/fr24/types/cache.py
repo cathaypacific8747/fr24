@@ -43,6 +43,74 @@ class FlightListRecord(TypedDict):
     ATOA: int | None
 
 
+playback_track_schema = pa.schema(
+    [
+        pa.field("timestamp", pa.timestamp("s")),
+        pa.field("latitude", pa.float32()),
+        pa.field("longitude", pa.float32()),
+        pa.field("altitude", pa.int32()),
+        pa.field("ground_speed", pa.int16()),
+        pa.field("vertical_speed", pa.int16()),
+        pa.field("heading", pa.int16()),
+        pa.field("squawk", pa.uint16()),
+    ]
+)
+
+
+class PlaybackTrackRecord(TypedDict):
+    timestamp: int
+    latitude: float
+    longitude: float
+    altitude: int
+    ground_speed: int
+    vertical_speed: int
+    heading: int
+    squawk: int
+
+
+playback_track_ems_schema = pa.schema(
+    [
+        pa.field("timestamp", pa.timestamp("s")),
+        pa.field("ias", pa.int16()),
+        pa.field("mach", pa.int16()),
+        pa.field("mcp", pa.int16()),
+        pa.field("fms", pa.int16()),
+        pa.field("autopilot", pa.int8()),
+        pa.field("oat", pa.int8()),
+        pa.field("track", pa.float32()),
+        pa.field("roll", pa.float32()),
+        pa.field("qnh", pa.uint16()),
+        pa.field("wind_dir", pa.int16()),
+        pa.field("wind_speed", pa.int16()),
+        pa.field("precision", pa.uint8()),
+        pa.field("altitude_gps", pa.int16()),
+        pa.field("emergency", pa.uint8()),
+        pa.field("tcas_acas", pa.uint8()),
+        pa.field("heading", pa.uint16()),
+    ]
+)
+
+
+class PlaybackTrackEMSRecord(TypedDict):
+    timestamp: int
+    ias: int | None
+    mach: float | None
+    mcp: int | None
+    fms: int | None
+    autopilot: int | None
+    oat: int | None
+    track: float | None
+    roll: float | None
+    qnh: int | None
+    wind_dir: int | None
+    wind_speed: int | None
+    precision: int | None
+    altitude_gps: int | None
+    emergency: int | None
+    tcas_acas: int | None
+    heading: int | None
+
+
 # TODO: remove pandas serialisation and force this schema
 livefeed_schema = pa.schema(
     [

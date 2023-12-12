@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncIterator
+from typing import Any, AsyncIterator
 
 import httpx
 import pyarrow as pa
@@ -17,31 +17,55 @@ import numpy.typing as npt
 import pandas as pd
 
 from .authentication import login
-from .history import flight_list, flight_list_dict
-from .types.cache import flight_list_schema
+from .history import (
+    flight_list,
+    flight_list_dict,
+    playback,
+    playback_metadata_dict,
+    playback_track_dict,
+    playback_track_ems_dict,
+)
+from .types.cache import (
+    flight_list_schema,
+    playback_track_ems_schema,
+    playback_track_schema,
+)
 from .types.fr24 import Authentication, FlightList
 
-CACHE_DIR = Path(user_cache_dir("fr24"))
-
-for d in (
-    CACHE_DIR,
-    CACHE_DIR / "flight_list",
-    CACHE_DIR / "flight_list" / "reg",
-    CACHE_DIR / "flight_list" / "flight",
-):
-    d.mkdir(parents=True, exist_ok=True)
+# a simple file-based caching for:
+#   - flight history
+#     - flight_list/reg/{reg}.parquet, or
+#     - flight_list/flight/{iata flight number}.parquet
+#   - playback by fr24 flight id (int)
+#     - playback/metadata/{id}.parquet
+#     - playback/track/{id}.parquet
+#     - playback/track_ems/{id}.parquet
 
 
 class FR24:
-    def __init__(self) -> None:
+    def __init__(self, cache_dir: str = user_cache_dir("fr24")) -> None:
+        # on linux, default cache dir is ~/.cache/fr24
         self.client = httpx.AsyncClient()
         self.auth: Authentication | None = None
+        self.cache_dir = Path(cache_dir)
+        for d in (
+            self.cache_dir,
+            self.cache_dir / "flight_list",
+            self.cache_dir / "flight_list" / "reg",
+            self.cache_dir / "flight_list" / "flight",
+            self.cache_dir / "playback",
+            self.cache_dir / "playback" / "metadata",
+            self.cache_dir / "playback" / "track",
+            self.cache_dir / "playback" / "track_ems",
+            # self.cache_dir / "feed"
+        ):
+            d.mkdir(parents=True, exist_ok=True)
 
     async def __aenter__(self) -> Self:
         self.auth = await login(self.client)
         return self
 
-    async def __aexit__(self) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         if self.client is not None:
             await self.client.aclose()
 
@@ -55,7 +79,7 @@ class FR24:
     ) -> AsyncIterator[FlightList]:
         more = True
         while more:
-            for retries in range(3):
+            for rt in range(3):
                 try:
                     fl = await flight_list(
                         self.client,
@@ -68,10 +92,9 @@ class FR24:
                     )
                     yield fl
                     break
-                except httpx.HTTPStatusError:
-                    retries += 1
-                    logger.warning(f"[retry {retries}] 402, backing off")
-                    await asyncio.sleep(5 * retries)
+                except httpx.HTTPStatusError as e:
+                    logger.warning(f"[{e.response.status_code}] retry {rt}")
+                    await asyncio.sleep(5 * rt)
             else:
                 logger.error(f"Failed to download {reg=} {flight=}")
                 break
@@ -88,7 +111,7 @@ class FR24:
             more = fl["result"]["response"]["page"]["more"]
             await asyncio.sleep(2)  # TODO: use aiometer instead
 
-    async def flight_list_cache_update(
+    async def cache_flight_list_upsert(
         self,
         reg: None | str = None,
         flight: None | str = None,
@@ -97,7 +120,7 @@ class FR24:
         timestamp: int | datetime | pd.Timestamp | str | None = "now",
         overwrite: bool = False,
     ) -> Path:
-        # attempt to update the cache by querying in batches,
+        # iteratively update the cache by querying in batches,
         # whenever a duplicate is found in that batch, stop querying.
         # this should also update the "Estimated XX:XX" status to the latest
         foln, fn = (
@@ -105,7 +128,7 @@ class FR24:
             if reg is None
             else ("reg", str(reg).upper())
         )
-        cache_fp = CACHE_DIR / "flight_list" / foln / f"{fn}.parquet"
+        cache_fp = self.cache_dir / "flight_list" / foln / f"{fn}.parquet"
 
         tbl_old: pa.Table | None = None
         existing_fids = []
@@ -115,33 +138,77 @@ class FR24:
             existing_fids = tbl_old["flight_id"].to_pylist()
             existing_mask = np.full(len(tbl_old), False)
 
-        with pq.ParquetWriter(cache_fp, flight_list_schema) as writer:
-            found_duplicate = False
-            fl_rec_new = []
-            async for batch in self._flight_list_iter(
-                reg, flight, page, limit, timestamp
-            ):
-                for entry in batch["result"]["response"]["data"] or []:
-                    d = flight_list_dict(entry)
-                    fl_rec_new.append(d)
-                    if d["flight_id"] in existing_fids:
-                        existing_mask[
-                            existing_fids.index(d["flight_id"])
-                        ] = True
-                        found_duplicate = True
-                logger.debug(f"{len(fl_rec_new)=} {found_duplicate=}")
-                if found_duplicate:
-                    break
-            tbl_new = pa.Table.from_pylist(
-                fl_rec_new,
-                schema=flight_list_schema,
-            )
+        found_duplicate = False
+        fl_rec_new = []
+        async for batch in self._flight_list_iter(
+            reg, flight, page, limit, timestamp
+        ):
+            for entry in batch["result"]["response"]["data"] or []:
+                d = flight_list_dict(entry)
+                fl_rec_new.append(d)
+                if d["flight_id"] in existing_fids:
+                    existing_mask[existing_fids.index(d["flight_id"])] = True
+                    found_duplicate = True
+            logger.debug(f"{len(fl_rec_new)=} {found_duplicate=}")
             if found_duplicate:
-                tbl_new = pa.concat_tables(
-                    [
-                        tbl_new,
-                        tbl_old.filter(pa.array(~existing_mask)),  # type: ignore
-                    ]
-                )
+                break
+        tbl_new = pa.Table.from_pylist(
+            fl_rec_new,
+            schema=flight_list_schema,
+        )
+        if found_duplicate:
+            tbl_new = pa.concat_tables(
+                [
+                    tbl_new,
+                    tbl_old.filter(pa.array(~existing_mask)),  # type: ignore
+                ]
+            )
+        with pq.ParquetWriter(cache_fp, flight_list_schema) as writer:
             writer.write_table(tbl_new)
         return cache_fp
+
+    async def cache_playback_upsert(
+        self,
+        flight_id: int | str,
+        timestamp: int | str | datetime | pd.Timestamp | None = None,
+        overwrite: bool = False,
+    ) -> Path:
+        # attempt to read the metadata cache, if it doesn't exist
+        # create {metadata & track & track_ems}/{id}.parquet
+        if not isinstance(flight_id, str):
+            flight_id = f"{flight_id:x}"
+        flight_id = flight_id.lower()
+
+        rootdir = self.cache_dir / "playback"
+        fp_metadata = rootdir / "metadata" / f"{flight_id}.parquet"
+        fp_track = rootdir / "track" / f"{flight_id}.parquet"
+        fp_track_ems = rootdir / "track_ems" / f"{flight_id}.parquet"
+        # if not overwrite and fp_metadata.exists():
+        #     return fp_metadata
+
+        pb = await playback(self.client, flight_id, timestamp, self.auth)
+        track, track_ems = [], []
+        for point in pb["result"]["response"]["data"]["flight"]["track"]:
+            track.append(playback_track_dict(point))
+            if (e := playback_track_ems_dict(point)) is not None:
+                track_ems.append(e)
+
+        meta_table = pa.Table.from_pylist(
+            [playback_metadata_dict(pb["result"]["response"]["data"]["flight"])]
+        )
+        with pq.ParquetWriter(fp_metadata, meta_table.schema) as writer:
+            writer.write_table(meta_table)
+        with pq.ParquetWriter(fp_track, playback_track_schema) as writer:
+            writer.write_table(
+                pa.Table.from_pylist(track, schema=playback_track_schema)
+            )
+        with pq.ParquetWriter(
+            fp_track_ems, playback_track_ems_schema
+        ) as writer:
+            writer.write_table(
+                pa.Table.from_pylist(
+                    track_ems, schema=playback_track_ems_schema
+                )
+            )
+
+        return fp_metadata
