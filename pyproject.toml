@@ -6,11 +6,10 @@ description = "Parse gRPC and JSON data from FlightRadar24"
 authors = ["Abraham Cheung <abraham@ylcheung.com>", "Xavier Olive <git@xoolive.org>"]
 license = "MIT"
 include = [ "LICENSE", "py.typed", "request.proto", "style.tcss" ]
+readme = "README.md"
 
 [tool.poetry.scripts]
-fr24 = 'fr24.tui.tui:main'
-fr24_snapshot = 'fr24.livefeed:main'
-fr24_login = 'fr24.authentication:main'
+fr24 = 'fr24.cli:app'
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
@@ -23,6 +22,7 @@ click = "^8.1.7"
 appdirs = "^1.4.4"
 textual = "^0.42.0"
 loguru = "^0.7.2"
+typer = {extras = ["all"], version = "^0.9.0"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.26.0"

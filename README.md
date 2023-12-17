@@ -10,32 +10,38 @@ Clone the repository and run in the directory:
 pip install .
 ```
 
-For a development version, you may want to the poetry virtual environment:
+For a development version, you may want to use Poetry:
 
 ```sh
 poetry install
 poetry shell
 ```
 
-Few endpoints are available:
+Once installed, a few endpoints are available (use `--help` for more information):
 
 - Dump the current state vectors in a tidy parquet file:
 
   ```sh
-  fr24_snapshot
+  fr24 feed live
+  fr24 feed playback --timestamp 1702839380
+  fr24 feed playback --time 2023-12-17T18:56:00
   ```
 
-- You may want to be authenticated for access to more history. Use environment variables `fr24_username` and `fr24_password`, then check that you are properly authenticated with the following:
-
+- TUI:
   ```sh
-  fr24_login
+  fr24 tui
   ```
 
-  You can also create a configuration file in the appropriate directory. For Linux, copy the content of `fr24.example.conf` to `$HOME/.config/fr24/fr24.conf`. For other operating systems, you will find the proper directory with the following code:
-
+- You may want to be authenticated to access more history: set the environment variables `fr24_username` and `fr24_password`, then check that you are properly authenticated with the following:
   ```sh
-  python3 -c "from appdirs import user_config_dir; print(user_config_dir('fr24'))"
+  fr24 auth show
   ```
+
+- You may also create a configuration file in the config directory: you may find its location with:
+  ```sh
+  fr24 dirs
+  ```
+  On Linux, copy the content of `fr24.example.conf` to `$HOME/.config/fr24/fr24.conf`.
 
 ## Usage
 
@@ -47,11 +53,7 @@ You can find usage examples in the `scripts/` folder.
 
 ### Caching
 
-To avoid repeated requests, a [simple file-based cache](src/fr24/core.py) is under development. It saves parquet files under `$HOME/.cache/fr24` on Linux. You can find the cache directory on other operating systems with:
-
-```sh
-python3 -c "from appdirs import user_cache_dir; print(user_cache_dir('fr24'))"
-```
+To avoid repeated requests, a [simple file-based cache](src/fr24/core.py) saves parquet files under the cache directory (`$HOME/.cache/fr24` on Linux).
 
 ## License
 

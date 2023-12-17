@@ -35,17 +35,16 @@ from .types.cache import (
 )
 from .types.fr24 import Authentication, FlightList
 
-# a simple file-based caching for:
-#   - flight history
-#     - flight_list/reg/{reg}.parquet, or
-#     - flight_list/flight/{iata flight number}.parquet
-#   - playback by fr24 flight id (int)
-#     - playback/metadata/{id}.parquet
-#     - playback/track/{id}.parquet
-#     - playback/track_ems/{id}.parquet
-
 
 class FR24:
+    # a simple file-based caching for:
+    #   - flight history
+    #     - flight_list/reg/{reg}.parquet, or
+    #     - flight_list/flight/{iata flight number}.parquet
+    #   - playback by fr24 flight id (int)
+    #     - playback/metadata/{id}.parquet
+    #     - playback/track/{id}.parquet
+    #     - playback/track_ems/{id}.parquet
     def __init__(self, cache_dir: str = user_cache_dir("fr24")) -> None:
         # on linux, default cache dir is ~/.cache/fr24
         self.client = httpx.AsyncClient()

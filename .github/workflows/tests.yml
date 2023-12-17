@@ -38,8 +38,8 @@ jobs:
 
     - name: Style checking
       run: |
-        poetry run ruff src tests examples
-        poetry run ruff format --check src tests examples
+        poetry run ruff src tests scripts
+        poetry run ruff format --check src tests scripts
 
     - name: Type checking
       run: |
