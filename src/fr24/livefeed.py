@@ -3,57 +3,57 @@ from __future__ import annotations
 import asyncio
 import secrets
 import struct
-import uuid
-from pathlib import Path
 from typing import Any
 
 import httpx
-from google.protobuf.json_format import MessageToDict
-
-import pandas as pd
 
 from .common import DEFAULT_HEADERS_GRPC
-from .proto.request_pb2 import LiveFeedRequest, LiveFeedResponse
+from .proto.request_pb2 import (
+    LiveFeedPlaybackRequest,
+    LiveFeedPlaybackResponse,
+    LiveFeedRequest,
+    LiveFeedResponse,
+)
+from .types.cache import LiveFeedRecord
 from .types.fr24 import Authentication
 
+# N, S, W, E
+lng_bounds = [
+    -180,
+    -117,
+    -110,
+    -100,
+    -95,
+    -90,
+    -85,
+    -82,
+    -79,
+    -75,
+    -68,
+    -30,
+    -2,
+    1,
+    5,
+    8,
+    11,
+    15,
+    20,
+    30,
+    40,
+    60,
+    100,
+    110,
+    120,
+    140,
+    180,
+]
 world_zones = [
-    (90, 70, -180, 180),
-    (70, 50, -180, -20),
-    (70, 50, -20, 0),
-    (70, 50, 0, 20),
-    (70, 50, 20, 40),
-    (70, 50, 40, 180),
-    (50, 30, -180, -120),
-    (50, 40, -120, -110),
-    (50, 40, -110, -100),
-    (40, 30, -120, -110),
-    (40, 30, -110, -100),
-    (50, 40, -100, -90),
-    (50, 40, -90, -80),
-    (40, 30, -100, -90),
-    (40, 30, -90, -80),
-    (50, 30, -80, -60),
-    (50, 30, -60, -40),
-    (50, 30, -40, -20),
-    (50, 30, -20, 0),
-    (50, 40, 0, 10),
-    (50, 40, 10, 20),
-    (40, 30, 0, 10),
-    (40, 30, 10, 20),
-    (50, 30, 20, 40),
-    (50, 30, 40, 60),
-    (50, 30, 60, 180),
-    (30, 10, -180, -100),
-    (30, 10, -100, -80),
-    (30, 10, -80, 100),
-    (30, 10, 100, 180),
-    (10, -10, -180, 180),
-    (-10, -30, -180, 180),
-    (-30, -90, -180, 180),
+    (90, -90, lng_bounds[i], lng_bounds[i + 1])
+    for i in range(len(lng_bounds) - 1)
 ]
 
 
-def create_request(
+def livefeed_message_create(
     north: float = 50,
     south: float = 40,
     west: float = 0,
@@ -61,10 +61,9 @@ def create_request(
     stats: bool = False,
     limit: int = 1500,
     maxage: int = 14400,
-    auth: None | Authentication = None,
     **kwargs: Any,
-) -> httpx.Request:
-    request = LiveFeedRequest(
+) -> LiveFeedRequest:
+    return LiveFeedRequest(
         bounds=LiveFeedRequest.Bounds(
             north=north, south=south, west=west, east=east
         ),
@@ -72,6 +71,7 @@ def create_request(
             sources_list=range(10),  # type: ignore
             services_list=range(12),  # type: ignore
             traffic_type=LiveFeedRequest.Settings.ALL,
+            only_restricted=False,
         ),
         field_mask=LiveFeedRequest.FieldMask(
             field_name=[
@@ -83,12 +83,34 @@ def create_request(
             ]
             # auth required: squawk, vspeed, airspace
         ),
+        highlight_mode=False,
         stats=stats,
         limit=limit,
         maxage=maxage,
+        restriction_mode=LiveFeedRequest.NOT_VISIBLE,
         **kwargs,
     )
-    request_s = request.SerializeToString()
+
+
+def livefeed_playback_message_create(
+    message: LiveFeedRequest,
+    timestamp: int,
+    prefetch: int,
+    hfreq: int,
+) -> LiveFeedPlaybackRequest:
+    return LiveFeedPlaybackRequest(
+        live_feed_request=message,
+        timestamp=timestamp,
+        prefetch=prefetch,
+        hfreq=hfreq,
+    )
+
+
+def livefeed_request_create(
+    message: LiveFeedRequest,
+    auth: None | Authentication = None,
+) -> httpx.Request:
+    request_s = message.SerializeToString()
     post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
 
     headers = DEFAULT_HEADERS_GRPC.copy()
@@ -104,48 +126,154 @@ def create_request(
     )
 
 
-async def post_request(
+def livefeed_playback_request_create(
+    message: LiveFeedPlaybackRequest,
+    auth: None | Authentication = None,
+) -> httpx.Request:
+    request_s = message.SerializeToString()
+    post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
+
+    headers = DEFAULT_HEADERS_GRPC.copy()
+    headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
+    if auth is not None and auth["userData"]["accessToken"] is not None:
+        headers["authorization"] = f"Bearer {auth['userData']['accessToken']}"
+
+    return httpx.Request(
+        "POST",
+        "https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/Playback",
+        headers=headers,
+        content=post_data,
+    )
+
+
+async def livefeed_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> LiveFeedResponse:
+) -> bytes:
     response = await client.send(request)
     data = response.content
     assert len(data) and data[0] == 0
     data_len = int.from_bytes(data[1:5], byteorder="big")
+    return data[5 : 5 + data_len]
+
+
+def livefeed_response_parse(data: bytes) -> LiveFeedResponse:
     lfr = LiveFeedResponse()
-    lfr.ParseFromString(data[5 : 5 + data_len])
+    lfr.ParseFromString(data)
     return lfr
 
 
-async def world_data(
+def livefeed_playback_response_parse(data: bytes) -> LiveFeedResponse:
+    lfr = LiveFeedPlaybackResponse()
+    lfr.ParseFromString(data)
+    return lfr.live_feed_response
+
+
+def livefeed_flightdata_dict(
+    lfr: LiveFeedResponse.FlightData
+) -> LiveFeedRecord:
+    return {
+        "flightid": lfr.flightid,
+        "latitude": lfr.latitude,
+        "longitude": lfr.longitude,
+        "heading": lfr.heading,
+        "altitude": lfr.altitude,
+        "ground_speed": lfr.ground_speed,
+        "timestamp": lfr.timestamp,
+        "on_ground": lfr.on_ground,
+        "callsign": lfr.callsign,
+        "source": lfr.source,
+        "registration": lfr.extra_info.reg,
+        "origin": lfr.extra_info.route.from_,
+        "destination": lfr.extra_info.route.to,
+        "typecode": lfr.extra_info.type,
+        "eta": lfr.extra_info.schedule.eta,
+    }
+
+
+async def livefeed_world_data(
     client: httpx.AsyncClient, auth: None | Authentication = None
-) -> pd.DataFrame:
+) -> list[LiveFeedRecord]:
     results = await asyncio.gather(
         *[
-            post_request(client, create_request(*bounds, auth=auth))
+            livefeed_post(
+                client,
+                livefeed_request_create(
+                    livefeed_message_create(*bounds), auth=auth
+                ),
+            )
             for bounds in world_zones
         ]
     )
+    return [
+        livefeed_flightdata_dict(lfr)
+        for r in results
+        for lfr in livefeed_response_parse(r).flights_list
+    ]
 
-    return pd.concat(
-        pd.json_normalize(
-            MessageToDict(
-                data,
-                including_default_value_fields=True,
-                preserving_proto_field_name=True,
-                use_integers_for_enums=False,
-            )["flights_list"]
-        )
-        for data in results
+
+async def livefeed_playback_world_data(
+    client: httpx.AsyncClient,
+    timestamp: int,
+    duration: int = 7,
+    hfreq: int = 0,
+    auth: None | Authentication = None,
+) -> list[LiveFeedRecord]:
+    results = await asyncio.gather(
+        *[
+            livefeed_post(
+                client,
+                livefeed_playback_request_create(
+                    livefeed_playback_message_create(
+                        livefeed_message_create(*bounds),
+                        timestamp,
+                        timestamp + duration,
+                        hfreq,
+                    ),
+                    auth=auth,
+                ),
+            )
+            for bounds in world_zones
+        ]
     )
+    return [
+        livefeed_flightdata_dict(lfr)
+        for r in results
+        for lfr in livefeed_playback_response_parse(r).flights_list
+    ]
 
 
-def snapshot() -> None:
-    async def export_parquet(filename: Path) -> None:
-        async with httpx.AsyncClient() as client:
-            df = await world_data(client)
-            df.to_parquet(filename)
+def main() -> None:
+    print("to be implemented")
 
-    filename = Path(str(uuid.uuid4())).with_suffix(".parquet")
 
-    asyncio.run(export_parquet(filename))
-    print(f"{filename.name} written")
+# if __name__ == "__main__":
+#     main()
+#     exit(0)
+#     import matplotlib.pyplot as plt
+
+#     plt.switch_backend("QtAgg")
+#     plt.style.use("dark_background")
+#     df = pd.read_parquet("d91fd179-8d98-4b8b-9f8c-55d678038ff0.parquet")
+#     plt.scatter(df["longitude"], df["latitude"], c="white", s=0.1, alpha=0.5)
+
+#     for bounds in world_zones:
+#         plt.plot(
+#             [bounds[2], bounds[3], bounds[3], bounds[2], bounds[2]],
+#             [bounds[0], bounds[0], bounds[1], bounds[1], bounds[0]],
+#             c="red",
+#             linewidth=0.5,
+#         )
+#         count = df[
+#             (df["latitude"] < bounds[0])
+#             & (df["latitude"] > bounds[1])
+#             & (df["longitude"] > bounds[2])
+#             & (df["longitude"] < bounds[3])
+#         ].shape[0]
+#         plt.text(
+#             bounds[2],
+#             bounds[0],
+#             f"{count}",
+#             color="red" if count > 1500 else "white",
+#             fontsize=6,
+#         )
+#     plt.show()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, AsyncIterator
@@ -25,8 +26,10 @@ from .history import (
     playback_track_dict,
     playback_track_ems_dict,
 )
+from .livefeed import livefeed_playback_world_data, livefeed_world_data
 from .types.cache import (
     flight_list_schema,
+    livefeed_schema,
     playback_track_ems_schema,
     playback_track_schema,
 )
@@ -50,14 +53,13 @@ class FR24:
         self.cache_dir = Path(cache_dir)
         for d in (
             self.cache_dir,
-            self.cache_dir / "flight_list",
             self.cache_dir / "flight_list" / "reg",
             self.cache_dir / "flight_list" / "flight",
-            self.cache_dir / "playback",
             self.cache_dir / "playback" / "metadata",
             self.cache_dir / "playback" / "track",
             self.cache_dir / "playback" / "track_ems",
-            # self.cache_dir / "feed"
+            self.cache_dir / "feed" / "playback",
+            self.cache_dir / "feed" / "live",
         ):
             d.mkdir(parents=True, exist_ok=True)
 
@@ -109,7 +111,7 @@ class FR24:
             )
             page += 1
             more = fl["result"]["response"]["page"]["more"]
-            await asyncio.sleep(2)  # TODO: use aiometer instead
+            await asyncio.sleep(2)
 
     async def cache_flight_list_upsert(
         self,
@@ -183,8 +185,8 @@ class FR24:
         fp_metadata = rootdir / "metadata" / f"{flight_id}.parquet"
         fp_track = rootdir / "track" / f"{flight_id}.parquet"
         fp_track_ems = rootdir / "track_ems" / f"{flight_id}.parquet"
-        # if not overwrite and fp_metadata.exists():
-        #     return fp_metadata
+        if not overwrite and fp_metadata.exists():
+            return fp_metadata
 
         pb = await playback(self.client, flight_id, timestamp, self.auth)
         track, track_ems = [], []
@@ -193,6 +195,7 @@ class FR24:
             if (e := playback_track_ems_dict(point)) is not None:
                 track_ems.append(e)
 
+        # TODO: combine all metadata into single parquet
         meta_table = pa.Table.from_pylist(
             [playback_metadata_dict(pb["result"]["response"]["data"]["flight"])]
         )
@@ -212,3 +215,31 @@ class FR24:
             )
 
         return fp_metadata
+
+    async def cache_livefeed_playback_world_insert(
+        self, timestamp: int, duration: int = 7, hfreq: int = 0
+    ) -> Path:
+        data = await livefeed_playback_world_data(
+            self.client, timestamp, duration, hfreq
+        )
+
+        fp = (
+            self.cache_dir
+            / "feed"
+            / "playback"
+            / f"{timestamp * 1000:.0f}_{duration:.0f}.parquet"
+        )
+        pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp)
+        return fp
+
+    async def cache_livefeed(self) -> Path:
+        data = await livefeed_world_data(self.client)
+
+        fp = (
+            self.cache_dir
+            / "feed"
+            / "live"
+            / f"{time.time() * 1000:.0f}.parquet"
+        )
+        pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp)
+        return fp

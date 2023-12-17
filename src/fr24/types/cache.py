@@ -111,7 +111,8 @@ class PlaybackTrackEMSRecord(TypedDict):
     heading: int | None
 
 
-# TODO: remove pandas serialisation and force this schema
+# NOTE: not using pa.timestamp() to save space
+# TODO: altitude only requires 12 bits: divide by 25 and store with u16
 livefeed_schema = pa.schema(
     [
         pa.field("flightid", pa.uint64()),
@@ -124,10 +125,28 @@ livefeed_schema = pa.schema(
         pa.field("on_ground", pa.bool_()),
         pa.field("callsign", pa.string()),
         pa.field("source", pa.uint8()),
-        pa.field("extra_info.reg", pa.string()),
-        pa.field("extra_info.route.from", pa.string()),
-        pa.field("extra_info.route.to", pa.string()),
-        pa.field("extra_info.type", pa.string()),
-        pa.field("extra_info.schedule.eta", pa.uint32()),
+        pa.field("registration", pa.string()),
+        pa.field("origin", pa.string()),
+        pa.field("destination", pa.string()),
+        pa.field("typecode", pa.string()),
+        pa.field("eta", pa.uint32()),
     ]
 )
+
+
+class LiveFeedRecord(TypedDict):
+    flightid: int
+    latitude: float
+    longitude: float
+    heading: int
+    altitude: int
+    ground_speed: int
+    timestamp: int
+    on_ground: bool
+    callsign: str
+    source: int
+    registration: str
+    origin: str
+    destination: str
+    typecode: str
+    eta: int

@@ -1,10 +1,18 @@
 import asyncio
+import time
 
 import httpx
 import pytest
 from fr24.find import find
 from fr24.history import flight_list, flight_list_df, playback
-from fr24.livefeed import create_request, post_request, world_data
+from fr24.livefeed import (
+    livefeed_message_create,
+    livefeed_playback_world_data,
+    livefeed_post,
+    livefeed_request_create,
+    livefeed_response_parse,
+    livefeed_world_data,
+)
 from google.protobuf.json_format import MessageToDict
 
 pytest_plugins = ("pytest_asyncio",)
@@ -12,9 +20,11 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_simple() -> None:
-    request = create_request()
+    message = livefeed_message_create(north=50, west=-7, south=40, east=10)
+    request = livefeed_request_create(message)
     async with httpx.AsyncClient() as client:
-        result = await post_request(client, request)
+        data = await livefeed_post(client, request)
+        result = livefeed_response_parse(data)
         assert result is not None
 
         json_output = MessageToDict(
@@ -27,10 +37,19 @@ async def test_simple() -> None:
 
 
 @pytest.mark.asyncio
-async def test_world() -> None:
+async def test_livefeed_world() -> None:
     async with httpx.AsyncClient() as client:
-        df = await world_data(client)
-        assert df.shape[0] > 100  # why 100? same, because...
+        data = await livefeed_world_data(client)
+        assert len(data) > 100  # why 100? just because...
+
+
+@pytest.mark.asyncio
+async def test_livefeed_playback_world() -> None:
+    async with httpx.AsyncClient() as client:
+        data = await livefeed_playback_world_data(
+            client, int(time.time() - 86400)
+        )
+        assert len(data) > 100
 
 
 @pytest.mark.asyncio

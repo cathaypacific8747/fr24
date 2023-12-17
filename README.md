@@ -43,11 +43,11 @@ Most code is developed in asynchronous mode: if you are not familiar with that p
   - run `asyncio.run(main())` in a Python script;
   - run `await main()` in a Jupyter notebook.
 
-You can find usage examples in the `examples/` folder.
+You can find usage examples in the `scripts/` folder.
 
 ### Caching
 
-To avoid repeated requests, a [simple file-based cache](`src/fr24/core.py`) is under development. It saves parquet files under `$HOME/.cache/fr24` on Linux. You can find the cache directory on other operating systems with:
+To avoid repeated requests, a [simple file-based cache](src/fr24/core.py) is under development. It saves parquet files under `$HOME/.cache/fr24` on Linux. You can find the cache directory on other operating systems with:
 
 ```sh
 python3 -c "from appdirs import user_cache_dir; print(user_cache_dir('fr24'))"

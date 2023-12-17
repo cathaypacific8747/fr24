@@ -1,4 +1,5 @@
 syntax = "proto3";
+// NOTE: the optional keyword doesn't mean it's nullable, but for presence tracking which forces the field to be explicitly sent
 
 enum Service {
     PASSENGER = 0;
@@ -85,7 +86,6 @@ message FiltersList {
     repeated Service categories_list = 14;
 }
 
-// ChQNw/XgQRVxPU5BHXsUwEIl7NEBQxIcCgoAAQIDBAUGBwgJEgwAAQIDBAUGBwgJCgsYAzABONwLQMBwUgsKA3JlZwoEdHlwZQ==
 message LiveFeedRequest {
     message Bounds {
         float north = 1;
@@ -105,21 +105,28 @@ message LiveFeedRequest {
         repeated DataSource sources_list = 1;
         repeated Service services_list = 2;
         TrafficType traffic_type = 3;
+        optional bool only_restricted = 4;
     }
 
     message FieldMask {
         repeated string field_name = 1;
     }
 
+    enum RestrictionMode {
+        NOT_VISIBLE = 0;
+        RESTRICTED_INCLUDED = 1;
+        RESTRICTED_ONLY = 2;
+    }
+
     Bounds bounds = 1;
     Settings settings = 2;
-    optional FiltersList filters_list = 3;
-    optional string custom_fleet_id = 4; // requires auth
-    // 5: ???
-    bool stats = 6;
-    int32 limit = 7; // default 1500
-    int32 maxage = 8; // default 14400
-    // 9: ???
+    FiltersList filters_list = 3;
+    string custom_fleet_id = 4; // requires auth
+    bool highlight_mode = 5;
+    optional bool stats = 6;
+    optional int32 limit = 7; // default 1500
+    optional int32 maxage = 8; // default 14400
+    optional RestrictionMode restriction_mode = 9;
     FieldMask field_mask = 10;
     repeated fixed32 selected_flightid = 11;
 }
@@ -128,7 +135,7 @@ message LiveFeedResponse {
     message FlightData {
         message ExtraInfo {
             message Route {
-                string from = 1;
+                string from_ = 1;
                 string to = 2;
             }
 
@@ -143,51 +150,51 @@ message LiveFeedResponse {
 
             // a =? altitude
             message EMS {
-                optional int32 qnh = 1; // often null
-                optional int32 amcp = 2; // likely barometric altitude
-                optional int32 afms = 3; // often null
-                optional int32 oat = 4;
-                optional int32 ias = 5;
-                optional int32 tas = 6;
-                optional int32 mach = 7; // NOTE: 1000 = mach 1
-                optional int32 agps = 8;
-                optional int32 agpsdiff = 9; // |amcp - agps|
-                optional int32 apflags = 10; // often null
-                optional int32 wind_dir = 11;
-                optional int32 wind_speed = 12;
-                optional int32 rs = 13; // unknown
+                int32 qnh = 1; // often null
+                int32 amcp = 2; // likely barometric altitude
+                int32 afms = 3; // often null
+                int32 oat = 4;
+                int32 ias = 5;
+                int32 tas = 6;
+                int32 mach = 7; // NOTE: 1000 = mach 1
+                int32 agps = 8;
+                int32 agpsdiff = 9; // |amcp - agps|
+                int32 apflags = 10; // often null
+                int32 wind_dir = 11;
+                int32 wind_speed = 12;
+                int32 rs = 13; // unknown
             }
 
             message EMSAvailability {
-                optional bool qnh_availability = 1;
-                optional bool amcp_availability = 2;
-                optional bool afms_availability = 3;
-                optional bool oat_availability = 4;
-                optional bool ias_availability = 5;
-                optional bool tas_availability = 6;
-                optional bool mach_availability = 7;
-                optional bool agps_availability = 8;
-                optional bool agpsdiff_availability = 9;
-                optional bool apflags_availability = 10;
-                optional bool wind_dir_availability = 11;
-                optional bool wind_speed_availability = 12;
-                optional bool rs_availability = 13;
+                bool qnh_availability = 1;
+                bool amcp_availability = 2;
+                bool afms_availability = 3;
+                bool oat_availability = 4;
+                bool ias_availability = 5;
+                bool tas_availability = 6;
+                bool mach_availability = 7;
+                bool agps_availability = 8;
+                bool agpsdiff_availability = 9;
+                bool apflags_availability = 10;
+                bool wind_dir_availability = 11;
+                bool wind_speed_availability = 12;
+                bool rs_availability = 13;
             }
             
-            optional string flight = 1; // iata flight number
-            optional string reg = 2;
-            optional Route route = 3;
-            optional string type = 4;
-            optional int32 squawk = 5; // NOTE: 20852 -> 0x5174
-            optional int32 vspeed = 6;
-            optional string ac_birthday = 7;
-            optional int32 country_of_reg = 8;
-            optional Schedule schedule = 9;
-            optional int32 logo_id = 10;
-            optional int32 airspace = 11; // FIR
-            optional EMS ems_info = 12;
-            optional EMSAvailability ems_availability = 13;
-            optional int32 icao_address = 14;
+            string flight = 1; // iata flight number
+            string reg = 2;
+            Route route = 3;
+            string type = 4;
+            int32 squawk = 5; // NOTE: 20852 -> 0x5174
+            int32 vspeed = 6;
+            string ac_birthday = 7;
+            int32 country_of_reg = 8;
+            Schedule schedule = 9;
+            int32 logo_id = 10;
+            int32 airspace = 11; // FIR
+            EMS ems_info = 12;
+            EMSAvailability ems_availability = 13;
+            int32 icao_address = 14;
             // 15-18 are unknown int32s (only when flight is selected)
         }
         int32 flightid = 1; // to hex
@@ -217,4 +224,16 @@ message LiveFeedResponse {
     repeated FlightData flights_list = 1;
     Statistics stats = 2;
     repeated FlightData selected_flight_info = 3;
+}
+
+// duration: floor(7.5*(multiplier)) seconds, i.e. 1x = 7s
+message LiveFeedPlaybackRequest {
+    LiveFeedRequest live_feed_request = 1;
+    int32 timestamp = 2; // 1x: 7 second intervals
+    int32 prefetch = 3;
+    optional int32 hfreq = 4;
+}
+
+message LiveFeedPlaybackResponse {
+    LiveFeedResponse live_feed_response = 1;
 }

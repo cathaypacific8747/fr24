@@ -109,8 +109,28 @@ class FiltersList(_message.Message):
     types_list: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, altitude_ranges_list: _Optional[_Iterable[_Union[FiltersList.AltitudeRange, _Mapping]]] = ..., speed_ranges_list: _Optional[_Iterable[_Union[FiltersList.SpeedRange, _Mapping]]] = ..., airline_filters_list: _Optional[_Iterable[_Union[FiltersList.AirlineFilter, _Mapping]]] = ..., callsigns_list: _Optional[_Iterable[str]] = ..., radars_list: _Optional[_Iterable[str]] = ..., regs_list: _Optional[_Iterable[str]] = ..., airports_list: _Optional[_Iterable[_Union[FiltersList.AirportFilter, _Mapping]]] = ..., types_list: _Optional[_Iterable[str]] = ..., birth_year_ranges_list: _Optional[_Iterable[_Union[FiltersList.BirthYearRange, _Mapping]]] = ..., origins_list: _Optional[_Iterable[_Union[FiltersList.ODFilter, _Mapping]]] = ..., destinations_list: _Optional[_Iterable[_Union[FiltersList.ODFilter, _Mapping]]] = ..., categories_list: _Optional[_Iterable[_Union[Service, str]]] = ...) -> None: ...
 
+class LiveFeedPlaybackRequest(_message.Message):
+    __slots__ = ["hfreq", "live_feed_request", "prefetch", "timestamp"]
+    HFREQ_FIELD_NUMBER: _ClassVar[int]
+    LIVE_FEED_REQUEST_FIELD_NUMBER: _ClassVar[int]
+    PREFETCH_FIELD_NUMBER: _ClassVar[int]
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    hfreq: int
+    live_feed_request: LiveFeedRequest
+    prefetch: int
+    timestamp: int
+    def __init__(self, live_feed_request: _Optional[_Union[LiveFeedRequest, _Mapping]] = ..., timestamp: _Optional[int] = ..., prefetch: _Optional[int] = ..., hfreq: _Optional[int] = ...) -> None: ...
+
+class LiveFeedPlaybackResponse(_message.Message):
+    __slots__ = ["live_feed_response"]
+    LIVE_FEED_RESPONSE_FIELD_NUMBER: _ClassVar[int]
+    live_feed_response: LiveFeedResponse
+    def __init__(self, live_feed_response: _Optional[_Union[LiveFeedResponse, _Mapping]] = ...) -> None: ...
+
 class LiveFeedRequest(_message.Message):
-    __slots__ = ["bounds", "custom_fleet_id", "field_mask", "filters_list", "limit", "maxage", "selected_flightid", "settings", "stats"]
+    __slots__ = ["bounds", "custom_fleet_id", "field_mask", "filters_list", "highlight_mode", "limit", "maxage", "restriction_mode", "selected_flightid", "settings", "stats"]
+    class RestrictionMode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = []
     class Bounds(_message.Message):
         __slots__ = ["east", "north", "south", "west"]
         EAST_FIELD_NUMBER: _ClassVar[int]
@@ -128,26 +148,33 @@ class LiveFeedRequest(_message.Message):
         field_name: _containers.RepeatedScalarFieldContainer[str]
         def __init__(self, field_name: _Optional[_Iterable[str]] = ...) -> None: ...
     class Settings(_message.Message):
-        __slots__ = ["services_list", "sources_list", "traffic_type"]
+        __slots__ = ["only_restricted", "services_list", "sources_list", "traffic_type"]
         class TrafficType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = []
         AIRBORNE_ONLY: LiveFeedRequest.Settings.TrafficType
         ALL: LiveFeedRequest.Settings.TrafficType
         GROUND_ONLY: LiveFeedRequest.Settings.TrafficType
         NONE: LiveFeedRequest.Settings.TrafficType
+        ONLY_RESTRICTED_FIELD_NUMBER: _ClassVar[int]
         SERVICES_LIST_FIELD_NUMBER: _ClassVar[int]
         SOURCES_LIST_FIELD_NUMBER: _ClassVar[int]
         TRAFFIC_TYPE_FIELD_NUMBER: _ClassVar[int]
+        only_restricted: bool
         services_list: _containers.RepeatedScalarFieldContainer[Service]
         sources_list: _containers.RepeatedScalarFieldContainer[DataSource]
         traffic_type: LiveFeedRequest.Settings.TrafficType
-        def __init__(self, sources_list: _Optional[_Iterable[_Union[DataSource, str]]] = ..., services_list: _Optional[_Iterable[_Union[Service, str]]] = ..., traffic_type: _Optional[_Union[LiveFeedRequest.Settings.TrafficType, str]] = ...) -> None: ...
+        def __init__(self, sources_list: _Optional[_Iterable[_Union[DataSource, str]]] = ..., services_list: _Optional[_Iterable[_Union[Service, str]]] = ..., traffic_type: _Optional[_Union[LiveFeedRequest.Settings.TrafficType, str]] = ..., only_restricted: bool = ...) -> None: ...
     BOUNDS_FIELD_NUMBER: _ClassVar[int]
     CUSTOM_FLEET_ID_FIELD_NUMBER: _ClassVar[int]
     FIELD_MASK_FIELD_NUMBER: _ClassVar[int]
     FILTERS_LIST_FIELD_NUMBER: _ClassVar[int]
+    HIGHLIGHT_MODE_FIELD_NUMBER: _ClassVar[int]
     LIMIT_FIELD_NUMBER: _ClassVar[int]
     MAXAGE_FIELD_NUMBER: _ClassVar[int]
+    NOT_VISIBLE: LiveFeedRequest.RestrictionMode
+    RESTRICTED_INCLUDED: LiveFeedRequest.RestrictionMode
+    RESTRICTED_ONLY: LiveFeedRequest.RestrictionMode
+    RESTRICTION_MODE_FIELD_NUMBER: _ClassVar[int]
     SELECTED_FLIGHTID_FIELD_NUMBER: _ClassVar[int]
     SETTINGS_FIELD_NUMBER: _ClassVar[int]
     STATS_FIELD_NUMBER: _ClassVar[int]
@@ -155,12 +182,14 @@ class LiveFeedRequest(_message.Message):
     custom_fleet_id: str
     field_mask: LiveFeedRequest.FieldMask
     filters_list: FiltersList
+    highlight_mode: bool
     limit: int
     maxage: int
+    restriction_mode: LiveFeedRequest.RestrictionMode
     selected_flightid: _containers.RepeatedScalarFieldContainer[int]
     settings: LiveFeedRequest.Settings
     stats: bool
-    def __init__(self, bounds: _Optional[_Union[LiveFeedRequest.Bounds, _Mapping]] = ..., settings: _Optional[_Union[LiveFeedRequest.Settings, _Mapping]] = ..., filters_list: _Optional[_Union[FiltersList, _Mapping]] = ..., custom_fleet_id: _Optional[str] = ..., stats: bool = ..., limit: _Optional[int] = ..., maxage: _Optional[int] = ..., field_mask: _Optional[_Union[LiveFeedRequest.FieldMask, _Mapping]] = ..., selected_flightid: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, bounds: _Optional[_Union[LiveFeedRequest.Bounds, _Mapping]] = ..., settings: _Optional[_Union[LiveFeedRequest.Settings, _Mapping]] = ..., filters_list: _Optional[_Union[FiltersList, _Mapping]] = ..., custom_fleet_id: _Optional[str] = ..., highlight_mode: bool = ..., stats: bool = ..., limit: _Optional[int] = ..., maxage: _Optional[int] = ..., restriction_mode: _Optional[_Union[LiveFeedRequest.RestrictionMode, str]] = ..., field_mask: _Optional[_Union[LiveFeedRequest.FieldMask, _Mapping]] = ..., selected_flightid: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class LiveFeedResponse(_message.Message):
     __slots__ = ["flights_list", "selected_flight_info", "stats"]
@@ -227,11 +256,12 @@ class LiveFeedResponse(_message.Message):
                 wind_speed_availability: bool
                 def __init__(self, qnh_availability: bool = ..., amcp_availability: bool = ..., afms_availability: bool = ..., oat_availability: bool = ..., ias_availability: bool = ..., tas_availability: bool = ..., mach_availability: bool = ..., agps_availability: bool = ..., agpsdiff_availability: bool = ..., apflags_availability: bool = ..., wind_dir_availability: bool = ..., wind_speed_availability: bool = ..., rs_availability: bool = ...) -> None: ...
             class Route(_message.Message):
-                __slots__ = ["to"]
-                FROM_FIELD_NUMBER: _ClassVar[int]
+                __slots__ = ["from_", "to"]
+                FROM__FIELD_NUMBER: _ClassVar[int]
                 TO_FIELD_NUMBER: _ClassVar[int]
+                from_: str
                 to: str
-                def __init__(self, to: _Optional[str] = ..., **kwargs) -> None: ...
+                def __init__(self, from_: _Optional[str] = ..., to: _Optional[str] = ...) -> None: ...
             class Schedule(_message.Message):
                 __slots__ = ["ata", "atd", "eta", "etd", "sta", "std"]
                 ATA_FIELD_NUMBER: _ClassVar[int]

@@ -9,7 +9,7 @@ include = [ "LICENSE", "py.typed", "request.proto", "style.tcss" ]
 
 [tool.poetry.scripts]
 fr24 = 'fr24.tui.tui:main'
-fr24_snapshot = 'fr24.livefeed:snapshot'
+fr24_snapshot = 'fr24.livefeed:main'
 fr24_login = 'fr24.authentication:main'
 
 [tool.poetry.dependencies]
