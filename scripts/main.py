@@ -112,8 +112,7 @@ async def my_feed() -> pd.DataFrame:
     async with FR24() as fr24:
         if fr24.auth is not None:
             print(fr24.auth["message"])
-        fp = await fr24.cache_livefeed_playback_world_insert(1702793899, 3)
-        print(fp)
+        fp = await fr24.cache_livefeed_playback_world_insert(1702793899, 7)
         return pd.read_parquet(fp)
 
 

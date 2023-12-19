@@ -219,7 +219,7 @@ class FR24:
         self, timestamp: int, duration: int = 7, hfreq: int = 0
     ) -> Path:
         data = await livefeed_playback_world_data(
-            self.client, timestamp, duration, hfreq
+            self.client, timestamp, duration, hfreq, self.auth
         )
 
         fp = (
@@ -232,7 +232,7 @@ class FR24:
         return fp
 
     async def cache_livefeed(self) -> Path:
-        data = await livefeed_world_data(self.client)
+        data = await livefeed_world_data(self.client, self.auth)
 
         fp = (
             self.cache_dir
