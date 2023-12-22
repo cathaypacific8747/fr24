@@ -115,13 +115,13 @@ class PlaybackTrackEMSRecord(TypedDict):
 # TODO: altitude only requires 12 bits: divide by 25 and store with u16
 livefeed_schema = pa.schema(
     [
-        pa.field("flightid", pa.uint64()),
+        pa.field("timestamp", pa.uint32()),
+        pa.field("flightid", pa.uint32()),
         pa.field("latitude", pa.float32()),
         pa.field("longitude", pa.float32()),
         pa.field("heading", pa.uint16()),
         pa.field("altitude", pa.int32()),
         pa.field("ground_speed", pa.int16()),
-        pa.field("timestamp", pa.uint32()),
         pa.field("on_ground", pa.bool_()),
         pa.field("callsign", pa.string()),
         pa.field("source", pa.uint8()),
@@ -130,6 +130,7 @@ livefeed_schema = pa.schema(
         pa.field("destination", pa.string()),
         pa.field("typecode", pa.string()),
         pa.field("eta", pa.uint32()),
+        pa.field("vertical_speed", pa.int16()),  # 64 * 9-bit + 1-bit sign
     ]
 )
 

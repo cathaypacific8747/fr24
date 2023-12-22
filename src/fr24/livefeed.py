@@ -6,6 +6,7 @@ import struct
 from typing import Any
 
 import httpx
+from loguru import logger
 
 from .common import DEFAULT_HEADERS_GRPC
 from .proto.request_pb2 import (
@@ -172,13 +173,13 @@ def livefeed_flightdata_dict(
     lfr: LiveFeedResponse.FlightData
 ) -> LiveFeedRecord:
     return {
+        "timestamp": lfr.timestamp,
         "flightid": lfr.flightid,
         "latitude": lfr.latitude,
         "longitude": lfr.longitude,
         "heading": lfr.heading,
         "altitude": lfr.altitude,
         "ground_speed": lfr.ground_speed,
-        "timestamp": lfr.timestamp,
         "on_ground": lfr.on_ground,
         "callsign": lfr.callsign,
         "source": lfr.source,
@@ -187,6 +188,7 @@ def livefeed_flightdata_dict(
         "destination": lfr.extra_info.route.to,
         "typecode": lfr.extra_info.type,
         "eta": lfr.extra_info.schedule.eta,
+        "vertical_speed": lfr.extra_info.vspeed,
     }
 
 
@@ -233,10 +235,16 @@ async def livefeed_playback_world_data(
                 ),
             )
             for bounds in world_zones
-        ]
+        ],
+        return_exceptions=True,
     )
+    if len(err := [r for r in results if not isinstance(r, bytes)]) > 0:
+        logger.warning(f"{len(err)} errors: {err}!")
+        if len(err) > len(results) / 2:
+            raise Exception("Too many errors!")
     return [
         livefeed_flightdata_dict(lfr)
         for r in results
+        if isinstance(r, bytes)
         for lfr in livefeed_playback_response_parse(r).flights_list
     ]
