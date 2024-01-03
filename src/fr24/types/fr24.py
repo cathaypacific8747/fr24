@@ -375,7 +375,7 @@ class FlightListResponse(TypedDict):
     item: Item
     page: Page
     timestamp: int
-    data: list[FlightListItem]
+    data: None | list[FlightListItem]
 
 
 class FlightListResult(TypedDict):

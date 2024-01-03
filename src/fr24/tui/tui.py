@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import asyncio
+from typing import Iterator, TypeVar
+
 import httpx
 from textual import on
 from textual.app import App, ComposeResult
@@ -16,6 +19,7 @@ from textual.widgets import (
 
 import pandas as pd
 from fr24.authentication import login
+from fr24.find import find, is_schedule
 from fr24.history import airport_list, flight_list
 from fr24.tui.formatters import Aircraft, Airport, Time
 from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
@@ -25,6 +29,13 @@ from fr24.types.fr24 import (
     FlightList,
     FlightListItem,
 )
+
+T = TypeVar("T")
+
+
+def flatten(*args: list[T]) -> Iterator[T]:
+    for elt in args:
+        yield from elt
 
 
 class SearchBlock(Static):
@@ -121,10 +132,13 @@ class FR24(App[None]):
             await self.lookup_number(number, ts=ts)
             return
         departure_widget = self.query_one("#departure", AirportWidget)
+        arrival_widget = self.query_one("#arrival", AirportWidget)
         if departure := departure_widget.airport_id:
+            if arrival := arrival_widget.airport_id:
+                await self.lookup_city_pair(departure, arrival, ts=ts)
+                return
             await self.lookup_departure(departure, ts=ts)
             return
-        arrival_widget = self.query_one("#arrival", AirportWidget)
         if arrival := arrival_widget.airport_id:
             await self.lookup_arrival(arrival, ts=ts)
             return
@@ -141,6 +155,73 @@ class FR24(App[None]):
         )
         self.update_table(results["result"]["response"].get("data", None))
 
+    async def lookup_city_pair(
+        self, departure: str, arrival: str, ts: pd.Timestamp
+    ) -> None:
+        results = await find(f"{departure}-{arrival}")
+        if results is None or results["stats"]["count"]["schedule"] == 0:
+            return
+        flight_numbers = list(
+            sched["detail"]["flight"]
+            for sched in results["results"]
+            if is_schedule(sched)
+        )
+        flight_lists: list[FlightList] = []
+        for value in flight_numbers:
+            try:
+                res = await flight_list(
+                    self.client,
+                    flight=value,
+                    limit=10,
+                    timestamp=ts,
+                    auth=self.auth,
+                )
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == 402:  # payment required
+                    await asyncio.sleep(10)
+                    res = await flight_list(
+                        self.client,
+                        flight=value,
+                        limit=10,
+                        timestamp=ts,
+                        auth=self.auth,
+                    )
+                else:
+                    raise exc
+
+            flight_lists.append(res)
+
+            compacted_view = list(
+                flatten(
+                    *(
+                        entry
+                        for e in flight_lists
+                        if (
+                            (entry := e["result"]["response"]["data"])
+                            is not None
+                        )
+                    )
+                )
+            )
+
+            def by_departure_time(elt: FlightListItem) -> int:
+                departure_time = elt["time"]["scheduled"]["departure"]
+                return -departure_time if departure_time else 0
+
+            compacted_view = sorted(
+                (
+                    entry
+                    for entry in compacted_view
+                    if (sobt := entry["time"]["scheduled"]["departure"])
+                    is not None
+                    and sobt < ts.timestamp() + 3600 * 24
+                ),
+                key=by_departure_time,
+            )
+            self.update_table(compacted_view)
+
+            await asyncio.sleep(2)
+
     async def lookup_arrival(self, value: str, ts: str) -> None:
         results: AirportList = await airport_list(
             self.client,
@@ -151,12 +232,14 @@ class FR24(App[None]):
             auth=self.auth,
         )
         s = results["result"]["response"]["airport"]["pluginData"]["schedule"]
-        self.update_table(
-            [  # TODO add airport info from
-                elt["flight"]  # type: ignore
-                for elt in s["arrivals"].get("data", [])
-            ]
-        )
+        data = s["arrivals"].get("data", None)
+        if data is not None:
+            self.update_table(
+                [  # TODO add airport info from
+                    elt["flight"]  # type: ignore
+                    for elt in data
+                ]
+            )
 
     async def lookup_departure(self, value: str, ts: str) -> None:
         results: AirportList = await airport_list(
@@ -168,12 +251,14 @@ class FR24(App[None]):
             auth=self.auth,
         )
         s = results["result"]["response"]["airport"]["pluginData"]["schedule"]
-        self.update_table(
-            [  # TODO add airport info from
-                elt["flight"]  # type: ignore
-                for elt in s["departures"].get("data", [])
-            ]
-        )
+        data = s["departures"].get("data", None)
+        if data is not None:
+            self.update_table(
+                [  # TODO add airport info from
+                    elt["flight"]  # type: ignore
+                    for elt in data
+                ]
+            )
 
     def update_table(self, data: None | list[FlightListItem]) -> None:
         table = self.query_one(DataTable)

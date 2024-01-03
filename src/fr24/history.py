@@ -270,8 +270,10 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
     }
 
 
-def flight_list_df(result: FlightList) -> pd.DataFrame:
+def flight_list_df(result: FlightList) -> None | pd.DataFrame:
     list_ = result["result"]["response"]["data"]
+    if list_ is None:
+        return None
     df = pd.DataFrame.from_records(flight_list_dict(entry) for entry in list_)
     return df.eval(
         """

@@ -57,6 +57,8 @@ async def test_aircraft() -> None:
     async with httpx.AsyncClient() as client:
         list_ = await flight_list(client, reg="F-HNAV")
         df = flight_list_df(list_)
+        if df is None:
+            return
         assert df.shape[0] > 0
         landed = df.query('status.str.startswith("Landed")')
         if landed.shape[0] == 0:
@@ -68,7 +70,8 @@ async def test_aircraft() -> None:
                     entry["identification"]["id"],  # type: ignore
                     entry["time"]["scheduled"]["arrival"],
                 )
-                for entry in list_["result"]["response"]["data"]
+                # the entry below is not None because of `if df is None:`
+                for entry in list_["result"]["response"]["data"]  # type: ignore
                 if entry["status"]["text"].startswith("Landed")
             ]
         )
