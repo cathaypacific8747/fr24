@@ -180,6 +180,7 @@ def livefeed_flightdata_dict(
         "heading": lfr.heading,
         "altitude": lfr.altitude,
         "ground_speed": lfr.ground_speed,
+        "vertical_speed": lfr.extra_info.vspeed,
         "on_ground": lfr.on_ground,
         "callsign": lfr.callsign,
         "source": lfr.source,
@@ -188,7 +189,6 @@ def livefeed_flightdata_dict(
         "destination": lfr.extra_info.route.to,
         "typecode": lfr.extra_info.type,
         "eta": lfr.extra_info.schedule.eta,
-        "vertical_speed": lfr.extra_info.vspeed,
     }
 
 

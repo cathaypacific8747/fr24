@@ -136,13 +136,14 @@ livefeed_schema = pa.schema(
 
 
 class LiveFeedRecord(TypedDict):
+    timestamp: int
     flightid: int
     latitude: float
     longitude: float
     heading: int
     altitude: int
     ground_speed: int
-    timestamp: int
+    vertical_speed: int
     on_ground: bool
     callsign: str
     source: int
