@@ -80,9 +80,10 @@ def livefeed_message_create(
                 "reg",
                 "route",
                 "type",
-                "schedule",
+                # "schedule",
             ]
-            # auth required: squawk, vspeed, airspace
+            # NOTE: unauthenticated: max 4 fields,
+            #       auth required: `squawk`, `vspeed`, `airspace`
         ),
         highlight_mode=False,
         stats=stats,

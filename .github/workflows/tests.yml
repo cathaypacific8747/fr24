@@ -41,6 +41,10 @@ jobs:
         poetry run ruff src tests scripts
         poetry run ruff format --check src tests scripts
 
+    - name: Fix Jupyter platformdirs DeprecationWarning
+      run: |
+        JUPYTER_PLATFORM_DIRS=1 jupyter --paths
+
     - name: Type checking
       run: |
         poetry run mypy src tests
