@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+from pathlib import Path
 from typing import Iterator, TypeVar
 
 import httpx
@@ -20,7 +22,7 @@ from textual.widgets import (
 import pandas as pd
 from fr24.authentication import login
 from fr24.find import find, is_schedule
-from fr24.history import airport_list, flight_list
+from fr24.history import airport_list, flight_list, playback
 from fr24.tui.formatters import Aircraft, Airport, Time
 from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
 from fr24.types.fr24 import (
@@ -59,10 +61,12 @@ class FR24(App[None]):
         ("q", "quit", "Quit"),
         ("l", "login", "Log in"),
         ("r", "refresh", "Refresh"),  # TODO
-        ("s", "search", "Search"),
+        ("/", "search", "Search"),
+        ("s", "save", "Save"),
         ("c", "clear", "Clear"),
         Binding("escape", "escape", show=False),
     ]
+    line_info: dict[str, str] = {}
 
     def compose(self) -> ComposeResult:
         self.auth: Authentication | None = None
@@ -76,6 +80,7 @@ class FR24(App[None]):
     def on_mount(self) -> None:
         self.title = "FlightRadar24"
         table = self.query_one(DataTable)
+        table.cursor_type = "row"
         table.add_columns(
             "date",
             "number",
@@ -117,6 +122,28 @@ class FR24(App[None]):
             self.sub_title = f"(authenticated: {self.auth['user']['identity']})"
             self.query_one(Header).add_class("authenticated")
             self.query_one(Footer).add_class("authenticated")
+
+    async def on_data_table_row_selected(
+        self, event: DataTable.RowSelected
+    ) -> None:
+        columns = [c.label.plain for c in event.data_table.columns.values()]
+        self.line_info = dict(
+            zip(columns, event.data_table.get_row(event.row_key))
+        )
+
+    async def action_save(self) -> None:
+        if len(self.line_info) == 0:
+            return
+        date = self.line_info["date"] + " " + self.line_info["STD"]
+        result = await playback(
+            self.client,
+            flight_id=self.line_info["flightid"],
+            timestamp=date,
+            auth=self.auth,
+        )
+        filename = f"{self.line_info['flightid']}.json"
+        self.notify(f"Saving to {filename}")
+        Path(filename).write_text(json.dumps(result, indent=2))
 
     @on(Input.Submitted)
     async def action_refresh(self) -> None:
