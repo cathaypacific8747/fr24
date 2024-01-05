@@ -66,7 +66,7 @@ class FR24(App[None]):
         ("c", "clear", "Clear"),
         Binding("escape", "escape", show=False),
     ]
-    line_info: dict[str, str] = {}
+    line_info: dict[str, str] = {}  # noqa: RUF012
 
     def compose(self) -> ComposeResult:
         self.auth: Authentication | None = None
