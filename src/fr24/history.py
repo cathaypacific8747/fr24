@@ -181,16 +181,28 @@ def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg
         "status_type": sta["status"]["type"],
         "status_text": sta["status"]["text"],
         "status_diverted": sta["status"]["diverted"],
-        "status_time": int(sta["eventTime"]["utc"]),
-        "model_code": flight["aircraft"]["model"]["code"],
-        "icao24": int(flight["aircraft"]["identification"]["modes"], 16),
-        "registration": flight["aircraft"]["identification"]["registration"],
+        "status_time": int(sta["eventTime"]["utc"])
+        if sta["eventTime"]["utc"]
+        else None,
+        "model_code": flight["aircraft"]["model"]["code"]
+        if flight["aircraft"]
+        else None,
+        "icao24": int(flight["aircraft"]["identification"]["modes"], 16)
+        if flight["aircraft"]
+        else None,
+        "registration": flight["aircraft"]["identification"]["registration"]
+        if flight["aircraft"]
+        else None,
         "owner": owner["code"]["icao"] if owner is not None else None,
         "airline": airline["code"]["icao"] if airline is not None else None,
         "origin": origin["code"]["icao"] if origin is not None else None,
         "destination": dest["code"]["icao"] if dest is not None else None,
-        "median_delay": flight["median"]["delay"],
-        "median_time": int(flight["median"]["timestamp"]),
+        "median_delay": flight["median"]["delay"]
+        if flight["median"]["delay"]
+        else None,
+        "median_time": int(flight["median"]["timestamp"])
+        if flight["median"]["timestamp"]
+        else None,
     }
 
 
