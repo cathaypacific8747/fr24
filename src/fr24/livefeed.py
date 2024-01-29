@@ -62,6 +62,15 @@ def livefeed_message_create(
     stats: bool = False,
     limit: int = 1500,
     maxage: int = 14400,
+    fields: list[str] = [
+        "flight",
+        "reg",
+        "route",
+        "type",
+        # "schedule",
+    ],
+    # NOTE: unauthenticated: max 4 fields,
+    #       auth required: `squawk`, `vspeed`, `airspace`
     **kwargs: Any,
 ) -> LiveFeedRequest:
     return LiveFeedRequest(
@@ -74,17 +83,7 @@ def livefeed_message_create(
             traffic_type=LiveFeedRequest.Settings.ALL,
             only_restricted=False,
         ),
-        field_mask=LiveFeedRequest.FieldMask(
-            field_name=[
-                "flight",
-                "reg",
-                "route",
-                "type",
-                # "schedule",
-            ]
-            # NOTE: unauthenticated: max 4 fields,
-            #       auth required: `squawk`, `vspeed`, `airspace`
-        ),
+        field_mask=LiveFeedRequest.FieldMask(field_name=fields),
         highlight_mode=False,
         stats=stats,
         limit=limit,
