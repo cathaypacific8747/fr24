@@ -92,8 +92,8 @@ class GenericStatus(TypedDict):
 
 
 class GenericEventTime(TypedDict):
-    utc: int
-    local: int
+    utc: int | None
+    local: int | None
 
 
 class StatusGeneric(TypedDict):
@@ -201,9 +201,9 @@ class AirportPairData(TypedDict):
 
 
 class Median(TypedDict):
-    time: int
-    delay: int
-    timestamp: int
+    time: int | None
+    delay: int | None
+    timestamp: int | None
 
 
 class Altitude(TypedDict):
@@ -269,9 +269,9 @@ class AircraftImages(TypedDict):
 class FlightData(TypedDict):
     identification: FlightIdentification
     status: StatusData
-    aircraft: AircraftData
-    owner: None | OwnerData
-    airline: None | AirlineData
+    aircraft: AircraftData | None
+    owner: OwnerData | None
+    airline: AirlineData | None
     airport: AirportPairData
     median: Median
     track: list[TrackData]

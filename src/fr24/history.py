@@ -171,6 +171,7 @@ def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg
     ident = flight["identification"]
     sta = flight["status"]["generic"]
     owner = flight["owner"]
+    aircraft = flight["aircraft"]
     airline = flight["airline"]
     origin = flight["airport"]["origin"]
     dest = flight["airport"]["destination"]
@@ -181,27 +182,27 @@ def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg
         "status_type": sta["status"]["type"],
         "status_text": sta["status"]["text"],
         "status_diverted": sta["status"]["diverted"],
-        "status_time": int(sta["eventTime"]["utc"])
-        if sta["eventTime"]["utc"]
+        "status_time": int(time)
+        if (time := sta["eventTime"]["utc"]) is not None
         else None,
-        "model_code": flight["aircraft"]["model"]["code"]
-        if flight["aircraft"]
+        "model_code": aircraft["model"]["code"]
+        if aircraft is not None
         else None,
-        "icao24": int(flight["aircraft"]["identification"]["modes"], 16)
-        if flight["aircraft"]
+        "icao24": int(aircraft["identification"]["modes"], 16)
+        if aircraft is not None
         else None,
-        "registration": flight["aircraft"]["identification"]["registration"]
-        if flight["aircraft"]
+        "registration": aircraft["identification"]["registration"]
+        if aircraft is not None
         else None,
         "owner": owner["code"]["icao"] if owner is not None else None,
         "airline": airline["code"]["icao"] if airline is not None else None,
         "origin": origin["code"]["icao"] if origin is not None else None,
         "destination": dest["code"]["icao"] if dest is not None else None,
-        "median_delay": flight["median"]["delay"]
-        if flight["median"]["delay"]
+        "median_delay": delay_med
+        if (delay_med := flight["median"]["delay"]) is not None
         else None,
-        "median_time": int(flight["median"]["timestamp"])
-        if flight["median"]["timestamp"]
+        "median_time": int(time_med)
+        if (time_med := flight["median"]["timestamp"]) is not None
         else None,
     }
 
