@@ -28,26 +28,31 @@ Once installed, a few endpoints are available (use `--help` for more information
   ```
 
 - TUI:
+
   ```sh
   fr24 tui
   ```
 
 - You may want to be authenticated to access more history: set the environment variables `fr24_username` and `fr24_password`, then check that you are properly authenticated with the following:
+
   ```sh
   fr24 auth show
   ```
 
 - You may also create a configuration file in the config directory: you may find its location with:
+
   ```sh
   fr24 dirs
   ```
+
   On Linux, copy the content of `fr24.example.conf` to `$HOME/.config/fr24/fr24.conf`.
 
 ## Usage
 
 Most code is developed in asynchronous mode: if you are not familiar with that programming style, wrap your code in an `async` function called `async_main`, and
-  - run `asyncio.run(main())` in a Python script;
-  - run `await main()` in a Jupyter notebook.
+
+- run `asyncio.run(main())` in a Python script;
+- run `await main()` in a Jupyter notebook.
 
 You can find usage examples in the `scripts/` folder.
 
@@ -72,6 +77,7 @@ To avoid repeated requests, a [simple file-based cache](src/fr24/core.py) saves 
 https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
 
 Generate stubs for pyarrow
+
 ```bash
 stubgen -p pyarrow -o $PATH_TO_SITE_PACKAGES
 ```
