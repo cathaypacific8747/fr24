@@ -37,6 +37,10 @@ def is_aircraft(entry: Entry[Any]) -> TypeGuard[Entry[Aircraft]]:
 
 
 async def find(query: str) -> None | FindResult:
+    """
+    General search.
+    :param query: Airport, schedule (HKG-CDG), or aircraft.
+    """
     async with httpx.AsyncClient() as client:
         request = httpx.Request(
             "GET",

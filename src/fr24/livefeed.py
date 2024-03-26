@@ -67,12 +67,22 @@ def livefeed_message_create(
         "reg",
         "route",
         "type",
-        # "schedule",
     ],
-    # NOTE: unauthenticated: max 4 fields,
-    #       auth required: `squawk`, `vspeed`, `airspace`
     **kwargs: Any,
 ) -> LiveFeedRequest:
+    """
+    Create the LiveFeedRequest protobuf message
+
+    :param north: North latitude
+    :param south: South latitude
+    :param west: West longitude
+    :param east: East longitude
+    :param stats: Include stats of the given area
+    :param limit: Max number of flights
+    :param maxage: Max age since last update, seconds
+    :param fields: fields to include - for unauthenticated users, max 4 fields.
+        When authenticated, `squawk`, `vspeed`, `airspace` can be included
+    """
     return LiveFeedRequest(
         bounds=LiveFeedRequest.Bounds(
             north=north, south=south, west=west, east=east
@@ -99,6 +109,13 @@ def livefeed_playback_message_create(
     prefetch: int,
     hfreq: int,
 ) -> LiveFeedPlaybackRequest:
+    """
+    Create the live feed playback request protobuf message.
+
+    :param timestamp: Start timestamp
+    :param prefetch: End timestamp: should be start timestamp + 7 seconds
+    :param hfreq: Frequency of playback
+    """
     return LiveFeedPlaybackRequest(
         live_feed_request=message,
         timestamp=timestamp,
@@ -111,6 +128,7 @@ def livefeed_request_create(
     message: LiveFeedRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
+    """Construct the POST request with encoded gRPC body."""
     request_s = message.SerializeToString()
     post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
 
@@ -131,6 +149,7 @@ def livefeed_playback_request_create(
     message: LiveFeedPlaybackRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
+    """Constructs the POST request with encoded gRPC body."""
     request_s = message.SerializeToString()
     post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
 
@@ -150,6 +169,7 @@ def livefeed_playback_request_create(
 async def livefeed_post(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> bytes:
+    """Send the request and extract the raw protobuf message."""
     response = await client.send(request)
     data = response.content
     assert len(data) and data[0] == 0
@@ -158,12 +178,14 @@ async def livefeed_post(
 
 
 def livefeed_response_parse(data: bytes) -> LiveFeedResponse:
+    """:param data: raw protobuf message"""
     lfr = LiveFeedResponse()
     lfr.ParseFromString(data)
     return lfr
 
 
 def livefeed_playback_response_parse(data: bytes) -> LiveFeedResponse:
+    """:param data: raw protobuf message"""
     lfr = LiveFeedPlaybackResponse()
     lfr.ParseFromString(data)
     return lfr.live_feed_response
@@ -172,6 +194,7 @@ def livefeed_playback_response_parse(data: bytes) -> LiveFeedResponse:
 def livefeed_flightdata_dict(
     lfr: LiveFeedResponse.FlightData
 ) -> LiveFeedRecord:
+    """Convert the protobuf message to a dictionary."""
     return {
         "timestamp": lfr.timestamp,
         "flightid": lfr.flightid,
@@ -191,10 +214,11 @@ def livefeed_flightdata_dict(
         "eta": lfr.extra_info.schedule.eta,
     }
 
-
+# TODO: allow for custom bounds
 async def livefeed_world_data(
     client: httpx.AsyncClient, auth: None | Authentication = None
 ) -> list[LiveFeedRecord]:
+    """Retrieve live feed data for the entire world, in chunks."""
     results = await asyncio.gather(
         *[
             livefeed_post(
@@ -220,6 +244,10 @@ async def livefeed_playback_world_data(
     hfreq: int = 0,
     auth: None | Authentication = None,
 ) -> list[LiveFeedRecord]:
+    """
+    Retrieve live feed playback data for the entire world, in chunks.
+    Raises an exception if more than half of the requests fail.
+    """
     results = await asyncio.gather(
         *[
             livefeed_post(

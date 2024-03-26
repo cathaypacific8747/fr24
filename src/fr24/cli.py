@@ -24,6 +24,7 @@ def dirs() -> None:
 @app.command()
 def tui() -> None:
     """Starts the TUI"""
+
     tui_main()
 
 

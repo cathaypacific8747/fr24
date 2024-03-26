@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -40,10 +40,6 @@ jobs:
       run: |
         poetry run ruff src tests scripts
         poetry run ruff format --check src tests scripts
-
-    # - name: Fix Jupyter platformdirs DeprecationWarning
-    #   run: |
-    #     JUPYTER_PLATFORM_DIRS=1 jupyter --paths
 
     - name: Type checking
       run: |

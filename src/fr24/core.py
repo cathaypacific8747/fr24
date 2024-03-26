@@ -37,16 +37,12 @@ from .types.fr24 import Authentication, FlightList
 
 
 class FR24:
-    # a simple file-based caching for:
-    #   - flight history
-    #     - flight_list/reg/{reg}.parquet, or
-    #     - flight_list/flight/{iata flight number}.parquet
-    #   - playback by fr24 flight id (int)
-    #     - playback/metadata/{id}.parquet
-    #     - playback/track/{id}.parquet
-    #     - playback/track_ems/{id}.parquet
     def __init__(self, cache_dir: str = user_cache_dir("fr24")) -> None:
-        # on linux, default cache dir is ~/.cache/fr24
+        """
+        Populate http clients and build the cache directory tree.
+
+        Check the [cache directory](/usage/cli/#directories) for more details.
+        """
         self.client = httpx.AsyncClient()
         self.auth: Authentication | None = None
         self.cache_dir = Path(cache_dir)
@@ -78,6 +74,10 @@ class FR24:
         limit: int = 100,
         timestamp: int | datetime | pd.Timestamp | str | None = "now",
     ) -> AsyncIterator[FlightList]:
+        """
+        Yield each page in the flight list API, retrying up to 3 times
+        with 2s delay.
+        """
         more = True
         while more:
             for rt in range(3):
@@ -121,9 +121,12 @@ class FR24:
         timestamp: int | datetime | pd.Timestamp | str | None = "now",
         overwrite: bool = False,
     ) -> Path:
-        # iteratively update the cache by querying in batches,
-        # whenever a duplicate is found in that batch, stop querying.
-        # this should also update the "Estimated XX:XX" status to the latest
+        """
+        Iteratively update the cache by querying in batches,
+        whenever a duplicate is found in that batch, stop querying.
+
+        The "Estimated XX:XX" status will also be updated to the latest.
+        """
         foln, fn = (
             ("flight", str(flight).upper())
             if reg is None
@@ -174,8 +177,10 @@ class FR24:
         timestamp: int | str | datetime | pd.Timestamp | None = None,
         overwrite: bool = False,
     ) -> Path:
-        # attempt to read the metadata cache, if it doesn't exist
-        # create {metadata & track & track_ems}/{id}.parquet
+        """
+        Attempt to read the metadata cache, if it doesn't exist, create
+         `{metadata & track & track_ems}/{id}.parquet`
+        """
         if not isinstance(flight_id, str):
             flight_id = f"{flight_id:x}"
         flight_id = flight_id.lower()
@@ -218,6 +223,7 @@ class FR24:
     async def cache_livefeed_playback_world_insert(
         self, timestamp: int, duration: int = 7, hfreq: int = 0
     ) -> Path:
+        """Request playback of live feed and save to the cache directory"""
         data = await livefeed_playback_world_data(
             self.client, timestamp, duration, hfreq, self.auth
         )
@@ -232,6 +238,7 @@ class FR24:
         return fp
 
     async def cache_livefeed(self) -> Path:
+        """Request live feed and save to the cache directory."""
         data = await livefeed_world_data(self.client, self.auth)
 
         fp = (
