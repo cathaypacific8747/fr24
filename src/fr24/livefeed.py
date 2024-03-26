@@ -214,6 +214,7 @@ def livefeed_flightdata_dict(
         "eta": lfr.extra_info.schedule.eta,
     }
 
+
 # TODO: allow for custom bounds
 async def livefeed_world_data(
     client: httpx.AsyncClient, auth: None | Authentication = None

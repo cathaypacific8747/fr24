@@ -97,10 +97,11 @@ def playback(
             )
             rich.print(f"[bold green]Success[/bold green]: {fp}")
             pf = ParquetFile(fp)
-            rich.print("rows: ", pf.metadata.num_rows)
+            num_rows = pf.metadata.num_rows if pf.metadata is not None else 0
+            rich.print("rows: ", num_rows)
             rich.print(
                 pa.Table.from_batches(
-                    [next(pf.iter_batches(batch_size=5))]
+                    [next(pf.iter_batches(batch_size=5))] # type: ignore
                 ).to_pandas()
             )
 

@@ -138,7 +138,7 @@ class FR24:
         existing_fids = []
         existing_mask: npt.NDArray[np.bool_] = np.array([], dtype=np.bool_)
         if not overwrite and cache_fp.exists():
-            tbl_old = pq.read_table(cache_fp, schema=flight_list_schema)
+            tbl_old = pq.read_table(str(cache_fp), schema=flight_list_schema)
             existing_fids = tbl_old["flight_id"].to_pylist()
             existing_mask = np.full(len(tbl_old), False)
 
@@ -157,7 +157,7 @@ class FR24:
             if found_duplicate:
                 break
         tbl_new = pa.Table.from_pylist(
-            fl_rec_new,
+            fl_rec_new, # type: ignore
             schema=flight_list_schema,
         )
         if found_duplicate:
@@ -207,14 +207,14 @@ class FR24:
             writer.write_table(meta_table)
         with pq.ParquetWriter(fp_track, playback_track_schema) as writer:
             writer.write_table(
-                pa.Table.from_pylist(track, schema=playback_track_schema)
+                pa.Table.from_pylist(track, schema=playback_track_schema) # type: ignore
             )
         with pq.ParquetWriter(
             fp_track_ems, playback_track_ems_schema
         ) as writer:
             writer.write_table(
                 pa.Table.from_pylist(
-                    track_ems, schema=playback_track_ems_schema
+                    track_ems, schema=playback_track_ems_schema # type: ignore
                 )
             )
 
@@ -234,7 +234,7 @@ class FR24:
             / "playback"
             / f"{timestamp * 1000:.0f}_{duration:.0f}.parquet"
         )
-        pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp)
+        pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp) # type: ignore
         return fp
 
     async def cache_livefeed(self) -> Path:
@@ -247,5 +247,5 @@ class FR24:
             / "live"
             / f"{time.time() * 1000:.0f}.parquet"
         )
-        pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp)
+        pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp) # type: ignore
         return fp
