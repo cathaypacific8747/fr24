@@ -11,8 +11,7 @@ class User(TypedDict):
     locale: str
 
 
-class Features(TypedDict):
-    ...  # useless anyway
+class Features(TypedDict): ...  # useless anyway
 
 
 class UserData(TypedDict, total=False):
