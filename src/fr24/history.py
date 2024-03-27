@@ -37,6 +37,24 @@ async def flight_list(
     timestamp: int | datetime | pd.Timestamp | str | None = "now",
     auth: None | Authentication = None,
 ) -> FlightList:
+    """
+    Fetch metadata/history of flights for a given aircraft or flight number.
+
+    Includes basic information such as status, O/D, scheduled/estimated/real
+    times: see [fr24.types.fr24.FlightData][] for more details.
+
+    Use *either* `reg` or `flight` to query.
+    To determine if there are more pages to query, check the response
+    [.result.response.page.more][fr24.types.fr24.Page.more].
+
+    :param client: HTTPX async client
+    :param reg: Aircraft registration (e.g. `B-HUJ`)
+    :param flight: Flight number (e.g. `CX8747`)
+    :param page: Page number
+    :param limit: Number of results per page (max 100)
+    :param timestamp: Show flights with ATD before this Unix timestamp
+    :param auth: Authentication data
+    """
     if isinstance(timestamp, (str, datetime)):
         timestamp = pd.Timestamp(timestamp)
     if isinstance(timestamp, pd.Timestamp):
@@ -84,12 +102,26 @@ async def flight_list(
 async def airport_list(
     client: httpx.AsyncClient,
     airport: str,
-    mode: Literal["arrivals"] | Literal["departures"],
+    mode: Literal["arrivals"] | Literal["departures"] | Literal["ground"],
     page: int = 1,
     limit: int = 10,
     timestamp: int | datetime | pd.Timestamp | str | None = "now",
     auth: None | Authentication = None,
 ) -> AirportList:
+    """
+    Fetch aircraft arriving, departing or on ground at a given airport.
+
+    Returns on ground/scheduled/estimated/real times: see
+    [fr24.types.fr24.FlightListItem][] for more details.
+
+    :param client: HTTPX async client
+    :param airport: IATA airport code (e.g. `HKG`)
+    :param mode: arrivals, departures or on ground aircraft
+    :param page: Page number
+    :param limit: Number of results per page (max 100)
+    :param timestamp: Show flights with STA before this Unix timestamp
+    :param auth: Authentication data
+    """
     if isinstance(timestamp, (str, datetime)):
         timestamp = pd.Timestamp(timestamp)
     if isinstance(timestamp, pd.Timestamp):
@@ -134,7 +166,15 @@ async def playback(
     timestamp: int | str | datetime | pd.Timestamp | None = None,
     auth: None | Authentication = None,
 ) -> Playback:
-    # NOTE: while `timestamp` is optional, we should always include it (ATOD)
+    """
+    Fetch historical track playback data for a given flight.
+
+    :param client: HTTPX async client
+    :param flight_id: fr24 hex flight id
+    :param timestamp: Unix timestamp (seconds) of ATD - optional, but
+    it is recommended to include it
+    :param auth: Authentication data
+    """
     if isinstance(timestamp, (str, datetime)):
         timestamp = pd.Timestamp(timestamp, tz="utc")
     if isinstance(timestamp, pd.Timestamp):
@@ -168,6 +208,10 @@ async def playback(
 
 
 def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg]
+    """
+    Flatten and rename important variables in the flight metadata to a
+    dictionary.
+    """
     ident = flight["identification"]
     sta = flight["status"]["generic"]
     owner = flight["owner"]
@@ -208,6 +252,9 @@ def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg
 
 
 def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
+    """
+    Flatten and rename each variable in this observation into a new dictionary.
+    """
     return {
         "timestamp": point["timestamp"],
         "latitude": point["latitude"],
@@ -221,6 +268,10 @@ def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
 
 
 def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
+    """
+    If the Extended Mode-S data is available in this observation,
+    flatten and rename each variable to a dictionary. Otherwise, return `None`.
+    """
     if e := point["ems"]:
         return {
             "timestamp": e["ts"],
@@ -246,6 +297,9 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
 
 # TODO: add ems, metadata.
 def playback_df(result: Playback) -> pd.DataFrame:
+    """
+    Transform each point in the flight track to a pandas DataFrame.
+    """
     flight = result["result"]["response"]["data"]["flight"]
     df = pd.DataFrame.from_records(
         playback_track_dict(point) for point in flight["track"]
@@ -260,6 +314,9 @@ timestamp = @pd.to_datetime(timestamp, unit='s', utc=True)
 
 
 def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
+    """
+    Flatten a flight entry into dict, converting fr24 hex ids into integers.
+    """
     orig = entry["airport"]["origin"]
     dest = entry["airport"]["destination"]
     icao24 = entry["aircraft"]["hex"]
@@ -284,6 +341,9 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
 
 
 def flight_list_df(result: FlightList) -> None | pd.DataFrame:
+    """
+    Transform each flight entry in the JSON response into a pandas DataFrame.
+    """
     list_ = result["result"]["response"]["data"]
     if list_ is None:
         return None

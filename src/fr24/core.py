@@ -122,7 +122,7 @@ class FR24:
         overwrite: bool = False,
     ) -> Path:
         """
-        Iteratively update the cache by querying in batches,
+        Iteratively update the flight list cache by querying in batches,
         whenever a duplicate is found in that batch, stop querying.
 
         The "Estimated XX:XX" status will also be updated to the latest.

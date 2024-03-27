@@ -327,20 +327,33 @@ class Page(TypedDict):
 
 class Identification(TypedDict):
     id: str | None
+    """icao hex"""
     row: int
+    """internal row id"""
     number: FlightNumber
     callsign: str | None
     codeshare: None
 
 
+class FlightListCountry(TypedDict):
+    id: None
+    name: None
+    alpha2: None
+    alpha3: None
+
+
 class FlightListAircraftData(TypedDict):
     model: AircraftModel
-    hex: None | str
     registration: None | str
+    country: None | FlightListCountry
+    hex: None | str
+    restricted: bool
     serialNo: None | str
     age: None | str
-    restricted: None | str
     availability: AircraftAvailability
+    onGroundUpdate: None | int
+    hoursDiff: None | float
+    timeDiff: None | int
 
 
 class Interval(TypedDict):

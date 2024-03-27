@@ -16,6 +16,7 @@ Note that the fr24 flight ID is in base 10, not hex.
 The current implementation is poor and will be reworked in the future.
 
 ::: fr24.livefeed
+::: fr24.history
 ::: fr24.find
 ::: fr24.authentication
 ::: fr24.core
