@@ -81,7 +81,8 @@ def livefeed_message_create(
     :param limit: Max number of flights
     :param maxage: Max age since last update, seconds
     :param fields: fields to include - for unauthenticated users, max 4 fields.
-        When authenticated, `squawk`, `vspeed`, `airspace` can be included
+        When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
+        can be included
     """
     return LiveFeedRequest(
         bounds=LiveFeedRequest.Bounds(
@@ -192,7 +193,7 @@ def livefeed_playback_response_parse(data: bytes) -> LiveFeedResponse:
 
 
 def livefeed_flightdata_dict(
-    lfr: LiveFeedResponse.FlightData
+    lfr: LiveFeedResponse.FlightData,
 ) -> LiveFeedRecord:
     """Convert the protobuf message to a dictionary."""
     return {

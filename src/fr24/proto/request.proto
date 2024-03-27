@@ -187,10 +187,10 @@ message LiveFeedResponse {
             string type = 4;
             int32 squawk = 5; // NOTE: 20852 -> 0x5174
             int32 vspeed = 6;
-            string ac_birthday = 7;
+            string ac_birthday = 7; // aircraft age, in years
             int32 country_of_reg = 8;
             Schedule schedule = 9;
-            int32 logo_id = 10;
+            int32 logo_id = 10; // u32
             int32 airspace = 11; // FIR
             EMS ems_info = 12;
             EMSAvailability ems_availability = 13;

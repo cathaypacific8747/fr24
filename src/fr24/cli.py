@@ -101,7 +101,7 @@ def playback(
             rich.print("rows: ", num_rows)
             rich.print(
                 pa.Table.from_batches(
-                    [next(pf.iter_batches(batch_size=5))] # type: ignore
+                    [next(pf.iter_batches(batch_size=5))]  # type: ignore
                 ).to_pandas()
             )
 
