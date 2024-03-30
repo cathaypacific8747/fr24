@@ -10,6 +10,7 @@ nav:
   - API Reference:
     - Core: 'api/core.md'
     - Types: 'api/types.md'
+    - Base Classes: 'api/base.md'
     - Protobuf Messages: 'api/protobuf.md'
 
 theme:

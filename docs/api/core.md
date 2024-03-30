@@ -13,7 +13,7 @@ Most of the core code is developed in a functional style, though the [fr24.core.
 
 Note that the fr24 flight ID is in base 10, not hex.
 
-The current implementation is poor and will be reworked in the future.
+The current implementation is poor and is being reworked.
 
 ::: fr24.livefeed
 ::: fr24.history

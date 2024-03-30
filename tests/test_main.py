@@ -15,8 +15,6 @@ from fr24.livefeed import (
 )
 from google.protobuf.json_format import MessageToDict
 
-pytest_plugins = ("pytest_asyncio",)
-
 
 @pytest.mark.asyncio
 async def test_simple() -> None:

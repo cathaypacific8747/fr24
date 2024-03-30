@@ -12,5 +12,6 @@ You can find usage examples in under [`scripts/`](https://github.com/cathaypacif
     stubgen -p pyarrow -o $PATH_TO_SITE_PACKAGES
     ```
 
+Intersphinx could be found [here](https://cathaypacific8747.github.io/fr24/objects.inv).
 
 <!-- TODO: add scripts here and show corresponding output. -->

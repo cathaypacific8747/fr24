@@ -35,7 +35,7 @@ async def login(client: httpx.AsyncClient) -> None | Authentication:
     - otherwise, it returns `None`
     """
     if username is None or password is None:
-        if subscription_key is None:
+        if not subscription_key:
             return None
         return {
             "userData": {

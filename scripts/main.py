@@ -16,8 +16,9 @@ from fr24.types.fr24 import AirportList
 
 import pandas as pd
 
-
 # %%
+
+
 async def my_list() -> pd.DataFrame:
     async with httpx.AsyncClient() as client:
         auth = await login(client)
@@ -86,25 +87,6 @@ async def my_find() -> FindResult:
 
 results = await my_find()  # type: ignore
 pd.DataFrame(pd.json_normalize(results["results"]))
-
-
-# %%
-async def my_full_list() -> pd.DataFrame:
-    async with FR24() as fr24:
-        if fr24.auth is not None:
-            print(fr24.auth["message"])
-        # for reg in ["B-KJA"]:
-        #     logger.info(f"Updating {reg}")
-        #     await fr24.cache_flight_list_upsert(reg=reg)
-        #     await asyncio.sleep(2)
-        fp = await fr24.cache_playback_upsert(
-            flight_id=0x332E0467, timestamp=1702300500
-        )
-        print(fp)
-        return pd.read_parquet(fp)
-
-
-await my_full_list()  # type: ignore
 
 
 # %%
