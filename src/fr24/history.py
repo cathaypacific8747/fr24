@@ -8,7 +8,7 @@ import httpx
 
 import pandas as pd
 
-from .common import DEFAULT_HEADERS
+from .common import DEFAULT_HEADERS, to_unix_timestamp
 from .types.cache import (
     FlightListRecord,
     PlaybackTrackEMSRecord,
@@ -55,10 +55,7 @@ async def flight_list(
     :param timestamp: Show flights with ATD before this Unix timestamp
     :param auth: Authentication data
     """
-    if isinstance(timestamp, (str, datetime)):
-        timestamp = pd.Timestamp(timestamp)
-    if isinstance(timestamp, pd.Timestamp):
-        timestamp = int(timestamp.timestamp())
+    timestamp = to_unix_timestamp(timestamp)
 
     if reg is not None:
         key, value = "reg", reg
@@ -73,14 +70,13 @@ async def flight_list(
     headers["fr24-device-id"] = device
     params: FlightListRequest = {
         "query": value,
-        "timestamp": timestamp,
         "fetchBy": key,
         "page": page,
         "limit": limit,
     }
 
-    if timestamp is None:
-        del params["timestamp"]
+    if timestamp is not None:
+        params["timestamp"] = timestamp
 
     if auth is not None and auth["userData"]["subscriptionKey"] is not None:
         params["token"] = auth["userData"]["subscriptionKey"]
@@ -122,10 +118,7 @@ async def airport_list(
     :param timestamp: Show flights with STA before this Unix timestamp
     :param auth: Authentication data
     """
-    if isinstance(timestamp, (str, datetime)):
-        timestamp = pd.Timestamp(timestamp)
-    if isinstance(timestamp, pd.Timestamp):
-        timestamp = int(timestamp.timestamp())
+    timestamp = to_unix_timestamp(timestamp)
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
@@ -135,13 +128,12 @@ async def airport_list(
         "code": airport,
         "plugin[]": ["schedule"],
         "plugin-setting[schedule][mode]": mode,
-        "plugin-setting[schedule][timestamp]": timestamp,
         "page": page,
         "limit": limit,
     }
 
-    if timestamp is None:
-        del params["plugin-setting[schedule][timestamp]"]
+    if timestamp is not None:
+        params["plugin-setting[schedule][timestamp]"] = timestamp
 
     if auth is not None and auth["userData"]["subscriptionKey"] is not None:
         params["token"] = auth["userData"]["subscriptionKey"]
@@ -175,10 +167,7 @@ async def playback(
     it is recommended to include it
     :param auth: Authentication data
     """
-    if isinstance(timestamp, (str, datetime)):
-        timestamp = pd.Timestamp(timestamp, tz="utc")
-    if isinstance(timestamp, pd.Timestamp):
-        timestamp = int(timestamp.timestamp())
+    timestamp = to_unix_timestamp(timestamp)
     if not isinstance(flight_id, str):
         flight_id = f"{flight_id:x}"
 

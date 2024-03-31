@@ -2,18 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-
-# import time
-import warnings
+import time
 from datetime import datetime
-
-# from pathlib import Path
-from typing import Any, AsyncIterator
+from pathlib import Path
+from typing import Any, AsyncIterator, Literal, TypedDict
 
 import pyarrow as pa
 import pyarrow.compute as pc
-
-# import pyarrow.parquet as pq
 from appdirs import user_cache_dir
 from loguru import logger
 from typing_extensions import Self
@@ -21,6 +16,7 @@ from typing_extensions import Self
 import pandas as pd
 
 from .base import APIBase, ArrowBase, HTTPClient, ServiceBase
+from .common import to_unix_timestamp
 from .history import (
     flight_list,
     flight_list_dict,
@@ -29,25 +25,114 @@ from .history import (
     playback_track_dict,
     playback_track_ems_dict,
 )
-
-# from .livefeed import livefeed_playback_world_data, livefeed_world_data
+from .livefeed import livefeed_playback_world_data, livefeed_world_data
 from .types.cache import (
+    LiveFeedRecord,
     flight_list_schema,
+    livefeed_schema,
     playback_track_schema,
 )
-
-# livefeed_schema,
 from .types.fr24 import FlightData, FlightList, Playback
 
 
-class FlightListAPI(APIBase[FlightList]):
-    def __init__(
-        self, http: HTTPClient, reg: str | None, flight: str | None
-    ) -> None:
-        super().__init__(http)
-        self.reg = reg
-        self.flight = flight
+class FR24:
+    def __init__(self, cache_dir: str = user_cache_dir("fr24")) -> None:
+        """
+        Populate http clients cache for each service.
 
+        Check the [cache directory](/usage/cli/#directories) for more details.
+        """
+        self.http = HTTPClient()
+        self.cache_dir = cache_dir
+
+    def flight_list(
+        self, *, reg: str | None = None, flight: str | None = None
+    ) -> FlightListService:
+        """
+        Constructs a [flight list service][fr24.core.FlightListService] for the
+        given registration or flight number.
+
+        *Related: [fr24.history.flight_list][]*
+
+        Input **either** the registration or the flight number, not both.
+
+        :param reg: Aircraft registration (e.g. `B-HUJ`)
+        :param flight: Flight number (e.g. `CX8747`)
+        """
+        if not ((reg is None) ^ (flight is None)):
+            raise ValueError(
+                "Either reg or flight must be provided, not both or neither."
+            )
+        ctx: FlightListContext = {"reg": reg, "flight": flight}
+        return FlightListService(self.http, self.cache_dir, ctx)
+
+    def playback(self, flight_id: str | int) -> PlaybackService:
+        """
+        Constructs a [playback service][fr24.core.PlaybackService] for the
+        given flight ID.
+
+        *Related: [fr24.history.playback][]*
+
+        :param flight_id: Hex Flight ID (e.g. `"2d81a27"`, `0x2d81a27`)
+        """
+        if not isinstance(flight_id, str):
+            flight_id = f"{flight_id:x}"
+        flight_id = flight_id.lower()
+        ctx: PlaybackContext = {"flight_id": flight_id}
+        return PlaybackService(self.http, self.cache_dir, ctx)
+
+    def livefeed(
+        self,
+        timestamp: int | str | datetime | pd.Timestamp | None = None,
+        *,
+        duration: int | None = None,
+        hfreq: int | None = None,
+    ) -> LiveFeedService:
+        """
+        Constructs a [live feed service][fr24.core.LiveFeedService].
+
+        :param timestamp: Unix timestamp (seconds) of the live feed data.
+            If `None` the [latest live data][fr24.livefeed.livefeed_world_data]
+            will be fetched when `.api.fetch()` is called.
+            Otherwise,
+            [historical data][fr24.livefeed.livefeed_playback_world_data]
+            will be fetched instead.
+        :param duration: Prefetch duration (default: `7` seconds). Should only
+            be set for historical data.
+        :param hfreq: High frequency mode (default: `0`). Should only be set for
+            historical data.
+        """
+        ts = to_unix_timestamp(timestamp)
+        if ts is None and (hfreq is not None or duration is not None):
+            raise ValueError(
+                "`hfreq` and `duration` can only be set for historical data."
+            )
+        ctx: LiveFeedContext = {
+            "timestamp": ts,
+            "source": "live" if ts is None else "playback",
+            "duration": duration,
+            "hfreq": hfreq,
+        }
+        return LiveFeedService(
+            self.http,
+            self.cache_dir,
+            ctx,
+        )
+
+    async def __aenter__(self) -> Self:
+        await self.http.__aenter__()
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        await self.http.__aexit__(*args)
+
+
+class FlightListContext(TypedDict):
+    reg: str | None
+    flight: str | None
+
+
+class FlightListAPI(APIBase[FlightList, FlightListContext]):
     async def fetch(
         self,
         page: int = 1,
@@ -61,8 +146,8 @@ class FlightListAPI(APIBase[FlightList]):
         """
         return await flight_list(
             self.http.client,
-            self.reg,
-            self.flight,
+            self.ctx["reg"],
+            self.ctx["flight"],
             page,
             limit,
             timestamp,
@@ -107,24 +192,28 @@ class FlightListAPI(APIBase[FlightList]):
             await asyncio.sleep(delay)
 
 
-class FlightListArrow(ArrowBase[FlightList]):
+class FlightListArrow(ArrowBase[FlightList, FlightListContext]):
     """Arrow table for flight list data."""
 
     schema = flight_list_schema
 
-    def __init__(
-        self,
-        base_dir: str,
-        reg: str | None,
-        flight: str | None,
-    ) -> None:
-        super().__init__(base_dir)
-        foln, fln = (
-            ("reg", reg.upper())
-            if reg is not None
-            else ("flight", flight.upper())  # type: ignore[union-attr]
-        )
-        self.fp = self.base_dir / "flight_list" / foln / f"{fln}.parquet"
+    @property
+    def fp(self) -> Path:
+        if self.ctx["reg"] is not None:
+            return (
+                self.base_dir
+                / "flight_list"
+                / "reg"
+                / f"{self.ctx['reg'].upper()}.parquet"
+            )
+        elif self.ctx["flight"] is not None:
+            return (
+                self.base_dir
+                / "flight_list"
+                / "flight"
+                / f"{self.ctx['flight'].upper()}.parquet"
+            )
+        raise ValueError("Both reg and flight are None.")
 
     @staticmethod
     def _concat_tables(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
@@ -160,28 +249,27 @@ class FlightListArrow(ArrowBase[FlightList]):
         return self
 
 
-class FlightListService(ServiceBase[FlightListAPI, FlightListArrow]):
+class FlightListService(
+    ServiceBase[FlightListAPI, FlightListArrow, FlightListContext]
+):
     """A service to handle the flight list API and file operations."""
 
     def __init__(
         self,
         http: HTTPClient,
         base_dir: str,
-        reg: str | None,
-        flight: str | None,
+        ctx: FlightListContext,
     ) -> None:
-        api = FlightListAPI(http, reg, flight)
-        fs = FlightListArrow(base_dir, reg, flight)
-        super().__init__(api, fs)
-        self.reg = reg
-        self.flight = flight
+        api = FlightListAPI(http, ctx)
+        fs = FlightListArrow(base_dir, ctx)
+        super().__init__(api, fs, ctx)
 
 
-class PlaybackAPI(APIBase[Playback]):
-    def __init__(self, http: HTTPClient, flight_id: str) -> None:
-        super().__init__(http)
-        self.flight_id = flight_id
+class PlaybackContext(TypedDict):
+    flight_id: str
 
+
+class PlaybackAPI(APIBase[Playback, PlaybackContext]):
     async def fetch(
         self, timestamp: int | str | datetime | pd.Timestamp | None = None
     ) -> Playback:
@@ -194,22 +282,22 @@ class PlaybackAPI(APIBase[Playback]):
             it is recommended to include it
         """
         return await playback(
-            self.http.client, self.flight_id, timestamp, self.http.auth
+            self.http.client, self.ctx["flight_id"], timestamp, self.http.auth
         )
 
 
-class PlaybackArrow(ArrowBase[Playback]):
+class PlaybackArrow(ArrowBase[Playback, PlaybackContext]):
     """Arrow table for playback data."""
 
     schema = playback_track_schema
 
-    def __init__(self, base_dir: str, flight_id: str) -> None:
-        super().__init__(base_dir)
-        self.fp = self.base_dir / "playback" / f"{flight_id}.parquet"
+    @property
+    def fp(self) -> Path:
+        return self.base_dir / "playback" / f"{self.ctx['flight_id']}.parquet"
 
     @staticmethod
     def _concat_tables(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
-        raise RuntimeError(
+        raise NotImplementedError(
             "Cannot add data to a non-empty playback table.\n"
             "Use `.clear()` to reset the table first."
         )
@@ -253,105 +341,90 @@ class PlaybackArrow(ArrowBase[Playback]):
         return None
 
 
-class PlaybackService(ServiceBase[PlaybackAPI, PlaybackArrow]):
+class PlaybackService(ServiceBase[PlaybackAPI, PlaybackArrow, PlaybackContext]):
     """A service to handle the playback API and file operations."""
 
-    def __init__(self, http: HTTPClient, base_dir: str, flight_id: str) -> None:
-        api = PlaybackAPI(http, flight_id)
-        fs = PlaybackArrow(base_dir, flight_id)
-        super().__init__(api, fs)
-        self.flight_id = flight_id
+    def __init__(
+        self, http: HTTPClient, base_dir: str, ctx: PlaybackContext
+    ) -> None:
+        api = PlaybackAPI(http, ctx)
+        fs = PlaybackArrow(base_dir, ctx)
+        super().__init__(api, fs, ctx)
 
 
-class FR24:
-    def __init__(self, cache_dir: str = user_cache_dir("fr24")) -> None:
+class LiveFeedContext(TypedDict):
+    timestamp: int | None
+    source: Literal["live", "playback"]
+    duration: int | None
+    hfreq: int | None
+
+
+class LiveFeedAPI(APIBase[list[LiveFeedRecord], LiveFeedContext]):
+    async def fetch(self) -> list[LiveFeedRecord]:
         """
-        Populate http clients cache for each service.
+        Fetch the live feed data.
 
-        Check the [cache directory](/usage/cli/#directories) for more details.
+        Updates `self.ctx.timestamp` to the current time if it is `None`.
         """
-        self.http = HTTPClient()
-        self.cache_dir = cache_dir
+        if (ts := self.ctx["timestamp"]) is not None:
+            kw = {
+                k: v
+                for k, v in self.ctx.items()
+                if k in ("duration", "hfreq") and v is not None
+            }
+            return await livefeed_playback_world_data(
+                self.http.client,
+                ts,
+                **kw,  # type: ignore[arg-type]
+                auth=self.http.auth,
+            )
+        resp = await livefeed_world_data(self.http.client, self.http.auth)
+        self.ctx["timestamp"] = int(time.time())
+        return resp
 
-    async def __aenter__(self) -> Self:
-        await self.http.__aenter__()
+
+class LiveFeedArrow(ArrowBase[list[LiveFeedRecord], LiveFeedContext]):
+    """Arrow table for live feed data."""
+
+    schema = livefeed_schema
+
+    @property
+    def fp(self) -> Path:
+        ts = self.ctx["timestamp"]
+        if self.ctx["source"] == "live" and ts is None:
+            raise ValueError(
+                "Cannot determine file path for uninitialised live feed.\n"
+                "Call `.api.fetch()` first to get the current timestamp."
+            )
+        return self.base_dir / "feed" / f"{ts}.parquet"
+
+    @staticmethod
+    def _concat_tables(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
+        raise NotImplementedError(
+            "Cannot add data to a non-empty live feed table.\n"
+            "Use `.clear()` to reset the table first."
+        )
+
+    def add_api_response(self, data: list[LiveFeedRecord]) -> Self:
+        """
+        Parse each [fr24.types.cache.LiveFeedRecord][] in the API response and
+        store it in the table.
+
+        :param data: the return data of [fr24.core.LiveFeedAPI.fetch][].
+        """
+        self.schema = self.schema.with_metadata(
+            {"ctx": json.dumps(self.ctx).encode("utf-8")}
+        )
+        self.table = pa.Table.from_pylist(data, schema=self.schema)
         return self
 
-    async def __aexit__(self, *args: Any) -> None:
-        await self.http.__aexit__(*args)
 
-    def flight_list(
-        self, /, reg: str | None = None, flight: str | None = None
-    ) -> FlightListService:
-        """
-        Constructs a [flight list service][fr24.core.FlightListService] for the
-        given registration or flight number.
+class LiveFeedService(ServiceBase[LiveFeedAPI, LiveFeedArrow, LiveFeedContext]):
+    """A service to handle the live feed API and file operations."""
 
-        *Related: [fr24.history.flight_list][]*
-
-        Input **either** the registration or the flight number, not both.
-
-        :param reg: Aircraft registration (e.g. `B-HUJ`)
-        :param flight: Flight number (e.g. `CX8747`)
-        """
-        if not ((reg is None) ^ (flight is None)):
-            raise ValueError(
-                "Either reg or flight must be provided, not both or neither."
-            )
-        return FlightListService(self.http, self.cache_dir, reg, flight)
-
-    def playback(self, flight_id: str | int) -> PlaybackService:
-        """
-        Constructs a [playback service][fr24.core.PlaybackService] for the
-        given flight ID.
-
-        *Related: [fr24.history.playback][]*
-
-        :param flight_id: Hex Flight ID (e.g. `"2d81a27"`, `0x2d81a27`)
-        """
-        if not isinstance(flight_id, str):
-            flight_id = f"{flight_id:x}"
-        flight_id = flight_id.lower()
-        return PlaybackService(self.http, self.cache_dir, flight_id)
-
-    async def cache_livefeed_playback_world_insert(
-        self, timestamp: int, duration: int = 7, hfreq: int = 0
+    def __init__(
+        self, http: HTTPClient, base_dir: str, ctx: LiveFeedContext
     ) -> None:
-        """
-        [DEPRECATED]
-        Request playback of live feed and save to the cache directory
-        """
-        self._warn_deprecated()
-
-        # data = await livefeed_playback_world_data(
-        #     self.client, timestamp, duration, hfreq, self.auth
-        # )
-
-        # fp = (
-        #     self.cache_dir
-        #     / "feed"
-        #     / "playback"
-        #     / f"{timestamp * 1000:.0f}_{duration:.0f}.parquet"
-        # )
-        # pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp)
-        # return fp
-
-    async def cache_livefeed(self) -> None:
-        """[DEPRECATED] Request live feed and save to the cache directory."""
-        self._warn_deprecated()
-        # data = await livefeed_world_data(self.client, self.auth)
-
-        # fp = (
-        #     self.cache_dir
-        #     / "feed"
-        #     / "live"
-        #     / f"{time.time() * 1000:.0f}.parquet"
-        # )
-        # pq.write_table(pa.Table.from_pylist(data, schema=livefeed_schema), fp)
-        # return fp
-
-    def _warn_deprecated(self) -> None:
-        warnings.warn(
-            "This method is deprecated to accomodate for the new core.",
-            DeprecationWarning,
-        )
+        api = LiveFeedAPI(http, ctx)
+        fs = LiveFeedArrow(base_dir, ctx)
+        super().__init__(api, fs, ctx)

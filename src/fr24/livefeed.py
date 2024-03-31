@@ -115,7 +115,7 @@ def livefeed_playback_message_create(
 
     :param timestamp: Start timestamp
     :param prefetch: End timestamp: should be start timestamp + 7 seconds
-    :param hfreq: Frequency of playback
+    :param hfreq: High frequency mode
     """
     return LiveFeedPlaybackRequest(
         live_feed_request=message,

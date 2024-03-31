@@ -7,6 +7,8 @@ from fr24.core import FR24
 @pytest.mark.asyncio
 async def test_flight_list_single() -> None:
     async with FR24() as fr24:
+        with pytest.raises(ValueError):  # missing reg/flight
+            _ = fr24.flight_list()
         fl = fr24.flight_list(reg="b-hpb")
         response = await fl.api.fetch()
         assert response["result"]["response"]["data"] is not None
@@ -20,12 +22,14 @@ async def test_flight_list_single() -> None:
 
 @pytest.mark.asyncio
 async def test_flight_list_paginate() -> None:
+    """
+    call 2 rows in 3 pages, combining them should yield 6 rows
+    """
     async with FR24() as fr24:
         fl = fr24.flight_list(reg="b-hpb")
 
         i = 0
         num_rows = 0
-        # use artificially small page size to check pagination indeed works
         async for response in fl.api.fetch_all(limit=2):
             assert response["result"]["response"]["data"] is not None
 
@@ -79,7 +83,7 @@ async def test_flight_list_file_ops() -> None:
         fl.data.fp.parent.mkdir(parents=True, exist_ok=True)
         fl.data.fp.unlink(missing_ok=True)
         fl.data.add_api_response(await fl.api.fetch(limit=3))
-        assert fl.data.df is not None
+        assert fl.data.table is not None
 
         fl.data.save_parquet()
         assert fl.data.fp.stem == "B-HPB"
@@ -88,5 +92,5 @@ async def test_flight_list_file_ops() -> None:
         fl2 = fr24.flight_list(reg="b-hpb")
         fl2.data.add_parquet()
 
-        assert fl2.data.df is not None
-        assert fl.data.df.shape[0] == fl2.data.df.shape[0]
+        assert fl2.data.table is not None
+        assert fl.data.table.equals(fl2.data.table)

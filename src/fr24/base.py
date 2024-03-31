@@ -36,29 +36,38 @@ class HTTPClient:
             await self.client.aclose()
 
 
-T = TypeVar("T")
+ApiRsp = TypeVar("ApiRsp")
 """Type returned by the API, e.g. [fr24.types.fr24.FlightList][]"""
+Ctx = TypeVar("Ctx")
+"""Type of the context for the service, a TypedDict"""
 
 
-class APIBase(Generic[T], ABC):
-    def __init__(self, http: HTTPClient) -> None:
+class APIBase(Generic[ApiRsp, Ctx], ABC):
+    def __init__(self, http: HTTPClient, ctx: Ctx) -> None:
         self.http = http
+        self.ctx = ctx
 
     @abstractmethod
-    async def fetch(self, *args: Any, **kwargs: Any) -> T:
+    async def fetch(self, *args: Any, **kwargs: Any) -> ApiRsp:
         """Fetch data from the API."""
         ...
 
 
-class ArrowBase(Generic[T], ABC):
+class ArrowBase(Generic[ApiRsp, Ctx], ABC):
     """A base class for handling arrow tables."""
 
     schema: pa.Schema | None = None
-    fp: Path
 
-    def __init__(self, base_dir: str):
+    def __init__(self, base_dir: str, ctx: Ctx) -> None:
         self.base_dir = Path(base_dir)
         self._table: pa.Table | None = None
+        self.ctx = ctx
+
+    @property
+    @abstractmethod
+    def fp(self) -> Path:
+        """Path to the parquet file."""
+        ...
 
     @property
     def table(self) -> pa.Table | None:
@@ -79,7 +88,7 @@ class ArrowBase(Generic[T], ABC):
         return pa.concat_tables([tbl_old, tbl_new])
 
     @abstractmethod
-    def add_api_response(self, data: T) -> Self:
+    def add_api_response(self, data: ApiRsp) -> Self:
         """Parse API response and add to the arrow table."""
 
     def add_parquet(self, fp: Path | None = None) -> Self:
@@ -132,15 +141,16 @@ class ArrowBase(Generic[T], ABC):
         return self._table.to_pandas() if self._table is not None else None
 
 
-U = TypeVar("U")
-"""`APIBase[T]`"""
-V = TypeVar("V")
-"""`FileBase[T]`"""
+ApiBaseT = TypeVar("ApiBaseT")
+"""`APIBase[ApiRsp]`"""
+FileBaseT = TypeVar("FileBaseT")
+"""`FileBase[ApiRsp]`"""
 
 
-class ServiceBase(Generic[U, V]):
+class ServiceBase(Generic[ApiBaseT, FileBaseT, Ctx]):
     """A service to handle the API and file operations."""
 
-    def __init__(self, api: U, data: V) -> None:
+    def __init__(self, api: ApiBaseT, data: FileBaseT, ctx: Ctx) -> None:
         self.api = api
         self.data = data
+        self.ctx = ctx

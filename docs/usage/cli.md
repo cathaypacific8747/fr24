@@ -5,12 +5,12 @@
     fr24 --help
     ```
 
-- Dumping the current state vectors in a tidy parquet file:
+- Dump the current (or playback of) live feed in a tidy parquet file:
 
     ```
-    fr24 feed live
-    fr24 feed playback --timestamp 1702839380
-    fr24 feed playback --time 2023-12-17T18:56:00
+    fr24 feed
+    fr24 feed --timestamp 1702839380
+    fr24 feed --time 2023-12-17T18:56:00
     ```
 
 - TUI

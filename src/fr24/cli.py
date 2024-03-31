@@ -1,17 +1,18 @@
+from __future__ import annotations
+
 import asyncio
 from datetime import datetime
+from pathlib import Path
 from typing import Annotated, Optional
 
-# import pyarrow as pa
 import rich
 import typer
 from appdirs import user_cache_dir, user_config_dir
 
-# from pyarrow.parquet import ParquetFile
-from .core import FR24
+from .core import FR24, FlightListService, LiveFeedService, PlaybackService
 from .tui.tui import main as tui_main
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
@@ -29,7 +30,12 @@ def tui() -> None:
 
 
 app_auth = typer.Typer()
-app.add_typer(app_auth, name="auth")
+app.add_typer(
+    app_auth,
+    name="auth",
+    no_args_is_help=True,
+    help="Commands for authentication",
+)
 
 
 @app_auth.command()
@@ -40,75 +46,56 @@ def show() -> None:
         async with FR24() as fr24:
             if fr24.http.auth is None:
                 rich.print(
-                    "[red1]"
-                    "You are not authenticated.\n"
+                    "[bold red]You are not authenticated.[/bold red]\n"
                     "Provide credentials in environment variables: either \n"
                     "- fr24_username + fr24_password or \n"
-                    "- fr24_subscription_key + fr24_token (optional)"
-                    "[/red1]"
+                    "- fr24_subscription_key + fr24_token\n"
+                    "Alternatively, copy the example config file to "
+                    f"{Path(user_config_dir('fr24')) / 'fr24.conf'}."
                 )
             else:
-                rich.print("[bold green]Login successful[/bold green]")
+                rich.print("[bold green]Authenticated[/bold green]")
                 rich.print(fr24.http.auth)
 
     asyncio.run(show_())
 
 
-app_feed = typer.Typer()
-app.add_typer(app_feed, name="feed")
+def get_success_message(
+    service: FlightListService | LiveFeedService | PlaybackService,
+) -> str:
+    num_rows = t.num_rows if (t := service.data.table) is not None else 0
+    size = service.data.fp.stat().st_size
+    return (
+        f"[bold green]Success: Saved {num_rows} rows ({size} bytes) "
+        f"to {service.data.fp}.[/bold green]"
+    )
 
 
-@app_feed.command()
-def live() -> None:
-    """Downloads current live feed"""
-
-    async def live_() -> None:
-        async with FR24() as fr24:
-            await fr24.cache_livefeed()
-            rich.print("[red1]This command is under maintenance.[/red1]")
-            # rich.print(f"[bold green]Success[/bold green]: {fp}")
-
-    asyncio.run(live_())
-
-
-@app_feed.command()
-def playback(
+@app.command()
+def feed(
     timestamp: Annotated[
         Optional[int], typer.Option(help="Start unix timestamp (s, UTC)")
     ] = None,
     time: Annotated[
         Optional[datetime], typer.Option(help="Start datetime (UTC)")
     ] = None,
-    duration: Annotated[int, typer.Option(help="Prefetch (seconds)")] = 7,
-    hfreq: int = 0,
 ) -> None:
-    """Downloads current playback feed"""
-    if time is None and timestamp is None:
-        raise typer.BadParameter("Either time or timestamp must be set")
+    """Fetches current livefeed / playback of live feed at a given time"""
+    # if time is None and timestamp is None:
+    #     raise typer.BadParameter("Either time or timestamp must be set")
     if time is not None and timestamp is not None:
         raise typer.BadParameter("Only one of time and timestamp can be set")
     if time is not None:
         timestamp = int(time.timestamp())
 
-    async def playback_() -> None:
+    async def feed_() -> None:
         async with FR24() as fr24:
-            await fr24.cache_livefeed_playback_world_insert(
-                timestamp,  # type: ignore[arg-type]
-                duration,
-                hfreq,
-            )
-            rich.print("[red1]This command is under maintenance.[/red1]")
-            # rich.print(f"[bold green]Success[/bold green]: {fp}")
-            # pf = ParquetFile(fp)
-            # num_rows = pf.metadata.num_rows if pf.metadata is not None else 0
-            # rich.print("rows: ", num_rows)
-            # rich.print(
-            #     pa.Table.from_batches(
-            #         [next(pf.iter_batches(batch_size=5))]
-            #     ).to_pandas()
-            # )
+            lf = fr24.livefeed(timestamp)
+            lf.data.add_api_response(await lf.api.fetch())
+            lf.data.save_parquet()
+            rich.print(get_success_message(lf))
 
-    asyncio.run(playback_())
+    asyncio.run(feed_())
 
 
 if __name__ == "__main__":

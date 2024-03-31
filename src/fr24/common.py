@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+from datetime import datetime
+
+import pandas as pd
+
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0)"
     "Gecko/20100101 Firefox/116.0",
@@ -24,3 +30,16 @@ DEFAULT_HEADERS_GRPC = {
     "X-Grpc-Web": "1",
     "DNT": "1",
 }
+
+
+def to_unix_timestamp(
+    timestamp: int | datetime | pd.Timestamp | str | None,
+) -> int | None:
+    """
+    Casts timestamp-like object to Unix timestamp.
+    """
+    if isinstance(timestamp, (str, datetime)):
+        return int(pd.Timestamp(timestamp).timestamp())
+    if isinstance(timestamp, pd.Timestamp):
+        return int(timestamp.timestamp())
+    return timestamp
