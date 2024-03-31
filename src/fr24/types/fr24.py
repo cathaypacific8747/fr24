@@ -72,7 +72,7 @@ class FlightNumber(TypedDict):
 
 
 class FlightIdentification(TypedDict):
-    id: str
+    id: str | int
     number: FlightNumber
     callsign: str
 

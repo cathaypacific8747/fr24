@@ -9,6 +9,7 @@ nav:
     - Library: 'usage/library.md'
   - API Reference:
     - Core: 'api/core.md'
+    - Functions: 'api/functions.md'
     - Types: 'api/types.md'
     - Base Classes: 'api/base.md'
     - Protobuf Messages: 'api/protobuf.md'
@@ -74,6 +75,7 @@ markdown_extensions:
     slugify: !!python/object/apply:pymdownx.slugs.slugify
       kwds:
         case: lower
+- pymdownx.tilde
 - pymdownx.emoji:
     emoji_index: !!python/name:material.extensions.emoji.twemoji
     emoji_generator: !!python/name:material.extensions.emoji.to_svg

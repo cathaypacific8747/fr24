@@ -68,7 +68,7 @@ async def test_flight_list_overlapping() -> None:
 
 
 @pytest.mark.asyncio
-async def test_flight_list_cache() -> None:
+async def test_flight_list_file_ops() -> None:
     """
     check that saving and reopening in a new instance yields the same rows
     """

@@ -220,7 +220,9 @@ def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg
     origin = flight["airport"]["origin"]
     dest = flight["airport"]["destination"]
     return {
-        "flight_id": int(ident["id"], 16),
+        "flight_id": int(id_, 16)
+        if isinstance(id_ := ident["id"], str)
+        else id_,
         "callsign": ident["callsign"],
         "flight_number": ident["number"].get("default", None),
         "status_type": sta["status"]["type"],

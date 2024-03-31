@@ -74,10 +74,9 @@ class ArrowBase(Generic[T], ABC):
         )
 
     @staticmethod
-    @abstractmethod
     def _concat_tables(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
-        """Derived classes should implement how to concatenate two tables."""
-        raise NotImplementedError("Table concatenation not yet implemented!")
+        """Override this to customize how tables should be concatenated."""
+        return pa.concat_tables([tbl_old, tbl_new])
 
     @abstractmethod
     def add_api_response(self, data: T) -> Self:
@@ -86,12 +85,22 @@ class ArrowBase(Generic[T], ABC):
     def add_parquet(self, fp: Path | None = None) -> Self:
         """
         Read parquet file and add to the arrow table.
+
         :param fp: Path to the parquet file - if not provided, the default cache
         directory is used.
         """
         out_fp = fp if fp is not None else self.fp
-        self.table = pq.read_table(str(out_fp), **self._schema_kwargs)
-        logger.debug(f"Added {out_fp}")
+
+        # pq.read_table apparently doesn't read schema metadata:
+        # overwriting self.schema using pq.read_schema instead.
+        sch = pq.read_schema(out_fp)
+        if sch_diffs := set(sch).difference(set(self.schema or [])):
+            logger.warning(f"Parquet schema mismatch:\n{sch_diffs}")
+        self.schema = sch
+
+        self.table = pq.read_table(out_fp, **self._schema_kwargs)
+        num_rows = self._table.num_rows if self._table is not None else 0
+        logger.debug(f"Read {out_fp}: {num_rows=}")
         return self
 
     def save_parquet(self, fp: Path | None = None) -> Self:
@@ -109,6 +118,10 @@ class ArrowBase(Generic[T], ABC):
             writer.write_table(self._table)
         logger.debug(f"Saved {self._table.num_rows} rows to {out_fp}")
         return self
+
+    def clear(self) -> None:
+        """Clear the arrow table."""
+        self._table = None
 
     @property
     def _schema_kwargs(self) -> dict[str, Any]:

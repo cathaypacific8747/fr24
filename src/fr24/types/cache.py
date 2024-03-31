@@ -4,6 +4,9 @@ from typing import TypedDict
 
 import pyarrow as pa
 
+# NOTE: Parquet does not support timestamp in seconds:
+# https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp
+# using u32 or pa.timestamp("ms") for now
 flight_list_schema = pa.schema(
     [
         pa.field("flight_id", pa.uint64()),
@@ -15,12 +18,12 @@ flight_list_schema = pa.schema(
         pa.field("origin", pa.string()),
         pa.field("destination", pa.string()),
         pa.field("status", pa.string()),
-        pa.field("STOD", pa.timestamp("s")),
-        pa.field("ETOD", pa.timestamp("s")),
-        pa.field("ATOD", pa.timestamp("s")),
-        pa.field("STOA", pa.timestamp("s")),
-        pa.field("ETOA", pa.timestamp("s")),
-        pa.field("ATOA", pa.timestamp("s")),
+        pa.field("STOD", pa.timestamp("ms")),
+        pa.field("ETOD", pa.timestamp("ms")),
+        pa.field("ATOD", pa.timestamp("ms")),
+        pa.field("STOA", pa.timestamp("ms")),
+        pa.field("ETOA", pa.timestamp("ms")),
+        pa.field("ATOA", pa.timestamp("ms")),
     ]
 )
 
@@ -45,7 +48,7 @@ class FlightListRecord(TypedDict):
 
 playback_track_schema = pa.schema(
     [
-        pa.field("timestamp", pa.timestamp("s")),
+        pa.field("timestamp", pa.uint32()),
         pa.field("latitude", pa.float32()),
         pa.field("longitude", pa.float32()),
         pa.field("altitude", pa.int32()),
@@ -53,7 +56,31 @@ playback_track_schema = pa.schema(
         pa.field("vertical_speed", pa.int16()),
         pa.field("heading", pa.int16()),
         pa.field("squawk", pa.uint16()),
-    ]
+        pa.field(
+            "ems",
+            pa.struct(
+                [
+                    pa.field("timestamp", pa.uint32()),
+                    pa.field("ias", pa.int16()),
+                    pa.field("mach", pa.int16()),
+                    pa.field("mcp", pa.int32()),
+                    pa.field("fms", pa.int32()),
+                    pa.field("autopilot", pa.int8()),
+                    pa.field("oat", pa.int8()),
+                    pa.field("track", pa.float32()),
+                    pa.field("roll", pa.float32()),
+                    pa.field("qnh", pa.uint16()),
+                    pa.field("wind_dir", pa.int16()),
+                    pa.field("wind_speed", pa.int16()),
+                    pa.field("precision", pa.uint8()),
+                    pa.field("altitude_gps", pa.int32()),
+                    pa.field("emergency", pa.uint8()),
+                    pa.field("tcas_acas", pa.uint8()),
+                    pa.field("heading", pa.uint16()),
+                ]
+            ),
+        ),
+    ],
 )
 
 
@@ -66,29 +93,6 @@ class PlaybackTrackRecord(TypedDict):
     vertical_speed: int
     heading: int
     squawk: int
-
-
-playback_track_ems_schema = pa.schema(
-    [
-        pa.field("timestamp", pa.timestamp("s")),
-        pa.field("ias", pa.int16()),
-        pa.field("mach", pa.int16()),
-        pa.field("mcp", pa.int32()),
-        pa.field("fms", pa.int32()),
-        pa.field("autopilot", pa.int8()),
-        pa.field("oat", pa.int8()),
-        pa.field("track", pa.float32()),
-        pa.field("roll", pa.float32()),
-        pa.field("qnh", pa.uint16()),
-        pa.field("wind_dir", pa.int16()),
-        pa.field("wind_speed", pa.int16()),
-        pa.field("precision", pa.uint8()),
-        pa.field("altitude_gps", pa.int32()),
-        pa.field("emergency", pa.uint8()),
-        pa.field("tcas_acas", pa.uint8()),
-        pa.field("heading", pa.uint16()),
-    ]
-)
 
 
 class PlaybackTrackEMSRecord(TypedDict):
