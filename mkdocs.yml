@@ -2,6 +2,7 @@ site_name: fr24
 site_description: A library for downloading data from flightradar24.com with gRPC/JSON.
 repo_name: cathaypacific8747/fr24
 repo_url: https://github.com/cathaypacific8747/fr24
+site_url: https://cathaypacific8747.github.io/fr24/
 nav:
   - Home: 'index.md'
   - Usage:

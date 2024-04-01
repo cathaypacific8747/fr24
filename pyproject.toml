@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "fr24"
 homepage = "https://github.com/cathaypacific8747/fr24/"
-version = "0.1.0"
+version = "0.1.1"
 description = "Parse gRPC and JSON data from FlightRadar24"
 authors = ["Abraham Cheung <abraham@ylcheung.com>", "Xavier Olive <git@xoolive.org>"]
 license = "MIT"
