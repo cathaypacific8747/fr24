@@ -22,7 +22,7 @@ click = "^8.1.7"
 appdirs = "^1.4.4"
 textual = ">=0.54,<0.56"
 loguru = "^0.7.2"
-typer = {extras = ["all"], version = "^0.11.0"}
+typer = {extras = ["all"], version = ">=0.11,<0.13"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.26.0"
