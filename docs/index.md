@@ -3,17 +3,19 @@ fr24 is a library for downloading data from [Flightradar24](https://flightradar2
 It supports querying live feed snapshots/playback, trajectory history and other miscellaneous metadata.
 
 ## Installation
+
+For the latest stable version, create a new virtual environment and run:
+
 === "Pip"
-    
-    Create a new virtual environment and run:
 
     ```sh
-    pip install git+https://github.com/cathaypacific8747/fr24.git
+    pip install fr24
     ```
+
 === "Poetry"
 
     ```sh
-    poetry add git+https://github.com/cathaypacific8747/fr24.git
+    poetry add fr24
     ```
 
 For a development version, clone the repository and install it:

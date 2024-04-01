@@ -86,6 +86,7 @@ The `async with` statement ensures that it is properly authenticated before any 
     
     ```
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
+    ```
 
 Next, `fr24.livefeed()` creates a new [LiveFeedService][fr24.core.LiveFeedService], with the following member variables:
 
@@ -120,8 +121,8 @@ Here, `.api.fetch()` calls the API and returns the raw response as Python dictio
 In practice, you could directly pipe this into `pd.DataFrame.from_records()`, but pandas
 uses 64-bit integers by default and can be storage-inefficient.
 
-Instead, you can call `.data.add_api_response()`, which transforms it into a
-[strongly typed][fr24.types.cache.livefeed_schema] Apache Arrow table.
+Instead, you can call `.data.add_api_response()`, which creates a new
+[strongly typed][fr24.types.cache.livefeed_schema] Apache Arrow table from it.
 
 [Arrow](https://arrow.apache.org/docs/index.html) is a columnar data storage format
 with [excellent interoperability](https://arrow.apache.org/docs/python/pandas.html)

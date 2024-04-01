@@ -8,17 +8,15 @@ Please see the [documentation](https://cathaypacific8747.github.io/fr24/) for de
 
 ## Installation and Usage
 
-Clone the repository and run in the directory:
+For the latest stable version:
 
 ```sh
-pip install .
+pip install fr24
 ```
 
-For a development version, you may want to use Poetry:
-
+For a development version, clone the repository and run in the directory:
 ```sh
-poetry install
-poetry shell
+pip install .
 ```
 
 ## License

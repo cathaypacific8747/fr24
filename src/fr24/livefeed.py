@@ -8,6 +8,7 @@ from typing import Any
 import httpx
 from loguru import logger
 
+from .bbox import lng_bounds
 from .common import DEFAULT_HEADERS_GRPC
 from .proto.request_pb2 import (
     LiveFeedPlaybackRequest,
@@ -19,35 +20,6 @@ from .types.cache import LiveFeedRecord
 from .types.fr24 import Authentication
 
 # N, S, W, E
-lng_bounds = [
-    -180,
-    -117,
-    -110,
-    -100,
-    -95,
-    -90,
-    -85,
-    -82,
-    -79,
-    -75,
-    -68,
-    -30,
-    -2,
-    1,
-    5,
-    8,
-    11,
-    15,
-    20,
-    30,
-    40,
-    60,
-    100,
-    110,
-    120,
-    140,
-    180,
-]
 world_zones = [
     (90, -90, lng_bounds[i], lng_bounds[i + 1])
     for i in range(len(lng_bounds) - 1)
@@ -216,7 +188,7 @@ def livefeed_flightdata_dict(
     }
 
 
-# TODO: allow for custom bounds
+# TODO: add parameter for custom bounds, e.g. from .bounds.lng_bounds_per_30_min
 async def livefeed_world_data(
     client: httpx.AsyncClient, auth: None | Authentication = None
 ) -> list[LiveFeedRecord]:

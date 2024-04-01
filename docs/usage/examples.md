@@ -218,7 +218,7 @@ In JSON format:
     --8<-- "docs/usage/scripts/24_livefeed.py:script1"
     ```
 
-=== "Protobuf Output"
+=== "Output"
     
     ```py
     --8<-- "docs/usage/scripts/24_livefeed.py:output1"
