@@ -312,6 +312,12 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
     dest = entry["airport"]["destination"]
     icao24 = entry["aircraft"]["hex"]
     id_ = entry["identification"]["id"]
+    stod = entry["time"]["scheduled"]["departure"]
+    etod = entry["time"]["estimated"]["departure"]
+    atod = entry["time"]["real"]["departure"]
+    stoa = entry["time"]["scheduled"]["arrival"]
+    etoa = entry["time"]["estimated"]["arrival"]
+    atoa = entry["time"]["real"]["arrival"]
     return {
         "flight_id": int(id_, 16) if id_ is not None else None,
         "number": entry["identification"]["number"]["default"],
@@ -322,12 +328,12 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
         "origin": orig["code"]["icao"] if orig is not None else None,
         "destination": dest["code"]["icao"] if dest is not None else None,
         "status": entry["status"]["text"],
-        "STOD": entry["time"]["scheduled"]["departure"],
-        "ETOD": entry["time"]["estimated"]["departure"],
-        "ATOD": entry["time"]["real"]["departure"],
-        "STOA": entry["time"]["scheduled"]["arrival"],
-        "ETOA": entry["time"]["estimated"]["arrival"],
-        "ATOA": entry["time"]["real"]["arrival"],
+        "STOD": stod * 1000 if stod is not None else None,
+        "ETOD": etod * 1000 if etod is not None else None,
+        "ATOD": atod * 1000 if atod is not None else None,
+        "STOA": stoa * 1000 if stoa is not None else None,
+        "ETOA": etoa * 1000 if etoa is not None else None,
+        "ATOA": atoa * 1000 if atoa is not None else None,
     }
 
 
@@ -341,11 +347,11 @@ def flight_list_df(result: FlightList) -> None | pd.DataFrame:
     df = pd.DataFrame.from_records(flight_list_dict(entry) for entry in list_)
     return df.eval(
         """
-STOD = @pd.to_datetime(STOD, unit="s", utc=True)
-ETOD = @pd.to_datetime(ETOD, unit="s", utc=True)
-ATOD = @pd.to_datetime(ATOD, unit="s", utc=True)
-STOA = @pd.to_datetime(STOA, unit="s", utc=True)
-ETOA = @pd.to_datetime(ETOA, unit="s", utc=True)
-ATOA = @pd.to_datetime(ATOA, unit="s", utc=True)
+STOD = @pd.to_datetime(STOD, unit="ms", utc=True)
+ETOD = @pd.to_datetime(ETOD, unit="ms", utc=True)
+ATOD = @pd.to_datetime(ATOD, unit="ms", utc=True)
+STOA = @pd.to_datetime(STOA, unit="ms", utc=True)
+ETOA = @pd.to_datetime(ETOA, unit="ms", utc=True)
+ATOA = @pd.to_datetime(ATOA, unit="ms", utc=True)
 """
     )

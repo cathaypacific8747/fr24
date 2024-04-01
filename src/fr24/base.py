@@ -104,7 +104,8 @@ class ArrowBase(Generic[ApiRsp, Ctx], ABC):
         # overwriting self.schema using pq.read_schema instead.
         sch = pq.read_schema(out_fp)
         if sch_diffs := set(sch).difference(set(self.schema or [])):
-            logger.warning(f"Parquet schema mismatch:\n{sch_diffs}")
+            logger.warning(f"Parquet schema mismatch:\n{sch_diffs}, will cast.")
+            sch = sch.cast(self.schema)  # attempt to cast the schema
         self.schema = sch
 
         self.table = pq.read_table(out_fp, **self._schema_kwargs)

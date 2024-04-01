@@ -62,7 +62,7 @@ known-first-party = ["numpy", "pandas"]
 
 [tool.mypy]
 python_version = 3.9
-exclude = "proto"
+exclude = ["proto"]
 platform = "posix"
 
 color_output = true

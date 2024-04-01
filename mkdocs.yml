@@ -1,12 +1,14 @@
 site_name: fr24
 site_description: A library for downloading data from flightradar24.com with gRPC/JSON.
-repo_name: fr24
+repo_name: cathaypacific8747/fr24
 repo_url: https://github.com/cathaypacific8747/fr24
 nav:
   - Home: 'index.md'
   - Usage:
     - CLI: 'usage/cli.md'
-    - Library: 'usage/library.md'
+    - Library Quickstart: 'usage/quickstart.md'
+    - Example Gallery: 'usage/examples.md'
+    - Authentication: 'usage/authentication.md'
   - API Reference:
     - Core: 'api/core.md'
     - Functions: 'api/functions.md'
@@ -20,8 +22,8 @@ theme:
     - search.suggest
     - search.highlight
     - content.code.copy
+    - content.code.annotate 
     - navigation.expand
-    # - navigation.tabs
   palette: 
     - scheme: default
       toggle:
@@ -31,6 +33,8 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
 plugins:
   - search
   - social

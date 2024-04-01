@@ -5,7 +5,7 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncIterator, Literal, TypedDict
+from typing import Any, AsyncIterator
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -32,6 +32,7 @@ from .types.cache import (
     livefeed_schema,
     playback_track_schema,
 )
+from .types.core import FlightListContext, LiveFeedContext, PlaybackContext
 from .types.fr24 import FlightData, FlightList, Playback
 
 
@@ -125,11 +126,6 @@ class FR24:
 
     async def __aexit__(self, *args: Any) -> None:
         await self.http.__aexit__(*args)
-
-
-class FlightListContext(TypedDict):
-    reg: str | None
-    flight: str | None
 
 
 class FlightListAPI(APIBase[FlightList, FlightListContext]):
@@ -265,10 +261,6 @@ class FlightListService(
         super().__init__(api, fs, ctx)
 
 
-class PlaybackContext(TypedDict):
-    flight_id: str
-
-
 class PlaybackAPI(APIBase[Playback, PlaybackContext]):
     async def fetch(
         self, timestamp: int | str | datetime | pd.Timestamp | None = None
@@ -350,13 +342,6 @@ class PlaybackService(ServiceBase[PlaybackAPI, PlaybackArrow, PlaybackContext]):
         api = PlaybackAPI(http, ctx)
         fs = PlaybackArrow(base_dir, ctx)
         super().__init__(api, fs, ctx)
-
-
-class LiveFeedContext(TypedDict):
-    timestamp: int | None
-    source: Literal["live", "playback"]
-    duration: int | None
-    hfreq: int | None
 
 
 class LiveFeedAPI(APIBase[list[LiveFeedRecord], LiveFeedContext]):
