@@ -62,6 +62,7 @@ playback_track_schema = pa.schema(
                 [
                     pa.field("timestamp", pa.uint32()),
                     pa.field("ias", pa.int16()),
+                    pa.field("tas", pa.int16()),
                     pa.field("mach", pa.int16()),
                     pa.field("mcp", pa.int32()),
                     pa.field("fms", pa.int32()),
@@ -98,6 +99,7 @@ class PlaybackTrackRecord(TypedDict):
 class PlaybackTrackEMSRecord(TypedDict):
     timestamp: int
     ias: int | None
+    tas: int | None
     mach: float | None
     mcp: int | None
     fms: int | None

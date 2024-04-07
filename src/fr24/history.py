@@ -267,6 +267,7 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
         return {
             "timestamp": e["ts"],
             "ias": e["ias"],
+            "tas": e["tas"],
             "mach": e["mach"],
             "mcp": e["mcp"],
             "fms": e["fms"],
