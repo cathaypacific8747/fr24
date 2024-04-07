@@ -97,8 +97,6 @@ class ArrowBase(Generic[ApiRsp, Ctx], ABC):
 
         :param fp: Path to the parquet file - if not provided, the default cache
         directory is used.
-        :raises NotImplementedError: If the schema of the parquet file does not
-        match the schema of this arrow table.
         """
         out_fp = fp if fp is not None else self.fp
 
@@ -108,11 +106,9 @@ class ArrowBase(Generic[ApiRsp, Ctx], ABC):
         if sch_diffs := set(sch).difference(set(self.schema or [])):
             # TODO: find a better way to cast the new schema into this schema
             # raise_for_status?
-            raise NotImplementedError(
-                f"Cannot read parquet with schema mismatch:\n{sch_diffs}."
-            )
-            # sch = sch.cast(self.schema)  # attempt to cast the schema
-        # self.schema = sch
+            logger.warning(f"Schema mismatch: {sch_diffs}")
+            sch = sch.cast(self.schema)  # attempt to cast the schema
+        self.schema = sch
 
         self.table = pq.read_table(out_fp, **self._schema_kwargs)
         num_rows = self._table.num_rows if self._table is not None else 0
