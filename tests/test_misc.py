@@ -27,7 +27,6 @@ async def test_simple() -> None:
 
         json_output = MessageToDict(
             result,
-            including_default_value_fields=True,
             use_integers_for_enums=False,
             preserving_proto_field_name=True,
         )
