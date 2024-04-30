@@ -40,7 +40,7 @@ However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around t
     - [**Flight List**][fr24.core.FR24.flight_list]: all historical flights for a given aircraft registration or flight number
     - [**Playback**][fr24.core.FR24.playback]: historical trajectory for one flight.
 
-Each service has its own `.api.fetch()` function to retrieve data from the API. The `.data.*` functions can then be used perform file-based operations, such as writing to disk and downstream `pandas` operations.
+Each service has its own `.api.fetch()` method to retrieve raw data from the API. The `.data.*` methods can then be used perform file-based operations, such as writing to disk and downstream `pandas` operations.
 
 Here is an example for using the [**Live Feed**][fr24.core.FR24.livefeed] service:
 
@@ -64,9 +64,23 @@ Here is an example for using the [**Live Feed**][fr24.core.FR24.livefeed] servic
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
     ```
 
-When `FR24()` is first initialised, it creates the [HTTP client](https://www.python-httpx.org/async/) under the hood.
+When `FR24()` is first initialised, it creates the [HTTP client](https://www.python-httpx.org/async/) under the hood and [reads from the environment variables or the configuration file](./authentication.md).
 
-The `async with` statement ensures that it is properly authenticated before any actions are performed (if [configured](./authentication.md)).
+!!! question "How to override the credentials?"
+
+    [fr24.core.FR24][] takes in the optional argument `creds`:
+
+    ```py
+    # force anonymous
+    async with FR24(creds=None) as fr24:
+        ...
+    async with FR24(creds={"username": "...", "password": "..."}) as fr24:
+        ...
+    async with FR24(creds={"subscriptionKey": "...", "token": "..."}) as fr24:
+        ...
+    ```
+
+The `async with` statement ensures that it is properly authenticated by calling the login endpoint (if necessary).
 
 ### Choosing the service
 

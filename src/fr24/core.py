@@ -5,7 +5,7 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncIterator
+from typing import Any, AsyncIterator, Literal
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -33,17 +33,33 @@ from .types.cache import (
     playback_track_schema,
 )
 from .types.core import FlightListContext, LiveFeedContext, PlaybackContext
-from .types.fr24 import FlightData, FlightList, Playback
+from .types.fr24 import (
+    FlightData,
+    FlightList,
+    Playback,
+    TokenSubscriptionKey,
+    UsernamePassword,
+)
 
 
 class FR24:
-    def __init__(self, cache_dir: str = user_cache_dir("fr24")) -> None:
+    def __init__(
+        self,
+        creds: (
+            TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
+        ) = "from_env",
+        cache_dir: str = user_cache_dir("fr24"),
+    ) -> None:
         """
-        Populate http clients cache for each service.
+        See docs [quickstart](../usage/quickstart.md#initialisation).
 
-        Check the [cache directory](/usage/cli/#directories) for more details.
+        :param creds: Reads credentials from the environment variables or the
+            config file if `creds` is set to `"from_env"` (default). Otherwise,
+            provide the credentials directly.
+        :param cache_dir:
+            See docs [cache directory](../usage/cli.md#directories).
         """
-        self.http = HTTPClient()
+        self.http = HTTPClient(creds)
         self.cache_dir = cache_dir
 
     def flight_list(

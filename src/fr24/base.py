@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Literal, TypeVar
 
 import httpx
 import pyarrow as pa
@@ -13,7 +13,7 @@ from typing_extensions import Self
 import pandas as pd
 
 from .authentication import login
-from .types.fr24 import Authentication
+from .types.fr24 import Authentication, TokenSubscriptionKey, UsernamePassword
 
 
 class HTTPClient:
@@ -22,13 +22,21 @@ class HTTPClient:
     authentication data.
     """
 
-    def __init__(self, *, retries: int = 5) -> None:
+    def __init__(
+        self,
+        creds: (
+            TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
+        ) = "from_env",
+        *,
+        retries: int = 5,
+    ) -> None:
         transport = httpx.AsyncHTTPTransport(retries=retries)
         self.client = httpx.AsyncClient(transport=transport)
         self.auth: Authentication | None = None
+        self._creds = creds
 
     async def __aenter__(self) -> Self:
-        self.auth = await login(self.client)
+        self.auth = await login(self.client, self._creds)
         return self
 
     async def __aexit__(self, *args: Any) -> None:

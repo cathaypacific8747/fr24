@@ -51,6 +51,16 @@ class Authentication(TypedDict, total=False):
     userData: Required[UserData]
 
 
+class UsernamePassword(TypedDict):
+    username: str
+    password: str
+
+
+class TokenSubscriptionKey(TypedDict):
+    subscriptionKey: str
+    token: str
+
+
 class APIResult(TypedDict):
     copyright: str
     legalNotice: str
