@@ -22,21 +22,24 @@ class HTTPClient:
     authentication data.
     """
 
-    def __init__(
+    def __init__(self, client: httpx.AsyncClient) -> None:
+        self.client = client
+        self.auth: Authentication | None = None
+
+    async def login(
         self,
         creds: (
             TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
         ) = "from_env",
-        *,
-        retries: int = 5,
     ) -> None:
-        transport = httpx.AsyncHTTPTransport(retries=retries)
-        self.client = httpx.AsyncClient(transport=transport)
-        self.auth: Authentication | None = None
-        self._creds = creds
+        """
+        :param creds: Reads credentials from the environment variables or the
+            config file if `creds` is set to `"from_env"` (default). Otherwise,
+            provide the credentials directly.
+        """
+        self.auth = await login(self.client, creds)
 
-    async def __aenter__(self) -> Self:
-        self.auth = await login(self.client, self._creds)
+    async def __aenter__(self) -> HTTPClient:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

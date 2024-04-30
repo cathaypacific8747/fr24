@@ -64,19 +64,27 @@ Here is an example for using the [**Live Feed**][fr24.core.FR24.livefeed] servic
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
     ```
 
-When `FR24()` is first initialised, it creates the [HTTP client](https://www.python-httpx.org/async/) under the hood and [reads from the environment variables or the configuration file](./authentication.md).
+When `FR24()` is first initialised, it creates an unauthenticated [HTTPX client](https://www.python-httpx.org/async/) under the hood.
 
-!!! question "How to override the credentials?"
-
-    [fr24.core.FR24][] takes in the optional argument `creds`:
+!!! question "How to authenticate?"
 
     ```py
-    # force anonymous
-    async with FR24(creds=None) as fr24:
-        ...
-    async with FR24(creds={"username": "...", "password": "..."}) as fr24:
-        ...
-    async with FR24(creds={"subscriptionKey": "...", "token": "..."}) as fr24:
+    async with FR24() as fr24:
+        # anonymous now
+        await self.http.login() # reads from environment or configuration file, or,
+        await self.http.login(creds={"username": "...", "password": "..."}) # or,
+        await self.http.login(creds={"subscriptionKey": "...", "token": "..."})
+    ```
+
+    See [authentication](./authentication.md) for more details.
+
+!!! question "How to pass in my own HTTPX client?"
+    
+    To share clients across code, pass it into the [fr24.core.FR24][] constructor.
+
+    ```py
+    client = httpx.AsyncClient(transport=httpx.AsyncHTTPTransport(retries=5))
+    async with FR24(client) as fr24:
         ...
     ```
 

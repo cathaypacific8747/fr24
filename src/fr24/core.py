@@ -5,8 +5,9 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncIterator, Literal
+from typing import Any, AsyncIterator
 
+import httpx
 import pyarrow as pa
 import pyarrow.compute as pc
 from appdirs import user_cache_dir
@@ -37,29 +38,27 @@ from .types.fr24 import (
     FlightData,
     FlightList,
     Playback,
-    TokenSubscriptionKey,
-    UsernamePassword,
 )
 
 
 class FR24:
     def __init__(
         self,
-        creds: (
-            TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
-        ) = "from_env",
+        client: httpx.AsyncClient | None = None,
+        *,
         cache_dir: str = user_cache_dir("fr24"),
     ) -> None:
         """
         See docs [quickstart](../usage/quickstart.md#initialisation).
 
-        :param creds: Reads credentials from the environment variables or the
-            config file if `creds` is set to `"from_env"` (default). Otherwise,
-            provide the credentials directly.
+        :param client: The httpx client to use (if not provided, a new one
+            will be created).
         :param cache_dir:
-            See docs [cache directory](../usage/cli.md#directories).
+            See [cache directory](../usage/cli.md#directories).
         """
-        self.http = HTTPClient(creds)
+        self.http = HTTPClient(
+            httpx.AsyncClient() if client is None else client
+        )
         self.cache_dir = cache_dir
 
     def flight_list(
