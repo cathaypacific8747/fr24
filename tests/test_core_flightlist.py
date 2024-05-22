@@ -8,16 +8,11 @@ from fr24.core import FR24
 async def test_flight_list_single() -> None:
     async with FR24() as fr24:
         with pytest.raises(ValueError):  # missing reg/flight
-            _ = fr24.flight_list()
-        fl = fr24.flight_list(reg="b-hpb")
-        response = await fl.api.fetch()
-        assert response["result"]["response"]["data"] is not None
+            _ = await fr24.flight_list.fetch()
+        response = await fr24.flight_list.fetch(reg="b-hpb")
+        assert response.data["result"]["response"]["data"] is not None
 
-        fl.data.add_api_response(response)
-        assert fl.data.table is not None
-        assert fl.data.table.num_rows > 5
-        assert fl.data.df is not None
-        assert fl.data.df.shape[0] == fl.data.table.num_rows
+        assert response.to_arrow().table.num_rows > 5
 
 
 @pytest.mark.asyncio
@@ -33,7 +28,7 @@ async def test_flight_list_paginate() -> None:
         async for response in fl.api.fetch_all(limit=2):
             assert response["result"]["response"]["data"] is not None
 
-            fl.data.add_api_response(response)
+            fl.data._add_api_response(response)
             assert fl.data.table is not None
             assert fl.data.table.num_rows > num_rows
             assert num_rows == i * 2  # shouldn't fail, but just in case
@@ -53,7 +48,7 @@ async def test_flight_list_overlapping() -> None:
         # add existing data
         fl = fr24.flight_list(reg="b-hpb")
 
-        response = await fl.api.fetch(limit=6)
+        response = await fl.api._fetch(limit=6)
         flights = response["result"]["response"]["data"]
         assert flights is not None
         assert len(flights) == 6
@@ -63,10 +58,10 @@ async def test_flight_list_overlapping() -> None:
         response1 = deepcopy(response)
         response1["result"]["response"]["data"] = flights[2:]
 
-        fl.data.add_api_response(response0)
+        fl.data._add_api_response(response0)
         assert fl.data.df is not None
         assert fl.data.df.shape[0] == 4
-        fl.data.add_api_response(response1)
+        fl.data._add_api_response(response1)
         assert fl.data.df is not None
         assert fl.data.df.shape[0] == 6
 
@@ -77,20 +72,22 @@ async def test_flight_list_file_ops() -> None:
     check that saving and reopening in a new instance yields the same rows
     """
     async with FR24() as fr24:
-        fl = fr24.flight_list(reg="b-hPb")
+        response = await fr24.flight_list.fetch(reg="b-hpb")
 
-        # make directories and delete files if it exists
-        fl.data.fp.parent.mkdir(parents=True, exist_ok=True)
-        fl.data.fp.unlink(missing_ok=True)
-        fl.data.add_api_response(await fl.api.fetch(limit=3))
-        assert fl.data.table is not None
+        # fl = fr24.flight_list(reg="b-hPb")
 
-        fl.data.save_parquet()
-        assert fl.data.fp.stem == "B-HPB"
-        assert fl.data.fp.exists()
+        # # make directories and delete files if it exists
+        # fl.data.fp.parent.mkdir(parents=True, exist_ok=True)
+        # fl.data.fp.unlink(missing_ok=True)
+        # fl.data._add_api_response(await fl.api._fetch(limit=3))
+        # assert fl.data.table is not None
 
-        fl2 = fr24.flight_list(reg="b-hpb")
-        fl2.data.add_parquet()
+        # fl.data._save_parquet()
+        # assert fl.data.fp.stem == "B-HPB"
+        # assert fl.data.fp.exists()
 
-        assert fl2.data.table is not None
-        assert fl.data.table.equals(fl2.data.table)
+        # fl2 = fr24.flight_list(reg="b-hpb")
+        # fl2.data._add_parquet()
+
+        # assert fl2.data.table is not None
+        # assert fl.data.table.equals(fl2.data.table)

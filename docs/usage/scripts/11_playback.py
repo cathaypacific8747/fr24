@@ -8,10 +8,10 @@ from fr24.core import FR24
 async def my_playback() -> None:
     async with FR24() as fr24:
         pb = fr24.playback(flight_id=0x2FB3041)  # (1)!
-        pb.data.add_api_response(await pb.api.fetch())
+        pb.data._add_api_response(await pb.api._fetch())
         print(pb.data.df)
         rich.print(pb.data.metadata)
-        pb.data.save_parquet()
+        pb.data._save_parquet()
 
 await my_playback()
 # --8<-- [end:script0]
@@ -65,11 +65,11 @@ async def my_playback() -> None:
     async with FR24() as fr24:
         fl = fr24.playback(flight_id=0x2FB3041)
         fl.data.fp.unlink(missing_ok=True)  # (1)!
-        fl.data.add_api_response(await fl.api.fetch())
-        fl.data.save_parquet()  # (2)! 
+        fl.data._add_api_response(await fl.api._fetch())
+        fl.data._save_parquet()  # (2)! 
 
-        fl.data.clear()  # (3)!
-        fl.data.add_parquet()  # (4)!
+        fl.data._clear()  # (3)!
+        fl.data._from_file()  # (4)!
         print(fl.data.df)
         rich.print(fl.data.metadata)
 

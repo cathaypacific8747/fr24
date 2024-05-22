@@ -69,23 +69,17 @@ When `FR24()` is first initialised, it creates an unauthenticated [HTTPX client]
 !!! question "How to authenticate?"
 
     ```py
-    async with FR24() as fr24:
-        # anonymous now
-        await self.http.login() # reads from environment or configuration file, or,
-        await self.http.login(creds={"username": "...", "password": "..."}) # or,
-        await self.http.login(creds={"subscriptionKey": "...", "token": "..."})
+    --8<-- "docs/usage/scripts/00_introduction.py:login"
     ```
 
     See [authentication](./authentication.md) for more details.
 
-!!! question "How to pass in my own HTTPX client?"
+??? question "How to pass in my own HTTPX client?"
     
     To share clients across code, pass it into the [fr24.core.FR24][] constructor.
 
     ```py
-    client = httpx.AsyncClient(transport=httpx.AsyncHTTPTransport(retries=5))
-    async with FR24(client) as fr24:
-        ...
+    --8<-- "docs/usage/scripts/00_introduction.py:client-sharing"
     ```
 
 The `async with` statement ensures that it is properly authenticated by calling the login endpoint (if necessary).

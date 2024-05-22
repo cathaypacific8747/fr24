@@ -7,11 +7,11 @@ from fr24.core import FR24
 async def my_feed() -> None:
     async with FR24() as fr24:
         lf = fr24.livefeed()
-        response = await lf.api.fetch()
+        response = await lf.api._fetch()
         print(response)
-        lf.data.add_api_response(response)
+        lf.data._add_api_response(response)
         print(lf.data.df)
-        lf.data.save_parquet()
+        lf.data._save_parquet()
 
 await my_feed()
 # --8<-- [end:script]
@@ -66,7 +66,7 @@ import time
 async def my_feed() -> None:
     async with FR24() as fr24:
         lf = fr24.livefeed(int(time.time() - 86400 * 3))  # (1)!
-        lf.data.add_api_response(await lf.api.fetch())
+        lf.data._add_api_response(await lf.api._fetch())
         print(lf.data.df)
 
 await my_feed()

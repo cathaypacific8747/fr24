@@ -13,7 +13,11 @@ from typing_extensions import Self
 import pandas as pd
 
 from .authentication import login
-from .types.fr24 import Authentication, TokenSubscriptionKey, UsernamePassword
+from .types.fr24 import (
+    Authentication,
+    TokenSubscriptionKey,
+    UsernamePassword,
+)
 
 
 class HTTPClient:
@@ -26,17 +30,12 @@ class HTTPClient:
         self.client = client
         self.auth: Authentication | None = None
 
-    async def login(
+    async def _login(
         self,
         creds: (
-            TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
+            TokenSubscriptionKey | UsernamePassword | Literal["from_env"] | None
         ) = "from_env",
     ) -> None:
-        """
-        :param creds: Reads credentials from the environment variables or the
-            config file if `creds` is set to `"from_env"` (default). Otherwise,
-            provide the credentials directly.
-        """
         self.auth = await login(self.client, creds)
 
     async def __aenter__(self) -> HTTPClient:
@@ -47,112 +46,110 @@ class HTTPClient:
             await self.client.aclose()
 
 
-ApiRsp = TypeVar("ApiRsp")
+ApiRspRaw = TypeVar("ApiRspRaw")
 """Type returned by the API, e.g. [fr24.types.fr24.FlightList][]"""
 Ctx = TypeVar("Ctx")
 """Type of the context for the service, a TypedDict"""
 
 
-class APIBase(Generic[ApiRsp, Ctx], ABC):
-    def __init__(self, http: HTTPClient, ctx: Ctx) -> None:
+class APIBase(Generic[ApiRspRaw, Ctx], ABC):
+    def __init__(self, http: HTTPClient) -> None:
         self.http = http
-        self.ctx = ctx
 
     @abstractmethod
-    async def fetch(self, *args: Any, **kwargs: Any) -> ApiRsp:
-        """Fetch data from the API."""
-        ...
+    async def _fetch(
+        self, ctx: Ctx, *args: Any, **kwargs: Any
+    ) -> ApiRspRaw: ...
 
 
-class ArrowBase(Generic[ApiRsp, Ctx], ABC):
-    """A base class for handling arrow tables."""
+DType = TypeVar("DType")
 
-    schema: pa.Schema | None = None
 
-    def __init__(self, base_dir: str, ctx: Ctx) -> None:
-        self.base_dir = Path(base_dir)
-        self._table: pa.Table | None = None
+class DataContainer(Generic[Ctx, DType]):
+    def __init__(self, ctx: Ctx, data: DType) -> None:
         self.ctx = ctx
+        self.data = data
 
-    @property
-    @abstractmethod
-    def fp(self) -> Path:
-        """Path to the parquet file."""
-        ...
-
-    @property
-    def table(self) -> pa.Table | None:
-        return self._table
-
-    @table.setter
-    def table(self, table: pa.Table) -> None:
-        """Set the arrow table or extend it if it already exists."""
-        self._table = (
-            table
-            if self._table is None
-            else self._concat_tables(self._table, table)
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ctx={self.ctx}, "
+            f"data={self.data!r})"
         )
 
-    @staticmethod
-    def _concat_tables(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
-        """Override this to customize how tables should be concatenated."""
-        return pa.concat_tables([tbl_old, tbl_new])
 
+class APIRespBase(DataContainer[Ctx, ApiRspRaw], ABC):
     @abstractmethod
-    def add_api_response(self, data: ApiRsp) -> Self:
-        """Parse API response and add to the arrow table."""
+    def to_arrow(self) -> ArrowBase[Ctx]:
+        """Parse API response and transform to arrow table."""
 
-    def add_parquet(self, fp: Path | None = None) -> Self:
-        """
-        Read parquet file and add to the arrow table.
 
-        :param fp: Path to the parquet file - if not provided, the default cache
-        directory is used.
-        """
-        out_fp = fp if fp is not None else self.fp
+class ArrowBase(DataContainer[Ctx, pa.Table], ABC):
+    """Wraps around pyarrow.Table with composition."""
 
-        # pq.read_table apparently doesn't read schema metadata:
-        # overwriting self.schema using pq.read_schema instead.
-        sch = pq.read_schema(out_fp)
-        if sch_diffs := set(sch).difference(set(self.schema or [])):
-            # TODO: find a better way to cast the new schema into this schema
-            # raise_for_status?
-            logger.warning(f"Schema mismatch: {sch_diffs}")
-            sch = sch.cast(self.schema)  # attempt to cast the schema
-        self.schema = sch
+    _default_schema: pa.Schema | None = None
 
-        self.table = pq.read_table(out_fp, **self._schema_kwargs)
-        num_rows = self._table.num_rows if self._table is not None else 0
-        logger.debug(f"Read {out_fp}: {num_rows=}")
-        return self
+    @classmethod
+    @abstractmethod
+    def _fp(cls, ctx: Ctx) -> Path:
+        """Get path of parquet file given context."""
 
-    def save_parquet(self, fp: Path | None = None) -> Self:
-        """
-        Write the arrow table to a parquet file.
-        :param fp: Path to the parquet file - if not provided, the default cache
-        directory is used.
-        """
-        if self._table is None:
-            logger.warning("No data to write.")
+    @classmethod
+    def _load(cls, ctx: Ctx) -> Self:
+        fp = cls._fp(ctx)
+        if not fp.exists():
+            raise FileNotFoundError(f"{fp.stem} not found in cache.")
+
+        # enforce schema to match our version if defined.
+        if (sch_d := cls._default_schema) is not None:
+            sch = pq.read_schema(fp)
+            if diffs := set(sch).difference(set(sch_d)):
+                logger.warning(
+                    f"The cached file {fp} has unrecognized columns: {diffs}."
+                )
+                # TODO: in future versions, raise an error instead of casting.
+                sch = sch.cast(sch)
+
+            table = pq.read_table(fp, schema=sch)
+        else:
+            table = pq.read_table(fp)
+
+        logger.debug(f"read {fp}: {table.num_rows=}")
+        return cls(ctx, table)
+
+    def concat(
+        self, arrow_other: ArrowBase[Ctx], inplace: bool = False
+    ) -> ArrowBase[Ctx]:
+        logger.warning(
+            "Using a non-overridden method to concatenate tables."
+            "Context in the incoming table will be discarded."
+        )
+        table = pa.concat_tables([self.data, arrow_other.data])
+        if inplace:
+            self.data = table
             return self
-        out_fp = fp if fp is not None else self.fp
-        out_fp.parent.mkdir(parents=True, exist_ok=True)
-        with pq.ParquetWriter(out_fp, **self._schema_kwargs) as writer:
-            writer.write_table(self._table)
-        logger.debug(f"Saved {self._table.num_rows} rows to {out_fp}")
+        return self.__class__(self.ctx, table)
+
+    def save(self, fp: Path | None = None) -> Self:
+        """
+        Write the arrow table to a parquet file in the cache directory.
+
+        :param fp: The path to save the parquet file. If `None`, the
+            cache directory will be used.
+        """
+        fp = self._fp(self.ctx)
+        fp.parent.mkdir(parents=True, exist_ok=True)
+        with pq.ParquetWriter(fp, schema=self.data.schema) as writer:
+            writer.write_table(self.data)
+
+        logger.debug(f"Saved {self.data.num_rows} rows to {fp}")
         return self
 
-    def clear(self) -> None:
-        """Clear the arrow table."""
-        self._table = None
-
     @property
-    def _schema_kwargs(self) -> dict[str, Any]:
-        return {} if self.schema is None else {"schema": self.schema}
-
-    @property
-    def df(self) -> pd.DataFrame | None:
-        return self._table.to_pandas() if self._table is not None else None
+    def df(self) -> pd.DataFrame:
+        data = self.data.to_pandas()
+        data.attrs = self.ctx
+        return data
 
 
 ApiBaseT = TypeVar("ApiBaseT")
@@ -161,10 +158,19 @@ FileBaseT = TypeVar("FileBaseT")
 """`FileBase[ApiRsp]`"""
 
 
-class ServiceBase(Generic[ApiBaseT, FileBaseT, Ctx]):
-    """A service to handle the API and file operations."""
+class ServiceBase(Generic[ApiBaseT, FileBaseT]):
+    """A service to handle the API and disk operations."""
 
-    def __init__(self, api: ApiBaseT, data: FileBaseT, ctx: Ctx) -> None:
-        self.api = api
-        self.data = data
-        self.ctx = ctx
+    def __init__(self, api: ApiBaseT, base_dir: Path) -> None:
+        self._api = api
+        self._base_dir = base_dir
+
+    @abstractmethod
+    async def fetch(self, *args: Any, **kwargs: Any) -> APIRespBase:
+        """Fetch data from the API."""
+        ...
+
+    @abstractmethod
+    async def load(self, *args: Any, **kwargs: Any) -> ArrowBase:
+        """Load data from disk."""
+        ...

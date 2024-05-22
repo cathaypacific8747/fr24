@@ -64,10 +64,10 @@ def get_success_message(
     service: FlightListService | LiveFeedService | PlaybackService,
 ) -> str:
     num_rows = t.num_rows if (t := service.data.table) is not None else 0
-    size = service.data.fp.stat().st_size
+    size = service.data._get_fp.stat().st_size
     return (
         f"[bold green]Success: Saved {num_rows} rows ({size} bytes) "
-        f"to {service.data.fp}.[/bold green]"
+        f"to {service.data._get_fp}.[/bold green]"
     )
 
 
@@ -81,8 +81,6 @@ def feed(
     ] = None,
 ) -> None:
     """Fetches current livefeed / playback of live feed at a given time"""
-    # if time is None and timestamp is None:
-    #     raise typer.BadParameter("Either time or timestamp must be set")
     if time is not None and timestamp is not None:
         raise typer.BadParameter("Only one of time and timestamp can be set")
     if time is not None:
@@ -90,9 +88,11 @@ def feed(
 
     async def feed_() -> None:
         async with FR24() as fr24:
+            await fr24.http._login()
+
             lf = fr24.livefeed(timestamp)
-            lf.data.add_api_response(await lf.api.fetch())
-            lf.data.save_parquet()
+            lf.data._add_api_response(await lf.api._fetch())
+            lf.data._save_parquet()
             rich.print(get_success_message(lf))
 
     asyncio.run(feed_())
