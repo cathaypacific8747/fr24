@@ -77,6 +77,7 @@ async def test_aircraft() -> None:
 
 @pytest.mark.asyncio
 async def test_find() -> None:
-    list_ = await find("Toulouse")
-    assert list_ is not None
-    assert list_["stats"]["count"]["airport"] >= 2  # includes Francazal
+    async with httpx.AsyncClient() as client:
+        list_ = await find(client, "Toulouse")
+        assert list_ is not None
+        assert list_["stats"]["count"]["airport"] >= 2  # includes Francazal

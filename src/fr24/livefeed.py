@@ -220,7 +220,8 @@ async def livefeed_playback_world_data(
 ) -> list[LiveFeedRecord]:
     """
     Retrieve live feed playback data for the entire world, in chunks.
-    Raises an exception if more than half of the requests fail.
+
+    :raises Exception: if more than half of the requests fail
     """
     results = await asyncio.gather(
         *[

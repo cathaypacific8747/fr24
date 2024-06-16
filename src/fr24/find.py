@@ -36,18 +36,17 @@ def is_aircraft(entry: Entry[Any]) -> TypeGuard[Entry[Aircraft]]:
     return entry["type"] == "aircraft"
 
 
-async def find(query: str) -> None | FindResult:
+async def find(client: httpx.AsyncClient, query: str) -> None | FindResult:
     """
     General search.
     :param query: Airport, schedule (HKG-CDG), or aircraft.
     """
-    async with httpx.AsyncClient() as client:
-        request = httpx.Request(
-            "GET",
-            url="https://www.flightradar24.com/v1/search/web/find",
-            params={"query": query, "limit": 50},
-        )
-        response = await client.send(request)
-        if response.status_code != 200:
-            return None
-        return response.json()  # type: ignore
+    request = httpx.Request(
+        "GET",
+        url="https://www.flightradar24.com/v1/search/web/find",
+        params={"query": query, "limit": 50},
+    )
+    response = await client.send(request)
+    if response.status_code != 200:
+        return None
+    return response.json()  # type: ignore

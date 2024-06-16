@@ -4,10 +4,12 @@
 # --8<-- [start:script]
 import asyncio
 from fr24.find import find
+import httpx
 
 async def main():  # (1)!
-    list_ = await find("Toulouse")  # (2)!
-    print(list_)
+    async with httpx.AsyncClient() as client:
+        list_ = await find(client, "Toulouse")  # (2)!
+        print(list_)
 
 if __name__ == "__main__":
     asyncio.run(main())  # (3)!
@@ -15,10 +17,12 @@ if __name__ == "__main__":
 # %%
 # --8<-- [start:jupyter]
 from fr24.find import find
+import httpx
 
 async def main(): # (1)!
-    list_ = await find("Toulouse") # (2)!
-    print(list_)
+    async with httpx.AsyncClient() as client:
+        list_ = await find(client, "Toulouse") # (2)!
+        print(list_)
 
 await main()
 # --8<-- [end:jupyter]

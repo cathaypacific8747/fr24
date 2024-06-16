@@ -58,12 +58,12 @@ class FR24:
         See docs [quickstart](../usage/quickstart.md#initialisation).
 
         :param client: The httpx client to use (if not provided, a new one
-            will be created).
+            will be created). It is recommended to use `http2=True`.
         :param cache_dir:
             See [cache directory](../usage/cli.md#directories).
         """
         self.http = HTTPClient(
-            httpx.AsyncClient() if client is None else client
+            httpx.AsyncClient(http2=True) if client is None else client
         )
         base_dir = Path(cache_dir)
         self.flight_list = FlightListService(self.http, base_dir)
@@ -144,7 +144,7 @@ class FR24:
         await self.http.__aexit__(*args)
 
 
-class FlightListAPI(APIBase[FlightList, FlightListContext]):
+class FlightListAPI(APIBase[FlightListContext, FlightList]):
     async def _fetch(
         self,
         ctx: FlightListContext,
@@ -169,18 +169,11 @@ class FlightListAPI(APIBase[FlightList, FlightListContext]):
     async def _fetch_all(
         self,
         ctx: FlightListContext,
-        page: int = 1,
-        limit: int = 10,
-        timestamp: int | datetime | pd.Timestamp | str | None = "now",
-        delay: int = 1,
+        page: int,
+        limit: int,
+        timestamp: int | datetime | pd.Timestamp | str | None,
+        delay: int,
     ) -> AsyncIterator[FlightList]:
-        """
-        Iteratively fetch all pages of the flight list.
-
-        *Related: [fr24.history.flight_list][]*
-
-        :param delay: Delay between requests in seconds
-        """
         more = True
         while more:
             fl = await self._fetch(ctx, page, limit, timestamp)
@@ -205,19 +198,17 @@ class FlightListAPI(APIBase[FlightList, FlightListContext]):
             await asyncio.sleep(delay)
 
 
-class FlightListAPIResp(APIRespBase[FlightList, FlightListContext]):
+class FlightListAPIResp(APIRespBase[FlightListContext, FlightList]):
     """A wrapper around the flight list API response."""
 
     def to_arrow(self) -> FlightListArrow:
         """
         Parse each [fr24.types.fr24.FlightListItem][] in the API response and
         transform it into a pyarrow.Table.
-
-        :raises ValueError: If there is no data in the API response.
         """
         flights = self.data["result"]["response"]["data"] or []
         if len(flights) == 0:
-            logger.warning("No data in API response. Table will be empty.")
+            logger.warning("no data in response, table will be empty")
         table = pa.Table.from_pylist(
             [flight_list_dict(f) for f in flights],
             schema=FlightListArrow._default_schema,
@@ -241,29 +232,31 @@ class FlightListArrow(ArrowBase[FlightListContext]):
 
     def concat(
         self,
-        data_new: FlightListArrow | FlightListAPIResp,
+        data_new: ArrowBase[FlightListContext],  #  | FlightListAPIResp,
         inplace: bool = False,
     ) -> FlightListArrow:
         """
-        Merges a new list of flights with the current table.
+        Returns a new list of flights merged with the current table.
         Duplicates are removed from the current table, which results in
         all `Estimated` flights to be updated with the new data (if any).
+
+        :param inplace: If `True`, the current table will be updated in place.
         """
         # TODO: allow passing list[arrow|apiresp]
-        if isinstance(data_new, FlightListAPIResp):
-            data_new = data_new.to_arrow()
+        # if isinstance(data_new, FlightListAPIResp):
+        #     data_new = data_new.to_arrow()
         mask: pa.ChunkedArray = pc.is_in(
             self.data["flight_id"], value_set=data_new.data["flight_id"]
         )
-        if (dup_count := pc.sum(mask).as_py()) > 0:
-            logger.info(f"Overwriting {dup_count} duplicate flight ids.")
-        table = pa.concat_tables(
+        if (dup_count := pc.sum(mask).as_py()) is not None and dup_count > 0:
+            logger.info(f"overwriting {dup_count} duplicate flight ids")
+        data = pa.concat_tables(
             [self.data.filter(pc.invert(mask.combine_chunks())), data_new.data]
         )
         if inplace:
-            self.table = table
+            self.data = data
             return self
-        return FlightListArrow(self.ctx, table)
+        return FlightListArrow(self.ctx, data)
 
 
 class FlightListService(ServiceBase[FlightListAPI, FlightListArrow]):
@@ -309,11 +302,11 @@ class FlightListService(ServiceBase[FlightListAPI, FlightListArrow]):
         timestamp: int | datetime | pd.Timestamp | str | None = "now",
         page: int = 1,
         limit: int = 10,
-        delay: int = 1,
+        delay: int = 5,
     ) -> AsyncIterator[FlightListAPIResp]:
         """
-        Fetch all pages of the flight list for the given registration or
-        flight number.
+        Iteratively fetch all pages of the flight list for the given
+        registration or flight number.
 
         *Related: [fr24.history.flight_list][]*
 
@@ -321,6 +314,8 @@ class FlightListService(ServiceBase[FlightListAPI, FlightListArrow]):
 
         :param reg: Aircraft registration (e.g. `B-HUJ`)
         :param flight: Flight number (e.g. `CX8747`)
+        :param limit: Number of flights per page - use `100` if authenticated
+        :param delay: Delay between requests in seconds
         """
         ctx = self._construct_ctx(reg, flight)
         async for raw in self._api._fetch_all(
@@ -330,12 +325,11 @@ class FlightListService(ServiceBase[FlightListAPI, FlightListArrow]):
 
     def load(
         self, *, reg: str | None = None, flight: str | None = None
-    ) -> FlightListArrow:
+    ) -> FlightListArrow[FlightListContext]:
         """
         Get flight list for the given registration or flight number from
-        the [cache](../usage/cli.md#directories).
-
-        :raises FileNotFoundError: If the file does not exist.
+        the [cache](../usage/cli.md#directories). If the file does not exist,
+        an empty table will be returned.
         """
         return FlightListArrow._load(self._construct_ctx(reg, flight))
 
@@ -351,7 +345,7 @@ class FlightListService(ServiceBase[FlightListAPI, FlightListArrow]):
                 "base_dir": self._base_dir,
             }
         raise ValueError(
-            "Either reg or flight must be provided, not both or neither."
+            "expected one of `reg` or `flight` to be set, not both or neither."
         )
 
 

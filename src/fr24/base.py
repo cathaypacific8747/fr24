@@ -52,7 +52,7 @@ Ctx = TypeVar("Ctx")
 """Type of the context for the service, a TypedDict"""
 
 
-class APIBase(Generic[ApiRspRaw, Ctx], ABC):
+class APIBase(Generic[Ctx, ApiRspRaw], ABC):
     def __init__(self, http: HTTPClient) -> None:
         self.http = http
 
@@ -67,8 +67,8 @@ DType = TypeVar("DType")
 
 class DataContainer(Generic[Ctx, DType]):
     def __init__(self, ctx: Ctx, data: DType) -> None:
-        self.ctx = ctx
-        self.data = data
+        self.ctx: Ctx = ctx
+        self.data: DType = data
 
     def __repr__(self) -> str:
         return (
@@ -98,14 +98,19 @@ class ArrowBase(DataContainer[Ctx, pa.Table], ABC):
     def _load(cls, ctx: Ctx) -> Self:
         fp = cls._fp(ctx)
         if not fp.exists():
-            raise FileNotFoundError(f"{fp.stem} not found in cache.")
+            logger.warning(
+                f"cannot find `{fp.stem}` in cache, creating an empty table"
+            )
+            return cls(
+                ctx, pa.Table.from_pylist([], schema=cls._default_schema)
+            )
 
         # enforce schema to match our version if defined.
         if (sch_d := cls._default_schema) is not None:
             sch = pq.read_schema(fp)
             if diffs := set(sch).difference(set(sch_d)):
                 logger.warning(
-                    f"The cached file {fp} has unrecognized columns: {diffs}."
+                    f"cached file `{fp}` has unrecognized columns: {diffs}"
                 )
                 # TODO: in future versions, raise an error instead of casting.
                 sch = sch.cast(sch)
@@ -118,13 +123,13 @@ class ArrowBase(DataContainer[Ctx, pa.Table], ABC):
         return cls(ctx, table)
 
     def concat(
-        self, arrow_other: ArrowBase[Ctx], inplace: bool = False
+        self, data_new: ArrowBase[Ctx], inplace: bool = False
     ) -> ArrowBase[Ctx]:
         logger.warning(
             "Using a non-overridden method to concatenate tables."
             "Context in the incoming table will be discarded."
         )
-        table = pa.concat_tables([self.data, arrow_other.data])
+        table = pa.concat_tables([self.data, data_new.data])
         if inplace:
             self.data = table
             return self
@@ -142,7 +147,7 @@ class ArrowBase(DataContainer[Ctx, pa.Table], ABC):
         with pq.ParquetWriter(fp, schema=self.data.schema) as writer:
             writer.write_table(self.data)
 
-        logger.debug(f"Saved {self.data.num_rows} rows to {fp}")
+        logger.debug(f"saved {self.data.num_rows} rows to {fp}")
         return self
 
     @property
@@ -166,11 +171,13 @@ class ServiceBase(Generic[ApiBaseT, FileBaseT]):
         self._base_dir = base_dir
 
     @abstractmethod
-    async def fetch(self, *args: Any, **kwargs: Any) -> APIRespBase:
+    async def fetch(
+        self, *args: Any, **kwargs: Any
+    ) -> APIRespBase[Ctx, ApiRspRaw]:
         """Fetch data from the API."""
         ...
 
     @abstractmethod
-    async def load(self, *args: Any, **kwargs: Any) -> ArrowBase:
+    def load(self, *args: Any, **kwargs: Any) -> ArrowBase[Ctx]:
         """Load data from disk."""
         ...

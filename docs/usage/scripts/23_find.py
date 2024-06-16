@@ -6,11 +6,13 @@ from fr24.types.find import FindResult
 from fr24.find import find
 
 import pandas as pd
+import httpx
 
 async def my_find() -> FindResult:
-    results = await find("paris")
-    assert results is not None
-    return results
+    async with httpx.AsyncClient() as client:
+        results = await find(client, "paris")
+        assert results is not None
+        return results
 
 
 results = await my_find()

@@ -51,7 +51,7 @@ async def flight_list(
     :param reg: Aircraft registration (e.g. `B-HUJ`)
     :param flight: Flight number (e.g. `CX8747`)
     :param page: Page number
-    :param limit: Number of results per page (max 100)
+    :param limit: Number of results per page - use `100` if authenticated.
     :param timestamp: Show flights with ATD before this Unix timestamp
     :param auth: Authentication data
     """
@@ -62,8 +62,9 @@ async def flight_list(
     elif flight is not None:
         key, value = "flight", flight
     else:
-        msg = "One named arguments among `reg` and `flight` is expected"
-        raise TypeError(msg)
+        raise TypeError(
+            "expected one of `reg` or `flight` to be set, but both are `None`"
+        )
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()

@@ -70,7 +70,7 @@ class FR24(App[None]):
 
     def compose(self) -> ComposeResult:
         self.auth: Authentication | None = None
-        self.client = httpx.AsyncClient()
+        self.client = httpx.AsyncClient(http2=True)
         self.search_visible = True
         yield Header()
         yield Footer()
@@ -185,7 +185,7 @@ class FR24(App[None]):
     async def lookup_city_pair(
         self, departure: str, arrival: str, ts: pd.Timestamp
     ) -> None:
-        results = await find(f"{departure}-{arrival}")
+        results = await find(self.client, f"{departure}-{arrival}")
         if results is None or results["stats"]["count"]["schedule"] == 0:
             return
         flight_numbers = list(

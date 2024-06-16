@@ -59,7 +59,7 @@ class AirportWidget(Static):
             self.airport_id = info["iata"]
 
     async def update_airport(self, value: str) -> None:
-        find_results = await find(value)
+        find_results = await find(self.app.client, value)  # type: ignore[attr-defined]
         if find_results is None:
             return self.update_info()
         candidate = next(
@@ -129,7 +129,7 @@ class AircraftWidget(Static):
             self.aircraft_id = reg
 
     async def update_aircraft(self, value: str) -> None:
-        res = await find(value)
+        res = await find(self.app.client, value)  # type: ignore[attr-defined]
         if res is None:
             return self.update_info()
         candidates = (elt for elt in res["results"] if is_aircraft(elt))
@@ -192,7 +192,7 @@ class FlightWidget(Static):
             self.number = number
 
     async def update_number(self, value: str) -> None:
-        find_results = await find(value)
+        find_results = await find(self.app.client, value)  # type: ignore[attr-defined]
         if find_results is None:
             return self.update_info()
         candidate = next(
