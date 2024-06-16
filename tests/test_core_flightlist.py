@@ -1,7 +1,12 @@
-# from copy import deepcopy
+from copy import deepcopy
+from pathlib import Path
+from typing import Callable
 
+import pyarrow.parquet as pq
 import pytest
-from fr24.core import FR24
+from fr24.core import FR24, FlightListArrow
+
+REG = "b-hpb"
 
 
 @pytest.mark.asyncio
@@ -9,85 +14,92 @@ async def test_flight_list_single() -> None:
     async with FR24() as fr24:
         with pytest.raises(ValueError):  # missing reg/flight
             _ = await fr24.flight_list.fetch()
-        response = await fr24.flight_list.fetch(reg="b-hpb")
+        response = await fr24.flight_list.fetch(reg=REG)
         assert response.data["result"]["response"]["data"] is not None
 
-        assert response.to_arrow().data.num_rows > 5
+        datac = response.to_arrow()
+        assert datac.data.num_rows > 5
+        # make sure pandas df shape is same as arrow table
+        assert datac.df.shape[0] == datac.data.num_rows
+        assert datac.df.shape[1] == datac.data.num_columns
 
 
-# @pytest.mark.asyncio
-# async def test_flight_list_paginate() -> None:
-#     """
-#     call 2 rows in 3 pages, combining them should yield 6 rows
-#     """
-#     async with FR24() as fr24:
-#         fl = fr24.flight_list(reg="b-hpb")
+@pytest.mark.asyncio
+async def test_flight_list_paginate() -> None:
+    """
+    call 2 rows in 3 pages, combining them should yield 6 rows
+    """
+    async with FR24() as fr24:
+        datac = fr24.flight_list.load(reg=REG)
+        assert datac.data.num_rows == 0
 
-#         i = 0
-#         num_rows = 0
-#         async for response in fl.api.fetch_all(limit=2):
-#             assert response["result"]["response"]["data"] is not None
+        i = 0
+        async for resp in fr24.flight_list.fetch_all(reg=REG, limit=2, delay=5):
+            assert resp.data["result"]["response"]["data"] is not None
+            datac_new = resp.to_arrow()
+            assert datac_new.data.num_rows > 0
+            curr_rows = datac.data.num_rows
+            assert curr_rows == i * 2
 
-#             fl.data._add_api_response(response)
-#             assert fl.data.table is not None
-#             assert fl.data.table.num_rows > num_rows
-#             assert num_rows == i * 2  # shouldn't fail, but just in case
-#             num_rows = fl.data.table.num_rows
-#             if num_rows >= 6:
-#                 break
-#             i += 1
-
-
-# @pytest.mark.asyncio
-# async def test_flight_list_overlapping() -> None:
-#     """
-#     if we have existing flightids (10, 9, 8, 7) + new flightids (8, 7, 6, 5),
-#     the union of them should result in (10, 9, 8, 7, 6, 5)
-#     """
-#     async with FR24() as fr24:
-#         # add existing data
-#         fl = fr24.flight_list(reg="b-hpb")
-
-#         response = await fl.api._fetch(limit=6)
-#         flights = response["result"]["response"]["data"]
-#         assert flights is not None
-#         assert len(flights) == 6
-
-#         response0 = deepcopy(response)
-#         response0["result"]["response"]["data"] = flights[:4]
-#         response1 = deepcopy(response)
-#         response1["result"]["response"]["data"] = flights[2:]
-
-#         fl.data._add_api_response(response0)
-#         assert fl.data.df is not None
-#         assert fl.data.df.shape[0] == 4
-#         fl.data._add_api_response(response1)
-#         assert fl.data.df is not None
-#         assert fl.data.df.shape[0] == 6
+            datac.concat(datac_new, inplace=True)
+            assert datac.data.num_rows == curr_rows + 2
+            if datac.data.num_rows >= 6:
+                break
+            if i > 5:
+                break  # safety net in case of infinite loop
+            i += 1
 
 
-# @pytest.mark.asyncio
-# async def test_flight_list_file_ops() -> None:
-#     """
-#     check that saving and reopening in a new instance yields the same rows
-#     """
-#     async with FR24() as fr24:
-#         response = await fr24.flight_list.fetch(reg="b-hpb")
+@pytest.mark.asyncio
+async def test_flight_list_concat() -> None:
+    """
+    if we have existing flightids (10, 9, 8, 7) + new flightids (8, 7, 6, 5),
+    the union of them should result in (10, 9, 8, 7, 6, 5)
+    """
+    async with FR24() as fr24:
+        response = await fr24.flight_list.fetch(reg=REG, limit=6)
+        flights = response.data["result"]["response"]["data"]
+        assert flights is not None
+        assert len(flights) == 6
 
-#         fl = fr24.flight_list(reg="b-hPb")
+        response0 = deepcopy(response)
+        response0.data["result"]["response"]["data"] = flights[:4]
+        response1 = deepcopy(response)
+        response1.data["result"]["response"]["data"] = flights[2:]
 
-#         # make directories and delete files if it exists
-#         fl.data.fp.parent.mkdir(parents=True, exist_ok=True)
-#         fl.data.fp.unlink(missing_ok=True)
-#         fl.data._add_api_response(await fl.api._fetch(limit=3))
-#         assert fl.data.table is not None
+        datac = fr24.flight_list.load(reg=REG)
+        datac.concat(response0.to_arrow(), inplace=True)
+        assert datac.data.num_rows == 4
+        datac.concat(response1.to_arrow(), inplace=True)
+        assert datac.data.num_rows == 6
 
-#         fl.data._save_parquet()
-#         assert fl.data.fp.stem == "B-HPB"
-#         assert fl.data.fp.exists()
 
-#         fl2 = fr24.flight_list(reg="b-hpb")
-#         fl2.data._add_parquet()
+@pytest.mark.asyncio
+async def test_flight_list_file_ops() -> None:
+    """
+    check that saving and reopening in a new instance yields the same rows
+    test that auto-detect directory and specified directory saving works
+    """
+    async with FR24() as fr24:
+        response = await fr24.flight_list.fetch(reg=REG)
 
-#         assert fl2.data.table is not None
-#         assert fl.data.table.equals(fl2.data.table)
+        datac = response.to_arrow()
+        curr_rows = datac.data.num_rows
+
+        def test_ok(fp: Path, cb: Callable[[], FlightListArrow]) -> None:
+            fp.parent.mkdir(parents=True, exist_ok=True)
+            fp.unlink(missing_ok=True)
+            _ = cb()
+            assert fp.exists()
+            table = pq.read_table(fp)
+            assert table.num_rows == curr_rows
+            fp.unlink()
+
+        specific_fp = Path(__file__).parent / "tmp" / "test.parquet"
+        test_ok(specific_fp, lambda: datac.save(specific_fp))
+        specific_fp.parent.rmdir()
+
+        test_ok(
+            fr24.base_dir / "flight_list" / "reg" / f"{REG.upper()}.parquet",
+            lambda: datac.save(),
+        )

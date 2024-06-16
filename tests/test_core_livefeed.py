@@ -57,7 +57,7 @@
 # @pytest.mark.asyncio
 # async def test_livefeed_live_uninitialised() -> None:
 #     """
-#     timestamp is not set until .api.fetch() is called: calling .fp should raise
+#    timestamp is not set until .api.fetch() is called: calling .fp should raise
 #     """
 #     async with FR24() as fr24:
 #         lf = fr24.livefeed()

@@ -5,7 +5,7 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
 ## `FR24` class
 
 ### Flight list
-*API reference: [fr24.core.FR24.flight_list][], [fr24.core.FlightListAPI.fetch][], [fr24.core.FlightListAPI.fetch_all][]*
+*API reference: [fr24.core.FlightListService][], [fr24.core.FlightListService.fetch][], [fr24.core.FlightListService.fetch_all][]*
 
 #### Single page
 === "Jupyter cell"
@@ -14,7 +14,7 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
     --8<-- "docs/usage/scripts/10_flight_list.py:script0"
     ```
 
-=== "`fl.data.df`"
+=== "`data.df`"
     
     ```
     --8<-- "docs/usage/scripts/10_flight_list.py:df0"
@@ -31,12 +31,14 @@ Note that pagination cannot be run in parallel: fetching page N requires informa
     --8<-- "docs/usage/scripts/10_flight_list.py:script1"
     ```
 
-=== "`fl.data.df`"
+    1. First attempt to load existing table from the cache, otherwise it creates an empty in-memory arrow table for us to concat to.
+
+=== "`data.df`"
     
     ```
     --8<-- "docs/usage/scripts/10_flight_list.py:df1"
     ```
-
+<!-- 
 ### Playback
 *API reference: [fr24.core.FR24.playback][], [fr24.core.PlaybackAPI.fetch][]*
 
@@ -127,7 +129,7 @@ Fetches the live feed three days ago.
     
     ```
     --8<-- "docs/usage/scripts/12_livefeed.py:df2"
-    ```
+    ``` -->
 
 ## Functional Style
 ### Flight list

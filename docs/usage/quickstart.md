@@ -37,10 +37,10 @@ However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around t
 - Manages a shared HTTP client and authentication state
 - Has three services:
     - [**Live Feed**][fr24.core.FR24.livefeed]: snapshot of all aircraft state vectors
-    - [**Flight List**][fr24.core.FR24.flight_list]: all historical flights for a given aircraft registration or flight number
+    - [**Flight List**][fr24.core.FlightListService]: all historical flights for a given aircraft registration or flight number
     - [**Playback**][fr24.core.FR24.playback]: historical trajectory for one flight.
 
-Each service has its own `.api.fetch()` method to retrieve raw data from the API. The `.data.*` methods can then be used perform file-based operations, such as writing to disk and downstream `pandas` operations.
+Each service has its own async `.fetch()` method to retrieve raw data from the API. `.to_arrow()` can then be used to transform to an Apache Arrow table, and used to perform caching and downstream `pandas` operations.
 
 Here is an example for using the [**Live Feed**][fr24.core.FR24.livefeed] service:
 
@@ -74,7 +74,7 @@ When `FR24()` is first initialised, it creates an unauthenticated [HTTPX client]
 
     See [authentication](./authentication.md) for more details.
 
-??? question "How to pass in my own HTTPX client?"
+!!! question "How to pass in my own HTTPX client?"
     
     To share clients across code, pass it into the [fr24.core.FR24][] constructor.
 

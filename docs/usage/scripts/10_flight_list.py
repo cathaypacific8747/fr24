@@ -6,10 +6,10 @@ from fr24.core import FR24
 
 async def my_list() -> None:
     async with FR24() as fr24:
-        fl = fr24.flight_list(reg="B-HPB")
-        fl.data._add_api_response(await fl.api._fetch())
-        print(fl.data.df)
-        fl.data._save_parquet()
+        response = await fr24.flight_list.fetch(reg="B-HPB")
+        data = response.to_arrow()
+        print(data.df)
+        data.save()
 
 await my_list()
 # --8<-- [end:script0]
@@ -35,13 +35,14 @@ from fr24.core import FR24
 
 async def my_full_list() -> None:
     async with FR24() as fr24:
-        fl = fr24.flight_list(reg="B-HPB")
-        async for data in fl.api.fetch_all():
-            fl.data._add_api_response(data)
+        data = fr24.flight_list.load(reg="B-HPB")  # (1)!
+        async for response in fr24.flight_list.fetch_all(reg="B-HPB"):
+            data_new = response.to_arrow()
+            data.concat(data_new, inplace=True)
             if input() == "x":
                 break
-        print(fl.data.df)
-        fl.data._save_parquet()
+            data.save()
+        print(data.df)
 
 await my_full_list()
 # --8<-- [end:script1]
@@ -77,31 +78,3 @@ await my_full_list()
 ...
 # --8<-- [end:df1]
 """
-#%%
-from fr24.core import FR24
-
-async def my_list():
-    async with FR24() as fr24:
-        # await fr24.login()
-        raw = await fr24.flight_list.fetch(reg="b-hPb", limit=2)
-        return raw.to_arrow()
-
-data = await my_list()
-data.df
-#%%
-data.save()
-#%%
-from fr24.core import FR24
-
-async def add():
-    async with FR24() as fr24:
-        existing = fr24.flight_list.load(reg="b-hpb")
-        async for raw in fr24.flight_list.fetch_all(reg="b-hPb"):
-            print(raw)
-            existing = existing.concat(raw)
-        return existing
-
-data2 = await add()
-data2.df
-# %%
-data2.save()
