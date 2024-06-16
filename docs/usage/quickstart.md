@@ -38,7 +38,7 @@ However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around t
 - Has three services:
     - [**Live Feed**][fr24.core.FR24.livefeed]: snapshot of all aircraft state vectors
     - [**Flight List**][fr24.core.FlightListService]: all historical flights for a given aircraft registration or flight number
-    - [**Playback**][fr24.core.FR24.playback]: historical trajectory for one flight.
+    - [**Playback**][fr24.core.PlaybackService]: historical trajectory for one flight.
 
 Each service has its own async `.fetch()` method to retrieve raw data from the API. `.to_arrow()` can then be used to transform to an Apache Arrow table, and used to perform caching and downstream `pandas` operations.
 
@@ -174,13 +174,13 @@ You can always check its exact location using `.data.fp`. In general, where it g
 
 ### Storage Location
 
-- [Flight list][fr24.core.FR24.flight_list]
-    - `flight_list/reg/{reg.upper()}.parquet`, or
-    - `flight_list/flight/{iata_flight_num.upper()}.parquet`
-- [Playback][fr24.core.FR24.playback]
-    - `playback/{fr24_hex_id.lower()}.parquet`
 - [Live feed][fr24.core.FR24.livefeed]
     - `feed/{timestamp}.parquet`
+- [Flight list][fr24.core.FlightListService]
+    - `flight_list/reg/{reg.upper()}.parquet`, or
+    - `flight_list/flight/{iata_flight_num.upper()}.parquet`
+- [Playback][fr24.core.PlaybackService]
+    - `playback/{fr24_hex_id.lower()}.parquet`
 
 It should resemble the following on Linux:
 ```
@@ -223,9 +223,9 @@ Each service inherits from the [fr24.base.ServiceBase][] and have similar APIs d
 See the [examples gallery](./examples.md) to learn more.
 
 !!! tip
-    Pyarrow unfortunately do not provide type hints. You can however, generate the stubs with:
+    Pyarrow unfortunately do not provide type hints. You can however, generate the stubs to your `site-packages` directory with:
     ```sh
-    stubgen -p pyarrow -o $PATH_TO_SITE_PACKAGES
+    $ stubgen -p pyarrow -o $(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
     ```
 
 Intersphinx for this project could be found [here](https://cathaypacific8747.github.io/fr24/objects.inv).

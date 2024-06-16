@@ -126,6 +126,9 @@ class ArrowTable(Generic[Ctx]):
         data.attrs = self.ctx
         return data
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(ctx={self.ctx}, data={self.data})"
+
 
 class ServiceBase(ABC):
     """A service to handle the API and disk operations."""

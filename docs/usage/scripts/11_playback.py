@@ -7,11 +7,11 @@ from fr24.core import FR24
 
 async def my_playback() -> None:
     async with FR24() as fr24:
-        pb = fr24.playback(flight_id=0x2FB3041)  # (1)!
-        pb.data._add_api_response(await pb.api._fetch())
-        print(pb.data.df)
-        rich.print(pb.data.metadata)
-        pb.data._save_parquet()
+        response = await fr24.playback.fetch(0x2FB3041)  # (1)!
+        data = response.to_arrow()
+        print(data.df)
+        rich.print(data.metadata)
+        data.save()
 
 await my_playback()
 # --8<-- [end:script0]
@@ -63,15 +63,13 @@ from fr24.core import FR24
 
 async def my_playback() -> None:
     async with FR24() as fr24:
-        fl = fr24.playback(flight_id=0x2FB3041)
-        fl.data.fp.unlink(missing_ok=True)  # (1)!
-        fl.data._add_api_response(await fl.api._fetch())
-        fl.data._save_parquet()  # (2)! 
-
-        fl.data._clear()  # (3)!
-        fl.data._from_file()  # (4)!
-        print(fl.data.df)
-        rich.print(fl.data.metadata)
+        response = await fr24.playback.fetch(0x2FB3041)
+        data = response.to_arrow()
+        data.save()  # (1)!
+        # some time later...
+        data_local = fr24.playback.load(0x2FB3041)  # (2)!
+        print(data_local.df)
+        rich.print(data_local.metadata)
 
 await my_playback()
 # --8<-- [end:script1]

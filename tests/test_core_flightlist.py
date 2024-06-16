@@ -20,8 +20,10 @@ async def test_flight_list_single() -> None:
         datac = response.to_arrow()
         assert datac.data.num_rows > 5
         # make sure pandas df shape is same as arrow table
-        assert datac.df.shape[0] == datac.data.num_rows
-        assert datac.df.shape[1] == datac.data.num_columns
+
+        df = datac.df
+        assert df.shape[0] == datac.data.num_rows
+        assert df.shape[1] == datac.data.num_columns
 
 
 @pytest.mark.asyncio
@@ -95,7 +97,7 @@ async def test_flight_list_file_ops() -> None:
             assert table.num_rows == curr_rows
             fp.unlink()
 
-        specific_fp = Path(__file__).parent / "tmp" / "test.parquet"
+        specific_fp = Path(__file__).parent / "tmp" / "flight_list.parquet"
         test_ok(specific_fp, lambda: datac.save(specific_fp))
         specific_fp.parent.rmdir()
 

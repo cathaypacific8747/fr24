@@ -22,25 +22,27 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
 
 #### Paginate all pages
 Queries for next page as long as user doesn't enter `x`, or if there are no pages left.
+In each iteration, rows are upserted and saved to the [cache](../usage/cli.md#directories).
 
 Note that pagination cannot be run in parallel: fetching page N requires information from page N-1.
 
 === "Jupyter cell"
 
-    ```py
+    ```py hl_lines="5 8"
     --8<-- "docs/usage/scripts/10_flight_list.py:script1"
     ```
 
-    1. First attempt to load existing table from the cache, otherwise it creates an empty in-memory arrow table for us to concat to.
+    1. First attempt to load existing table from the [cache](../usage/cli.md#directories), otherwise it creates an empty in-memory arrow table for us to concat to.
+    2. [Upserts the data][fr24.core.FlightListArrow.concat], replacing older records with new ones.
 
 === "`data.df`"
     
     ```
     --8<-- "docs/usage/scripts/10_flight_list.py:df1"
     ```
-<!-- 
+
 ### Playback
-*API reference: [fr24.core.FR24.playback][], [fr24.core.PlaybackAPI.fetch][]*
+*API reference: [fr24.core.PlaybackService][], [fr24.core.PlaybackService.fetch][]*
 
 #### Miracle on the Hudson
 Downloads the flight trajectory for [UA1549](https://en.wikipedia.org/wiki/US_Airways_Flight_1549)
@@ -53,13 +55,13 @@ Downloads the flight trajectory for [UA1549](https://en.wikipedia.org/wiki/US_Ai
 
     1. From https://www.flightradar24.com/data/pinned/ua1549-2fb3041#2fb3041.
 
-=== "`pb.data.df`"
+=== "`data.df`"
     
     ```
     --8<-- "docs/usage/scripts/11_playback.py:df0"
     ```
 
-=== "`pb.data.metadata`"
+=== "`data.metadata`"
     
     ```py
     --8<-- "docs/usage/scripts/11_playback.py:metadata0"
@@ -70,27 +72,25 @@ Saves trajectory data to disk, reads the track and metadata from it.
 
 === "Jupyter cell"
 
-    ```py hl_lines="7 9 11 12"
+    ```py hl_lines="8 10"
     --8<-- "docs/usage/scripts/11_playback.py:script1"
     ```
     
-    1. Delete existing parquet files, if it exists.
-    2. Save the parquet to disk.
-    3. Delete the arrow table to make room.
-    4. Load the parquet from disk.
+    1. Saves the parquet to the [cache](../usage/cli.md#directories).
+    2. Load the parquet from the [cache](../usage/cli.md#directories).
 
-=== "`pb.data.df`"
+=== "`data_local.df`"
     
     ```
     --8<-- "docs/usage/scripts/11_playback.py:df0"
     ```
 
-=== "`pb.data.metadata`"
+=== "`data_local.metadata`"
     
     ```py
     --8<-- "docs/usage/scripts/11_playback.py:metadata0"
     ```
-### Live Feed
+<!-- ### Live Feed
 *API reference: [fr24.core.FR24.livefeed][], [fr24.core.LiveFeedAPI.fetch][]*
 
 #### Live

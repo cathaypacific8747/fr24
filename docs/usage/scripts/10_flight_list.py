@@ -38,7 +38,7 @@ async def my_full_list() -> None:
         data = fr24.flight_list.load(reg="B-HPB")  # (1)!
         async for response in fr24.flight_list.fetch_all(reg="B-HPB"):
             data_new = response.to_arrow()
-            data.concat(data_new, inplace=True)
+            data.concat(data_new, inplace=True)  # (2)!
             if input() == "x":
                 break
             data.save()

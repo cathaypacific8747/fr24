@@ -58,7 +58,7 @@ import httpx
 
 from fr24.core import FR24
 
-client = httpx.AsyncClient(transport=httpx.AsyncHTTPTransport(retries=5))
+client = httpx.AsyncClient(http2=True, transport=httpx.AsyncHTTPTransport(retries=5))
 async with FR24(client) as fr24:
     ...
 # --8<-- [end:client-sharing]

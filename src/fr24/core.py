@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
 
-# import json
 # import time
 from datetime import datetime
 from pathlib import Path
@@ -23,30 +23,30 @@ from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
 from .history import (
     flight_list,
     flight_list_dict,
+    playback,
+    playback_metadata_dict,
+    playback_track_dict,
+    playback_track_ems_dict,
 )
 
-# playback,
-# playback_metadata_dict,
-# playback_track_dict,
-# playback_track_ems_dict,
 # from .livefeed import livefeed_playback_world_data, livefeed_world_data
 from .types.cache import (
     flight_list_schema,
+    playback_track_schema,
 )
 
 # LiveFeedRecord,
 # livefeed_schema,
-# playback_track_schema,
 from .types.core import (
     FlightListContext,
+    PlaybackContext,
 )
 
 # LiveFeedContext,
-# PlaybackContext,
 from .types.fr24 import (
-    # FlightData,
+    FlightData,
     FlightList,
-    # Playback,
+    Playback,
     TokenSubscriptionKey,
     UsernamePassword,
 )
@@ -72,7 +72,7 @@ class FR24:
         )
         self._base_dir = Path(base_dir)
         self.flight_list = FlightListService(self.http, self._base_dir)
-        # self.playback = PlaybackService(self.http, base_dir)
+        self.playback = PlaybackService(self.http, self._base_dir)
         # self.livefeed = LiveFeedService(self.http, base_dir)
 
     async def login(
@@ -326,20 +326,145 @@ class FlightListService(ServiceBase):
         )
 
 
+class PlaybackAPI:
+    def __init__(self, http: HTTPClient) -> None:
+        self.http = http
+
+    async def _fetch(
+        self,
+        ctx: PlaybackContext,
+        timestamp: int | datetime | pd.Timestamp | str | None = None,
+    ) -> Playback:
+        """
+        Fetch the historical track playback data for the given flight.
+
+        *Related: [fr24.history.playback][]*
+
+        :param timestamp: Unix timestamp (seconds) of ATD - optional, but
+            it is recommended to include it
+        """
+        return await playback(
+            self.http.client, ctx["flight_id"], timestamp, self.http.auth
+        )
+
+
+class PlaybackApiResp(APIResponse[PlaybackContext, Playback]):
+    """A wrapper around the playback API response."""
+
+    def to_arrow(self) -> PlaybackArrow:
+        """
+        Parse each [fr24.types.fr24.TrackData][] in the API response and
+        transform it into a pyarrow.Table. Also adds
+        [fr24.types.fr24.FlightData][] into the schema's metadata with key
+        `_flight`.
+        """
+        data = self.data["result"]["response"]["data"]["flight"]
+        table = pa.Table.from_pylist(
+            [
+                {
+                    **playback_track_dict(point),
+                    "ems": playback_track_ems_dict(point),
+                }
+                for point in data["track"]
+            ],
+            schema=playback_track_schema.with_metadata(
+                {
+                    "_flight": json.dumps(playback_metadata_dict(data)).encode(
+                        "utf-8"
+                    )
+                }
+            ),
+        )
+        return PlaybackArrow(self.ctx, table)
+
+
+class PlaybackArrow(ArrowTable[PlaybackContext]):
+    """Arrow table for playback data."""
+
+    @classmethod
+    def from_cache(cls, ctx: PlaybackContext) -> PlaybackArrow:
+        fp = PlaybackArrow._fp(ctx)
+        return super(PlaybackArrow, cls).from_file(
+            ctx, fp, playback_track_schema
+        )
+
+    @classmethod
+    def _fp(cls, ctx: PlaybackContext) -> Path:
+        return ctx["base_dir"] / "playback" / f"{ctx['flight_id']}.parquet"
+
+    @override
+    def concat(
+        self, data_new: PlaybackArrow, inplace: bool = False
+    ) -> PlaybackArrow:
+        raise NotImplementedError(
+            "playback of fr24 flight tracks cannot be concatenated together, "
+            "use `xoolive/traffic` if you need to merge tracks."
+        )
+
+    @override
+    def save(self, fp: Path | None = None) -> Self:
+        """
+        Save the table to the given file path, e.g. `./tmp/foo.parquet`.
+
+        :param fp: File path to save the table to. If `None`, the table will
+            be saved to the appropriate cache directory.
+        """
+        super().save(fp if fp is not None else PlaybackArrow._fp(self.ctx))
+        return self
+
+    @property
+    def metadata(self) -> FlightData | None:
+        """Parse the flight metadata from the arrow table."""
+        if m := self.data.schema.metadata.get(b"_flight"):
+            return json.loads(m)  # type: ignore[no-any-return]
+        return None
+
+
+class PlaybackService(ServiceBase):
+    """A service to handle the playback API and file operations."""
+
+    def __init__(self, http: HTTPClient, base_dir: Path) -> None:
+        self._http = http
+        self._base_dir = base_dir
+        self._api = PlaybackAPI(http)
+
+    async def fetch(
+        self,
+        flight_id: str | int,
+        timestamp: int | datetime | pd.Timestamp | str | None = None,
+    ) -> PlaybackApiResp:
+        """
+        Fetch the historical track playback data for the given flight.
+
+        *Related: [fr24.history.playback][]*
+
+        :param flight_id: Hex Flight ID (e.g. `"2d81a27"`, `0x2d81a27`)
+        :param timestamp: Unix timestamp (seconds) of ATD - optional, but
+            it is recommended to include it
+        """
+        ctx = self._construct_ctx(flight_id)
+        return PlaybackApiResp(
+            ctx, await self._api._fetch(ctx, timestamp=timestamp)
+        )
+
+    def load(self, flight_id: str | int) -> PlaybackArrow:
+        """
+        Get playback data for the given flight ID from the
+        [cache](../usage/cli.md#directories). If the file does not exist,
+        an empty table will be returned.
+        """
+        ctx = self._construct_ctx(flight_id)
+        return PlaybackArrow.from_cache(ctx)
+
+    def _construct_ctx(self, flight_id: str | int) -> PlaybackContext:
+        if not isinstance(flight_id, str):
+            flight_id = f"{flight_id:x}"
+        flight_id = flight_id.lower()
+        return {"flight_id": flight_id, "base_dir": self._base_dir}
+
+
 # old api vvvv
 
-# def playback(self, flight_id: str | int) -> PlaybackService:
-#     """
-#     Constructs a [playback service][fr24.core.PlaybackService] for the
-#     given flight ID.
-#     *Related: [fr24.history.playback][]*
-#     :param flight_id: Hex Flight ID (e.g. `"2d81a27"`, `0x2d81a27`)
-#     """
-#     if not isinstance(flight_id, str):
-#         flight_id = f"{flight_id:x}"
-#     flight_id = flight_id.lower()
-#     ctx: PlaybackContext = {"flight_id": flight_id}
-#     return PlaybackService(self.http, self.base_dir, ctx)
 # def livefeed(
 #     self,
 #     timestamp: int | str | datetime | pd.Timestamp | None = None,
@@ -376,88 +501,6 @@ class FlightListService(ServiceBase):
 #         self.base_dir,
 #         ctx,
 #     )
-
-
-# class PlaybackAPI(APIBase[Playback, PlaybackContext]):
-#     async def _fetch(
-#         self, timestamp: int | str | datetime | pd.Timestamp | None = None
-#     ) -> Playback:
-#         """
-#         Fetch the historical track playback data for the given flight.
-
-#         *Related: [fr24.history.playback][]*
-
-#         :param timestamp: Unix timestamp (seconds) of ATD - optional, but
-#             it is recommended to include it
-#         """
-#         return await playback(
-#             self.http.client, self.ctx["flight_id"], timestamp, self.http.auth
-#         )
-
-
-# class PlaybackArrow(ArrowBase[Playback, PlaybackContext]):
-#     """Arrow table for playback data."""
-
-#     schema = playback_track_schema
-
-#     @property
-#     def fp(self) -> Path:
-#         return self.base_dir / "playback" / f"{self.ctx['flight_id']}.parquet"
-
-#     @staticmethod
-#     def _concat(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
-#         raise NotImplementedError(
-#             "Cannot add data to a non-empty playback table.\n"
-#             "Use `.clear()` to reset the table first."
-#         )
-
-#     def _add_api_response(self, data: Playback) -> Self:
-#         """
-#         Parse each [fr24.types.fr24.TrackData][] in the API response and store
-#         it in the table. Also adds [fr24.types.fr24.FlightData][] into the
-#         schema's metadata with key `_flight`.
-
-#         :param data: the return data of [fr24.core.PlaybackAPI.fetch][].
-#         """
-#         self.schema = self.schema.with_metadata(
-#             {
-#                 "_flight": json.dumps(
-#                     playback_metadata_dict(
-#                         data["result"]["response"]["data"]["flight"]
-#                     )
-#                 ).encode("utf-8")
-#             }
-#         )
-#         self.table = pa.Table.from_pylist(
-#             [
-#                 {
-#                     **playback_track_dict(point),
-#                     "ems": playback_track_ems_dict(point),
-#                 }
-#                 for point in data["result"]["response"]["data"]["flight"][
-#                     "track"
-#                 ]
-#             ],
-#             schema=self.schema,
-#         )
-#         return self
-
-#     @property
-#     def metadata(self) -> FlightData | None:
-#         """Get the flight metadata from the arrow schema."""
-#         if m := self.schema.metadata.get(b"_flight"):
-#             return json.loads(m)  # type: ignore[no-any-return]
-#         return None
-
-
-# class PlaybackService(ServiceBase[PlaybackAPI, PlaybackArrow]):
-#     """A service to handle the playback API and file operations."""
-
-#     def __init__(self, http: HTTPClient, base_dir: str) -> None:
-#         api = PlaybackAPI(http)
-#         fs = PlaybackArrow(base_dir)
-#         super().__init__(api, fs)
-
 
 # class LiveFeedAPI(APIBase[list[LiveFeedRecord], LiveFeedContext]):
 #     async def _fetch(self) -> list[LiveFeedRecord]:
