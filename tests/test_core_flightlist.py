@@ -88,10 +88,10 @@ async def test_flight_list_file_ops() -> None:
         datac = response.to_arrow()
         curr_rows = datac.data.num_rows
 
-        def test_ok(fp: Path, cb: Callable[[], FlightListArrow]) -> None:
+        def test_ok(fp: Path, save: Callable[[], FlightListArrow]) -> None:
             fp.parent.mkdir(parents=True, exist_ok=True)
             fp.unlink(missing_ok=True)
-            _ = cb()
+            _ = save()
             assert fp.exists()
             table = pq.read_table(fp)
             assert table.num_rows == curr_rows

@@ -6,6 +6,7 @@ from typing import Literal, TypedDict
 from typing_extensions import NotRequired
 
 
+# internally tagged
 class FlightListContext(TypedDict):
     ident: str
     kind: Literal["reg", "flight"]
@@ -18,7 +19,7 @@ class PlaybackContext(TypedDict):
 
 
 class LiveFeedContext(TypedDict):
-    timestamp: int
+    timestamp: int | None
     source: Literal["live", "playback"]
     duration: NotRequired[int]
     hfreq: NotRequired[int]

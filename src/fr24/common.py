@@ -36,7 +36,8 @@ def to_unix_timestamp(
     timestamp: int | datetime | pd.Timestamp | str | None,
 ) -> int | None:
     """
-    Casts timestamp-like object to Unix timestamp.
+    Casts timestamp-like object to Unix timestamp,
+    returning `None` if `timestamp` is `None`.
     """
     if isinstance(timestamp, (str, datetime)):
         return int(pd.Timestamp(timestamp).timestamp())

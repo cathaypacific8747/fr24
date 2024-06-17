@@ -36,7 +36,7 @@ However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around t
 
 - Manages a shared HTTP client and authentication state
 - Has three services:
-    - [**Live Feed**][fr24.core.FR24.livefeed]: snapshot of all aircraft state vectors
+    - [**Live Feed**][fr24.core.LiveFeedService]: snapshot of all aircraft state vectors
     - [**Flight List**][fr24.core.FlightListService]: all historical flights for a given aircraft registration or flight number
     - [**Playback**][fr24.core.PlaybackService]: historical trajectory for one flight.
 
@@ -58,7 +58,7 @@ Here is an example for using the [**Live Feed**][fr24.core.FR24.livefeed] servic
     --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
     ```
 
-=== "`lf.data.df`"
+=== "`datac.df`"
     
     ```
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
@@ -84,7 +84,7 @@ When `FR24()` is first initialised, it creates an unauthenticated [HTTPX client]
 
 The `async with` statement ensures that it is properly authenticated by calling the login endpoint (if necessary).
 
-### Choosing the service
+### Fetching from API
 
 === "Jupyter cell"
 
@@ -98,25 +98,32 @@ The `async with` statement ensures that it is properly authenticated by calling 
     --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
     ```
 
-=== "`lf.data.df`"
+=== "`datac.df`"
     
     ```
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
     ```
 
-Next, `fr24.livefeed()` creates a new [LiveFeedService][fr24.core.LiveFeedService], with the following member variables:
+`fr24.livefeed` returns a [LiveFeedService][fr24.core.LiveFeedService], with the following methods:
 
-| Member  | Type                                | Description                             |
-| ------- | ----------------------------------- | --------------------------------------- |
-| `.api`  | [fr24.core.LiveFeedAPI][]           | interacts with the API                  |
-| `.data` | [fr24.core.LiveFeedArrow][]         | store data and read/write files         |
-| `.ctx`  | [fr24.types.core.LiveFeedContext][] | holds essential context for the request |
+| Method                                                                                        | Return type                    |
+| --------------------------------------------------------------------------------------------- | ------------------------------ |
+| `.fetch` - [asynchronously query the the API for fresh data][fr24.core.LiveFeedService.fetch] | [fr24.core.LiveFeedAPIResp][]  |
+| `.load` - [load a previously cached snapshot from the disk][fr24.core.LiveFeedService.load]   | [fr24.core.LiveFeedArrow][]    |
 
-### Fetching and transformation
+You can retrieve:
+
+- the [context related to the request][fr24.types.core.LiveFeedContext] with `response.ctx`;
+- the raw JSON response as a list of [typed dictionaries][fr24.types.cache.LiveFeedRecord] with `response.data`.
+
+### Transformation to Arrow
+
+In practice, you could directly pipe `response.data` into `pd.DataFrame.from_records()`, but pandas
+uses 64-bit integers by default and can be storage-inefficient.
 
 === "Jupyter cell"
 
-    ```py hl_lines="6 8 9"
+    ```py hl_lines="6"
     --8<-- "docs/usage/scripts/01_livefeed_live.py:script"
     ```
 
@@ -126,33 +133,28 @@ Next, `fr24.livefeed()` creates a new [LiveFeedService][fr24.core.LiveFeedServic
     --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
     ```
 
-=== "`lf.data.df`"
+=== "`datac.df`"
     
     ```
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
     ```
 
-Here, `.api.fetch()` calls the API and returns the raw response as Python dictionaries.
-
-In practice, you could directly pipe this into `pd.DataFrame.from_records()`, but pandas
-uses 64-bit integers by default and can be storage-inefficient.
-
-Instead, you can call `.data.add_api_response()`, which creates a new
+Instead, you can call `.to_arrow()`, which creates a new
 [strongly typed][fr24.types.cache.livefeed_schema] Apache Arrow table from it.
 
 [Arrow](https://arrow.apache.org/docs/index.html) is a columnar data storage format
 with [excellent interoperability](https://arrow.apache.org/docs/python/pandas.html)
-with `pd.DataFrame`. You can retrieve the underlying Arrow table with `.data.table`, or
-retrieve its pandas equivalent with `.data.df`.
+with `pd.DataFrame`. You can retrieve:
+
+- the [context related to the request][fr24.types.core.LiveFeedContext] with `datac.ctx`;
+- the underlying [Arrow table](https://arrow.apache.org/docs/python/generated/pyarrow.Table.html) with `datac.data`;
+- get the pandas representation with `datac.df`.
 
 ### Saving to Disk
 
-Finally, you can save `.data.table` to the [Parquet](https://parquet.apache.org/)
-data format.
-
 === "Jupyter cell"
 
-    ```py hl_lines="10 11"
+    ```py hl_lines="7"
     --8<-- "docs/usage/scripts/01_livefeed_live.py:script"
     ```
 
@@ -162,19 +164,20 @@ data format.
     --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
     ```
 
-=== "`lf.data.df`"
+=== "`datac.df`"
     
     ```
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
     ```
 
-By default, `.save_parquet()` saves it under the default cache directory[^1].
+`.save()` writes the table to the default cache directory[^1] using the [Parquet](https://parquet.apache.org/)
+data format.
 
-You can always check its exact location using `.data.fp`. In general, where it gets saved is as follows:
+You can always check its exact location using `datac.fp`. In general, where it gets saved is as follows:
 
 ### Storage Location
 
-- [Live feed][fr24.core.FR24.livefeed]
+- [Live feed][fr24.core.LiveFeedService]
     - `feed/{timestamp}.parquet`
 - [Flight list][fr24.core.FlightListService]
     - `flight_list/reg/{reg.upper()}.parquet`, or
@@ -196,17 +199,17 @@ $ tree $HOME/.cache/fr24/feed
 └── playback
     └── 2d81a27.parquet
 ```
-These directories are created automatically whenever `.save_parquet()` is called.
+These directories are created automatically whenever `datac.save()` is called.
 
 ### Reading from disk
 
 === "Jupyter cell"
 
-    ```py hl_lines="5 6"
+    ```py hl_lines="5"
     --8<-- "docs/usage/scripts/01_livefeed_live.py:script2"
     ```
 
-=== "`lf.data.df`"
+=== "`datac.df`"
     
     ```
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"

@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-
-# import time
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, AsyncIterator, Literal
@@ -18,8 +17,7 @@ from typing_extensions import Self, override
 import pandas as pd
 
 from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
-
-# from .common import to_unix_timestamp
+from .common import to_unix_timestamp
 from .history import (
     flight_list,
     flight_list_dict,
@@ -28,21 +26,18 @@ from .history import (
     playback_track_dict,
     playback_track_ems_dict,
 )
-
-# from .livefeed import livefeed_playback_world_data, livefeed_world_data
+from .livefeed import livefeed_playback_world_data, livefeed_world_data
 from .types.cache import (
+    LiveFeedRecord,
     flight_list_schema,
+    livefeed_schema,
     playback_track_schema,
 )
-
-# LiveFeedRecord,
-# livefeed_schema,
 from .types.core import (
     FlightListContext,
+    LiveFeedContext,
     PlaybackContext,
 )
-
-# LiveFeedContext,
 from .types.fr24 import (
     FlightData,
     FlightList,
@@ -73,7 +68,7 @@ class FR24:
         self._base_dir = Path(base_dir)
         self.flight_list = FlightListService(self.http, self._base_dir)
         self.playback = PlaybackService(self.http, self._base_dir)
-        # self.livefeed = LiveFeedService(self.http, base_dir)
+        self.livefeed = LiveFeedService(self.http, self._base_dir)
 
     async def login(
         self,
@@ -463,109 +458,147 @@ class PlaybackService(ServiceBase):
         return {"flight_id": flight_id, "base_dir": self._base_dir}
 
 
-# old api vvvv
+class LiveFeedAPI:
+    def __init__(self, http: HTTPClient) -> None:
+        self.http = http
 
-# def livefeed(
-#     self,
-#     timestamp: int | str | datetime | pd.Timestamp | None = None,
-#     *,
-#     duration: int | None = None,
-#     hfreq: int | None = None,
-# ) -> LiveFeedService:
-#     """
-#     Constructs a [live feed service][fr24.core.LiveFeedService].
-#     :param timestamp: Unix timestamp (seconds) of the live feed data.
-#         If `None` the [latest live data][fr24.livefeed.livefeed_world_data]
-#         will be fetched when `.api.fetch()` is called.
-#         Otherwise,
-#         [historical data][fr24.livefeed.livefeed_playback_world_data]
-#         will be fetched instead.
-#     :param duration: Prefetch duration (default: `7` seconds). Should only
-#         be set for historical data.
-#     :param hfreq: High frequency mode (default: `0`). Should only be set for
-#         historical data.
-#     """
-#     ts = to_unix_timestamp(timestamp)
-#     if ts is None and (hfreq is not None or duration is not None):
-#         raise ValueError(
-#             "`hfreq` and `duration` can only be set for historical data."
-#         )
-#     ctx: LiveFeedContext = {
-#         "timestamp": ts,
-#         "source": "live" if ts is None else "playback",
-#         "duration": duration,
-#         "hfreq": hfreq,
-#     }
-#     return LiveFeedService(
-#         self.http,
-#         self.base_dir,
-#         ctx,
-#     )
-
-# class LiveFeedAPI(APIBase[list[LiveFeedRecord], LiveFeedContext]):
-#     async def _fetch(self) -> list[LiveFeedRecord]:
-#         """
-#         Fetch the live feed data.
-
-#         Updates `self.ctx.timestamp` to the current time if it is `None`.
-#         """
-#         if (ts := self.ctx["timestamp"]) is not None:
-#             kw = {
-#                 k: v
-#                 for k, v in self.ctx.items()
-#                 if k in ("duration", "hfreq") and v is not None
-#             }
-#             return await livefeed_playback_world_data(
-#                 self.http.client,
-#                 ts,
-#                 **kw,  # type: ignore[arg-type]
-#                 auth=self.http.auth,
-#             )
-#         resp = await livefeed_world_data(self.http.client, self.http.auth)
-#         self.ctx["timestamp"] = int(time.time())
-#         return resp
+    async def _fetch(
+        self,
+        ctx: LiveFeedContext,
+    ) -> list[LiveFeedRecord]:
+        if (ts := ctx["timestamp"]) is not None:
+            kw = {
+                k: v
+                for k, v in ctx.items()
+                if k in ("duration", "hfreq") and v is not None
+            }
+            return await livefeed_playback_world_data(
+                self.http.client,
+                ts,
+                **kw,  # type: ignore[arg-type]
+                auth=self.http.auth,
+            )
+        resp = await livefeed_world_data(self.http.client, self.http.auth)
+        ctx["timestamp"] = int(time.time())
+        # TODO: use server time instead, but it doesn't really matter because
+        # livefeed messages have timestamps attached to them anyway
+        return resp
 
 
-# class LiveFeedArrow(ArrowBase[list[LiveFeedRecord], LiveFeedContext]):
-#     """Arrow table for live feed data."""
+class LiveFeedAPIResp(APIResponse[LiveFeedContext, list[LiveFeedRecord]]):
+    """A wrapper around the live feed API response."""
 
-#     schema = livefeed_schema
-
-#     @property
-#     def fp(self) -> Path:
-#         ts = self.ctx["timestamp"]
-#         if self.ctx["source"] == "live" and ts is None:
-#             raise ValueError(
-#                 "Cannot determine file path for uninitialised live feed.\n"
-#                 "Call `.api.fetch()` first to get the current timestamp."
-#             )
-#         return self.base_dir / "feed" / f"{ts}.parquet"
-
-#     @staticmethod
-#     def _concat(tbl_old: pa.Table, tbl_new: pa.Table) -> pa.Table:
-#         raise NotImplementedError(
-#             "Cannot add data to a non-empty live feed table.\n"
-#             "Use `.clear()` to reset the table first."
-#         )
-
-#     def _add_api_response(self, data: list[LiveFeedRecord]) -> Self:
-#         """
-#         Parse each [fr24.types.cache.LiveFeedRecord][] in the API response and
-#         store it in the table.
-
-#         :param data: the return data of [fr24.core.LiveFeedAPI.fetch][].
-#         """
-#         self.schema = self.schema.with_metadata(
-#             {"ctx": json.dumps(self.ctx).encode("utf-8")}
-#         )
-#         self.table = pa.Table.from_pylist(data, schema=self.schema)
-#         return self
+    def to_arrow(self) -> LiveFeedArrow:
+        """
+        Parse each [fr24.types.fr24.LiveFeedRecord][] in the API response and
+        transform it into a pyarrow.Table.
+        """
+        if len(self.data) == 0:
+            logger.warning("no data in response, table will be empty")
+        table = pa.Table.from_pylist(
+            self.data,
+            schema=livefeed_schema,
+        )
+        return LiveFeedArrow(self.ctx, table)
 
 
-# class LiveFeedService(ServiceBase[LiveFeedAPI, LiveFeedArrow]):
-#     """A service to handle the live feed API and file operations."""
+class LiveFeedArrow(ArrowTable[LiveFeedContext]):
+    """Arrow table for live feed data."""
 
-#     def __init__(self, http: HTTPClient, base_dir: str) -> None:
-#         api = LiveFeedAPI(http)
-#         fs = LiveFeedArrow(base_dir)
-#         super().__init__(api, fs)
+    @classmethod
+    def from_cache(cls, ctx: LiveFeedContext) -> LiveFeedArrow:
+        fp = LiveFeedArrow._fp(ctx)
+        return super(LiveFeedArrow, cls).from_file(ctx, fp, livefeed_schema)
+
+    @classmethod
+    def _fp(cls, ctx: LiveFeedContext) -> Path:
+        ts = ctx["timestamp"]
+        assert ts is not None, (
+            "tried to get a cached snapshot of the live feed, but the "
+            "timestamp was not provided."
+        )
+        return ctx["base_dir"] / "feed" / f"{ts}.parquet"
+
+    @override
+    def concat(
+        self, data_new: LiveFeedArrow, inplace: bool = False
+    ) -> LiveFeedArrow:
+        raise NotImplementedError(
+            "live feed data cannot be concatenated together"
+        )
+
+    @override
+    def save(self, fp: Path | None = None) -> Self:
+        """
+        Save the table to the given file path, e.g. `./tmp/foo.parquet`.
+
+        :param fp: File path to save the table to. If `None`, the table will
+            be saved to the appropriate cache directory.
+        """
+        super().save(fp if fp is not None else LiveFeedArrow._fp(self.ctx))
+        return self
+
+
+class LiveFeedService(ServiceBase):
+    """A service to handle the live feed API and file operations."""
+
+    def __init__(self, http: HTTPClient, base_dir: Path) -> None:
+        self._http = http
+        self._base_dir = base_dir
+        self._api = LiveFeedAPI(http)
+
+    async def fetch(
+        self,
+        timestamp: int | str | datetime | pd.Timestamp | None = None,
+        *,
+        duration: int | None = None,
+        hfreq: int | None = None,
+    ) -> LiveFeedAPIResp:
+        """
+        Fetch live feed data.
+
+        *Related: [fr24.livefeed.livefeed_world_data][]*
+
+        :param timestamp: Unix timestamp (seconds) of the live feed data.
+            If `None`, the latest live data will be fetched. Otherwise,
+            historical data will be fetched instead.
+        :param duration: Prefetch duration (default: `7` seconds). Should only
+            be set for historical data.
+        :param hfreq: High frequency mode (default: `0`). Should only be set
+            for historical data.
+        """
+        ctx = self._construct_ctx(timestamp, duration, hfreq)
+        return LiveFeedAPIResp(ctx, await self._api._fetch(ctx))
+
+    def load(
+        self,
+        timestamp: int | str | datetime | pd.Timestamp,
+    ) -> LiveFeedArrow:
+        """
+        Get live feed data from the
+        [cache](../usage/cli.md#directories). If the file does not exist,
+        an empty table will be returned.
+
+        :param timestamp: Unix timestamp (seconds) of the saved feed snapshot.
+        """
+        ctx = self._construct_ctx(timestamp, None, None)
+        return LiveFeedArrow.from_cache(ctx)
+
+    def _construct_ctx(
+        self,
+        timestamp: int | str | datetime | pd.Timestamp | None,
+        duration: int | None,
+        hfreq: int | None,
+    ) -> LiveFeedContext:
+        ts = to_unix_timestamp(timestamp)
+        if ts is None and (hfreq is not None or duration is not None):
+            raise ValueError(
+                "`hfreq` and `duration` can only be set for historical data."
+            )
+        return {
+            "timestamp": ts,
+            "source": "live" if ts is None else "playback",
+            "duration": duration,
+            "hfreq": hfreq,
+            "base_dir": self._base_dir,
+        }
