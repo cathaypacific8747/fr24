@@ -3,9 +3,12 @@ name = "fr24"
 homepage = "https://github.com/cathaypacific8747/fr24/"
 version = "0.1.1"
 description = "Parse gRPC and JSON data from FlightRadar24"
-authors = ["Abraham Cheung <abraham@ylcheung.com>", "Xavier Olive <git@xoolive.org>"]
+authors = [
+  "Abraham Cheung <abraham@ylcheung.com>",
+  "Xavier Olive <git@xoolive.org>",
+]
 license = "MIT"
-include = [ "LICENSE", "py.typed", "request.proto", "style.tcss" ]
+include = ["LICENSE", "py.typed", "request.proto", "style.tcss"]
 readme = "README.md"
 
 [tool.poetry.scripts]
@@ -15,8 +18,8 @@ fr24 = 'fr24.cli:app'
 python = ">=3.9,<4.0"
 pandas = "^2.2.2"
 pyarrow = "^16.0.0"
-httpx = {extras = ["http2"], version = "^0.27.0"}
-protobuf = "^4.25.0"
+httpx = { extras = ["http2"], version = "^0.27.0" }
+protobuf = ">=4.25.0"
 brotli = "^1.1.0"
 click = "^8.1.7"
 appdirs = "^1.4.4"
@@ -35,7 +38,7 @@ types-protobuf = "^5.26.0.20240422"
 
 
 [tool.poetry.group.docs.dependencies]
-mkdocs-material = {extras = ["imaging"], version = "^9.5.15"}
+mkdocs-material = { extras = ["imaging"], version = "^9.5.15" }
 mkdocstrings-python = "^1.9.0"
 black = "^24.3.0"
 
@@ -45,13 +48,14 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 lint.select = [
-  "E", "W",  # pycodestyle
-  "F",  # pyflakes
-  "I",  # isort
-  "NPY",  # numpy
+  "E",
+  "W",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # isort
+  "NPY", # numpy
   # "PD",  # pandas
   "DTZ", # flake8-datetimez
-  "RUF"
+  "RUF",
 ]
 exclude = ["proto"]
 line-length = 80
@@ -61,7 +65,7 @@ target-version = "py39"
 known-first-party = ["numpy", "pandas"]
 
 [tool.mypy]
-python_version = 3.9
+python_version = "3.9"
 exclude = ["proto"]
 platform = "posix"
 

@@ -11,10 +11,15 @@ from loguru import logger
 from .bbox import lng_bounds
 from .common import DEFAULT_HEADERS_GRPC
 from .proto.request_pb2 import (
-    LiveFeedPlaybackRequest,
-    LiveFeedPlaybackResponse,
+    Flight,
     LiveFeedRequest,
     LiveFeedResponse,
+    LocationBoundaries,
+    PlaybackRequest,
+    PlaybackResponse,
+    RestrictionVisibility,
+    TrafficType,
+    VisibilitySettings,
 )
 from .types.cache import LiveFeedRecord
 from .types.fr24 import Authentication
@@ -58,13 +63,13 @@ def livefeed_message_create(
         can be included
     """
     return LiveFeedRequest(
-        bounds=LiveFeedRequest.Bounds(
+        bounds=LocationBoundaries(
             north=north, south=south, west=west, east=east
         ),
-        settings=LiveFeedRequest.Settings(
+        settings=VisibilitySettings(
             sources_list=range(10),  # type: ignore
             services_list=range(12),  # type: ignore
-            traffic_type=LiveFeedRequest.Settings.ALL,
+            traffic_type=TrafficType.ALL,
             only_restricted=False,
         ),
         field_mask=LiveFeedRequest.FieldMask(field_name=fields),
@@ -72,7 +77,7 @@ def livefeed_message_create(
         stats=stats,
         limit=limit,
         maxage=maxage,
-        restriction_mode=LiveFeedRequest.NOT_VISIBLE,
+        restriction_mode=RestrictionVisibility.NOT_VISIBLE,
         **kwargs,
     )
 
@@ -82,7 +87,7 @@ def livefeed_playback_message_create(
     timestamp: int,
     prefetch: int,
     hfreq: int,
-) -> LiveFeedPlaybackRequest:
+) -> PlaybackRequest:
     """
     Create the live feed playback request protobuf message.
 
@@ -90,7 +95,7 @@ def livefeed_playback_message_create(
     :param prefetch: End timestamp: should be start timestamp + 7 seconds
     :param hfreq: High frequency mode
     """
-    return LiveFeedPlaybackRequest(
+    return PlaybackRequest(
         live_feed_request=message,
         timestamp=timestamp,
         prefetch=prefetch,
@@ -120,7 +125,7 @@ def livefeed_request_create(
 
 
 def livefeed_playback_request_create(
-    message: LiveFeedPlaybackRequest,
+    message: PlaybackRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
     """Constructs the POST request with encoded gRPC body."""
@@ -160,23 +165,25 @@ def livefeed_response_parse(data: bytes) -> LiveFeedResponse:
 
 def livefeed_playback_response_parse(data: bytes) -> LiveFeedResponse:
     """:param data: raw protobuf message"""
-    lfr = LiveFeedPlaybackResponse()
+    lfr = PlaybackResponse()
     lfr.ParseFromString(data)
     return lfr.live_feed_response
 
 
 def livefeed_flightdata_dict(
-    lfr: LiveFeedResponse.FlightData,
+    lfr: Flight,
 ) -> LiveFeedRecord:
     """Convert the protobuf message to a dictionary."""
+    # NOTE: i've adopted the official protobuf names for consistency
+    # but we do not change the dictionary keys for compatibility
     return {
         "timestamp": lfr.timestamp,
         "flightid": lfr.flightid,
-        "latitude": lfr.latitude,
-        "longitude": lfr.longitude,
-        "heading": lfr.heading,
-        "altitude": lfr.altitude,
-        "ground_speed": lfr.ground_speed,
+        "latitude": lfr.lat,
+        "longitude": lfr.lon,
+        "heading": lfr.track,  # most notably, this might cause confusion
+        "altitude": lfr.alt,
+        "ground_speed": lfr.speed,
         "vertical_speed": lfr.extra_info.vspeed,
         "on_ground": lfr.on_ground,
         "callsign": lfr.callsign,
