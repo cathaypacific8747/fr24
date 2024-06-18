@@ -310,9 +310,20 @@ message AircraftInfo {
     bool age_available = 14;
     string registered_owners = 15;
 } // new: 24.169.0808
-message AltArrival {} // new: 24.169.0808
-message Coordinate {} // new: 24.169.0808
-message Duration {} // new: 24.169.0808
+
+message AltArrival {
+    Fix arrival = 1;
+    float length = 2;
+} // new: 24.169.0808
+
+message Coordinate {
+    string code = 1;
+    Point point = 2;
+} // new: 24.169.0808
+
+message Duration {
+    uint32 count = 1;
+} // new: 24.169.0808
 
 enum EmergencyStatus {
     NO_EMERGENCY = 0;
@@ -325,7 +336,28 @@ enum EmergencyStatus {
     RESERVED = 7;
 }
 
-message ExtendedFlightInfo {} // new: 24.169.0808
+message ExtendedFlightInfo {
+    // ? flightid = 1;
+    // ? lat = 2;
+    // ? lon = ?;
+    // ? track = ?;
+    // ? alt = ?;
+    // ? speed = ?;
+    // ? icon = ?;
+    // ? status = 7;
+    uint64 timestamp = 8;
+    bool on_ground = 9;
+    string callsign = 10;
+    // ? source = 11;
+    // ? ems_availability = 12;
+    // ? ems_info = 13;
+    // ? squawk_availability = 14;
+    // ? squawk = 15;
+    bool vspeed_availability = 16;
+    int32 vspeed = 17;
+    // ? airspace_availability = 18;
+    // ? airspace = 19;
+} // new: 24.169.0808
 
 enum FlightStage {
     UNKNOWN = 0;
@@ -336,32 +368,192 @@ enum FlightStage {
 } // new: 24.169.0808
     
 message FetchSearchIndexRequest {} // new: 24.169.0808
-message FetchSearchIndexResponse {} // new: 24.169.0808
-message Fix {} // new: 24.169.0808
-message FlightPlan {} // new: 24.169.0808
+
+message FetchSearchIndexResponse {
+    // repeated ? flights_list = 1;
+} // new: 24.169.0808
+
+message Fix {
+    // ? airport = 1;
+    // ? area = 2;
+    Coordinate coordinate = 3;
+} // new: 24.169.0808
+
+message FlightPlan {
+    // ? departure = 1;
+    // ? destination = 2;
+    // ? flight_plan_icao = 3;
+    // ? length = 4;
+    // ? alt_arrival_1 = 5;
+    // ? alt_arrival_2 = 6;
+    // repeated ? waypoints_list = 7;
+} // new: 24.169.0808
+
 message FlightProgress {} // new: 24.169.0808
-message FlightSearchData {}
+
+message FlightSearchData {
+    // ? reg = 1;
+    // ? schd_from = 2;
+    // ? schd_to = 3;
+    // ? flight = 4;
+    // ? operator = 5;
+    // ? ac_type = 6;
+    // ? lat = 7;
+    // ? lon = 8;
+    // ? callsign = 9;
+    // ? id = 10;
+    // ? restricted = 11;
+}
+
 message FollowFlightRequest {}
-message FollowFlightResponse {}
-message FollowedFlight {} // new: 24.169.0808
-message Geolocation {}
-message ImageInfo {} // new: 24.169.0808
-message Interval {}
-message LiveFlightStatusData {}
-message LiveFlightsStatusRequest {}
-message LiveFlightsStatusResponse {}
-message LiveTrailRequest {} // new: 24.169.0808
-message LiveTrailResponse {} // new: 24.169.0808
-message NearbyFlight {}
-message NearestFlightsRequest {}
-message NearestFlightsResponse {}
-message Point {} // new: 24.169.0808
-message Ping {}
-message Pong {}
-message RadarHistoryRecord {} // new: 24.169.0808
-message Route {}
-message ScheduleInfo {} // new: 24.169.0808
-message Tick {} // new: 24.169.0808
-message TopFlightsRequest {} // new: 24.169.0808
-message TopFlightsResponse {} // new: 24.169.0808
-message TrailPoint {} // new: 24.169.0808
+
+message FollowFlightResponse {
+    AircraftInfo aircraft_info = 1;
+    FlightPlan flight_plan = 2;
+    ScheduleInfo schedule_info = 3;
+    FlightProgress flight_progress = 4;
+    ExtendedFlightInfo flight_info = 5;
+    repeated TrailPoint flight_trail_list = 6;
+}
+
+message FollowedFlight {
+    // number? flight_id = 1;
+    // number? live_clicks = 2;
+    // number? total_clicks = 3;
+    string flight_number = 4;
+    string callsign = 5;
+    // number? squawk = 6;
+    string from_iata = 7;
+    string from_city = 8;
+    string to_iata = 9;
+    string to_city = 10;
+    string type = 11;
+    string full_description = 12;
+} // new: 24.169.0808
+
+message Geolocation {
+    float lat = 1;
+    float lon = 2;
+}
+
+message ImageInfo {
+    string url = 1;
+    string copyright = 2;
+    string thumbnail = 3;
+    string medium = 4;
+    string large = 5;
+} // new: 24.169.0808
+
+message Interval {
+    int32 min = 1;
+    int32 max = 2;
+}
+
+message LiveFlightStatusData {
+    float lat = 1;
+    float lon = 2;
+    // ? status = 3;
+    uint32 squawk = 4;
+}
+
+message LiveFlightsStatusRequest {
+    // repeated fixed32? flight_ids_list = 1;
+}
+
+message LiveFlightsStatusResponse {
+    LiveFlightStatusData flights_map = 1; // ?
+}
+
+message LiveTrailRequest {
+    // number? flight_id = 1;
+} // new: 24.169.0808
+
+message LiveTrailResponse {
+    repeated RadarHistoryRecord radar_records_list = 1; // ?
+} // new: 24.169.0808
+
+message NearbyFlight {
+    Flight flight = 1;
+    uint32 distance = 2;
+}
+
+message NearestFlightsRequest {
+    // ? location = 1;
+    uint32 radius = 2;
+    // ? limit = 1
+}
+
+message NearestFlightsResponse {
+    repeated NearbyFlight flights_list = 1; // ?
+}
+
+message Point {
+    // number? latitute = 1;
+    // number? longitude = 2;
+} // new: 24.169.0808
+
+message Ping {
+    // ? a = 1;
+    // ? b = 2;
+}
+
+message Pong {
+    // ? ? = 1;
+}
+
+message RadarHistoryRecord {
+    uint64 timestamp = 1;
+    // float? lat = 2;
+    // float? lon = 3;
+    // int32? altitude = 4;
+    // int32? spd = 5;
+    // int32? heading = 6;
+    // int32? vspd = 7;
+    // int32? squawk = 8;
+    // DataSource? source = 9;
+    // string? callsign = 10;
+} // new: 24.169.0808
+
+message Route {
+    // ? from = 1;
+    // ? to = 2;
+    // ? diverted_to = 3;
+}
+
+message ScheduleInfo {
+    string flight_number = 1;
+    uint32 operated_by_id = 2;
+    // uint32? painted_as_id = 3;
+    // uint32? origin_id = 4;
+    // uint32? destination_id = 5;
+    // uint32? diverted_to_id = 6;
+    uint32 scheduled_departure = 7;
+    uint32 scheduled_arrival = 8;
+    // uint32? actual_departure = 9;
+    uint32 actual_arrival = 10;
+    string arr_terminal = 11;
+    string arr_gate = 12;
+    string baggage_belt = 13;
+} // new: 24.169.0808
+
+message Tick {
+    // ? count = 1;
+} // new: 24.169.0808
+
+message TopFlightsRequest {
+    uint32 limit = 1;
+} // new: 24.169.0808
+
+message TopFlightsResponse {
+    // ? scoreboard_list = 2;
+} // new: 24.169.0808
+
+message TrailPoint {
+    // ? snapshot_id = 1;
+    // ? lat = 2;
+    // ? lon = 3;
+    // ? altitude = 4;
+    // ? spd = 5;
+    // ? heading = 6;
+    // ? vspd = 7;
+} // new: 24.169.0808
