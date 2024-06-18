@@ -124,7 +124,7 @@ message LiveFeedRequest {
     string custom_fleet_id = 4; // requires auth
     bool highlight_mode = 5;
     optional bool stats = 6;
-    optional int32 limit = 7; // default 1500
+    optional int32 limit = 7; // default 1500/2000
     optional int32 maxage = 8; // default 14400
     optional RestrictionMode restriction_mode = 9;
     FieldMask field_mask = 10;

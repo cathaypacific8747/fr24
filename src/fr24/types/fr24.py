@@ -5,8 +5,8 @@ from typing import Literal, Optional, TypedDict
 from typing_extensions import Required
 
 
-class User(TypedDict):
-    id: int
+class User(TypedDict, total=False):
+    id: Required[int]
     identity: str
     locale: str
 

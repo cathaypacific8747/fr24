@@ -21,6 +21,6 @@ class PlaybackContext(TypedDict):
 class LiveFeedContext(TypedDict):
     timestamp: int | None
     source: Literal["live", "playback"]
-    duration: NotRequired[int]
-    hfreq: NotRequired[int]
+    duration: NotRequired[int | None]
+    hfreq: NotRequired[int | None]
     base_dir: NotRequired[Path]

@@ -48,4 +48,4 @@ An example of it can be found at [`fr24.example.conf`](https://github.com/cathay
     ```
 
 [^1]: When the [FR24 class][fr24.core.FR24]' context is entered, a request is automatically made to retrieve the OAuth tokens
-[^2]: `fr24_token` should be a JWT with the `exp` claim in a few months, while `fr24_subscription_key` should be the shorter one. `fr24_token` is optional but live feed will fail without it.
+[^2]: `fr24_token` should be a JWT with the `exp` claim in a month, while `fr24_subscription_key` should be the shorter one. `fr24_token` is optional but live feed will fail without it. Be sure to update the JWT in time.

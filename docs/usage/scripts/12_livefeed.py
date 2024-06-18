@@ -6,38 +6,46 @@ from fr24.core import FR24
 
 async def my_feed() -> None:
     async with FR24() as fr24:
-        lf = fr24.livefeed()
-        response = await lf.api._fetch()
+        response = await fr24.livefeed.fetch()
         print(response)
-        lf.data._add_api_response(response)
-        print(lf.data.df)
-        lf.data._save_parquet()
+        datac = response.to_arrow()
+        print(datac.df)
+        datac.save()
 
 await my_feed()
 # --8<-- [end:script]
 # %%
 # --8<-- [start:response]
-[
-    {
-        "timestamp": 1711911905,
-        "flightid": 882151247,
-        "latitude": -12.432657241821289,
-        "longitude": -172.14825439453125,
-        "heading": 203,
-        "altitude": 34000,
-        "ground_speed": 515,
-        "vertical_speed": 0,
-        "on_ground": False,
-        "callsign": "QFA7552",
-        "source": 0,
-        "registration": "N409MC",
-        "origin": "HNL",
-        "destination": "AKL",
-        "typecode": "B744",
-        "eta": 0,
-    }
-    # ... 15109 more items
-]
+LiveFeedAPIResp(
+    ctx={
+        "timestamp": 1711911907,
+        "source": "live",
+        "duration": None,
+        "hfreq": None,
+        "base_dir": PosixPath("/home/user/.cache/fr24"),
+    },
+    data=[
+        {
+            "timestamp": 1711911905,
+            "flightid": 882151247,
+            "latitude": -12.432657241821289,
+            "longitude": -172.14825439453125,
+            "heading": 203,
+            "altitude": 34000,
+            "ground_speed": 515,
+            "vertical_speed": 0,
+            "on_ground": False,
+            "callsign": "QFA7552",
+            "source": 0,
+            "registration": "N409MC",
+            "origin": "HNL",
+            "destination": "AKL",
+            "typecode": "B744",
+            "eta": 0,
+        }
+        # ... 15109 more items
+    ],
+)
 # --8<-- [end:response]
 #%%
 """
@@ -65,9 +73,9 @@ import time
 
 async def my_feed() -> None:
     async with FR24() as fr24:
-        lf = fr24.livefeed(int(time.time() - 86400 * 3))  # (1)!
-        lf.data._add_api_response(await lf.api._fetch())
-        print(lf.data.df)
+        response = await fr24.livefeed.fetch(int(time.time() - 86400 * 3))  # (1)!
+        datac = response.to_arrow()
+        print(datac.df)
 
 await my_feed()
 # --8<-- [end:script2]

@@ -7,10 +7,11 @@ import pytest
 from fr24.core import FR24, FlightListArrow
 
 REG = "b-hpb"
+FLIGHT = "cx488"
 
 
 @pytest.mark.asyncio
-async def test_flight_list_single() -> None:
+async def test_flight_list_reg() -> None:
     async with FR24() as fr24:
         with pytest.raises(ValueError):  # missing reg/flight
             _ = await fr24.flight_list.fetch()
@@ -27,7 +28,17 @@ async def test_flight_list_single() -> None:
 
 
 @pytest.mark.asyncio
-async def test_flight_list_paginate() -> None:
+async def test_flight_list_flight() -> None:
+    async with FR24() as fr24:
+        response = await fr24.flight_list.fetch(flight=FLIGHT)
+        assert response.data["result"]["response"]["data"] is not None
+
+        datac = response.to_arrow()
+        assert datac.data.num_rows > 5
+
+
+@pytest.mark.asyncio
+async def test_flight_list_reg_paginate() -> None:
     """
     call 2 rows in 3 pages, combining them should yield 6 rows
     """
@@ -53,7 +64,7 @@ async def test_flight_list_paginate() -> None:
 
 
 @pytest.mark.asyncio
-async def test_flight_list_concat() -> None:
+async def test_flight_list_reg_concat() -> None:
     """
     if we have existing flightids (10, 9, 8, 7) + new flightids (8, 7, 6, 5),
     the union of them should result in (10, 9, 8, 7, 6, 5)
@@ -77,7 +88,7 @@ async def test_flight_list_concat() -> None:
 
 
 @pytest.mark.asyncio
-async def test_flight_list_file_ops() -> None:
+async def test_flight_list_reg_file_ops() -> None:
     """
     check that saving and reopening in a new instance yields the same rows
     test that auto-detect directory and specified directory saving works

@@ -30,14 +30,14 @@ async def test_simple() -> None:
             use_integers_for_enums=False,
             preserving_proto_field_name=True,
         )
-        assert len(json_output["flights_list"]) > 10  # why 10? just because...
+        assert len(json_output["flights_list"]) > 10
 
 
 @pytest.mark.asyncio
 async def test_livefeed_world() -> None:
     async with httpx.AsyncClient() as client:
         data = await livefeed_world_data(client)
-        assert len(data) > 100  # why 100? just because...
+        assert len(data) > 100
 
 
 @pytest.mark.asyncio

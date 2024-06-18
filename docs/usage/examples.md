@@ -1,6 +1,6 @@
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
 
-[Skip to lower level functions](#functional-style)
+[Skip to lower level functions](#lower-level-functions)
 
 ## `FR24` class
 
@@ -90,8 +90,8 @@ Saves trajectory data to disk, reads the track and metadata from it.
     ```py
     --8<-- "docs/usage/scripts/11_playback.py:metadata0"
     ```
-<!-- ### Live Feed
-*API reference: [fr24.core.FR24.livefeed][], [fr24.core.LiveFeedAPI.fetch][]*
+### Live Feed
+*API reference: [fr24.core.LiveFeedService][], [fr24.core.LiveFeedService.fetch][]*
 
 #### Live
 This example is covered in detail in the [quickstart](./quickstart.md).
@@ -129,9 +129,9 @@ Fetches the live feed three days ago.
     
     ```
     --8<-- "docs/usage/scripts/12_livefeed.py:df2"
-    ``` -->
+    ```
 
-## Functional Style
+## Lower-level functions
 ### Flight list
 *API Reference: [fr24.history.flight_list][], [fr24.history.flight_list_df][]*
 

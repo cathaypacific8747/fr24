@@ -257,6 +257,8 @@ class FlightListService(ServiceBase):
 
         :param reg: Aircraft registration (e.g. `B-HUJ`)
         :param flight: Flight number (e.g. `CX8747`)
+        :param limit: Number of flights per page - use `100` if authenticated
+        :param timestamp: Show flights with ATD before this Unix timestamp
         """
         ctx = self._construct_ctx(reg, flight)
         return FlightListAPIResp(
@@ -268,9 +270,9 @@ class FlightListService(ServiceBase):
         *,
         reg: str | None = None,
         flight: str | None = None,
-        timestamp: int | datetime | pd.Timestamp | str | None = "now",
         page: int = 1,
         limit: int = 10,
+        timestamp: int | datetime | pd.Timestamp | str | None = "now",
         delay: int = 5,
     ) -> AsyncIterator[FlightListAPIResp]:
         """
@@ -284,6 +286,7 @@ class FlightListService(ServiceBase):
         :param reg: Aircraft registration (e.g. `B-HUJ`)
         :param flight: Flight number (e.g. `CX8747`)
         :param limit: Number of flights per page - use `100` if authenticated
+        :param timestamp: Show flights with ATD before this Unix timestamp
         :param delay: Delay between requests in seconds
         """
         ctx = self._construct_ctx(reg, flight)
@@ -490,7 +493,7 @@ class LiveFeedAPIResp(APIResponse[LiveFeedContext, list[LiveFeedRecord]]):
 
     def to_arrow(self) -> LiveFeedArrow:
         """
-        Parse each [fr24.types.fr24.LiveFeedRecord][] in the API response and
+        Parse each [fr24.types.cache.LiveFeedRecord][] in the API response and
         transform it into a pyarrow.Table.
         """
         if len(self.data) == 0:

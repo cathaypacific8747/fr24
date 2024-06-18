@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import base64
 import configparser
+import json
 import os
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
@@ -64,7 +68,7 @@ async def login(
     if (u := creds.get("username")) and (p := creds.get("password")):
         return await login_with_username_password(client, u, p)  # type: ignore[arg-type]
     if s := creds.get("subscriptionKey"):
-        t = creds.get("token")  # optional
+        t = creds.get("token")
         return await login_with_token_subscription_key(client, s, t)  # type: ignore[arg-type]
 
     logger.warning(
@@ -97,15 +101,43 @@ async def login_with_username_password(
 async def login_with_token_subscription_key(
     _client: httpx.AsyncClient,
     subscription_key: str,
-    token: str,
-) -> Authentication:
+    token: str | None,
+) -> Authentication | None:
     """
-    Fake login with token and subscription key.
+    Login with subscription key and/or token.
+    Falls back to anonymous access if token is expired or invalid.
     """
+    if token is None:
+        return {
+            "userData": {
+                "subscriptionKey": subscription_key,
+            },
+            "message": "using environment `subscription_key`",
+        }
+
+    try:
+        payload = json.loads(base64.b64decode(token.split(".")[1]))
+    except Exception as e:
+        logger.error(
+            f"Failed to parse token: {e}. Falling back to anonymous access"
+        )
+        return None
+
+    if time.time() > (exp := payload["exp"]):
+        exp_f = datetime.fromtimestamp(exp, timezone.utc).isoformat()
+        logger.error(
+            f"Token has expired at {exp_f}. Falling back to anonymous access"
+        )
+        return None
+
     return {
+        "user": {
+            "id": payload.get("userId"),
+        },
         "userData": {
             "subscriptionKey": subscription_key,
             "accessToken": token,
+            "dateExpires": exp,
         },
-        "message": "using subscriptionKey and/or accessToken.",
+        "message": "using environment `subscription_key` and `access_token`",
     }

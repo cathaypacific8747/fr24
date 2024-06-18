@@ -1,7 +1,3 @@
-data/research/index.js
-data/research/vendor.js
-fr24.conf
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

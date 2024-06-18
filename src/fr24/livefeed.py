@@ -50,7 +50,8 @@ def livefeed_message_create(
     :param west: West longitude
     :param east: East longitude
     :param stats: Include stats of the given area
-    :param limit: Max number of flights
+    :param limit: Max number of flights (default 1500 for unauthenticated users,
+        2000 for authenticated users)
     :param maxage: Max age since last update, seconds
     :param fields: fields to include - for unauthenticated users, max 4 fields.
         When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`

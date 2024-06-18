@@ -42,7 +42,7 @@ However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around t
 
 Each service has its own async `.fetch()` method to retrieve raw data from the API. `.to_arrow()` can then be used to transform to an Apache Arrow table, and used to perform caching and downstream `pandas` operations.
 
-Here is an example for using the [**Live Feed**][fr24.core.FR24.livefeed] service:
+Here is an example for using the [**Live Feed**][fr24.core.LiveFeedService] service:
 
 ### Initialisation
 
@@ -114,7 +114,7 @@ The `async with` statement ensures that it is properly authenticated by calling 
 You can retrieve:
 
 - the [context related to the request][fr24.types.core.LiveFeedContext] with `response.ctx`;
-- the raw JSON response as a list of [typed dictionaries][fr24.types.cache.LiveFeedRecord] with `response.data`.
+- the [raw JSON response][fr24.types.cache.LiveFeedRecord] as a list of typed dictionaries with `response.data`.
 
 ### Transformation to Arrow
 
@@ -215,9 +215,7 @@ These directories are created automatically whenever `datac.save()` is called.
     --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
     ```
 
-To retrieve saved data, first pass in the unique identifier (timestamp in this case) to the service constructor.
-
-Then, instead of calling `.data.add_api_response()`, use `.add_parquet()`.
+To retrieve saved data, first pass in the unique identifier (timestamp in this case) to the `.load()`.
 
 ## Notes
 

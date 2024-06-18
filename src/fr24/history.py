@@ -288,10 +288,11 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
     return None
 
 
-# TODO: add ems, metadata.
 def playback_df(result: Playback) -> pd.DataFrame:
     """
     Transform each point in the flight track to a pandas DataFrame.
+
+    Note: EMS and metadata will not be serialised.
     """
     flight = result["result"]["response"]["data"]["flight"]
     df = pd.DataFrame.from_records(
