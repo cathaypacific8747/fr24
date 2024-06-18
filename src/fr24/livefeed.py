@@ -22,7 +22,7 @@ from .proto.request_pb2 import (
     VisibilitySettings,
 )
 from .types.cache import LiveFeedRecord
-from .types.fr24 import Authentication
+from .types.fr24 import Authentication, LivefeedField
 
 # N, S, W, E
 world_zones = [
@@ -39,7 +39,7 @@ def livefeed_message_create(
     stats: bool = False,
     limit: int = 1500,
     maxage: int = 14400,
-    fields: list[str] = [
+    fields: list[LivefeedField] = [
         "flight",
         "reg",
         "route",
@@ -193,12 +193,21 @@ def livefeed_flightdata_dict(
         "destination": lfr.extra_info.route.to,
         "typecode": lfr.extra_info.type,
         "eta": lfr.extra_info.schedule.eta,
+        "squawk": lfr.extra_info.squawk,
     }
 
 
 # TODO: add parameter for custom bounds, e.g. from .bounds.lng_bounds_per_30_min
 async def livefeed_world_data(
-    client: httpx.AsyncClient, auth: None | Authentication = None
+    client: httpx.AsyncClient,
+    auth: None | Authentication = None,
+    limit: int = 1500,
+    fields: list[LivefeedField] = [
+        "flight",
+        "reg",
+        "route",
+        "type",
+    ],
 ) -> list[LiveFeedRecord]:
     """Retrieve live feed data for the entire world, in chunks."""
     results = await asyncio.gather(
@@ -206,7 +215,10 @@ async def livefeed_world_data(
             livefeed_post(
                 client,
                 livefeed_request_create(
-                    livefeed_message_create(*bounds), auth=auth
+                    livefeed_message_create(
+                        *bounds, limit=limit, fields=fields
+                    ),
+                    auth=auth,
                 ),
             )
             for bounds in world_zones
@@ -225,6 +237,13 @@ async def livefeed_playback_world_data(
     duration: int = 7,
     hfreq: int = 0,
     auth: None | Authentication = None,
+    limit: int = 1500,
+    fields: list[LivefeedField] = [
+        "flight",
+        "reg",
+        "route",
+        "type",
+    ],
 ) -> list[LiveFeedRecord]:
     """
     Retrieve live feed playback data for the entire world, in chunks.
@@ -237,7 +256,9 @@ async def livefeed_playback_world_data(
                 client,
                 livefeed_playback_request_create(
                     livefeed_playback_message_create(
-                        livefeed_message_create(*bounds),
+                        livefeed_message_create(
+                            *bounds, limit=limit, fields=fields
+                        ),
                         timestamp,
                         timestamp + duration,
                         hfreq,

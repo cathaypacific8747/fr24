@@ -5,6 +5,8 @@ from typing import Literal, TypedDict
 
 from typing_extensions import NotRequired
 
+from .fr24 import LivefeedField
+
 
 # internally tagged
 class FlightListContext(TypedDict):
@@ -23,4 +25,6 @@ class LiveFeedContext(TypedDict):
     source: Literal["live", "playback"]
     duration: NotRequired[int | None]
     hfreq: NotRequired[int | None]
+    limit: NotRequired[int | None]
+    fields: NotRequired[list[LivefeedField] | None]
     base_dir: NotRequired[Path]

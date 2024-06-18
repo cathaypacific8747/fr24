@@ -137,6 +137,7 @@ livefeed_schema = pa.schema(
         pa.field("typecode", pa.string()),
         pa.field("eta", pa.uint32()),
         pa.field("vertical_speed", pa.int16()),  # 64 * 9-bit + 1-bit sign
+        pa.field("squawk", pa.uint16()),
     ]
 )
 
@@ -158,3 +159,4 @@ class LiveFeedRecord(TypedDict):
     destination: str
     typecode: str
     eta: int
+    squawk: int

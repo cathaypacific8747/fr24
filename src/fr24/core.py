@@ -41,6 +41,7 @@ from .types.core import (
 from .types.fr24 import (
     FlightData,
     FlightList,
+    LivefeedField,
     Playback,
     TokenSubscriptionKey,
     UsernamePassword,
@@ -469,19 +470,26 @@ class LiveFeedAPI:
         self,
         ctx: LiveFeedContext,
     ) -> list[LiveFeedRecord]:
+        kw = {
+            k: v
+            for k, v in ctx.items()
+            if k in ("limit", "fields") and v is not None
+        }
         if (ts := ctx["timestamp"]) is not None:
-            kw = {
-                k: v
-                for k, v in ctx.items()
-                if k in ("duration", "hfreq") and v is not None
-            }
+            kw.update(
+                {
+                    k: v
+                    for k, v in ctx.items()
+                    if k in ("duration", "hfreq") and v is not None
+                }
+            )
             return await livefeed_playback_world_data(
                 self.http.client,
                 ts,
                 **kw,  # type: ignore[arg-type]
                 auth=self.http.auth,
             )
-        resp = await livefeed_world_data(self.http.client, self.http.auth)
+        resp = await livefeed_world_data(self.http.client, self.http.auth, **kw)  # type: ignore[arg-type]
         ctx["timestamp"] = int(time.time())
         # TODO: use server time instead, but it doesn't really matter because
         # livefeed messages have timestamps attached to them anyway
@@ -556,6 +564,13 @@ class LiveFeedService(ServiceBase):
         *,
         duration: int | None = None,
         hfreq: int | None = None,
+        limit: int = 1500,
+        fields: list[LivefeedField] = [
+            "flight",
+            "reg",
+            "route",
+            "type",
+        ],
     ) -> LiveFeedAPIResp:
         """
         Fetch live feed data.
@@ -569,8 +584,13 @@ class LiveFeedService(ServiceBase):
             be set for historical data.
         :param hfreq: High frequency mode (default: `0`). Should only be set
             for historical data.
+        :param limit: Max number of flights (default 1500 for unauthenticated
+            users, 2000 for authenticated users)
+        :param fields: fields to include - for unauthenticated users, max 4
+            fields. When authenticated, `squawk`, `vspeed`, `airspace`,
+            `logo_id` and `age` can be included
         """
-        ctx = self._construct_ctx(timestamp, duration, hfreq)
+        ctx = self._construct_ctx(timestamp, duration, hfreq, limit, fields)
         return LiveFeedAPIResp(ctx, await self._api._fetch(ctx))
 
     def load(
@@ -584,7 +604,7 @@ class LiveFeedService(ServiceBase):
 
         :param timestamp: Unix timestamp (seconds) of the saved feed snapshot.
         """
-        ctx = self._construct_ctx(timestamp, None, None)
+        ctx = self._construct_ctx(timestamp, None, None, None, None)
         return LiveFeedArrow.from_cache(ctx)
 
     def _construct_ctx(
@@ -592,6 +612,8 @@ class LiveFeedService(ServiceBase):
         timestamp: int | str | datetime | pd.Timestamp | None,
         duration: int | None,
         hfreq: int | None,
+        limit: int | None,
+        fields: list[LivefeedField] | None,
     ) -> LiveFeedContext:
         ts = to_unix_timestamp(timestamp)
         if ts is None and (hfreq is not None or duration is not None):
@@ -603,5 +625,7 @@ class LiveFeedService(ServiceBase):
             "source": "live" if ts is None else "playback",
             "duration": duration,
             "hfreq": hfreq,
+            "limit": limit,
+            "fields": fields,
             "base_dir": self._base_dir,
         }

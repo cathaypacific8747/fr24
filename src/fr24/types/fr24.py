@@ -477,3 +477,16 @@ class AirportResult(TypedDict):
 class AirportList(TypedDict):
     result: AirportResult
     _api: APIResult
+
+
+LivefeedField = Literal[
+    "flight",
+    "reg",
+    "route",
+    "type",
+    "squawk",
+    "vspeed",
+    "airspace",
+    "logo_id",
+    "age",
+]
