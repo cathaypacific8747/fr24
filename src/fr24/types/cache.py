@@ -54,7 +54,7 @@ playback_track_schema = pa.schema(
         pa.field("altitude", pa.int32()),
         pa.field("ground_speed", pa.int16()),
         pa.field("vertical_speed", pa.int16()),
-        pa.field("heading", pa.int16()),
+        pa.field("track", pa.int16()),
         pa.field("squawk", pa.uint16()),
         pa.field(
             "ems",
@@ -92,7 +92,7 @@ class PlaybackTrackRecord(TypedDict):
     altitude: int
     ground_speed: int
     vertical_speed: int
-    heading: int
+    track: int
     squawk: int
 
 
@@ -125,7 +125,7 @@ livefeed_schema = pa.schema(
         pa.field("flightid", pa.uint32()),
         pa.field("latitude", pa.float32()),
         pa.field("longitude", pa.float32()),
-        pa.field("heading", pa.uint16()),
+        pa.field("track", pa.uint16()),
         pa.field("altitude", pa.int32()),
         pa.field("ground_speed", pa.int16()),
         pa.field("on_ground", pa.bool_()),
@@ -147,7 +147,7 @@ class LiveFeedRecord(TypedDict):
     flightid: int
     latitude: float
     longitude: float
-    heading: int
+    track: int
     altitude: int
     ground_speed: int
     vertical_speed: int

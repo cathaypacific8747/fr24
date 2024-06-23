@@ -258,6 +258,16 @@ class TrackData(TypedDict):
     altitude: Altitude
     speed: Speed
     verticalSpeed: VerticalSpeed
+    """
+    !!! warning
+        The JSON response claims that `heading` is available, but ADS-B only
+        transmits the [ground track](https://mode-s.org/decode/content/ads-b/4-surface-position.html#ground-track).
+        [Heading](https://mode-s.org/decode/content/mode-s/7-ehs.html#heading-and-speed-report-bds-60)
+        is only available in [EMS][fr24.types.fr24.EMS] data.
+
+        This field is monkeypatched to `track` to avoid confusion in
+        [fr24.history.playback_track_dict][].
+    """
     heading: int
     squawk: str
     timestamp: int

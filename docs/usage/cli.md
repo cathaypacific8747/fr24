@@ -54,7 +54,7 @@
         │ flightid       │ UINTEGER    │ YES     │         │         │         │
         │ latitude       │ FLOAT       │ YES     │         │         │         │
         │ longitude      │ FLOAT       │ YES     │         │         │         │
-        │ heading        │ USMALLINT   │ YES     │         │         │         │
+        │ track          │ USMALLINT   │ YES     │         │         │         │
         │ altitude       │ INTEGER     │ YES     │         │         │         │
         │ ground_speed   │ SMALLINT    │ YES     │         │         │         │
         │ on_ground      │ BOOLEAN     │ YES     │         │         │         │
@@ -140,7 +140,7 @@
         │ altitude       │ INTEGER                       │ YES     │         │         │         │
         │ ground_speed   │ SMALLINT                      │ YES     │         │         │         │
         │ vertical_speed │ SMALLINT                      │ YES     │         │         │         │
-        │ heading        │ SMALLINT                      │ YES     │         │         │         │
+        │ track          │ SMALLINT                      │ YES     │         │         │         │
         │ squawk         │ USMALLINT                     │ YES     │         │         │         │
         │ ems            │ STRUCT("timestamp" UINTEGER…  │ YES     │         │         │         │
         └────────────────┴───────────────────────────────┴─────────┴─────────┴─────────┴─────────┘

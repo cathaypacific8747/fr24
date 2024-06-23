@@ -30,7 +30,7 @@ flights_list {
   flightid: 882295486
   latitude: 40.4882507
   longitude: -6.38517904
-  heading: 33
+  track: 33
   altitude: 36000
   ground_speed: 454
   icon: 7
@@ -50,7 +50,7 @@ flights_list {
   flightid: 882307182
   latitude: 40.1034851
   longitude: -4.40472412
-  heading: 162
+  track: 162
 ...
       to: "HRG"
     }
@@ -75,7 +75,7 @@ MessageToDict(data)["flightsList"]
 [{'flightid': 882295486,
   'latitude': 40.48825,
   'longitude': -6.385179,
-  'heading': 33,
+  'track': 33,
   'altitude': 36000,
   'groundSpeed': 454,
   'icon': 7,
@@ -88,7 +88,7 @@ MessageToDict(data)["flightsList"]
  {'flightid': 882307182,
   'latitude': 40.103485,
   'longitude': -4.404724,
-  'heading': 162,
+  'track': 162,
   'altitude': 32950,
   'groundSpeed': 513,
   'icon': 10,

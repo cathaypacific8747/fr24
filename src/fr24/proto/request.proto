@@ -507,7 +507,7 @@ message RadarHistoryRecord {
     // float? lon = 3;
     // int32? altitude = 4;
     // int32? spd = 5;
-    // int32? heading = 6;
+    // int32? heading = 6; // official naming says heading, but data is likely track
     // int32? vspd = 7;
     // int32? squawk = 8;
     // DataSource? source = 9;
@@ -554,6 +554,6 @@ message TrailPoint {
     // ? lon = 3;
     // ? altitude = 4;
     // ? spd = 5;
-    // ? heading = 6;
+    // ? heading = 6;  // official naming says heading, but data is likely track
     // ? vspd = 7;
 } // new: 24.169.0808

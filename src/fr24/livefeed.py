@@ -174,14 +174,12 @@ def livefeed_flightdata_dict(
     lfr: Flight,
 ) -> LiveFeedRecord:
     """Convert the protobuf message to a dictionary."""
-    # NOTE: i've adopted the official protobuf names for consistency
-    # but we do not change the dictionary keys for compatibility
     return {
         "timestamp": lfr.timestamp,
         "flightid": lfr.flightid,
         "latitude": lfr.lat,
         "longitude": lfr.lon,
-        "heading": lfr.track,  # most notably, this might cause confusion
+        "track": lfr.track,
         "altitude": lfr.alt,
         "ground_speed": lfr.speed,
         "vertical_speed": lfr.extra_info.vspeed,

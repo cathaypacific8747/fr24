@@ -246,6 +246,14 @@ def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg
 def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
     """
     Flatten and rename each variable in this observation into a new dictionary.
+
+    !!! note
+        The JSON response claims that `heading` is available, but ADS-B only
+        transmits the [ground track](https://mode-s.org/decode/content/ads-b/4-surface-position.html#ground-track).
+        [Heading](https://mode-s.org/decode/content/mode-s/7-ehs.html#heading-and-speed-report-bds-60)
+        is only available in [EMS][fr24.types.fr24.EMS] data.
+
+        We monkeypatch it to `track` to avoid confusion.
     """
     return {
         "timestamp": point["timestamp"],
@@ -254,14 +262,14 @@ def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
         "altitude": point["altitude"]["feet"],
         "ground_speed": point["speed"]["kts"],
         "vertical_speed": point["verticalSpeed"]["fpm"],
-        "heading": point["heading"],
+        "track": point["heading"],
         "squawk": int(point["squawk"], base=8),
     }
 
 
 def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
     """
-    If the Extended Mode-S data is available in this observation,
+    If the Enhanced Mode-S data is available in this observation,
     flatten and rename each variable to a dictionary. Otherwise, return `None`.
     """
     if e := point["ems"]:

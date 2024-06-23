@@ -72,27 +72,33 @@ class ArrowTable(Generic[Ctx]):
 
     @classmethod
     def from_file(
-        cls, ctx: Ctx, fp: Path, schema: pa.Schema | None = None
+        cls, ctx: Ctx, fp: Path, sch_expected: pa.Schema | None = None
     ) -> Self:
-        """Loads data from a parquet file, enforcing the schema if provided."""
+        """
+        Loads data from a parquet file, enforcing the schema if provided.
+
+        :raises RuntimeError: when column names and/or types are unrecognised
+        """
         if not fp.exists():
             logger.warning(
                 f"cannot find `{fp.stem}` in cache, "
                 "creating an empty in-memory table"
             )
-            return cls(ctx, pa.Table.from_pylist([], schema=schema))
+            return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
 
-        if (sch_d := schema) is not None:
+        if sch_expected is not None:
             # enforce fp schema to match the provided.
-            sch = pq.read_schema(fp)
-            if diffs := set(sch).difference(set(sch_d)):
-                logger.warning(
-                    f"cached file `{fp}` has unrecognized columns: {diffs}"
+            sch_actual = pq.read_schema(fp)
+            if diffs := set(sch_actual).difference(set(sch_expected)):
+                # in future releases we should consider casting/renaming columns
+                raise RuntimeError(
+                    f"cached file `{fp}` have columns that do not match "
+                    f"the expected schema: {diffs}"
                 )
-                # TODO: in future versions, raise an error instead of casting.
-                sch = sch.cast(sch)
-
-            table = pq.read_table(fp, schema=sch)
+            table = pq.read_table(
+                fp,
+                schema=sch_actual,
+            )
         else:
             table = pq.read_table(fp)
 
