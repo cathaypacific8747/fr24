@@ -406,7 +406,7 @@ class Schedule(_message.Message):
     def __init__(self, std: _Optional[int] = ..., etd: _Optional[int] = ..., atd: _Optional[int] = ..., sta: _Optional[int] = ..., eta: _Optional[int] = ..., ata: _Optional[int] = ...) -> None: ...
 
 class ExtraFlightInfo(_message.Message):
-    __slots__ = ("flight", "reg", "route", "type", "squawk", "vspeed", "age", "country_of_reg", "schedule", "logo_id", "airspace", "ems_info", "ems_availability", "icao_address")
+    __slots__ = ("flight", "reg", "route", "type", "squawk", "vspeed", "age", "country_of_reg", "schedule", "logo_id", "airspace", "ems_info", "ems_availability", "icao_address", "operated_by_id", "squawk_availability", "vspeed_availability", "airspace_availability", "airspace_id")
     class Route(_message.Message):
         __slots__ = ("from_", "to")
         FROM__FIELD_NUMBER: _ClassVar[int]
@@ -428,6 +428,11 @@ class ExtraFlightInfo(_message.Message):
     EMS_INFO_FIELD_NUMBER: _ClassVar[int]
     EMS_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
     ICAO_ADDRESS_FIELD_NUMBER: _ClassVar[int]
+    OPERATED_BY_ID_FIELD_NUMBER: _ClassVar[int]
+    SQUAWK_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
+    VSPEED_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
+    AIRSPACE_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
+    AIRSPACE_ID_FIELD_NUMBER: _ClassVar[int]
     flight: str
     reg: str
     route: ExtraFlightInfo.Route
@@ -442,7 +447,12 @@ class ExtraFlightInfo(_message.Message):
     ems_info: EMSInfo
     ems_availability: EMSAvailability
     icao_address: int
-    def __init__(self, flight: _Optional[str] = ..., reg: _Optional[str] = ..., route: _Optional[_Union[ExtraFlightInfo.Route, _Mapping]] = ..., type: _Optional[str] = ..., squawk: _Optional[int] = ..., vspeed: _Optional[int] = ..., age: _Optional[str] = ..., country_of_reg: _Optional[int] = ..., schedule: _Optional[_Union[Schedule, _Mapping]] = ..., logo_id: _Optional[int] = ..., airspace: _Optional[int] = ..., ems_info: _Optional[_Union[EMSInfo, _Mapping]] = ..., ems_availability: _Optional[_Union[EMSAvailability, _Mapping]] = ..., icao_address: _Optional[int] = ...) -> None: ...
+    operated_by_id: int
+    squawk_availability: bool
+    vspeed_availability: bool
+    airspace_availability: bool
+    airspace_id: str
+    def __init__(self, flight: _Optional[str] = ..., reg: _Optional[str] = ..., route: _Optional[_Union[ExtraFlightInfo.Route, _Mapping]] = ..., type: _Optional[str] = ..., squawk: _Optional[int] = ..., vspeed: _Optional[int] = ..., age: _Optional[str] = ..., country_of_reg: _Optional[int] = ..., schedule: _Optional[_Union[Schedule, _Mapping]] = ..., logo_id: _Optional[int] = ..., airspace: _Optional[int] = ..., ems_info: _Optional[_Union[EMSInfo, _Mapping]] = ..., ems_availability: _Optional[_Union[EMSAvailability, _Mapping]] = ..., icao_address: _Optional[int] = ..., operated_by_id: _Optional[int] = ..., squawk_availability: bool = ..., vspeed_availability: bool = ..., airspace_availability: bool = ..., airspace_id: _Optional[str] = ...) -> None: ...
 
 class SourceStats(_message.Message):
     __slots__ = ("source", "count")
@@ -573,48 +583,134 @@ class Duration(_message.Message):
     def __init__(self, count: _Optional[int] = ...) -> None: ...
 
 class ExtendedFlightInfo(_message.Message):
-    __slots__ = ("timestamp", "on_ground", "callsign", "vspeed_availability", "vspeed")
+    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "status", "timestamp", "on_ground", "callsign", "source", "ems_availability", "ems_info", "squawk_availability", "squawk", "vspeed_availability", "vspeed", "airspace_availability", "airspace")
+    FLIGHTID_FIELD_NUMBER: _ClassVar[int]
+    LAT_FIELD_NUMBER: _ClassVar[int]
+    LON_FIELD_NUMBER: _ClassVar[int]
+    TRACK_FIELD_NUMBER: _ClassVar[int]
+    ALT_FIELD_NUMBER: _ClassVar[int]
+    SPEED_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     ON_GROUND_FIELD_NUMBER: _ClassVar[int]
     CALLSIGN_FIELD_NUMBER: _ClassVar[int]
+    SOURCE_FIELD_NUMBER: _ClassVar[int]
+    EMS_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
+    EMS_INFO_FIELD_NUMBER: _ClassVar[int]
+    SQUAWK_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
+    SQUAWK_FIELD_NUMBER: _ClassVar[int]
     VSPEED_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
     VSPEED_FIELD_NUMBER: _ClassVar[int]
+    AIRSPACE_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
+    AIRSPACE_FIELD_NUMBER: _ClassVar[int]
+    flightid: int
+    lat: float
+    lon: float
+    track: int
+    alt: int
+    speed: int
+    status: Status
     timestamp: int
     on_ground: bool
     callsign: str
+    source: DataSource
+    ems_availability: EMSAvailability
+    ems_info: EMSInfo
+    squawk_availability: bool
+    squawk: int
     vspeed_availability: bool
     vspeed: int
-    def __init__(self, timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., vspeed_availability: bool = ..., vspeed: _Optional[int] = ...) -> None: ...
+    airspace_availability: bool
+    airspace: str
+    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., status: _Optional[_Union[Status, str]] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[DataSource, str]] = ..., ems_availability: _Optional[_Union[EMSAvailability, _Mapping]] = ..., ems_info: _Optional[_Union[EMSInfo, _Mapping]] = ..., squawk_availability: bool = ..., squawk: _Optional[int] = ..., vspeed_availability: bool = ..., vspeed: _Optional[int] = ..., airspace_availability: bool = ..., airspace: _Optional[str] = ...) -> None: ...
 
 class FetchSearchIndexRequest(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
 class FetchSearchIndexResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("flights_list",)
+    FLIGHTS_LIST_FIELD_NUMBER: _ClassVar[int]
+    flights_list: _containers.RepeatedCompositeFieldContainer[FlightSearchData]
+    def __init__(self, flights_list: _Optional[_Iterable[_Union[FlightSearchData, _Mapping]]] = ...) -> None: ...
 
 class Fix(_message.Message):
-    __slots__ = ("coordinate",)
+    __slots__ = ("airport", "area", "coordinate")
+    AIRPORT_FIELD_NUMBER: _ClassVar[int]
+    AREA_FIELD_NUMBER: _ClassVar[int]
     COORDINATE_FIELD_NUMBER: _ClassVar[int]
+    airport: str
+    area: str
     coordinate: Coordinate
-    def __init__(self, coordinate: _Optional[_Union[Coordinate, _Mapping]] = ...) -> None: ...
+    def __init__(self, airport: _Optional[str] = ..., area: _Optional[str] = ..., coordinate: _Optional[_Union[Coordinate, _Mapping]] = ...) -> None: ...
 
 class FlightPlan(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("departure", "destination", "flight_plan_icao", "length", "alt_arrival_1", "alt_arrival_2", "waypoints_list")
+    DEPARTURE_FIELD_NUMBER: _ClassVar[int]
+    DESTINATION_FIELD_NUMBER: _ClassVar[int]
+    FLIGHT_PLAN_ICAO_FIELD_NUMBER: _ClassVar[int]
+    LENGTH_FIELD_NUMBER: _ClassVar[int]
+    ALT_ARRIVAL_1_FIELD_NUMBER: _ClassVar[int]
+    ALT_ARRIVAL_2_FIELD_NUMBER: _ClassVar[int]
+    WAYPOINTS_LIST_FIELD_NUMBER: _ClassVar[int]
+    departure: str
+    destination: str
+    flight_plan_icao: str
+    length: float
+    alt_arrival_1: AltArrival
+    alt_arrival_2: AltArrival
+    waypoints_list: _containers.RepeatedCompositeFieldContainer[Point]
+    def __init__(self, departure: _Optional[str] = ..., destination: _Optional[str] = ..., flight_plan_icao: _Optional[str] = ..., length: _Optional[float] = ..., alt_arrival_1: _Optional[_Union[AltArrival, _Mapping]] = ..., alt_arrival_2: _Optional[_Union[AltArrival, _Mapping]] = ..., waypoints_list: _Optional[_Iterable[_Union[Point, _Mapping]]] = ...) -> None: ...
 
 class FlightProgress(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("traversed_distance", "remaining_distance", "elapsed_time", "remaining_time", "eta", "great_circle_distance", "mean_flight_time")
+    TRAVERSED_DISTANCE_FIELD_NUMBER: _ClassVar[int]
+    REMAINING_DISTANCE_FIELD_NUMBER: _ClassVar[int]
+    ELAPSED_TIME_FIELD_NUMBER: _ClassVar[int]
+    REMAINING_TIME_FIELD_NUMBER: _ClassVar[int]
+    ETA_FIELD_NUMBER: _ClassVar[int]
+    GREAT_CIRCLE_DISTANCE_FIELD_NUMBER: _ClassVar[int]
+    MEAN_FLIGHT_TIME_FIELD_NUMBER: _ClassVar[int]
+    traversed_distance: int
+    remaining_distance: int
+    elapsed_time: int
+    remaining_time: int
+    eta: int
+    great_circle_distance: int
+    mean_flight_time: int
+    def __init__(self, traversed_distance: _Optional[int] = ..., remaining_distance: _Optional[int] = ..., elapsed_time: _Optional[int] = ..., remaining_time: _Optional[int] = ..., eta: _Optional[int] = ..., great_circle_distance: _Optional[int] = ..., mean_flight_time: _Optional[int] = ...) -> None: ...
 
 class FlightSearchData(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("reg", "schd_from", "schd_to", "flight", "operator", "ac_type", "lat", "lon", "callsign", "id", "restricted")
+    REG_FIELD_NUMBER: _ClassVar[int]
+    SCHD_FROM_FIELD_NUMBER: _ClassVar[int]
+    SCHD_TO_FIELD_NUMBER: _ClassVar[int]
+    FLIGHT_FIELD_NUMBER: _ClassVar[int]
+    OPERATOR_FIELD_NUMBER: _ClassVar[int]
+    AC_TYPE_FIELD_NUMBER: _ClassVar[int]
+    LAT_FIELD_NUMBER: _ClassVar[int]
+    LON_FIELD_NUMBER: _ClassVar[int]
+    CALLSIGN_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    RESTRICTED_FIELD_NUMBER: _ClassVar[int]
+    reg: str
+    schd_from: str
+    schd_to: str
+    flight: str
+    operator: str
+    ac_type: str
+    lat: float
+    lon: float
+    callsign: str
+    id: int
+    restricted: bool
+    def __init__(self, reg: _Optional[str] = ..., schd_from: _Optional[str] = ..., schd_to: _Optional[str] = ..., flight: _Optional[str] = ..., operator: _Optional[str] = ..., ac_type: _Optional[str] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., callsign: _Optional[str] = ..., id: _Optional[int] = ..., restricted: bool = ...) -> None: ...
 
 class FollowFlightRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("flight_id",)
+    FLIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    flight_id: int
+    def __init__(self, flight_id: _Optional[int] = ...) -> None: ...
 
 class FollowFlightResponse(_message.Message):
     __slots__ = ("aircraft_info", "flight_plan", "schedule_info", "flight_progress", "flight_info", "flight_trail_list")
@@ -633,24 +729,32 @@ class FollowFlightResponse(_message.Message):
     def __init__(self, aircraft_info: _Optional[_Union[AircraftInfo, _Mapping]] = ..., flight_plan: _Optional[_Union[FlightPlan, _Mapping]] = ..., schedule_info: _Optional[_Union[ScheduleInfo, _Mapping]] = ..., flight_progress: _Optional[_Union[FlightProgress, _Mapping]] = ..., flight_info: _Optional[_Union[ExtendedFlightInfo, _Mapping]] = ..., flight_trail_list: _Optional[_Iterable[_Union[TrailPoint, _Mapping]]] = ...) -> None: ...
 
 class FollowedFlight(_message.Message):
-    __slots__ = ("flight_number", "callsign", "from_iata", "from_city", "to_iata", "to_city", "type", "full_description")
+    __slots__ = ("flight_id", "live_clicks", "total_clicks", "flight_number", "callsign", "squawk", "from_iata", "from_city", "to_iata", "to_city", "type", "full_description")
+    FLIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    LIVE_CLICKS_FIELD_NUMBER: _ClassVar[int]
+    TOTAL_CLICKS_FIELD_NUMBER: _ClassVar[int]
     FLIGHT_NUMBER_FIELD_NUMBER: _ClassVar[int]
     CALLSIGN_FIELD_NUMBER: _ClassVar[int]
+    SQUAWK_FIELD_NUMBER: _ClassVar[int]
     FROM_IATA_FIELD_NUMBER: _ClassVar[int]
     FROM_CITY_FIELD_NUMBER: _ClassVar[int]
     TO_IATA_FIELD_NUMBER: _ClassVar[int]
     TO_CITY_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     FULL_DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    flight_id: int
+    live_clicks: int
+    total_clicks: int
     flight_number: str
     callsign: str
+    squawk: int
     from_iata: str
     from_city: str
     to_iata: str
     to_city: str
     type: str
     full_description: str
-    def __init__(self, flight_number: _Optional[str] = ..., callsign: _Optional[str] = ..., from_iata: _Optional[str] = ..., from_city: _Optional[str] = ..., to_iata: _Optional[str] = ..., to_city: _Optional[str] = ..., type: _Optional[str] = ..., full_description: _Optional[str] = ...) -> None: ...
+    def __init__(self, flight_id: _Optional[int] = ..., live_clicks: _Optional[int] = ..., total_clicks: _Optional[int] = ..., flight_number: _Optional[str] = ..., callsign: _Optional[str] = ..., squawk: _Optional[int] = ..., from_iata: _Optional[str] = ..., from_city: _Optional[str] = ..., to_iata: _Optional[str] = ..., to_city: _Optional[str] = ..., type: _Optional[str] = ..., full_description: _Optional[str] = ...) -> None: ...
 
 class Geolocation(_message.Message):
     __slots__ = ("lat", "lon")
@@ -683,18 +787,22 @@ class Interval(_message.Message):
     def __init__(self, min: _Optional[int] = ..., max: _Optional[int] = ...) -> None: ...
 
 class LiveFlightStatusData(_message.Message):
-    __slots__ = ("lat", "lon", "squawk")
+    __slots__ = ("lat", "lon", "status", "squawk")
     LAT_FIELD_NUMBER: _ClassVar[int]
     LON_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
     SQUAWK_FIELD_NUMBER: _ClassVar[int]
     lat: float
     lon: float
+    status: Status
     squawk: int
-    def __init__(self, lat: _Optional[float] = ..., lon: _Optional[float] = ..., squawk: _Optional[int] = ...) -> None: ...
+    def __init__(self, lat: _Optional[float] = ..., lon: _Optional[float] = ..., status: _Optional[_Union[Status, str]] = ..., squawk: _Optional[int] = ...) -> None: ...
 
 class LiveFlightsStatusRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("flight_ids_list",)
+    FLIGHT_IDS_LIST_FIELD_NUMBER: _ClassVar[int]
+    flight_ids_list: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, flight_ids_list: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class LiveFlightsStatusResponse(_message.Message):
     __slots__ = ("flights_map",)
@@ -703,8 +811,10 @@ class LiveFlightsStatusResponse(_message.Message):
     def __init__(self, flights_map: _Optional[_Union[LiveFlightStatusData, _Mapping]] = ...) -> None: ...
 
 class LiveTrailRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("flight_id",)
+    FLIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    flight_id: int
+    def __init__(self, flight_id: _Optional[int] = ...) -> None: ...
 
 class LiveTrailResponse(_message.Message):
     __slots__ = ("radar_records_list",)
@@ -721,10 +831,14 @@ class NearbyFlight(_message.Message):
     def __init__(self, flight: _Optional[_Union[Flight, _Mapping]] = ..., distance: _Optional[int] = ...) -> None: ...
 
 class NearestFlightsRequest(_message.Message):
-    __slots__ = ("radius",)
+    __slots__ = ("location", "radius", "limit")
+    LOCATION_FIELD_NUMBER: _ClassVar[int]
     RADIUS_FIELD_NUMBER: _ClassVar[int]
+    LIMIT_FIELD_NUMBER: _ClassVar[int]
+    location: Geolocation
     radius: int
-    def __init__(self, radius: _Optional[int] = ...) -> None: ...
+    limit: int
+    def __init__(self, location: _Optional[_Union[Geolocation, _Mapping]] = ..., radius: _Optional[int] = ..., limit: _Optional[int] = ...) -> None: ...
 
 class NearestFlightsResponse(_message.Message):
     __slots__ = ("flights_list",)
@@ -733,50 +847,95 @@ class NearestFlightsResponse(_message.Message):
     def __init__(self, flights_list: _Optional[_Iterable[_Union[NearbyFlight, _Mapping]]] = ...) -> None: ...
 
 class Point(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("latitude", "longitude")
+    LATITUDE_FIELD_NUMBER: _ClassVar[int]
+    LONGITUDE_FIELD_NUMBER: _ClassVar[int]
+    latitude: int
+    longitude: int
+    def __init__(self, latitude: _Optional[int] = ..., longitude: _Optional[int] = ...) -> None: ...
 
 class Ping(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("a", "b")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    a: int
+    b: int
+    def __init__(self, a: _Optional[int] = ..., b: _Optional[int] = ...) -> None: ...
 
 class Pong(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("c",)
+    C_FIELD_NUMBER: _ClassVar[int]
+    c: int
+    def __init__(self, c: _Optional[int] = ...) -> None: ...
 
 class RadarHistoryRecord(_message.Message):
-    __slots__ = ("timestamp",)
+    __slots__ = ("timestamp", "lat", "lon", "altitude", "spd", "heading", "vspd", "squawk", "source", "callsign")
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    LAT_FIELD_NUMBER: _ClassVar[int]
+    LON_FIELD_NUMBER: _ClassVar[int]
+    ALTITUDE_FIELD_NUMBER: _ClassVar[int]
+    SPD_FIELD_NUMBER: _ClassVar[int]
+    HEADING_FIELD_NUMBER: _ClassVar[int]
+    VSPD_FIELD_NUMBER: _ClassVar[int]
+    SQUAWK_FIELD_NUMBER: _ClassVar[int]
+    SOURCE_FIELD_NUMBER: _ClassVar[int]
+    CALLSIGN_FIELD_NUMBER: _ClassVar[int]
     timestamp: int
-    def __init__(self, timestamp: _Optional[int] = ...) -> None: ...
+    lat: float
+    lon: float
+    altitude: int
+    spd: int
+    heading: int
+    vspd: int
+    squawk: int
+    source: DataSource
+    callsign: str
+    def __init__(self, timestamp: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., altitude: _Optional[int] = ..., spd: _Optional[int] = ..., heading: _Optional[int] = ..., vspd: _Optional[int] = ..., squawk: _Optional[int] = ..., source: _Optional[_Union[DataSource, str]] = ..., callsign: _Optional[str] = ...) -> None: ...
 
 class Route(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("to", "diverted_to")
+    FROM_FIELD_NUMBER: _ClassVar[int]
+    TO_FIELD_NUMBER: _ClassVar[int]
+    DIVERTED_TO_FIELD_NUMBER: _ClassVar[int]
+    to: str
+    diverted_to: str
+    def __init__(self, to: _Optional[str] = ..., diverted_to: _Optional[str] = ..., **kwargs) -> None: ...
 
 class ScheduleInfo(_message.Message):
-    __slots__ = ("flight_number", "operated_by_id", "scheduled_departure", "scheduled_arrival", "actual_arrival", "arr_terminal", "arr_gate", "baggage_belt")
+    __slots__ = ("flight_number", "operated_by_id", "painted_as_id", "origin_id", "destination_id", "diverted_to_id", "scheduled_departure", "scheduled_arrival", "actual_departure", "actual_arrival", "arr_terminal", "arr_gate", "baggage_belt")
     FLIGHT_NUMBER_FIELD_NUMBER: _ClassVar[int]
     OPERATED_BY_ID_FIELD_NUMBER: _ClassVar[int]
+    PAINTED_AS_ID_FIELD_NUMBER: _ClassVar[int]
+    ORIGIN_ID_FIELD_NUMBER: _ClassVar[int]
+    DESTINATION_ID_FIELD_NUMBER: _ClassVar[int]
+    DIVERTED_TO_ID_FIELD_NUMBER: _ClassVar[int]
     SCHEDULED_DEPARTURE_FIELD_NUMBER: _ClassVar[int]
     SCHEDULED_ARRIVAL_FIELD_NUMBER: _ClassVar[int]
+    ACTUAL_DEPARTURE_FIELD_NUMBER: _ClassVar[int]
     ACTUAL_ARRIVAL_FIELD_NUMBER: _ClassVar[int]
     ARR_TERMINAL_FIELD_NUMBER: _ClassVar[int]
     ARR_GATE_FIELD_NUMBER: _ClassVar[int]
     BAGGAGE_BELT_FIELD_NUMBER: _ClassVar[int]
     flight_number: str
     operated_by_id: int
+    painted_as_id: int
+    origin_id: int
+    destination_id: int
+    diverted_to_id: int
     scheduled_departure: int
     scheduled_arrival: int
+    actual_departure: int
     actual_arrival: int
     arr_terminal: str
     arr_gate: str
     baggage_belt: str
-    def __init__(self, flight_number: _Optional[str] = ..., operated_by_id: _Optional[int] = ..., scheduled_departure: _Optional[int] = ..., scheduled_arrival: _Optional[int] = ..., actual_arrival: _Optional[int] = ..., arr_terminal: _Optional[str] = ..., arr_gate: _Optional[str] = ..., baggage_belt: _Optional[str] = ...) -> None: ...
+    def __init__(self, flight_number: _Optional[str] = ..., operated_by_id: _Optional[int] = ..., painted_as_id: _Optional[int] = ..., origin_id: _Optional[int] = ..., destination_id: _Optional[int] = ..., diverted_to_id: _Optional[int] = ..., scheduled_departure: _Optional[int] = ..., scheduled_arrival: _Optional[int] = ..., actual_departure: _Optional[int] = ..., actual_arrival: _Optional[int] = ..., arr_terminal: _Optional[str] = ..., arr_gate: _Optional[str] = ..., baggage_belt: _Optional[str] = ...) -> None: ...
 
 class Tick(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("count",)
+    COUNT_FIELD_NUMBER: _ClassVar[int]
+    count: int
+    def __init__(self, count: _Optional[int] = ...) -> None: ...
 
 class TopFlightsRequest(_message.Message):
     __slots__ = ("limit",)
@@ -785,9 +944,25 @@ class TopFlightsRequest(_message.Message):
     def __init__(self, limit: _Optional[int] = ...) -> None: ...
 
 class TopFlightsResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("scoreboard_list",)
+    SCOREBOARD_LIST_FIELD_NUMBER: _ClassVar[int]
+    scoreboard_list: _containers.RepeatedCompositeFieldContainer[FollowedFlight]
+    def __init__(self, scoreboard_list: _Optional[_Iterable[_Union[FollowedFlight, _Mapping]]] = ...) -> None: ...
 
 class TrailPoint(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("snapshot_id", "lat", "lon", "altitude", "spd", "heading", "vspd")
+    SNAPSHOT_ID_FIELD_NUMBER: _ClassVar[int]
+    LAT_FIELD_NUMBER: _ClassVar[int]
+    LON_FIELD_NUMBER: _ClassVar[int]
+    ALTITUDE_FIELD_NUMBER: _ClassVar[int]
+    SPD_FIELD_NUMBER: _ClassVar[int]
+    HEADING_FIELD_NUMBER: _ClassVar[int]
+    VSPD_FIELD_NUMBER: _ClassVar[int]
+    snapshot_id: int
+    lat: float
+    lon: float
+    altitude: int
+    spd: int
+    heading: int
+    vspd: int
+    def __init__(self, snapshot_id: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., altitude: _Optional[int] = ..., spd: _Optional[int] = ..., heading: _Optional[int] = ..., vspd: _Optional[int] = ...) -> None: ...

@@ -238,18 +238,18 @@ message ExtraFlightInfo {
     int32 airspace = 11; // FIR
     EMSInfo ems_info = 12;
     EMSAvailability ems_availability = 13;
-    int32 icao_address = 14;
+    uint32 icao_address = 14;
     // following are untested, activated only when flight is selected
-    // int32? operated_by_id = 15;
-    // int32? squawk_availability = 16;
-    // bool vspeed_availability = 17;
-    // bool airspace_availability = 18;
-    // ? airspace_id = 19;
+    uint32 operated_by_id = 15;
+    bool squawk_availability = 16;
+    bool vspeed_availability = 17;
+    bool airspace_availability = 18;
+    string airspace_id = 19;
 }
 
 message SourceStats {
     DataSource source = 1;
-    int32 count = 2;
+    uint32 count = 2;
 }
 
 message Stats {
@@ -337,26 +337,25 @@ enum EmergencyStatus {
 }
 
 message ExtendedFlightInfo {
-    // ? flightid = 1;
-    // ? lat = 2;
-    // ? lon = ?;
-    // ? track = ?;
-    // ? alt = ?;
-    // ? speed = ?;
-    // ? icon = ?;
-    // ? status = 7;
+    uint32 flightid = 1;
+    float lat = 2;
+    float lon = 3;
+    int32 track = 4;
+    int32 alt = 5;
+    int32 speed = 6;
+    Status status = 7; // ?
     uint64 timestamp = 8;
     bool on_ground = 9;
     string callsign = 10;
-    // ? source = 11;
-    // ? ems_availability = 12;
-    // ? ems_info = 13;
-    // ? squawk_availability = 14;
-    // ? squawk = 15;
+    DataSource source = 11; // ?
+    EMSAvailability ems_availability = 12;
+    EMSInfo ems_info = 13;
+    bool squawk_availability = 14;
+    int32 squawk = 15;
     bool vspeed_availability = 16;
     int32 vspeed = 17;
-    // ? airspace_availability = 18;
-    // ? airspace = 19;
+    bool airspace_availability = 18;
+    string airspace = 19;
 } // new: 24.169.0808
 
 enum FlightStage {
@@ -370,42 +369,54 @@ enum FlightStage {
 message FetchSearchIndexRequest {} // new: 24.169.0808
 
 message FetchSearchIndexResponse {
-    // repeated ? flights_list = 1;
+    repeated FlightSearchData flights_list = 1;
 } // new: 24.169.0808
 
 message Fix {
-    // ? airport = 1;
-    // ? area = 2;
+    string airport = 1;
+    string area = 2;
     Coordinate coordinate = 3;
 } // new: 24.169.0808
 
 message FlightPlan {
-    // ? departure = 1;
-    // ? destination = 2;
-    // ? flight_plan_icao = 3;
-    // ? length = 4;
-    // ? alt_arrival_1 = 5;
-    // ? alt_arrival_2 = 6;
-    // repeated ? waypoints_list = 7;
+    string departure = 1;
+    string destination = 2;
+    string flight_plan_icao = 3;
+    double length = 4;
+    AltArrival alt_arrival_1 = 5;
+    AltArrival alt_arrival_2 = 6;
+    repeated Point waypoints_list = 7;
 } // new: 24.169.0808
 
-message FlightProgress {} // new: 24.169.0808
+message FlightProgress {
+    uint32 traversed_distance = 1;
+    uint32 remaining_distance = 2;
+    uint32 elapsed_time = 3;
+    uint32 remaining_time = 4;
+    uint32 eta = 5;
+    uint32 great_circle_distance = 6;
+    uint32 mean_flight_time = 7;
+    // FlightStage? flight_stage = 8;
+} // new: 24.169.0808, updated: 24.171.1153
 
 message FlightSearchData {
-    // ? reg = 1;
-    // ? schd_from = 2;
-    // ? schd_to = 3;
-    // ? flight = 4;
-    // ? operator = 5;
-    // ? ac_type = 6;
-    // ? lat = 7;
-    // ? lon = 8;
-    // ? callsign = 9;
-    // ? id = 10;
-    // ? restricted = 11;
+    string reg = 1;
+    string schd_from = 2;
+    string schd_to = 3;
+    string flight = 4;
+    string operator = 5;
+    string ac_type = 6;
+    float lat = 7;
+    float lon = 8;
+    string callsign = 9;
+    uint32 id = 10;
+    bool restricted = 11;
 }
 
-message FollowFlightRequest {}
+message FollowFlightRequest {
+    fixed32 flight_id = 1;
+    // enum restriction_mode = 2;
+} // updated: 24.171.1153
 
 message FollowFlightResponse {
     AircraftInfo aircraft_info = 1;
@@ -417,12 +428,12 @@ message FollowFlightResponse {
 }
 
 message FollowedFlight {
-    // number? flight_id = 1;
-    // number? live_clicks = 2;
-    // number? total_clicks = 3;
+    uint32 flight_id = 1;
+    uint32 live_clicks = 2;
+    uint32 total_clicks = 3;
     string flight_number = 4;
     string callsign = 5;
-    // number? squawk = 6;
+    uint32 squawk = 6;
     string from_iata = 7;
     string from_city = 8;
     string to_iata = 9;
@@ -452,12 +463,12 @@ message Interval {
 message LiveFlightStatusData {
     float lat = 1;
     float lon = 2;
-    // ? status = 3;
+    Status status = 3; // ?
     uint32 squawk = 4;
 }
 
 message LiveFlightsStatusRequest {
-    // repeated fixed32? flight_ids_list = 1;
+    repeated fixed32 flight_ids_list = 1;
 }
 
 message LiveFlightsStatusResponse {
@@ -465,7 +476,7 @@ message LiveFlightsStatusResponse {
 }
 
 message LiveTrailRequest {
-    // number? flight_id = 1;
+    fixed32 flight_id = 1;
 } // new: 24.169.0808
 
 message LiveTrailResponse {
@@ -478,58 +489,58 @@ message NearbyFlight {
 }
 
 message NearestFlightsRequest {
-    // ? location = 1;
+    Geolocation location = 1;
     uint32 radius = 2;
-    // ? limit = 1
+    uint32 limit = 3;
 }
 
 message NearestFlightsResponse {
-    repeated NearbyFlight flights_list = 1; // ?
+    repeated NearbyFlight flights_list = 1;
 }
 
 message Point {
-    // number? latitute = 1;
-    // number? longitude = 2;
+    int32 latitude = 1;
+    int32 longitude = 2;
 } // new: 24.169.0808
 
 message Ping {
-    // ? a = 1;
-    // ? b = 2;
+    uint32 a = 1;
+    uint32 b = 2;
 }
 
 message Pong {
-    // ? ? = 1;
+    uint32 c = 1;
 }
 
 message RadarHistoryRecord {
     uint64 timestamp = 1;
-    // float? lat = 2;
-    // float? lon = 3;
-    // int32? altitude = 4;
-    // int32? spd = 5;
-    // int32? heading = 6; // official naming says heading, but data is likely track
-    // int32? vspd = 7;
-    // int32? squawk = 8;
-    // DataSource? source = 9;
-    // string? callsign = 10;
+    float lat = 2;
+    float lon = 3;
+    int32 altitude = 4;
+    uint32 spd = 5;
+    uint32 heading = 6; // official naming says heading, but data is likely track
+    int32 vspd = 7;
+    uint32 squawk = 8;
+    DataSource source = 9; // ?
+    string callsign = 10;
 } // new: 24.169.0808
 
 message Route {
-    // ? from = 1;
-    // ? to = 2;
-    // ? diverted_to = 3;
+    string from = 1;
+    string to = 2;
+    string diverted_to = 3;
 }
 
 message ScheduleInfo {
     string flight_number = 1;
     uint32 operated_by_id = 2;
-    // uint32? painted_as_id = 3;
-    // uint32? origin_id = 4;
-    // uint32? destination_id = 5;
-    // uint32? diverted_to_id = 6;
+    uint32 painted_as_id = 3;
+    uint32 origin_id = 4;
+    uint32 destination_id = 5;
+    uint32 diverted_to_id = 6;
     uint32 scheduled_departure = 7;
     uint32 scheduled_arrival = 8;
-    // uint32? actual_departure = 9;
+    uint32 actual_departure = 9;
     uint32 actual_arrival = 10;
     string arr_terminal = 11;
     string arr_gate = 12;
@@ -537,7 +548,7 @@ message ScheduleInfo {
 } // new: 24.169.0808
 
 message Tick {
-    // ? count = 1;
+    uint32 count = 1;
 } // new: 24.169.0808
 
 message TopFlightsRequest {
@@ -545,15 +556,15 @@ message TopFlightsRequest {
 } // new: 24.169.0808
 
 message TopFlightsResponse {
-    // ? scoreboard_list = 2;
+    repeated FollowedFlight scoreboard_list = 2;
 } // new: 24.169.0808
 
 message TrailPoint {
-    // ? snapshot_id = 1;
-    // ? lat = 2;
-    // ? lon = 3;
-    // ? altitude = 4;
-    // ? spd = 5;
-    // ? heading = 6;  // official naming says heading, but data is likely track
-    // ? vspd = 7;
+    uint64 snapshot_id = 1;
+    float lat = 2;
+    float lon = 3;
+    int32 altitude = 4;
+    uint32 spd = 5;
+    uint32 heading = 6;  // official naming says heading, but data is likely track
+    int32 vspd = 7;
 } // new: 24.169.0808
