@@ -1,0 +1,1373 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A library for downloading data from flightradar24.com with gRPC/JSON.">
+      
+      
+      
+        <link rel="canonical" href="https://cathaypacific8747.github.io/fr24/usage/quickstart/">
+      
+      
+        <link rel="prev" href="../cli/">
+      
+      
+        <link rel="next" href="../examples/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+    
+    
+      
+        <title>Library Quickstart - fr24</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="Library Quickstart - fr24" >
+      
+        <meta  property="og:description"  content="A library for downloading data from flightradar24.com with gRPC/JSON." >
+      
+        <meta  property="og:image"  content="https://cathaypacific8747.github.io/fr24/assets/images/social/usage/quickstart.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://cathaypacific8747.github.io/fr24/usage/quickstart/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="Library Quickstart - fr24" >
+      
+        <meta  name="twitter:description"  content="A library for downloading data from flightradar24.com with gRPC/JSON." >
+      
+        <meta  name="twitter:image"  content="https://cathaypacific8747.github.io/fr24/assets/images/social/usage/quickstart.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#async" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="fr24" class="md-header__button md-logo" aria-label="fr24" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            fr24
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Library Quickstart
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cathaypacific8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cathaypacific8747/fr24
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="fr24" class="md-nav__button md-logo" aria-label="fr24" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    fr24
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cathaypacific8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cathaypacific8747/fr24
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Library Quickstart
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Library Quickstart
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#async" class="md-nav__link">
+    <span class="md-ellipsis">
+      Async
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-fr24-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      The FR24 Class
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The FR24 Class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialisation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetching-from-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetching from API
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transformation-to-arrow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transformation to Arrow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saving-to-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving to Disk
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#storage-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Location
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-from-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading from disk
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example Gallery
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Core
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Base Classes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/protobuf/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Protobuf Messages
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#async" class="md-nav__link">
+    <span class="md-ellipsis">
+      Async
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-fr24-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      The FR24 Class
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The FR24 Class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialisation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetching-from-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetching from API
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transformation-to-arrow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transformation to Arrow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saving-to-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving to Disk
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#storage-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Location
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-from-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading from disk
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Library Quickstart</h1>
+
+<h2 id="async">Async<a class="headerlink" href="#async" title="Permanent link">¤</a></h2>
+<p>Most code is developed using asynchronous programming, enabling parallel execution of multiple queries and achieve high performance.</p>
+<p>Here is a quick example in case you are not familiar with this code style:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="python-script" name="__tabbed_1" type="radio" /><input id="jupyter-cell" name="__tabbed_1" type="radio" /><input id="output" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="python-script">Python Script</label><label for="jupyter-cell">Jupyter cell</label><label for="output">Output</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">fr24.find</span> <span class="kn">import</span> <span class="n">find</span>
+<span class="kn">import</span> <span class="nn">httpx</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>  <span class="c1"># (1)!</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">list_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">find</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;Toulouse&quot;</span><span class="p">)</span>  <span class="c1"># (2)!</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">list_</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>  <span class="c1"># (3)!</span>
+</code></pre></div>
+<ol>
+<li>Wrap your code in an <code class="language-py3 highlight"><span class="k">async</span></code> function</li>
+<li><code class="language-py3 highlight"><span class="n">find</span><span class="p">()</span></code> is an asynchronous function - we need to <code class="language-py3 highlight"><span class="k">await</span></code> it</li>
+<li><code class="language-py3 highlight"><span class="n">main</span><span class="p">()</span></code> returns a coroutine object which does not run immediately - we need to run it on the event loop</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.find</span> <span class="kn">import</span> <span class="n">find</span>
+<span class="kn">import</span> <span class="nn">httpx</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span> <span class="c1"># (1)!</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">list_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">find</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;Toulouse&quot;</span><span class="p">)</span> <span class="c1"># (2)!</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">list_</span><span class="p">)</span>
+
+<span class="k">await</span> <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<ol>
+<li>Wrap your code in an <code class="language-py3 highlight"><span class="k">async</span></code> function</li>
+<li><code class="language-py3 highlight"><span class="n">find</span><span class="p">()</span></code> is an asynchronous function - we need to <code class="language-py3 highlight"><span class="k">await</span></code> it</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;TLS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Toulouse Blagnac Airport (TLS / LFBO)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">43.628101</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="mf">1.367263</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">33922</span><span class="p">},</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;airport&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;match&quot;</span><span class="p">:</span> <span class="s2">&quot;begins&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="c1"># ...</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="the-fr24-class">The <code class="language-py3 highlight"><span class="n">FR24</span></code> Class<a class="headerlink" href="#the-fr24-class" title="Permanent link">¤</a></h2>
+<p>Most of the core code are developed in <a href="../../api/functions/">many tiny functions</a> for flexibility.</p>
+<p>However, the <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FR24">FR24</a> class provides a convenient wrapper around them. It:</p>
+<ul>
+<li>Manages a shared HTTP client and authentication state</li>
+<li>Has three services:<ul>
+<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService"><strong>Live Feed</strong></a>: snapshot of all aircraft state vectors</li>
+<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FlightListService"><strong>Flight List</strong></a>: all historical flights for a given aircraft registration or flight number</li>
+<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.PlaybackService"><strong>Playback</strong></a>: historical trajectory for one flight.</li>
+</ul>
+</li>
+</ul>
+<p>Each service has its own async <code class="language-py3 highlight"><span class="o">.</span><span class="n">fetch</span><span class="p">()</span></code> method to retrieve raw data from the API. <code class="language-py3 highlight"><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span></code> can then be used to transform to an Apache Arrow table, and used to perform caching and downstream <code class="language-py3 highlight"><span class="n">pandas</span></code> operations.</p>
+<p>Here is an example for using the <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService"><strong>Live Feed</strong></a> service:</p>
+<h3 id="initialisation">Initialisation<a class="headerlink" href="#initialisation" title="Permanent link">¤</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="examplepy" name="__tabbed_2" type="radio" /><input id="response" name="__tabbed_2" type="radio" /><input id="datacdf" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="examplepy">example.py</label><label for="response"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="hll">    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+</span>        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">livefeed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
+        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
+            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
+            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
+            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
+            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
+            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># ... 15109 more items</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
+0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
+1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
+2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
+3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
+4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
+...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
+15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
+15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
+15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
+15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
+15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
+
+[15100 rows x 16 columns]
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>When <code class="language-py3 highlight"><span class="n">FR24</span><span class="p">()</span></code> is first initialised, it creates an unauthenticated <a href="https://www.python-httpx.org/async/">HTTPX client</a> under the hood.</p>
+<div class="admonition question">
+<p class="admonition-title">How to authenticate?</p>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+    <span class="c1"># anonymous now</span>
+    <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">login</span><span class="p">()</span> <span class="c1"># reads from environment or configuration file, or,</span>
+    <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">creds</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">})</span> <span class="c1"># or,</span>
+    <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">creds</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subscriptionKey&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">})</span>
+</code></pre></div>
+<p>See <a href="../authentication/">authentication</a> for more details.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">How to pass in my own HTTPX client?</p>
+<p>To share clients across code, pass it into the <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FR24">fr24.core.FR24</a> constructor.</p>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">httpx</span>
+
+<span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">http2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">AsyncHTTPTransport</span><span class="p">(</span><span class="n">retries</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+</div>
+<p>The <code class="language-py3 highlight"><span class="k">async</span> <span class="k">with</span></code> statement ensures that it is properly authenticated by calling the login endpoint (if necessary).</p>
+<h3 id="fetching-from-api">Fetching from API<a class="headerlink" href="#fetching-from-api" title="Permanent link">¤</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="jupyter-cell_1" name="__tabbed_3" type="radio" /><input id="response_1" name="__tabbed_3" type="radio" /><input id="datacdf_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_1">Jupyter cell</label><label for="response_1"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf_1"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+<span class="hll">        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">livefeed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+</span>        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
+        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
+            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
+            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
+            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
+            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
+            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># ... 15109 more items</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
+0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
+1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
+2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
+3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
+4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
+...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
+15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
+15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
+15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
+15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
+15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
+
+[15100 rows x 16 columns]
+</code></pre></div>
+</div>
+</div>
+</div>
+<p><code class="language-py3 highlight"><span class="n">fr24</span><span class="o">.</span><span class="n">livefeed</span></code> returns a <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService">LiveFeedService</a>, with the following methods:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="language-py3 highlight"><span class="o">.</span><span class="n">fetch</span></code> - <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService.fetch">asynchronously query the the API for fresh data</a></td>
+<td><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedAPIResp">fr24.core.LiveFeedAPIResp</a></td>
+</tr>
+<tr>
+<td><code class="language-py3 highlight"><span class="o">.</span><span class="n">load</span></code> - <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService.load">load a previously cached snapshot from the disk</a></td>
+<td><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedArrow">fr24.core.LiveFeedArrow</a></td>
+</tr>
+</tbody>
+</table>
+<p>You can retrieve:</p>
+<ul>
+<li>the <a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.core.LiveFeedContext">context related to the request</a> with <code class="language-py3 highlight"><span class="n">response</span><span class="o">.</span><span class="n">ctx</span></code>;</li>
+<li>the <a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.cache.LiveFeedRecord">raw JSON response</a> as a list of typed dictionaries with <code class="language-py3 highlight"><span class="n">response</span><span class="o">.</span><span class="n">data</span></code>.</li>
+</ul>
+<h3 id="transformation-to-arrow">Transformation to Arrow<a class="headerlink" href="#transformation-to-arrow" title="Permanent link">¤</a></h3>
+<p>In practice, you could directly pipe <code class="language-py3 highlight"><span class="n">response</span><span class="o">.</span><span class="n">data</span></code> into <code class="language-py3 highlight"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">()</span></code>, but pandas
+uses 64-bit integers by default and can be storage-inefficient.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="jupyter-cell_2" name="__tabbed_4" type="radio" /><input id="response_2" name="__tabbed_4" type="radio" /><input id="datacdf_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_2">Jupyter cell</label><label for="response_2"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf_2"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">livefeed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+<span class="hll">        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
+</span>        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
+            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
+            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
+            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
+            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
+            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># ... 15109 more items</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
+0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
+1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
+2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
+3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
+4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
+...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
+15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
+15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
+15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
+15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
+15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
+
+[15100 rows x 16 columns]
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Instead, you can call <code class="language-py3 highlight"><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span></code>, which creates a new
+<a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.cache.livefeed_schema">strongly typed</a> Apache Arrow table from it.</p>
+<p><a href="https://arrow.apache.org/docs/index.html">Arrow</a> is a columnar data storage format
+with <a href="https://arrow.apache.org/docs/python/pandas.html">excellent interoperability</a>
+with <code class="language-py3 highlight"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></code>. You can retrieve:</p>
+<ul>
+<li>the <a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.core.LiveFeedContext">context related to the request</a> with <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">ctx</span></code>;</li>
+<li>the underlying <a href="https://arrow.apache.org/docs/python/generated/pyarrow.Table.html">Arrow table</a> with <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">data</span></code>;</li>
+<li>get the pandas representation with <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code>.</li>
+</ul>
+<h3 id="saving-to-disk">Saving to Disk<a class="headerlink" href="#saving-to-disk" title="Permanent link">¤</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="jupyter-cell_3" name="__tabbed_5" type="radio" /><input id="response_3" name="__tabbed_5" type="radio" /><input id="datacdf_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_3">Jupyter cell</label><label for="response_3"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf_3"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">livefeed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
+<span class="hll">        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</span>
+<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
+            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
+            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
+            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
+            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
+            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># ... 15109 more items</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
+0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
+1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
+2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
+3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
+4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
+...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
+15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
+15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
+15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
+15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
+15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
+
+[15100 rows x 16 columns]
+</code></pre></div>
+</div>
+</div>
+</div>
+<p><code class="language-py3 highlight"><span class="o">.</span><span class="n">save</span><span class="p">()</span></code> writes the table to the default cache directory<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> using the <a href="https://parquet.apache.org/">Parquet</a>
+data format.</p>
+<p>You can always check its exact location using <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">fp</span></code>. In general, where it gets saved is as follows:</p>
+<h3 id="storage-location">Storage Location<a class="headerlink" href="#storage-location" title="Permanent link">¤</a></h3>
+<ul>
+<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService">Live feed</a><ul>
+<li><code class="language-py3 highlight"><span class="n">feed</span><span class="o">/</span><span class="p">{</span><span class="n">timestamp</span><span class="p">}</span><span class="o">.</span><span class="n">parquet</span></code></li>
+</ul>
+</li>
+<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FlightListService">Flight list</a><ul>
+<li><code class="language-py3 highlight"><span class="n">flight_list</span><span class="o">/</span><span class="n">reg</span><span class="o">/</span><span class="p">{</span><span class="n">reg</span><span class="o">.</span><span class="n">upper</span><span class="p">()}</span><span class="o">.</span><span class="n">parquet</span></code>, or</li>
+<li><code class="language-py3 highlight"><span class="n">flight_list</span><span class="o">/</span><span class="n">flight</span><span class="o">/</span><span class="p">{</span><span class="n">iata_flight_num</span><span class="o">.</span><span class="n">upper</span><span class="p">()}</span><span class="o">.</span><span class="n">parquet</span></code></li>
+</ul>
+</li>
+<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.PlaybackService">Playback</a><ul>
+<li><code class="language-py3 highlight"><span class="n">playback</span><span class="o">/</span><span class="p">{</span><span class="n">fr24_hex_id</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span><span class="o">.</span><span class="n">parquet</span></code></li>
+</ul>
+</li>
+</ul>
+<p>It should resemble the following on Linux:
+<div class="language-text highlight"><pre><span></span><code>$ tree $HOME/.cache/fr24/feed
+/home/user/.cache/fr24
+├── feed
+│   ├── 1711911907.parquet
+├── flight_list
+│   ├── flight
+│   │   └── CX8747.parquet
+│   └── reg
+│       └── B-HUJ.parquet
+└── playback
+    └── 2d81a27.parquet
+</code></pre></div>
+These directories are created automatically whenever <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></code> is called.</p>
+<h3 id="reading-from-disk">Reading from disk<a class="headerlink" href="#reading-from-disk" title="Permanent link">¤</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="jupyter-cell_4" name="__tabbed_6" type="radio" /><input id="datacdf_4" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_4">Jupyter cell</label><label for="datacdf_4"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+<span class="hll">        <span class="n">datac</span> <span class="o">=</span> <span class="n">fr24</span><span class="o">.</span><span class="n">livefeed</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="mi">1711911907</span><span class="p">)</span>
+</span>
+<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
+0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
+1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
+2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
+3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
+4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
+...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
+15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
+15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
+15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
+15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
+15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
+
+[15100 rows x 16 columns]
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>To retrieve saved data, first pass in the unique identifier (timestamp in this case) to the <code class="language-py3 highlight"><span class="o">.</span><span class="n">load</span><span class="p">()</span></code>.</p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¤</a></h2>
+<p>Each service inherits from the <a class="autorefs autorefs-internal" href="../../api/base/#fr24.base.ServiceBase">fr24.base.ServiceBase</a> and have similar APIs demonstrated above.</p>
+<p>See the <a href="../examples/">examples gallery</a> to learn more.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Pyarrow unfortunately do not provide type hints. You can however, generate the stubs to your <code class="language-py3 highlight"><span class="n">site</span><span class="o">-</span><span class="n">packages</span></code> directory with:
+<div class="language-sh highlight"><pre><span></span><code>$<span class="w"> </span>stubgen<span class="w"> </span>-p<span class="w"> </span>pyarrow<span class="w"> </span>-o<span class="w"> </span><span class="k">$(</span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from distutils.sysconfig import get_python_lib; print(get_python_lib())&quot;</span><span class="k">)</span>
+</code></pre></div></p>
+</div>
+<p>Intersphinx for this project could be found <a href="https://cathaypacific8747.github.io/fr24/objects.inv">here</a>.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>You can check its location by <a href="../cli/#directories">running <code class="language-py3 highlight"><span class="n">fr24</span> <span class="n">dirs</span></code> in the shell</a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "navigation.expand"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      
+    
+  </body>
+</html>
