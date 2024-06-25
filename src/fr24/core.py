@@ -5,7 +5,7 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncIterator, Literal
+from typing import Any, AsyncIterator, BinaryIO, Literal
 
 import httpx
 import pyarrow as pa
@@ -58,8 +58,11 @@ class FR24:
         """
         See docs [quickstart](../usage/quickstart.md#initialisation).
 
-        :param client: The httpx client to use (if not provided, a new one
-            will be created). It is recommended to use `http2=True`.
+        :param client: The `httpx` client to use. If not provided, a
+            new one will be created with HTTP/2 enabled by default. It is
+            recommended to use `http2=True` to avoid
+            [464 errors](https://github.com/cathaypacific8747/fr24/issues/23#issuecomment-2125624974)
+            and to be consistent with the browser.
         :param base_dir:
             See [cache directory](../usage/cli.md#directories).
         """
@@ -220,14 +223,26 @@ class FlightListArrow(ArrowTable[FlightListContext]):
         return FlightListArrow(self.ctx, data)
 
     @override
-    def save(self, fp: Path | None = None) -> Self:
+    def save(
+        self,
+        fp: Path | BinaryIO | None = None,
+        fmt: Literal["parquet", "csv"] = "parquet",
+    ) -> Self:
         """
-        Save the table to the given file path, e.g. `./tmp/foo.parquet`.
+        Write the table to the given file path or file-like object,
+        e.g. `./tmp/foo.parquet`, `sys.stdout.buffer`.
 
         :param fp: File path to save the table to. If `None`, the table will
             be saved to the appropriate cache directory.
+
+        :raises ValueError: If a format other than `parquet` is provided when
+            saving to cache.
         """
-        super().save(fp if fp is not None else FlightListArrow._fp(self.ctx))
+        if fp is None and fmt != "parquet":
+            raise ValueError("format must be `parquet` when saving to cache")
+        super().save(
+            fp if fp is not None else FlightListArrow._fp(self.ctx), fmt
+        )
         return self
 
 
@@ -401,14 +416,24 @@ class PlaybackArrow(ArrowTable[PlaybackContext]):
         )
 
     @override
-    def save(self, fp: Path | None = None) -> Self:
+    def save(
+        self,
+        fp: Path | BinaryIO | None = None,
+        fmt: Literal["parquet", "csv"] = "parquet",
+    ) -> Self:
         """
-        Save the table to the given file path, e.g. `./tmp/foo.parquet`.
+        Write the table to the given file path or file-like object,
+        e.g. `./tmp/foo.parquet`, `sys.stdout.buffer`.
 
         :param fp: File path to save the table to. If `None`, the table will
             be saved to the appropriate cache directory.
+
+        :raises ValueError: If a format other than `parquet` is provided when
+            saving to cache.
         """
-        super().save(fp if fp is not None else PlaybackArrow._fp(self.ctx))
+        if fp is None and fmt != "parquet":
+            raise ValueError("format must be `parquet` when saving to cache")
+        super().save(fp if fp is not None else PlaybackArrow._fp(self.ctx), fmt)
         return self
 
     @property
@@ -539,14 +564,24 @@ class LiveFeedArrow(ArrowTable[LiveFeedContext]):
         )
 
     @override
-    def save(self, fp: Path | None = None) -> Self:
+    def save(
+        self,
+        fp: Path | BinaryIO | None = None,
+        fmt: Literal["parquet", "csv"] = "parquet",
+    ) -> Self:
         """
-        Save the table to the given file path, e.g. `./tmp/foo.parquet`.
+        Write the table to the given file path or file-like object,
+        e.g. `./tmp/foo.parquet`, `sys.stdout`.
 
         :param fp: File path to save the table to. If `None`, the table will
             be saved to the appropriate cache directory.
+
+        :raises ValueError: If a format other than `parquet` is provided when
+            saving to cache.
         """
-        super().save(fp if fp is not None else LiveFeedArrow._fp(self.ctx))
+        if fp is None and fmt != "parquet":
+            raise ValueError("format must be `parquet` when saving to cache")
+        super().save(fp if fp is not None else LiveFeedArrow._fp(self.ctx), fmt)
         return self
 
 

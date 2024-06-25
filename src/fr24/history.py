@@ -253,7 +253,7 @@ def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
         [Heading](https://mode-s.org/decode/content/mode-s/7-ehs.html#heading-and-speed-report-bds-60)
         is only available in [EMS][fr24.types.fr24.EMS] data.
 
-        We monkeypatch it to `track` to avoid confusion.
+        We rename it to `track` to avoid confusion.
     """
     return {
         "timestamp": point["timestamp"],

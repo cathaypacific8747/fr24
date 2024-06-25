@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Generic, Literal, TypeVar
+from typing import Any, BinaryIO, Generic, Literal, TypeVar
 
 import httpx
 import pyarrow as pa
+import pyarrow.csv as csv
 import pyarrow.parquet as pq
 from loguru import logger
 from typing_extensions import Self
@@ -117,11 +118,31 @@ class ArrowTable(Generic[Ctx]):
             return self
         return self.__class__(self.ctx, table)
 
-    def save(self, fp: Path) -> Self:
-        """Saves the table to a parquet file, with the schema if defined."""
-        fp.parent.mkdir(parents=True, exist_ok=True)
-        with pq.ParquetWriter(fp, schema=self.data.schema) as writer:
-            writer.write_table(self.data)
+    def save(
+        self,
+        fp: Path | BinaryIO,
+        fmt: Literal["parquet", "csv"] = "parquet",
+    ) -> Self:
+        """
+        Writes the table as the specified format, with the schema if defined.
+
+        :param fp: The path of file-like object to write to,
+            e.g. `sys.stdout.buffer`
+        """
+        if isinstance(fp, Path):
+            fp.parent.mkdir(parents=True, exist_ok=True)
+
+        if fmt == "parquet":
+            with pq.ParquetWriter(fp, schema=self.data.schema) as writer:
+                writer.write_table(self.data)
+        elif fmt == "csv":
+            with csv.CSVWriter(fp, schema=self.data.schema) as writer:
+                writer.write_table(self.data)
+        else:
+            raise ValueError(
+                f"unsupported format: `{fmt}`, "
+                "consider converting the data to pandas with `.df`."
+            )
 
         logger.debug(f"saved {self.data.num_rows} rows to {fp}")
         return self

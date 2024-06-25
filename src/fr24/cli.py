@@ -1,17 +1,21 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated, BinaryIO, Literal, Optional
 
 import rich
 import typer
 from appdirs import user_cache_dir, user_config_dir
+from loguru import logger
+from rich.console import Console
 
 from .core import FR24, FlightListArrow, LiveFeedArrow, PlaybackArrow
 from .tui.tui import main as tui_main
 
 app = typer.Typer(no_args_is_help=True)
+logger.configure(handlers=[{"sink": sys.stderr, "level": "INFO"}])
 
 
 @app.command()
@@ -61,15 +65,55 @@ def show() -> None:
 
 
 def get_success_message(
-    service: FlightListArrow | LiveFeedArrow | PlaybackArrow,
+    datac: FlightListArrow | LiveFeedArrow | PlaybackArrow,
+    fp: Path | BinaryIO | None,
+    action: Literal["added", "wrote"] = "wrote",
 ) -> str:
-    num_rows = service.data.num_rows
-    size = service.data.nbytes
-    fp = service._fp(service.ctx)  # type: ignore[arg-type]
+    num_rows = datac.data.num_rows
+    size = datac.data.nbytes
+    fp = fp or datac._fp(datac.ctx)  # type: ignore[arg-type]
     return (
-        f"[bold green]Success: Saved {num_rows} rows ({size} bytes) "
-        f"to {fp}.[/bold green]"
+        f"[bold green]Success: {action} {num_rows} rows ({size} bytes) "
+        f"to {fp}.[/bold green]\n"
+        "Preview:\n"
+        f"{datac.df}"
     )
+
+
+def resolve_path(path: Path | None) -> Path | BinaryIO | None:
+    if path is None:
+        return None
+    if str(path) == "-":
+        return sys.stdout.buffer
+    return path.resolve()
+
+
+def get_console(path: Path | BinaryIO | None) -> Console:
+    return Console(stderr=path is not None and not isinstance(path, Path))
+
+
+Output = Annotated[
+    Optional[Path],
+    typer.Option(
+        "-o",
+        "--output",
+        help=(
+            "Save results as parquet to a specific filepath. "
+            "If `-`, results will be printed to stdout."
+        ),
+        exists=False,
+        file_okay=True,
+        dir_okay=False,
+    ),
+]
+Fmt = Annotated[
+    str,  # literal not yet supported: https://github.com/tiangolo/typer/pull/429
+    typer.Option(
+        "-f",
+        "--format",
+        help="Output format, `parquet` or `csv`",
+    ),
+]
 
 
 @app.command()
@@ -84,16 +128,21 @@ def feed(
             )
         ),
     ] = None,
+    output: Output = None,
+    fmt: Fmt = "parquet",
 ) -> None:
     """Fetches current livefeed / playback of live feed at a given time"""
+
+    fp = resolve_path(output)
+    console = get_console(fp)
 
     async def feed_() -> None:
         async with FR24() as fr24:
             await fr24.login()
             response = await fr24.livefeed.fetch(timestamp)
             datac = response.to_arrow()
-            datac.save()
-            rich.print(get_success_message(datac))
+            datac.save(fp, fmt)  # type: ignore[arg-type]
+            console.print(get_success_message(datac, fp))
 
     asyncio.run(feed_())
 
@@ -121,27 +170,37 @@ def flight_list(
             "--all", help="Get all pages of flight list", is_flag=True
         ),
     ] = False,
+    output: Output = None,
+    fmt: Fmt = "parquet",
 ) -> None:
     """Fetches flight list for the given registration or flight number"""
+
+    fp = resolve_path(output)
+    console = get_console(fp)
 
     async def flight_list_() -> None:
         async with FR24() as fr24:
             await fr24.login()
             if all:
-                data = fr24.flight_list.load(reg=reg, flight=flight)
+                page = 0
+                datac = fr24.flight_list.load(reg=reg, flight=flight)
                 async for response in fr24.flight_list.fetch_all(
                     reg=reg, flight=flight, timestamp=timestamp
                 ):
                     data_new = response.to_arrow()
-                    data.concat(data_new, inplace=True)
-                    data.save()
-                rich.print(get_success_message(data))
+                    datac.concat(data_new, inplace=True)
+                    datac.save(fp, fmt)  # type: ignore[arg-type]
+                    console.print(
+                        get_success_message(data_new, fp, action="added")
+                    )
+                    page += 1
             else:
                 response = await fr24.flight_list.fetch(
                     reg=reg, flight=flight, timestamp=timestamp
                 )
-                response.to_arrow().save()
-                rich.print(get_success_message(response.to_arrow()))
+                datac = response.to_arrow()
+                datac.save(fp, fmt)  # type: ignore[arg-type]
+                console.print(get_success_message(response.to_arrow(), fp))
 
     asyncio.run(flight_list_())
 
@@ -160,8 +219,13 @@ def playback(
             )
         ),
     ] = None,
+    output: Output = None,
+    fmt: Fmt = "parquet",
 ) -> None:
     """Fetches historical track playback data for the given flight"""
+
+    fp = resolve_path(output)
+    console = get_console(fp)
 
     async def playback_() -> None:
         async with FR24() as fr24:
@@ -169,8 +233,9 @@ def playback(
             response = await fr24.playback.fetch(
                 flight_id=flight_id, timestamp=timestamp
             )
-            response.to_arrow().save()
-            rich.print(get_success_message(response.to_arrow()))
+            datac = response.to_arrow()
+            datac.save(fp, fmt)  # type: ignore[arg-type]
+            console.print(get_success_message(response.to_arrow(), fp))
 
     asyncio.run(playback_())
 
