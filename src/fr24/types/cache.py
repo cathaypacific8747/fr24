@@ -118,7 +118,6 @@ class PlaybackTrackEMSRecord(TypedDict):
 
 
 # NOTE: not using pa.timestamp() to save space
-# TODO: altitude only requires 12 bits: divide by 25 and store with u16
 livefeed_schema = pa.schema(
     [
         pa.field("timestamp", pa.uint32()),

@@ -29,6 +29,7 @@ df
 # --8<-- [end:script0]
 # %%
 """
+# --8<-- [start:df0]
                     timestamp   latitude   longitude  altitude  ground_speed  vertical_speed  track  squawk   ems  
 0   2024-06-25 00:34:31+00:00  25.083984  121.251160         0             3               0    137       0  None   
 1   2024-06-25 00:35:17+00:00  25.083664  121.251465         0             9               0    137       0  None   

@@ -325,8 +325,6 @@ Build and hotload documentation:
 mkdocs serve
 ```
 
-Navigate to http://localhost:8000/fr24.
-
 # Directories
 
 Check the location of the config and cache directories with:
