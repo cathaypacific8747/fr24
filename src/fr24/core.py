@@ -20,11 +20,9 @@ from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
 from .common import to_unix_timestamp
 from .history import (
     flight_list,
-    flight_list_dict,
+    flight_list_arrow,
     playback,
-    playback_metadata_dict,
-    playback_track_dict,
-    playback_track_ems_dict,
+    playback_arrow,
 )
 from .livefeed import livefeed_playback_world_data, livefeed_world_data
 from .types.cache import (
@@ -164,14 +162,9 @@ class FlightListAPIResp(APIResponse[FlightListContext, FlightList]):
         Parse each [fr24.types.fr24.FlightListItem][] in the API response and
         transform it into a pyarrow.Table.
         """
-        flights = self.data["result"]["response"]["data"] or []
-        if len(flights) == 0:
-            logger.warning("no data in response, table will be empty")
-        table = pa.Table.from_pylist(
-            [flight_list_dict(f) for f in flights],
-            schema=flight_list_schema,
-        )
-        return FlightListArrow(self.ctx, table)  # NOTE: use constructor?
+        return FlightListArrow(
+            self.ctx, flight_list_arrow(self.data)
+        )  # NOTE: use constructor?
 
 
 class FlightListArrow(ArrowTable[FlightListContext]):
@@ -368,28 +361,11 @@ class PlaybackApiResp(APIResponse[PlaybackContext, Playback]):
     def to_arrow(self) -> PlaybackArrow:
         """
         Parse each [fr24.types.fr24.TrackData][] in the API response and
-        transform it into a pyarrow.Table. Also adds
+        transform it into a wrapped pyarrow.Table. Also adds
         [fr24.types.fr24.FlightData][] into the schema's metadata with key
         `_flight`.
         """
-        data = self.data["result"]["response"]["data"]["flight"]
-        table = pa.Table.from_pylist(
-            [
-                {
-                    **playback_track_dict(point),
-                    "ems": playback_track_ems_dict(point),
-                }
-                for point in data["track"]
-            ],
-            schema=playback_track_schema.with_metadata(
-                {
-                    "_flight": json.dumps(playback_metadata_dict(data)).encode(
-                        "utf-8"
-                    )
-                }
-            ),
-        )
-        return PlaybackArrow(self.ctx, table)
+        return PlaybackArrow(self.ctx, playback_arrow(self.data))
 
 
 class PlaybackArrow(ArrowTable[PlaybackContext]):
@@ -527,7 +503,7 @@ class LiveFeedAPIResp(APIResponse[LiveFeedContext, list[LiveFeedRecord]]):
     def to_arrow(self) -> LiveFeedArrow:
         """
         Parse each [fr24.types.cache.LiveFeedRecord][] in the API response and
-        transform it into a pyarrow.Table.
+        transform it into a wrapped pyarrow.Table.
         """
         if len(self.data) == 0:
             logger.warning("no data in response, table will be empty")

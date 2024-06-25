@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
 import secrets
 from datetime import datetime
 from typing import Literal
 
 import httpx
+import pyarrow as pa
+from loguru import logger
 
 import pandas as pd
 
@@ -13,6 +16,8 @@ from .types.cache import (
     FlightListRecord,
     PlaybackTrackEMSRecord,
     PlaybackTrackRecord,
+    flight_list_schema,
+    playback_track_schema,
 )
 from .types.fr24 import (
     AirportList,
@@ -296,23 +301,51 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
     return None
 
 
-def playback_df(result: Playback) -> pd.DataFrame:
+def playback_arrow(data: Playback) -> pa.Table:
     """
-    Transform each point in the flight track to a pandas DataFrame.
+    Parse each [fr24.types.fr24.TrackData][] in the API response into a
+    pyarrow.Table. Also adds [fr24.types.fr24.FlightData][] into the
+    schema's metadata with key `_flight`.
 
-    Note: EMS and metadata will not be serialised.
+    If the response is empty, a warning is logged and an empty table is returned
     """
-    flight = result["result"]["response"]["data"]["flight"]
-    df = pd.DataFrame.from_records(
-        playback_track_dict(point) for point in flight["track"]
+    flight = data["result"]["response"]["data"]["flight"]
+    if len(track := flight["track"]) == 0:
+        logger.warning("no data in response, table will be empty")
+    return pa.Table.from_pylist(
+        [
+            {
+                **playback_track_dict(point),
+                "ems": playback_track_ems_dict(point),
+            }
+            for point in track
+        ],
+        schema=playback_track_schema.with_metadata(
+            {
+                "_flight": json.dumps(playback_metadata_dict(flight)).encode(
+                    "utf-8"
+                )
+            }
+        ),
     )
 
-    df = df.eval(
+
+def playback_df(data: Playback) -> pd.DataFrame:
+    """
+    Parse each [fr24.types.fr24.TrackData][] in the API response into a
+    pandas DataFrame. Also adds [fr24.types.fr24.FlightData][] into the
+    DataFrame's `.attrs`.
+
+    If the response is empty, a warning is logged and an empty table is returned
+    """
+    arr = playback_arrow(data)
+    df: pd.DataFrame = arr.to_pandas()
+    df.attrs = json.loads(arr.schema.metadata[b"_flight"])
+    return df.eval(
         """
 timestamp = @pd.to_datetime(timestamp, unit='s', utc=True)
     """
     )
-    return df
 
 
 def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
@@ -348,21 +381,27 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
     }
 
 
-def flight_list_df(result: FlightList) -> None | pd.DataFrame:
+def flight_list_arrow(data: FlightList) -> pa.Table:
     """
-    Transform each flight entry in the JSON response into a pandas DataFrame.
+    Parse each [fr24.types.fr24.FlightListItem][] in the API response into a
+    pyarrow.Table.
+
+    If the response is empty, a warning is logged and an empty table is returned
     """
-    list_ = result["result"]["response"]["data"]
-    if list_ is None:
-        return None
-    df = pd.DataFrame.from_records(flight_list_dict(entry) for entry in list_)
-    return df.eval(
-        """
-STOD = @pd.to_datetime(STOD, unit="ms", utc=True)
-ETOD = @pd.to_datetime(ETOD, unit="ms", utc=True)
-ATOD = @pd.to_datetime(ATOD, unit="ms", utc=True)
-STOA = @pd.to_datetime(STOA, unit="ms", utc=True)
-ETOA = @pd.to_datetime(ETOA, unit="ms", utc=True)
-ATOA = @pd.to_datetime(ATOA, unit="ms", utc=True)
-"""
+    flights = data["result"]["response"]["data"] or []
+    if len(flights) == 0:
+        logger.warning("no data in response, table will be empty")
+    return pa.Table.from_pylist(
+        [flight_list_dict(f) for f in flights],
+        schema=flight_list_schema,
     )
+
+
+def flight_list_df(data: FlightList) -> pd.DataFrame:
+    """
+    Parse each [fr24.types.fr24.FlightListItem][] in the API response into a
+    pandas DataFrame.
+
+    If the response is empty, a warning is logged and an empty table is returned
+    """
+    return flight_list_arrow(data).to_pandas()

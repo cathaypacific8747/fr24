@@ -18,12 +18,12 @@ flight_list_schema = pa.schema(
         pa.field("origin", pa.string()),
         pa.field("destination", pa.string()),
         pa.field("status", pa.string()),
-        pa.field("STOD", pa.timestamp("ms")),
-        pa.field("ETOD", pa.timestamp("ms")),
-        pa.field("ATOD", pa.timestamp("ms")),
-        pa.field("STOA", pa.timestamp("ms")),
-        pa.field("ETOA", pa.timestamp("ms")),
-        pa.field("ATOA", pa.timestamp("ms")),
+        pa.field("STOD", pa.timestamp("ms", tz="UTC")),
+        pa.field("ETOD", pa.timestamp("ms", tz="UTC")),
+        pa.field("ATOD", pa.timestamp("ms", tz="UTC")),
+        pa.field("STOA", pa.timestamp("ms", tz="UTC")),
+        pa.field("ETOA", pa.timestamp("ms", tz="UTC")),
+        pa.field("ATOA", pa.timestamp("ms", tz="UTC")),
     ]
 )
 
