@@ -1,12 +1,12 @@
 from fr24.proto import _common_pb2 as __common_pb2
 from fr24.proto import _live_feed_pb2 as __live_feed_pb2
 from fr24.proto import _debug_pb2 as __debug_pb2
-from fr24.proto import _search_index_pb2 as __search_index_pb2
-from fr24.proto import _follow_flight_pb2 as __follow_flight_pb2
-from fr24.proto import _live_flight_status_pb2 as __live_flight_status_pb2
-from fr24.proto import _live_trail_pb2 as __live_trail_pb2
 from fr24.proto import _nearest_flights_pb2 as __nearest_flights_pb2
+from fr24.proto import _live_flight_status_pb2 as __live_flight_status_pb2
+from fr24.proto import _fetch_search_index_pb2 as __fetch_search_index_pb2
+from fr24.proto import _follow_flight_pb2 as __follow_flight_pb2
 from fr24.proto import _top_flights_pb2 as __top_flights_pb2
+from fr24.proto import _live_trail_pb2 as __live_trail_pb2
 from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
 from fr24.proto._common_pb2 import EMSInfo as EMSInfo
@@ -40,9 +40,16 @@ from fr24.proto._live_feed_pb2 import AirportFilterType as AirportFilterType
 from fr24.proto._live_feed_pb2 import AirlineFilterType as AirlineFilterType
 from fr24.proto._debug_pb2 import Ping as Ping
 from fr24.proto._debug_pb2 import Pong as Pong
-from fr24.proto._search_index_pb2 import FlightSearchData as FlightSearchData
-from fr24.proto._search_index_pb2 import FetchSearchIndexRequest as FetchSearchIndexRequest
-from fr24.proto._search_index_pb2 import FetchSearchIndexResponse as FetchSearchIndexResponse
+from fr24.proto._nearest_flights_pb2 import Geolocation as Geolocation
+from fr24.proto._nearest_flights_pb2 import NearestFlightsRequest as NearestFlightsRequest
+from fr24.proto._nearest_flights_pb2 import NearbyFlight as NearbyFlight
+from fr24.proto._nearest_flights_pb2 import NearestFlightsResponse as NearestFlightsResponse
+from fr24.proto._live_flight_status_pb2 import LiveFlightStatusData as LiveFlightStatusData
+from fr24.proto._live_flight_status_pb2 import LiveFlightsStatusRequest as LiveFlightsStatusRequest
+from fr24.proto._live_flight_status_pb2 import LiveFlightsStatusResponse as LiveFlightsStatusResponse
+from fr24.proto._fetch_search_index_pb2 import FlightSearchData as FlightSearchData
+from fr24.proto._fetch_search_index_pb2 import FetchSearchIndexRequest as FetchSearchIndexRequest
+from fr24.proto._fetch_search_index_pb2 import FetchSearchIndexResponse as FetchSearchIndexResponse
 from fr24.proto._follow_flight_pb2 import ImageInfo as ImageInfo
 from fr24.proto._follow_flight_pb2 import AircraftInfo as AircraftInfo
 from fr24.proto._follow_flight_pb2 import Point as Point
@@ -57,19 +64,12 @@ from fr24.proto._follow_flight_pb2 import ExtendedFlightInfo as ExtendedFlightIn
 from fr24.proto._follow_flight_pb2 import TrailPoint as TrailPoint
 from fr24.proto._follow_flight_pb2 import FollowFlightResponse as FollowFlightResponse
 from fr24.proto._follow_flight_pb2 import FlightStage as FlightStage
-from fr24.proto._live_flight_status_pb2 import LiveFlightStatusData as LiveFlightStatusData
-from fr24.proto._live_flight_status_pb2 import LiveFlightsStatusRequest as LiveFlightsStatusRequest
-from fr24.proto._live_flight_status_pb2 import LiveFlightsStatusResponse as LiveFlightsStatusResponse
-from fr24.proto._live_trail_pb2 import RadarHistoryRecord as RadarHistoryRecord
-from fr24.proto._live_trail_pb2 import LiveTrailRequest as LiveTrailRequest
-from fr24.proto._live_trail_pb2 import LiveTrailResponse as LiveTrailResponse
-from fr24.proto._nearest_flights_pb2 import Geolocation as Geolocation
-from fr24.proto._nearest_flights_pb2 import NearestFlightsRequest as NearestFlightsRequest
-from fr24.proto._nearest_flights_pb2 import NearbyFlight as NearbyFlight
-from fr24.proto._nearest_flights_pb2 import NearestFlightsResponse as NearestFlightsResponse
 from fr24.proto._top_flights_pb2 import FollowedFlight as FollowedFlight
 from fr24.proto._top_flights_pb2 import TopFlightsRequest as TopFlightsRequest
 from fr24.proto._top_flights_pb2 import TopFlightsResponse as TopFlightsResponse
+from fr24.proto._live_trail_pb2 import RadarHistoryRecord as RadarHistoryRecord
+from fr24.proto._live_trail_pb2 import LiveTrailRequest as LiveTrailRequest
+from fr24.proto._live_trail_pb2 import LiveTrailResponse as LiveTrailResponse
 
 DESCRIPTOR: _descriptor.FileDescriptor
 NOT_VISIBLE: __common_pb2.RestrictionVisibility

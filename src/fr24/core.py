@@ -39,7 +39,7 @@ from .types.core import (
 )
 from .types.flight_list import FlightList
 from .types.fr24 import LivefeedField
-from .types.playback import Playback, PlaybackFlightData
+from .types.playback import FlightData, Playback
 
 
 class FR24:
@@ -155,8 +155,8 @@ class FlightListAPIResp(APIResponse[FlightListContext, FlightList]):
 
     def to_arrow(self) -> FlightListArrow:
         """
-        Parse each [fr24.types.fr24.FlightListItem][] in the API response and
-        transform it into a pyarrow.Table.
+        Parse each [fr24.types.flight_list.FlightListItem][] in the API response
+        and transform it into a pyarrow.Table.
         """
         return FlightListArrow(
             self.ctx, flight_list_arrow(self.data)
@@ -357,9 +357,9 @@ class PlaybackApiResp(APIResponse[PlaybackContext, Playback]):
 
     def to_arrow(self) -> PlaybackArrow:
         """
-        Parse each [fr24.types.fr24.TrackData][] in the API response and
+        Parse each [fr24.types.playback.TrackData][] in the API response and
         transform it into a wrapped pyarrow.Table. Also adds
-        [fr24.types.fr24.FlightData][] into the schema's metadata with key
+        [fr24.types.playback.FlightData][] into the schema's metadata with key
         `_flight`.
         """
         return PlaybackArrow(self.ctx, playback_arrow(self.data))
@@ -410,7 +410,7 @@ class PlaybackArrow(ArrowTable[PlaybackContext]):
         return self
 
     @property
-    def metadata(self) -> PlaybackFlightData | None:
+    def metadata(self) -> FlightData | None:
         """Parse the flight metadata from the arrow table."""
         if m := self.data.schema.metadata.get(b"_flight"):
             return json.loads(m)  # type: ignore[no-any-return]

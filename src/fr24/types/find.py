@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, Union
 
-from typing_extensions import NewType, NotRequired, TypedDict
+from typing_extensions import Annotated, NotRequired, TypedDict
 
 
 class Live(TypedDict):
@@ -54,8 +54,8 @@ class EntryBase(TypedDict):
     name: NotRequired[str]
 
 
-Iata = NewType("Iata", str)
-Icao = NewType("Icao", str)
+Iata = Annotated[str, "IATA"]
+Icao = Annotated[str, "ICAO"]
 
 
 class AirportEntry(EntryBase):

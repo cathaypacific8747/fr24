@@ -23,8 +23,8 @@ from .types.cache import (
 )
 from .types.flight_list import FlightList, FlightListItem, FlightListRequest
 from .types.playback import (
+    FlightData,
     Playback,
-    PlaybackFlightData,
     PlaybackRequest,
     TrackData,
 )
@@ -43,11 +43,11 @@ async def flight_list(
     Fetch metadata/history of flights for a given aircraft or flight number.
 
     Includes basic information such as status, O/D, scheduled/estimated/real
-    times: see [fr24.types.fr24.FlightData][] for more details.
+    times: see [fr24.types.flight_list.FlightList][] for more details.
 
     Use *either* `reg` or `flight` to query.
     To determine if there are more pages to query, check the response
-    [.result.response.page.more][fr24.types.fr24.Page.more].
+    [.result.response.page.more][fr24.types.flight_list.Page.more].
 
     :param client: HTTPX async client
     :param reg: Aircraft registration (e.g. `B-HUJ`)
@@ -111,7 +111,7 @@ async def airport_list(
     Fetch aircraft arriving, departing or on ground at a given airport.
 
     Returns on ground/scheduled/estimated/real times: see
-    [fr24.types.fr24.FlightListItem][] for more details.
+    [fr24.types.flight_list.FlightListItem][] for more details.
 
     :param client: HTTPX async client
     :param airport: IATA airport code (e.g. `HKG`)
@@ -199,7 +199,7 @@ async def playback(
     return response.json()  # type: ignore
 
 
-def playback_metadata_dict(flight: PlaybackFlightData) -> dict:  # type: ignore[type-arg]
+def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg]
     """
     Flatten and rename important variables in the flight metadata to a
     dictionary.
@@ -253,7 +253,7 @@ def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
         The JSON response claims that `heading` is available, but ADS-B only
         transmits the [ground track](https://mode-s.org/decode/content/ads-b/4-surface-position.html#ground-track).
         [Heading](https://mode-s.org/decode/content/mode-s/7-ehs.html#heading-and-speed-report-bds-60)
-        is only available in [EMS][fr24.types.fr24.EMS] data.
+        is only available in [EMS][fr24.types.playback.EMS] data.
 
         We rename it to `track` to avoid confusion.
     """
@@ -300,8 +300,8 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
 
 def playback_arrow(data: Playback) -> pa.Table:
     """
-    Parse each [fr24.types.fr24.TrackData][] in the API response into a
-    pyarrow.Table. Also adds [fr24.types.fr24.FlightData][] into the
+    Parse each [fr24.types.playback.TrackData][] in the API response into a
+    pyarrow.Table. Also adds [fr24.types.playback.FlightData][] into the
     schema's metadata with key `_flight`.
 
     If the response is empty, a warning is logged and an empty table is returned
@@ -329,8 +329,8 @@ def playback_arrow(data: Playback) -> pa.Table:
 
 def playback_df(data: Playback) -> pd.DataFrame:
     """
-    Parse each [fr24.types.fr24.TrackData][] in the API response into a
-    pandas DataFrame. Also adds [fr24.types.fr24.FlightData][] into the
+    Parse each [fr24.types.playback.TrackData][] in the API response into a
+    pandas DataFrame. Also adds [fr24.types.playback.FlightData][] into the
     DataFrame's `.attrs`.
 
     If the response is empty, a warning is logged and an empty table is returned
@@ -380,8 +380,8 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
 
 def flight_list_arrow(data: FlightList) -> pa.Table:
     """
-    Parse each [fr24.types.fr24.FlightListItem][] in the API response into a
-    pyarrow.Table.
+    Parse each [fr24.types.flight_list.FlightListItem][] in the API response
+    into a pyarrow.Table.
 
     If the response is empty, a warning is logged and an empty table is returned
     """
@@ -396,8 +396,8 @@ def flight_list_arrow(data: FlightList) -> pa.Table:
 
 def flight_list_df(data: FlightList) -> pd.DataFrame:
     """
-    Parse each [fr24.types.fr24.FlightListItem][] in the API response into a
-    pandas DataFrame.
+    Parse each [fr24.types.flight_list.FlightListItem][] in the API response
+    into a pandas DataFrame.
 
     If the response is empty, a warning is logged and an empty table is returned
     """

@@ -48,7 +48,7 @@ Ctx = TypeVar("Ctx")
 """Type of the context for the service, a TypedDict"""
 ApiRspRaw = TypeVar("ApiRspRaw")
 """Type returned by the API, usually a TypedDict,
-e.g. [fr24.types.fr24.FlightList][]"""
+e.g. [fr24.types.flight_list.FlightList][]"""
 
 
 class APIResponse(Generic[Ctx, ApiRspRaw]):

@@ -4,7 +4,7 @@
 # --8<-- [start:script0]
 import httpx
 
-from fr24.types.fr24 import AirportList
+from fr24.types.airport_list import AirportList
 from fr24.history import airport_list
 
 import pandas as pd

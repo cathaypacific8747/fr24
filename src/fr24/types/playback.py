@@ -102,7 +102,7 @@ class TrackData(TypedDict):
         The JSON response claims that `heading` is available, but ADS-B only
         transmits the [ground track](https://mode-s.org/decode/content/ads-b/4-surface-position.html#ground-track).
         [Heading](https://mode-s.org/decode/content/mode-s/7-ehs.html#heading-and-speed-report-bds-60)
-        is only available in [EMS][fr24.types.fr24.EMS] data.
+        is only available in [EMS][fr24.types.playback.EMS] data.
 
         This field is renamed to `track` to avoid confusion in
         [fr24.history.playback_track_dict][].
@@ -123,7 +123,7 @@ class AircraftImages(TypedDict):
     thumbnails: list[Thumbnail]
 
 
-class PlaybackFlightData(TypedDict):
+class FlightData(TypedDict):
     identification: FlightIdentification
     status: StatusData
     aircraft: AircraftData | None
@@ -136,7 +136,7 @@ class PlaybackFlightData(TypedDict):
 
 
 class PlaybackData(TypedDict):
-    flight: PlaybackFlightData
+    flight: FlightData
 
 
 class PlaybackResponse(TypedDict):

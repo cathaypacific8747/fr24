@@ -192,8 +192,7 @@ enum EmergencyStatus {
     RESERVED = 7;
 }
 
-/// the following messages are unused.
-
+// used in CountDown
 message Duration {
     uint32 count = 1;
 } // new: 24.169.0808
