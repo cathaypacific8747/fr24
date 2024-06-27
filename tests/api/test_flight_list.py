@@ -1,10 +1,41 @@
+import asyncio
 from copy import deepcopy
 from pathlib import Path
 from typing import Callable
 
+import httpx
 import pyarrow.parquet as pq
 import pytest
 from fr24.core import FR24, FlightListArrow
+from fr24.history import flight_list, flight_list_df, playback
+
+
+@pytest.mark.asyncio
+async def test_aircraft() -> None:
+    async with httpx.AsyncClient() as client:
+        list_ = await flight_list(client, reg="F-HNAV")
+        df = flight_list_df(list_)
+        if df is None:
+            return
+        assert df.shape[0] > 0
+        landed = df.query('status.str.startswith("Landed")')
+        if landed.shape[0] == 0:
+            return
+        result = await asyncio.gather(
+            *[
+                playback(
+                    client,
+                    entry["identification"]["id"],  # type: ignore
+                    entry["time"]["scheduled"]["arrival"],
+                )
+                # the entry below is not None because of `if df is None:`
+                for entry in list_["result"]["response"]["data"]  # type: ignore
+                if entry["status"]["text"].startswith("Landed")
+            ]
+        )
+        assert len(result) == landed.shape[0]
+
+# core
 
 REG = "b-hpb"
 FLIGHT = "cx488"

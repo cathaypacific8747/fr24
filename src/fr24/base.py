@@ -69,7 +69,10 @@ class ArrowTable(Generic[Ctx]):
         # do not call directly. Use `from_file` instead.
         self.ctx = ctx
         self.data = table
-        # self.schema = schema
+
+    @classmethod
+    def new(cls, ctx: Ctx, sch_expected: pa.Schema | None = None):
+        return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
 
     @classmethod
     def from_file(
@@ -85,7 +88,7 @@ class ArrowTable(Generic[Ctx]):
                 f"cannot find `{fp.stem}` in cache, "
                 "creating an empty in-memory table"
             )
-            return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
+            return cls.new(ctx, sch_expected)
 
         if sch_expected is not None:
             # enforce fp schema to match the provided.

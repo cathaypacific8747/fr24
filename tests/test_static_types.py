@@ -1,0 +1,31 @@
+import pytest
+from fr24.static import (
+    get_aircraft_family,
+    get_airlines,
+    get_airports,
+    get_countries,
+)
+from fr24.types.static import (
+    AircraftFamily,
+    Airlines,
+    Airports,
+    Countries,
+)
+from pydantic import TypeAdapter, ValidationError
+
+
+@pytest.mark.parametrize(
+    "data,typed_dict",
+    [
+        (get_aircraft_family(), AircraftFamily),
+        (get_airlines(), Airlines),
+        (get_airports(), Airports),
+        (get_countries(), Countries),
+    ],
+)
+def test_static_types(data, typed_dict):
+    ta = TypeAdapter(typed_dict)
+    try:
+        ta.validate_python(data)
+    except ValidationError as e:
+        pytest.fail(f"Validation failed: {e}")

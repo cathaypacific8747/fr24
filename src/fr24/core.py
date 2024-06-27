@@ -314,6 +314,7 @@ class FlightListService(ServiceBase):
 
         Input **either** the registration or the flight number, not both.
         """
+        # TODO: allow passing list[str] and call .concat() underneath
         ctx = self._construct_ctx(reg, flight)
         return FlightListArrow.from_cache(ctx)
 
