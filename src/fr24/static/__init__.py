@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any, Callable, Coroutine
 
 import httpx
 
@@ -27,7 +28,7 @@ async def fetch_aircraft_family(client: httpx.AsyncClient) -> AircraftFamily:
     )
     data = await client.send(request)
     data.raise_for_status()
-    return data.json()
+    return data.json()  # type: ignore[no-any-return]
 
 
 async def fetch_airlines(client: httpx.AsyncClient) -> Airlines:
@@ -38,7 +39,7 @@ async def fetch_airlines(client: httpx.AsyncClient) -> Airlines:
     )
     data = await client.send(request)
     data.raise_for_status()
-    return data.json()
+    return data.json()  # type: ignore[no-any-return]
 
 
 async def fetch_airports(
@@ -52,7 +53,7 @@ async def fetch_airports(
     )
     data = await client.send(request)
     data.raise_for_status()
-    return data.json()
+    return data.json()  # type: ignore[no-any-return]
 
 
 async def fetch_countries(client: httpx.AsyncClient) -> Countries:
@@ -63,13 +64,16 @@ async def fetch_countries(client: httpx.AsyncClient) -> Countries:
     )
     data = await client.send(request)
     data.raise_for_status()
-    return data.json()
+    return data.json()  # type: ignore[no-any-return]
 
 
-async def update_all():
+async def update_all() -> None:
     async with httpx.AsyncClient(http2=True) as client:
 
-        async def update(path, fetch_fn):
+        async def update(
+            path: Path,
+            fetch_fn: Callable[[httpx.AsyncClient], Coroutine[None, None, Any]],
+        ) -> None:
             with open(path, "w") as f:
                 data = await fetch_fn(client)
                 json.dump(data, f, indent=2)
@@ -82,19 +86,19 @@ async def update_all():
 
 def get_aircraft_family() -> AircraftFamily:
     with open(AIRCRAFT_FAMILY_PATH, "r") as f:
-        return json.load(f)
+        return json.load(f)  # type: ignore[no-any-return]
 
 
 def get_airlines() -> Airlines:
     with open(AIRLINES_PATH, "r") as f:
-        return json.load(f)
+        return json.load(f)  # type: ignore[no-any-return]
 
 
 def get_airports() -> Airports:
     with open(AIRPORTS_PATH, "r") as f:
-        return json.load(f)
+        return json.load(f)  # type: ignore[no-any-return]
 
 
 def get_countries() -> Countries:
     with open(COUNTRIES_PATH, "r") as f:
-        return json.load(f)
+        return json.load(f)  # type: ignore[no-any-return]

@@ -12,6 +12,8 @@ from loguru import logger
 import pandas as pd
 
 from .common import DEFAULT_HEADERS, to_unix_timestamp
+from .types.airport_list import AirportList, AirportRequest
+from .types.authentication import Authentication
 from .types.cache import (
     FlightListRecord,
     PlaybackTrackEMSRecord,
@@ -19,15 +21,10 @@ from .types.cache import (
     flight_list_schema,
     playback_track_schema,
 )
-from .types.fr24 import (
-    AirportList,
-    AirportRequest,
-    Authentication,
-    FlightData,
-    FlightList,
-    FlightListItem,
-    FlightListRequest,
+from .types.flight_list import FlightList, FlightListItem, FlightListRequest
+from .types.playback import (
     Playback,
+    PlaybackFlightData,
     PlaybackRequest,
     TrackData,
 )
@@ -202,7 +199,7 @@ async def playback(
     return response.json()  # type: ignore
 
 
-def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg]
+def playback_metadata_dict(flight: PlaybackFlightData) -> dict:  # type: ignore[type-arg]
     """
     Flatten and rename important variables in the flight metadata to a
     dictionary.

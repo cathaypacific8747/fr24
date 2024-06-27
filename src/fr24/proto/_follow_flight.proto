@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+import "fr24/proto/_common.proto";
+
+message ImageInfo {
+    string url = 1;
+    string copyright = 2;
+    string thumbnail = 3;
+    string medium = 4;
+    string large = 5;
+} // new: 24.169.0808
+
+message AircraftInfo {
+    int32 icao_address = 1;
+    int32 reg = 2;
+    int32 country_of_reg = 3;
+    string type = 4;
+    _common.Icon icon = 5;
+    string full_description = 6;
+    string msn = 7;
+    _common.Service service = 8;
+    string ac_birth_date = 9;
+    string ac_age_text = 10;
+    repeated ImageInfo images_list = 11;
+    bool is_test_flight = 12;
+    bool msn_available = 13;
+    bool age_available = 14;
+    string registered_owners = 15;
+} // new: 24.169.0808
+
+message Point {
+    int32 latitude = 1;
+    int32 longitude = 2;
+} // new: 24.169.0808
+
+message Coordinate {
+    string code = 1;
+    Point point = 2;
+} // new: 24.169.0808
+
+message Fix {
+    string airport = 1;
+    string area = 2;
+    Coordinate coordinate = 3;
+} // new: 24.169.0808
+
+message AltArrival {
+    Fix arrival = 1;
+    float length = 2;
+} // new: 24.169.0808
+
+message FlightPlan {
+    string departure = 1;
+    string destination = 2;
+    string flight_plan_icao = 3;
+    double length = 4;
+    AltArrival alt_arrival_1 = 5;
+    AltArrival alt_arrival_2 = 6;
+    repeated Point waypoints_list = 7;
+} // new: 24.169.0808
+
+message ScheduleInfo {
+    string flight_number = 1;
+    uint32 operated_by_id = 2;
+    uint32 painted_as_id = 3;
+    uint32 origin_id = 4;
+    uint32 destination_id = 5;
+    uint32 diverted_to_id = 6;
+    uint32 scheduled_departure = 7;
+    uint32 scheduled_arrival = 8;
+    uint32 actual_departure = 9;
+    uint32 actual_arrival = 10;
+    string arr_terminal = 11;
+    string arr_gate = 12;
+    string baggage_belt = 13;
+} // new: 24.169.0808
+
+enum FlightStage {
+    UNKNOWN = 0;
+    ON_GROUND = 1;
+    TAKING_OFF = 2;
+    AIRBORNE = 3;
+    ON_APPROACH = 4;
+} // new: 24.169.0808
+
+message FlightProgress {
+    uint32 traversed_distance = 1;
+    uint32 remaining_distance = 2;
+    uint32 elapsed_time = 3;
+    uint32 remaining_time = 4;
+    uint32 eta = 5;
+    uint32 great_circle_distance = 6;
+    uint32 mean_flight_time = 7;
+    FlightStage flight_stage = 8; // ?
+} // new: 24.169.0808, updated: 24.171.1153
+
+message FollowFlightRequest {
+    fixed32 flight_id = 1;
+    // RestrictionVisibility? restriction_mode = 2;
+} // updated: 24.171.1153
+
+message ExtendedFlightInfo {
+    uint32 flightid = 1;
+    float lat = 2;
+    float lon = 3;
+    int32 track = 4;
+    int32 alt = 5;
+    int32 speed = 6;
+    // Status|EmergencyStatus? status = 7;
+    uint64 timestamp = 8;
+    bool on_ground = 9;
+    string callsign = 10;
+    _common.DataSource source = 11; // ?
+    _common.EMSAvailability ems_availability = 12;
+    _common.EMSInfo ems_info = 13;
+    bool squawk_availability = 14;
+    int32 squawk = 15;
+    bool vspeed_availability = 16;
+    int32 vspeed = 17;
+    bool airspace_availability = 18;
+    string airspace = 19;
+} // new: 24.169.0808
+
+message TrailPoint {
+    uint64 snapshot_id = 1;
+    float lat = 2;
+    float lon = 3;
+    int32 altitude = 4;
+    uint32 spd = 5;
+    uint32 heading = 6;  // official naming says heading, but data is likely track
+    int32 vspd = 7;
+} // new: 24.169.0808
+
+message FollowFlightResponse {
+    AircraftInfo aircraft_info = 1;
+    FlightPlan flight_plan = 2;
+    ScheduleInfo schedule_info = 3;
+    FlightProgress flight_progress = 4;
+    ExtendedFlightInfo flight_info = 5;
+    repeated TrailPoint flight_trail_list = 6;
+}

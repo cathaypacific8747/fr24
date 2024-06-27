@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import pandas as pd
-from fr24.types.fr24 import Airport as AirportJSON
-from fr24.types.fr24 import FlightListAircraftData
+from fr24.types.common import Airport as AirportJSON
+from fr24.types.flight_list import FlightListAircraftData
 
 
 class Time:

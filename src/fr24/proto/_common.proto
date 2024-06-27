@@ -1,0 +1,204 @@
+syntax = "proto3";
+
+package _common;
+
+enum RestrictionVisibility {
+    NOT_VISIBLE = 0;
+    PARTIALLY_VISIBLE = 1; // changed: 24.169.0808
+    FULLY_VISIBLE = 2; // changed: 24.169.0808
+}
+
+enum Service {
+    PASSENGER = 0;
+    CARGO = 1;
+    MILITARY_AND_GOVERNMENT = 2;
+    BUSINESS_JETS = 3;
+    GENERAL_AVIATION = 4;
+    HELICOPTERS = 5;
+    LIGHTER_THAN_AIR = 6;
+    GLIDERS = 7;
+    DRONES = 8;
+    GROUND_VEHICLES = 9;
+    OTHER_SERVICE = 10;
+    NON_CATEGORIZED = 11;
+}
+
+enum TrafficType {
+    NONE = 0;
+    GROUND_ONLY = 1;
+    AIRBORNE_ONLY = 2;
+    ALL = 3;
+}
+
+enum DataSource {
+    ADSB = 0;
+    MLAT = 1;
+    FLARM = 2;
+    FAA = 3;
+    ESTIMATED = 4;
+    SATELLITE = 5;
+    OTHER_DATA_SOURCE = 6;
+    UAT = 7;
+    SPIDERTRACKS = 8;
+    AUS = 9;
+}
+
+enum Icon {
+    B738 = 0;
+    FGTR = 1;
+    ASW20 = 2;
+    C206 = 3;
+    C303 = 4;
+    LJ60 = 5;
+    Q300 = 6;
+    B736 = 7;
+    FOKKER100 = 8;
+    RJ85 = 9;
+    A320 = 10;
+    B757 = 11;
+    B767 = 12;
+    A3ST = 13;
+    MD11 = 14;
+    A330 = 15;
+    A343 = 16;
+    A346 = 17;
+    B777 = 18;
+    B747 = 19;
+    A380 = 20;
+    A225 = 21;
+    SI2 = 22;
+    EC = 23;
+    BALL = 24;
+    GRND = 25;
+    SLEI = 26;
+    DRON = 27;
+    SAT = 28;
+    ISS = 29;
+}
+
+enum Status {
+    NORMAL = 0;
+    BACKGROUND = 1;
+    EMERGENCY = 2;
+    NOT_AVAILABLE = 3;
+    LIVE = 4;
+}
+
+// a =? altitude
+message EMSInfo {
+    int32 qnh = 1; // often null
+    int32 amcp = 2; // likely barometric altitude
+    int32 afms = 3; // often null
+    int32 oat = 4;
+    int32 ias = 5;
+    int32 tas = 6;
+    int32 mach = 7; // NOTE: 1000 = mach 1
+    int32 agps = 8;
+    int32 agpsdiff = 9; // |amcp - agps|
+    int32 apflags = 10; // often null
+    int32 wind_dir = 11;
+    int32 wind_speed = 12;
+    int32 rs = 13; // unknown
+}
+
+message EMSAvailability {
+    bool qnh_availability = 1;
+    bool amcp_availability = 2;
+    bool afms_availability = 3;
+    bool oat_availability = 4;
+    bool ias_availability = 5;
+    bool tas_availability = 6;
+    bool mach_availability = 7;
+    bool agps_availability = 8;
+    bool agpsdiff_availability = 9;
+    bool apflags_availability = 10;
+    bool wind_dir_availability = 11;
+    bool wind_speed_availability = 12;
+    bool rs_availability = 13;
+}
+
+message Schedule {
+    int32 std = 1;
+    int32 etd = 2;
+    int32 atd = 3;
+    int32 sta = 4;
+    int32 eta = 5; //!
+    int32 ata = 6;
+}
+
+message Route {
+    string from = 1;
+    string to = 2;
+    string diverted_to = 3;
+}
+
+message ExtraFlightInfo {
+    string flight = 1; // iata flight number
+    string reg = 2;
+    Route route = 3;
+    string type = 4;
+    int32 squawk = 5; // NOTE: 20852 -> 0x5174
+    int32 vspeed = 6;
+    string age = 7; // aircraft age, in years
+    int32 country_of_reg = 8;
+    Schedule schedule = 9;
+    int32 logo_id = 10; // u32
+    int32 airspace = 11; // FIR
+    EMSInfo ems_info = 12;
+    EMSAvailability ems_availability = 13;
+    uint32 icao_address = 14;
+    // following activated only when flight is selected
+    uint32 operated_by_id = 15;
+    bool squawk_availability = 16;
+    bool vspeed_availability = 17;
+    bool airspace_availability = 18;
+    string airspace_id = 19;
+}
+
+message SourceStats {
+    DataSource source = 1;
+    uint32 count = 2;
+}
+
+message Stats {
+    repeated SourceStats sources = 1;
+}
+
+message Flight {
+    int32 flightid = 1; // to hex
+    float lat = 2;
+    float lon = 3;
+    int32 track = 4;
+    int32 alt = 5;
+    int32 speed = 6; // ground speed
+    Icon icon = 7;
+    Status status = 8;
+    int32 timestamp = 9;
+    bool on_ground = 10;
+    string callsign = 11;
+    DataSource source = 12;
+    ExtraFlightInfo extra_info = 13;
+}
+
+// possibly used by FollowFlight and LiveFlightStatus
+enum EmergencyStatus {
+    NO_EMERGENCY = 0;
+    GENERAL_EMERGENCY = 1;
+    LIFEGUARD_MEDICAL_EMERGENCY = 2;
+    MINIMUM_FUEL = 3;
+    NO_COMMUNICATIONS = 4;
+    UNLAWFUL_INTERFERENCE = 5;
+    DOWNED_AIRCRAFT = 6;
+    RESERVED = 7;
+}
+
+/// the following messages are unused.
+
+message Duration {
+    uint32 count = 1;
+} // new: 24.169.0808
+
+message Tick {
+    uint32 count = 1;
+} // new: 24.169.0808
+

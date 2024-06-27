@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Union
+
 from typing_extensions import TypedDict
 
 
@@ -89,3 +93,8 @@ class Metadata(TypedDict):
 class Countries(TypedDict):
     metadata: Metadata
     data: list[Country]
+
+
+##
+
+StaticData = Union[AircraftFamily, Airlines, Airports, Countries]

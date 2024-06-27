@@ -1,6 +1,6 @@
 import pytest
 from fr24.core import FR24
-from fr24.types.fr24 import Playback
+from fr24.types.playback import Playback
 from pydantic import TypeAdapter
 
 FLIGHT_ID = 0x2D81A27

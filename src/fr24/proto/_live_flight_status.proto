@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message LiveFlightStatusData {
+    float lat = 1;
+    float lon = 2;
+    // Status|EmergencyStatus? status = 3;
+    uint32 squawk = 4;
+}
+
+message LiveFlightsStatusRequest { // (sic)
+    repeated fixed32 flight_ids_list = 1;
+}
+
+message LiveFlightsStatusResponse { // (sic)
+    LiveFlightStatusData flights_map = 1;
+}

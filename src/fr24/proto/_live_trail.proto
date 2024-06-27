@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "fr24/proto/_common.proto";
+
+message RadarHistoryRecord {
+    uint64 timestamp = 1;
+    float lat = 2;
+    float lon = 3;
+    int32 altitude = 4;
+    uint32 spd = 5;
+    uint32 heading = 6; // official naming says heading, but data is likely track
+    int32 vspd = 7;
+    uint32 squawk = 8;
+    _common.DataSource source = 9; // ?
+    string callsign = 10;
+} // new: 24.169.0808
+
+message LiveTrailRequest {
+    fixed32 flight_id = 1;
+} // new: 24.169.0808
+
+message LiveTrailResponse {
+    repeated RadarHistoryRecord radar_records_list = 1; // ?
+} // new: 24.169.0808

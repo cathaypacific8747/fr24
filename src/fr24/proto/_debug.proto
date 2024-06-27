@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Ping {
+    uint32 a = 1;
+    uint32 b = 2;
+}
+
+message Pong {
+    uint32 c = 1;
+}

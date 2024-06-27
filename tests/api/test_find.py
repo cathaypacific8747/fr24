@@ -41,7 +41,7 @@ async def test_find_airport() -> None:
 
 
 @pytest.mark.asyncio
-async def test_find_aircraft():
+async def test_find_aircraft() -> None:
     async with httpx.AsyncClient() as client:
         list_ = await find(client, "b-hp")
         assert list_ is not None
@@ -57,7 +57,7 @@ async def test_find_aircraft():
 
 
 @pytest.mark.asyncio
-async def test_find_operator():
+async def test_find_operator() -> None:
     async with httpx.AsyncClient() as client:
         list_ = await find(client, "cat")
         assert list_ is not None

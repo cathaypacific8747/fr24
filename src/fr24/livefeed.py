@@ -6,11 +6,11 @@ import struct
 from typing import Any
 
 import httpx
+from google.protobuf.field_mask_pb2 import FieldMask
 from loguru import logger
 
-from .bbox import lng_bounds
 from .common import DEFAULT_HEADERS_GRPC
-from .proto.request_pb2 import (
+from .proto.v1_pb2 import (
     Flight,
     LiveFeedRequest,
     LiveFeedResponse,
@@ -21,8 +21,10 @@ from .proto.request_pb2 import (
     TrafficType,
     VisibilitySettings,
 )
+from .static.bbox import lng_bounds
+from .types.authentication import Authentication
 from .types.cache import LiveFeedRecord
-from .types.fr24 import Authentication, LivefeedField
+from .types.fr24 import LivefeedField
 
 # N, S, W, E
 world_zones = [
@@ -72,7 +74,7 @@ def livefeed_message_create(
             traffic_type=TrafficType.ALL,
             only_restricted=False,
         ),
-        field_mask=LiveFeedRequest.FieldMask(field_name=fields),
+        field_mask=FieldMask(paths=fields),
         highlight_mode=False,
         stats=stats,
         limit=limit,
@@ -187,7 +189,7 @@ def livefeed_flightdata_dict(
         "callsign": lfr.callsign,
         "source": lfr.source,
         "registration": lfr.extra_info.reg,
-        "origin": lfr.extra_info.route.from_,
+        "origin": getattr(lfr.extra_info.route, "from"),
         "destination": lfr.extra_info.route.to,
         "typecode": lfr.extra_info.type,
         "eta": lfr.extra_info.schedule.eta,

@@ -14,7 +14,7 @@ from typing_extensions import Self
 import pandas as pd
 
 from .authentication import login
-from .types.fr24 import (
+from .types.authentication import (
     Authentication,
     TokenSubscriptionKey,
     UsernamePassword,
@@ -71,7 +71,7 @@ class ArrowTable(Generic[Ctx]):
         self.data = table
 
     @classmethod
-    def new(cls, ctx: Ctx, sch_expected: pa.Schema | None = None):
+    def new(cls, ctx: Ctx, sch_expected: pa.Schema | None = None) -> Self:
         return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
 
     @classmethod

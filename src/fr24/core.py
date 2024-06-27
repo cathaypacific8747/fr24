@@ -25,6 +25,7 @@ from .history import (
     playback_arrow,
 )
 from .livefeed import livefeed_playback_world_data, livefeed_world_data
+from .types.authentication import TokenSubscriptionKey, UsernamePassword
 from .types.cache import (
     LiveFeedRecord,
     flight_list_schema,
@@ -36,14 +37,9 @@ from .types.core import (
     LiveFeedContext,
     PlaybackContext,
 )
-from .types.fr24 import (
-    FlightData,
-    FlightList,
-    LivefeedField,
-    Playback,
-    TokenSubscriptionKey,
-    UsernamePassword,
-)
+from .types.flight_list import FlightList
+from .types.fr24 import LivefeedField
+from .types.playback import Playback, PlaybackFlightData
 
 
 class FR24:
@@ -414,7 +410,7 @@ class PlaybackArrow(ArrowTable[PlaybackContext]):
         return self
 
     @property
-    def metadata(self) -> FlightData | None:
+    def metadata(self) -> PlaybackFlightData | None:
         """Parse the flight metadata from the arrow table."""
         if m := self.data.schema.metadata.get(b"_flight"):
             return json.loads(m)  # type: ignore[no-any-return]

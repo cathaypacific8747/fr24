@@ -1,4 +1,6 @@
-from typing import Literal
+from __future__ import annotations
+
+from typing import Literal, Union
 
 from typing_extensions import NewType, NotRequired, TypedDict
 
@@ -48,7 +50,6 @@ class Aircraft(TypedDict):
 
 
 class EntryBase(TypedDict):
-    id: str
     label: str
     name: NotRequired[str]
 
@@ -65,31 +66,37 @@ class AirportEntry(EntryBase):
 
 
 class OperatorEntry(EntryBase):
+    id: str
     detail: Operator
     type: Literal["operator"]
     match: Literal["begins", "icao"]
 
 
 class LiveEntry(EntryBase):
+    id: str
     detail: Live
     type: Literal["live"]
     match: Literal["route", "begins"]
 
 
 class ScheduleEntry(EntryBase):
+    id: str
     detail: Schedule
     type: Literal["schedule"]
     match: Literal["route", "begins"]
 
 
 class AircraftEntry(EntryBase):
+    id: str
     detail: Aircraft
     type: Literal["aircraft"]
     match: Literal["begins"]
 
 
-Entry = AirportEntry | OperatorEntry | LiveEntry | ScheduleEntry | AircraftEntry
-# NOTE: in tests, we use Annotated[Result, pydantic.Discriminator("type")]
+Entry = Union[
+    AirportEntry, OperatorEntry, LiveEntry, ScheduleEntry, AircraftEntry
+]
+# NOTE: in tests, we use Annotated[Entry, pydantic.Discriminator("type")]
 # not adding here because pydantic belongs to test dependencies
 
 

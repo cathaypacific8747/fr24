@@ -10,6 +10,7 @@ from fr24.types.static import (
     Airlines,
     Airports,
     Countries,
+    StaticData,
 )
 from pydantic import TypeAdapter
 
@@ -23,6 +24,6 @@ from pydantic import TypeAdapter
         (get_countries(), Countries),
     ],
 )
-def test_static_types(data, typed_dict):
+def test_static_types(data: StaticData, typed_dict: StaticData) -> None:
     ta = TypeAdapter(typed_dict)
     ta.validate_python(data)

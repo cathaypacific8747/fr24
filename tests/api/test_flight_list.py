@@ -8,7 +8,7 @@ import pyarrow.parquet as pq
 import pytest
 from fr24.core import FR24, FlightListArrow
 from fr24.history import flight_list, flight_list_df, playback
-from fr24.types.fr24 import FlightList
+from fr24.types.flight_list import FlightList
 from pydantic import TypeAdapter
 
 
@@ -32,7 +32,8 @@ async def test_ll_flight_list() -> None:
                 )
                 # the entry below is not None because of `if df is None:`
                 for entry in list_["result"]["response"]["data"]  # type: ignore
-                if entry["status"]["text"].startswith("Landed")
+                if (status := entry["status"]["text"]) is not None
+                and status.startswith("Landed")
             ]
         )
         assert len(result) == landed.shape[0]

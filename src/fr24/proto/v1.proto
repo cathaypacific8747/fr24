@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package v1;
+
+option optimize_for = SPEED;
+
+import public "fr24/proto/_common.proto";
+import public "fr24/proto/_live_feed.proto";
+// the following are not used in the python client
+import public "fr24/proto/_debug.proto";
+import public "fr24/proto/_search_index.proto";
+import public "fr24/proto/_follow_flight.proto";
+import public "fr24/proto/_live_flight_status.proto";
+import public "fr24/proto/_live_trail.proto";
+import public "fr24/proto/_nearest_flights.proto";
+import public "fr24/proto/_top_flights.proto";
