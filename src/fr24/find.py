@@ -1,38 +1,36 @@
 from __future__ import annotations
 
-from typing import Any
-
 import httpx
 from typing_extensions import TypeGuard
 
 from .types.find import (
-    Aircraft,
-    Airport,
+    AircraftEntry,
+    AirportEntry,
     Entry,
     FindResult,
-    Live,
-    Operator,
-    Schedule,
+    LiveEntry,
+    OperatorEntry,
+    ScheduleEntry,
 )
 
 
-def is_airport(entry: Entry[Any]) -> TypeGuard[Entry[Airport]]:
+def is_airport(entry: Entry) -> TypeGuard[AirportEntry]:
     return entry["type"] == "airport"
 
 
-def is_operator(entry: Entry[Any]) -> TypeGuard[Entry[Operator]]:
+def is_operator(entry: Entry) -> TypeGuard[OperatorEntry]:
     return entry["type"] == "operator"
 
 
-def is_live(entry: Entry[Any]) -> TypeGuard[Entry[Live]]:
+def is_live(entry: Entry) -> TypeGuard[LiveEntry]:
     return entry["type"] == "live"
 
 
-def is_schedule(entry: Entry[Any]) -> TypeGuard[Entry[Schedule]]:
+def is_schedule(entry: Entry) -> TypeGuard[ScheduleEntry]:
     return entry["type"] == "schedule"
 
 
-def is_aircraft(entry: Entry[Any]) -> TypeGuard[Entry[Aircraft]]:
+def is_aircraft(entry: Entry) -> TypeGuard[AircraftEntry]:
     return entry["type"] == "aircraft"
 
 

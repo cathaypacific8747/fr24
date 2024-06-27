@@ -1,5 +1,7 @@
 import pytest
 from fr24.core import FR24
+from fr24.types.fr24 import Playback
+from pydantic import TypeAdapter
 
 FLIGHT_ID = 0x2D81A27
 
@@ -17,6 +19,9 @@ async def test_playback_simple() -> None:
         df = datac.df
         assert df.shape[0] == datac.data.num_rows
         assert df.shape[1] == datac.data.num_columns
+
+        ta = TypeAdapter(Playback)
+        ta.validate_python(response.data)
 
 
 @pytest.mark.asyncio

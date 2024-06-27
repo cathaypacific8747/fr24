@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Literal, Optional, TypedDict
+from typing import Literal, Optional
 
-from typing_extensions import Required
+from typing_extensions import NotRequired, Required, TypedDict
 
 
 class User(TypedDict, total=False):
@@ -72,13 +72,12 @@ class PlaybackRequest(TypedDict, total=False):
     flightId: Required[str]
     format: Literal["json"]
     pk: None
-    timestamp: int
+    timestamp: int | None
     token: None | str
 
 
 class FlightNumber(TypedDict):
-    default: str
-    alternative: None
+    default: str | None
 
 
 class FlightIdentification(TypedDict):
@@ -87,17 +86,11 @@ class FlightIdentification(TypedDict):
     callsign: str
 
 
-class EventTime:
-    utc: int
-    local: int
-
-
 class GenericStatus(TypedDict):
-    text: str
+    text: str | None
     type: str
-    color: str
+    color: str | None
     diverted: None
-    eventTime: EventTime
 
 
 class GenericEventTime(TypedDict):
@@ -111,9 +104,9 @@ class StatusGeneric(TypedDict):
 
 
 class StatusData(TypedDict):
-    live: bool
-    text: str
-    icon: str
+    live: bool | None
+    text: str | None
+    icon: str | None
     estimated: None
     ambiguous: bool
     generic: StatusGeneric
@@ -126,7 +119,7 @@ class AircraftModel(TypedDict):
 
 class AircraftAge(TypedDict):
     availability: bool
-    date: str
+    date: NotRequired[str]  # if unauthenticated
 
 
 class AircraftAvailability(TypedDict):
@@ -138,8 +131,8 @@ class AircraftIdentification(TypedDict):
     modes: str
     registration: str
     serialNo: None | str
-    age: None | AircraftAge
-    availability: AircraftAvailability
+    age: NotRequired[AircraftAge]  # if unauthenticated
+    availability: NotRequired[AircraftAvailability]  # if unauthenticated
 
 
 class AircraftData(TypedDict):
@@ -149,7 +142,7 @@ class AircraftData(TypedDict):
 
 
 class IATA_ICAO(TypedDict):
-    iata: str
+    iata: str | None
     icao: str
 
 
@@ -190,7 +183,7 @@ class Timezone(TypedDict):
     name: str
     offset: int
     abbr: str
-    abbrName: str
+    abbrName: str | None
     isDst: bool
 
 
@@ -199,7 +192,6 @@ class Airport(TypedDict):
     code: AirportCode
     position: AirportPosition
     timezone: Timezone
-    real: None
 
 
 # O/D can be null when status is "unknown"
@@ -227,8 +219,8 @@ class Speed(TypedDict):
 
 
 class VerticalSpeed(TypedDict):
-    fpm: int
-    ms: int
+    fpm: int | None
+    ms: int | None
 
 
 class EMS(TypedDict):
@@ -321,7 +313,7 @@ class FlightListRequest(TypedDict, total=False):
     callback: None
     device: None | str
     fetchBy: Required[str]
-    filterBy: str
+    filterBy: str | None
     format: Literal["json"]
     limit: Required[int]
     olderThenFlightID: None
@@ -355,10 +347,10 @@ class Identification(TypedDict):
 
 
 class FlightListCountry(TypedDict):
-    id: None
-    name: None
-    alpha2: None
-    alpha3: None
+    id: int | None
+    name: str | None
+    alpha2: str | None
+    alpha3: str | None
 
 
 class FlightListAircraftData(TypedDict):
@@ -368,11 +360,8 @@ class FlightListAircraftData(TypedDict):
     hex: None | str
     restricted: bool
     serialNo: None | str
-    age: None | str
+    age: AircraftAge
     availability: AircraftAvailability
-    onGroundUpdate: None | int
-    hoursDiff: None | float
-    timeDiff: None | int
 
 
 class Interval(TypedDict):

@@ -3,7 +3,7 @@ import time
 import pytest
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(autouse=True, scope="function")
 def slow_down():
     yield
-    time.sleep(3)  # avoid overloading the server
+    time.sleep(2.5)  # avoid overloading the server

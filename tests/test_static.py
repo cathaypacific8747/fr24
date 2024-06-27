@@ -11,7 +11,7 @@ from fr24.types.static import (
     Airports,
     Countries,
 )
-from pydantic import TypeAdapter, ValidationError
+from pydantic import TypeAdapter
 
 
 @pytest.mark.parametrize(
@@ -25,7 +25,4 @@ from pydantic import TypeAdapter, ValidationError
 )
 def test_static_types(data, typed_dict):
     ta = TypeAdapter(typed_dict)
-    try:
-        ta.validate_python(data)
-    except ValidationError as e:
-        pytest.fail(f"Validation failed: {e}")
+    ta.validate_python(data)

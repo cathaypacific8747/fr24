@@ -8,10 +8,12 @@ import pyarrow.parquet as pq
 import pytest
 from fr24.core import FR24, FlightListArrow
 from fr24.history import flight_list, flight_list_df, playback
+from fr24.types.fr24 import FlightList
+from pydantic import TypeAdapter
 
 
 @pytest.mark.asyncio
-async def test_aircraft() -> None:
+async def test_ll_flight_list() -> None:
     async with httpx.AsyncClient() as client:
         list_ = await flight_list(client, reg="F-HNAV")
         df = flight_list_df(list_)
@@ -34,6 +36,10 @@ async def test_aircraft() -> None:
             ]
         )
         assert len(result) == landed.shape[0]
+
+        ta = TypeAdapter(FlightList)
+        ta.validate_python(list_)
+
 
 # core
 
