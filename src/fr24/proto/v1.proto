@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package v1;
+package fr24.feed.api.v1;
 
 option optimize_for = SPEED;
 
 import public "fr24/proto/_common.proto";
 import public "fr24/proto/_live_feed.proto";
 // the following are not yet implemented in the python client
-import public "fr24/proto/_debug.proto";
+import public "fr24/proto/_health.proto";
 import public "fr24/proto/_nearest_flights.proto";
 import public "fr24/proto/_live_flight_status.proto";
 import public "fr24/proto/_fetch_search_index.proto";

@@ -67,7 +67,7 @@ class FR24(App[None]):
 
     def compose(self) -> ComposeResult:
         self.auth: Authentication | None = None
-        self.client = httpx.AsyncClient(http2=True)
+        self.client = httpx.AsyncClient(http1=False, http2=True)
         self.search_visible = True
         yield Header()
         yield Footer()

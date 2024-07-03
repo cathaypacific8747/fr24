@@ -24,14 +24,34 @@ protoc --proto_path=src --python_out=src --pyi_out=src src/fr24/proto/*.proto
 protoc --proto_path=src --grpclib_python_out=src src/fr24/proto/v1.proto
 ```
 
-On VSCode, [`settings.json`](../../../.vscode/settings.json) has `formatOnSave` is true. To compile everything at once, open command palette then `proto3: Compile all Protos`.
-
 ## Usage
 
-Once compiled, everything should be in the [`v1` namespace](./v1_pb2.pyi).
+Once compiled, all protobuf constructors can be accessed via [`fr24.proto.v1`](./v1_pb2.pyi).
+
+gRPC calls involve [length-prefixed messages](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md). Right now, we make POST requests manually:
 
 ```py
-from fr24.proto.v1_pb2 import LiveFeedRequest
+from fr24.proto.v1_pb2 import SomeMessage
 
-...
+message = SomeMessage(...).SerializeToString()
+request = httpx.Request(
+    "POST",
+    "https://data-feed.flightradar24.com/{service_name}/{method_name}",
+    content=(
+        b"\x00" + # u8, no compression
+        struct.pack("!I", len(message)) + # u64, length of message, big endian
+        message # binary octet
+    )
+)
 ```
+
+For the response, we do:
+```py
+response = await client.send(request)
+data = response.content
+assert len(data) and data[0] == 0 # no compression
+data_len = int.from_bytes(data[1:5], byteorder="big") # length of message
+return data[5 : 5 + data_len]
+```
+
+Future releases will move to [grpclib](https://github.com/vmagamedov/grpclib) for proper handling of `grpc-status` and streaming responses.

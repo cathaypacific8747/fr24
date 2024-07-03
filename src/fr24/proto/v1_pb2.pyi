@@ -1,6 +1,6 @@
 from fr24.proto import _common_pb2 as __common_pb2
 from fr24.proto import _live_feed_pb2 as __live_feed_pb2
-from fr24.proto import _debug_pb2 as __debug_pb2
+from fr24.proto import _health_pb2 as __health_pb2
 from fr24.proto import _nearest_flights_pb2 as __nearest_flights_pb2
 from fr24.proto import _live_flight_status_pb2 as __live_flight_status_pb2
 from fr24.proto import _fetch_search_index_pb2 as __fetch_search_index_pb2
@@ -38,8 +38,8 @@ from fr24.proto._live_feed_pb2 import PlaybackRequest as PlaybackRequest
 from fr24.proto._live_feed_pb2 import PlaybackResponse as PlaybackResponse
 from fr24.proto._live_feed_pb2 import AirportFilterType as AirportFilterType
 from fr24.proto._live_feed_pb2 import AirlineFilterType as AirlineFilterType
-from fr24.proto._debug_pb2 import Ping as Ping
-from fr24.proto._debug_pb2 import Pong as Pong
+from fr24.proto._health_pb2 import Ping as Ping
+from fr24.proto._health_pb2 import Pong as Pong
 from fr24.proto._nearest_flights_pb2 import Geolocation as Geolocation
 from fr24.proto._nearest_flights_pb2 import NearestFlightsRequest as NearestFlightsRequest
 from fr24.proto._nearest_flights_pb2 import NearbyFlight as NearbyFlight
