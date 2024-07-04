@@ -117,7 +117,7 @@ class PlaybackTrackEMSRecord(TypedDict):
 
 
 # NOTE: not using pa.timestamp() to save space
-livefeed_schema = pa.schema(
+live_feed_schema = pa.schema(
     [
         pa.field("timestamp", pa.uint32()),
         pa.field("flightid", pa.uint32()),

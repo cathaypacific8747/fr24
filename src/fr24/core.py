@@ -24,12 +24,12 @@ from .history import (
     playback,
     playback_arrow,
 )
-from .livefeed import livefeed_playback_world_data, livefeed_world_data
+from .live_feed import live_feed_playback_world_data, live_feed_world_data
 from .types.authentication import TokenSubscriptionKey, UsernamePassword
 from .types.cache import (
     LiveFeedRecord,
     flight_list_schema,
-    livefeed_schema,
+    live_feed_schema,
     playback_track_schema,
 )
 from .types.core import (
@@ -38,7 +38,7 @@ from .types.core import (
     PlaybackContext,
 )
 from .types.flight_list import FlightList
-from .types.fr24 import LivefeedField
+from .types.fr24 import LiveFeedField
 from .types.playback import FlightData, Playback
 
 
@@ -54,7 +54,7 @@ class FR24:
 
         :param client: The `httpx` client to use. If not provided, a
             new one will be created with HTTP/2 enabled by default. It is
-            recommended to use `http2=True` to avoid
+            highly recommended to use `http2=True` to avoid
             [464 errors](https://github.com/cathaypacific8747/fr24/issues/23#issuecomment-2125624974)
             and to be consistent with the browser.
         :param base_dir:
@@ -66,7 +66,7 @@ class FR24:
         self._base_dir = Path(base_dir)
         self.flight_list = FlightListService(self.http, self._base_dir)
         self.playback = PlaybackService(self.http, self._base_dir)
-        self.livefeed = LiveFeedService(self.http, self._base_dir)
+        self.live_feed = LiveFeedService(self.http, self._base_dir)
 
     async def login(
         self,
@@ -481,16 +481,20 @@ class LiveFeedAPI:
                     if k in ("duration", "hfreq") and v is not None
                 }
             )
-            return await livefeed_playback_world_data(
+            return await live_feed_playback_world_data(
                 self.http.client,
                 ts,
                 **kw,  # type: ignore[arg-type]
                 auth=self.http.auth,
             )
-        resp = await livefeed_world_data(self.http.client, self.http.auth, **kw)  # type: ignore[arg-type]
+        resp = await live_feed_world_data(
+            self.http.client,
+            self.http.auth,
+            **kw,  # type: ignore[arg-type]
+        )
         ctx["timestamp"] = int(time.time())
         # TODO: use server time instead, but it doesn't really matter because
-        # livefeed messages have timestamps attached to them anyway
+        # live feed messages have timestamps attached to them anyway
         return resp
 
 
@@ -506,7 +510,7 @@ class LiveFeedAPIResp(APIResponse[LiveFeedContext, list[LiveFeedRecord]]):
             logger.warning("no data in response, table will be empty")
         table = pa.Table.from_pylist(
             self.data,
-            schema=livefeed_schema,
+            schema=live_feed_schema,
         )
         return LiveFeedArrow(self.ctx, table)
 
@@ -517,7 +521,7 @@ class LiveFeedArrow(ArrowTable[LiveFeedContext]):
     @classmethod
     def from_cache(cls, ctx: LiveFeedContext) -> LiveFeedArrow:
         fp = LiveFeedArrow._fp(ctx)
-        return super(LiveFeedArrow, cls).from_file(ctx, fp, livefeed_schema)
+        return super(LiveFeedArrow, cls).from_file(ctx, fp, live_feed_schema)
 
     @classmethod
     def _fp(cls, ctx: LiveFeedContext) -> Path:
@@ -573,7 +577,7 @@ class LiveFeedService(ServiceBase):
         duration: int | None = None,
         hfreq: int | None = None,
         limit: int = 1500,
-        fields: list[LivefeedField] = [
+        fields: list[LiveFeedField] = [
             "flight",
             "reg",
             "route",
@@ -583,7 +587,7 @@ class LiveFeedService(ServiceBase):
         """
         Fetch live feed data.
 
-        *Related: [fr24.livefeed.livefeed_world_data][]*
+        *Related: [fr24.live_feed.live_feed_world_data][]*
 
         :param timestamp: Unix timestamp (seconds) of the live feed data.
             If `None`, the latest live data will be fetched. Otherwise,
@@ -621,7 +625,7 @@ class LiveFeedService(ServiceBase):
         duration: int | None,
         hfreq: int | None,
         limit: int | None,
-        fields: list[LivefeedField] | None,
+        fields: list[LiveFeedField] | None,
     ) -> LiveFeedContext:
         ts = to_unix_timestamp(timestamp)
         if ts is None and (hfreq is not None or duration is not None):

@@ -24,13 +24,12 @@ appdirs = "^1.4.4"
 textual = ">=0.58,<0.72"
 loguru = "^0.7.2"
 typer = "^0.12.3"
-grpclib = "^0.4.7"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.26.0"
 pytest = "^8.2.0"
 pytest-asyncio = "^0.23.7"
-ruff = ">=0.4.10,<0.6.0"
+ruff = ">=0.5.0,<0.6.0"
 mypy = "^1.10.1"
 textual-dev = "^1.5.1"
 types-protobuf = "^5.26.0.20240422"
@@ -38,7 +37,7 @@ types-protobuf = "^5.26.0.20240422"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.0"
 pytest-asyncio = "^0.23.7"
-pydantic = "^2.7.4"
+pydantic = "^2.8.0"
 eval-type-backport = "^0.2.0" # for pydantic, <3.10 syntax
 
 [tool.poetry.group.docs.dependencies]

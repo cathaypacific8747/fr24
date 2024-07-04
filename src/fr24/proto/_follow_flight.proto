@@ -83,6 +83,13 @@ enum FlightStage {
     ON_APPROACH = 4;
 } // new: 24.169.0808
 
+enum DelayStatus {
+    GRAY = 0;
+    GREEN = 1;
+    YELLOW = 2;
+    RED = 3;
+}
+
 message FlightProgress {
     uint32 traversed_distance = 1;
     uint32 remaining_distance = 2;
@@ -92,6 +99,7 @@ message FlightProgress {
     uint32 great_circle_distance = 6;
     uint32 mean_flight_time = 7;
     FlightStage flight_stage = 8; // ?
+    DelayStatus delay_status = 9; // updated: 24.184.2001
 } // new: 24.169.0808, updated: 24.171.1153
 
 message FollowFlightRequest {
@@ -106,7 +114,7 @@ message ExtendedFlightInfo {
     int32 track = 4;
     int32 alt = 5;
     int32 speed = 6;
-    // Status|EmergencyStatus? status = 7;
+    _common.Status status = 7; // ?
     uint64 timestamp = 8;
     bool on_ground = 9;
     string callsign = 10;

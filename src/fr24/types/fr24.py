@@ -4,6 +4,6 @@ LiveFeedFieldAuthenticated = Literal[
     "squawk", "vspeed", "airspace", "logo_id", "age"
 ]
 
-LivefeedField = Literal[
+LiveFeedField = Literal[
     "flight", "reg", "route", "type", LiveFeedFieldAuthenticated
 ]

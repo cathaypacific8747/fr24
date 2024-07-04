@@ -41,7 +41,7 @@ jobs:
 
       - name: Type checking
         run: |
-          poetry run mypy src tests
+          poetry run mypy src tests docs/usage/scripts
 
       - name: Run tests
         run: poetry run pytest

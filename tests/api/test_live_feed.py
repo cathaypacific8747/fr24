@@ -3,25 +3,22 @@ import time
 import httpx
 import pytest
 from fr24.core import FR24
-from fr24.livefeed import (
-    livefeed_message_create,
-    livefeed_playback_world_data,
-    livefeed_post,
-    livefeed_request_create,
-    livefeed_response_parse,
-    livefeed_world_data,
+from fr24.live_feed import (
+    live_feed_message_create,
+    live_feed_playback_world_data,
+    live_feed_post,
+    live_feed_request_create,
+    live_feed_world_data,
 )
 from google.protobuf.json_format import MessageToDict
 
 
 @pytest.mark.asyncio
-async def test_ll_simple() -> None:
-    message = livefeed_message_create(north=50, west=-7, south=40, east=10)
-    request = livefeed_request_create(message)
+async def test_ll_live_feed_simple() -> None:
+    message = live_feed_message_create(north=50, west=-7, south=40, east=10)
+    request = live_feed_request_create(message)
     async with httpx.AsyncClient() as client:
-        data = await livefeed_post(client, request)
-        result = livefeed_response_parse(data)
-        assert result is not None
+        result = await live_feed_post(client, request)
 
         json_output = MessageToDict(
             result,
@@ -32,16 +29,16 @@ async def test_ll_simple() -> None:
 
 
 @pytest.mark.asyncio
-async def test_ll_livefeed_world() -> None:
+async def test_ll_live_feed_world() -> None:
     async with httpx.AsyncClient() as client:
-        data = await livefeed_world_data(client)
+        data = await live_feed_world_data(client)
         assert len(data) > 100
 
 
 @pytest.mark.asyncio
-async def test_ll_livefeed_playback_world() -> None:
+async def test_ll_live_feed_playback_world() -> None:
     async with httpx.AsyncClient() as client:
-        data = await livefeed_playback_world_data(
+        data = await live_feed_playback_world_data(
             client, int(time.time() - 86400)
         )
         assert len(data) > 100
@@ -51,9 +48,9 @@ async def test_ll_livefeed_playback_world() -> None:
 
 
 @pytest.mark.asyncio
-async def test_livefeed_live_world() -> None:
+async def test_live_feed_live_world() -> None:
     async with FR24() as fr24:
-        response = await fr24.livefeed.fetch()
+        response = await fr24.live_feed.fetch()
         assert len(response.data) > 100
 
         datac = response.to_arrow()
@@ -61,21 +58,21 @@ async def test_livefeed_live_world() -> None:
 
 
 @pytest.mark.asyncio
-async def test_livefeed_playback_world() -> None:
+async def test_live_feed_playback_world() -> None:
     async with FR24() as fr24:
         yesterday = int(time.time() - 86400)
-        response = await fr24.livefeed.fetch(yesterday)
+        response = await fr24.live_feed.fetch(yesterday)
         assert len(response.data) > 100
 
 
 @pytest.mark.asyncio
-async def test_livefeed_file_ops() -> None:
+async def test_live_feed_file_ops() -> None:
     """ensure context persists after serialisation to parquet"""
     async with FR24() as fr24:
-        response = await fr24.livefeed.fetch()
+        response = await fr24.live_feed.fetch()
         datac = response.to_arrow()
         datac.save()
 
-        datac_local = fr24.livefeed.load(datac.ctx["timestamp"])
+        datac_local = fr24.live_feed.load(datac.ctx["timestamp"])
         assert datac_local.data.equals(datac.data)
         assert datac_local.data.schema.metadata == datac.data.schema.metadata

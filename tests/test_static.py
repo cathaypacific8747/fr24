@@ -25,5 +25,5 @@ from pydantic import TypeAdapter
     ],
 )
 def test_static_types(data: StaticData, typed_dict: StaticData) -> None:
-    ta = TypeAdapter(typed_dict)
+    ta = TypeAdapter(typed_dict)  # type: ignore[var-annotated]
     ta.validate_python(data)

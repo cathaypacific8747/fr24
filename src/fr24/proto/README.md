@@ -18,40 +18,22 @@ We aim to adhere to the official structure and naming as far as possible. Althou
 
 ## Compilation
 
+Make sure the [correct version](https://protobuf.dev/support/version-support/#python) of `protoc` is installed.
+
 cd into `./fr24` and run:
 ```command
 protoc --proto_path=src --python_out=src --pyi_out=src src/fr24/proto/*.proto
-protoc --proto_path=src --grpclib_python_out=src src/fr24/proto/v1.proto
 ```
 
 ## Usage
 
 Once compiled, all protobuf constructors can be accessed via [`fr24.proto.v1`](./v1_pb2.pyi).
 
-gRPC calls involve [length-prefixed messages](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md). Right now, we make POST requests manually:
+Since the gRPC protocol is remarkably simple, we construct and parse [length-prefixed messages](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md) [manually](./__init__.py).
 
-```py
-from fr24.proto.v1_pb2 import SomeMessage
+Requests are made with a common [`httpx.AsyncClient`](https://www.python-httpx.org/api/#asyncclient) shared by JSON and gRPC requests.
 
-message = SomeMessage(...).SerializeToString()
-request = httpx.Request(
-    "POST",
-    "https://data-feed.flightradar24.com/{service_name}/{method_name}",
-    content=(
-        b"\x00" + # u8, no compression
-        struct.pack("!I", len(message)) + # u64, length of message, big endian
-        message # binary octet
-    )
-)
-```
+## Todo
 
-For the response, we do:
-```py
-response = await client.send(request)
-data = response.content
-assert len(data) and data[0] == 0 # no compression
-data_len = int.from_bytes(data[1:5], byteorder="big") # length of message
-return data[5 : 5 + data_len]
-```
-
-Future releases will move to [grpclib](https://github.com/vmagamedov/grpclib) for proper handling of `grpc-status` and streaming responses.
+- [ ] handle streaming responses with multiple `DATA` frames
+- [ ] handle grpc-status in HEADERS(flags = `END_STREAM`, `END_HEADERS`)

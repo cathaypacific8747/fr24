@@ -1,12 +1,13 @@
 # ruff: noqa
 # fmt: off
+# mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script]
 from fr24.core import FR24
 
 async def my_feed() -> None:
     async with FR24() as fr24:
-        response = await fr24.livefeed.fetch()
+        response = await fr24.live_feed.fetch()
         print(response)
         datac = response.to_arrow()
         print(datac.df)
@@ -15,6 +16,7 @@ async def my_feed() -> None:
 await my_feed()
 # --8<-- [end:script]
 # %%
+"""
 # --8<-- [start:response]
 LiveFeedAPIResp(
     ctx={
@@ -48,6 +50,7 @@ LiveFeedAPIResp(
     ],
 )
 # --8<-- [end:response]
+"""
 #%%
 """
 # --8<-- [start:df]
@@ -74,7 +77,7 @@ import time
 
 async def my_feed() -> None:
     async with FR24() as fr24:
-        response = await fr24.livefeed.fetch(int(time.time() - 86400 * 3))  # (1)!
+        response = await fr24.live_feed.fetch(int(time.time() - 86400 * 3))  # (1)!
         datac = response.to_arrow()
         print(datac.df)
 

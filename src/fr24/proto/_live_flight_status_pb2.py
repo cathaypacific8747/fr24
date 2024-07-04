@@ -22,19 +22,20 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from fr24.proto import _common_pb2 as fr24_dot_proto_dot___common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$fr24/proto/_live_flight_status.proto\"@\n\x14LiveFlightStatusData\x12\x0b\n\x03lat\x18\x01 \x01(\x02\x12\x0b\n\x03lon\x18\x02 \x01(\x02\x12\x0e\n\x06squawk\x18\x04 \x01(\r\"3\n\x18LiveFlightsStatusRequest\x12\x17\n\x0f\x66light_ids_list\x18\x01 \x03(\x07\"G\n\x19LiveFlightsStatusResponse\x12*\n\x0b\x66lights_map\x18\x01 \x01(\x0b\x32\x15.LiveFlightStatusDatab\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$fr24/proto/_live_flight_status.proto\x1a\x18\x66r24/proto/_common.proto\"a\n\x14LiveFlightStatusData\x12\x0b\n\x03lat\x18\x01 \x01(\x02\x12\x0b\n\x03lon\x18\x02 \x01(\x02\x12\x1f\n\x06status\x18\x03 \x01(\x0e\x32\x0f._common.Status\x12\x0e\n\x06squawk\x18\x04 \x01(\r\"3\n\x18LiveFlightsStatusRequest\x12\x17\n\x0f\x66light_ids_list\x18\x01 \x03(\x07\"G\n\x19LiveFlightsStatusResponse\x12*\n\x0b\x66lights_map\x18\x01 \x01(\x0b\x32\x15.LiveFlightStatusDatab\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'fr24.proto._live_flight_status_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_LIVEFLIGHTSTATUSDATA']._serialized_start=40
-  _globals['_LIVEFLIGHTSTATUSDATA']._serialized_end=104
-  _globals['_LIVEFLIGHTSSTATUSREQUEST']._serialized_start=106
-  _globals['_LIVEFLIGHTSSTATUSREQUEST']._serialized_end=157
-  _globals['_LIVEFLIGHTSSTATUSRESPONSE']._serialized_start=159
-  _globals['_LIVEFLIGHTSSTATUSRESPONSE']._serialized_end=230
+  _globals['_LIVEFLIGHTSTATUSDATA']._serialized_start=66
+  _globals['_LIVEFLIGHTSTATUSDATA']._serialized_end=163
+  _globals['_LIVEFLIGHTSSTATUSREQUEST']._serialized_start=165
+  _globals['_LIVEFLIGHTSSTATUSREQUEST']._serialized_end=216
+  _globals['_LIVEFLIGHTSSTATUSRESPONSE']._serialized_start=218
+  _globals['_LIVEFLIGHTSSTATUSRESPONSE']._serialized_end=289
 # @@protoc_insertion_point(module_scope)

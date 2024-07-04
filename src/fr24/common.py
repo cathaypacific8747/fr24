@@ -21,17 +21,6 @@ DEFAULT_HEADERS = {
     "TE": "trailers",
 }
 
-DEFAULT_HEADERS_GRPC = {
-    **DEFAULT_HEADERS,
-    "Accept": "*/*",
-    "fr24-device-id": "web-00000000000000000000000000000000",
-    "x-envoy-retry-grpc-on": "unavailable",
-    "Content-Type": "application/grpc-web+proto",
-    "X-User-Agent": "grpc-web-javascript/0.1",
-    "X-Grpc-Web": "1",
-    "DNT": "1",
-}
-
 
 def to_unix_timestamp(
     timestamp: int | datetime | pd.Timestamp | str | None,

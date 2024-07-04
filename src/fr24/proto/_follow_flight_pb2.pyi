@@ -14,11 +14,22 @@ class FlightStage(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     TAKING_OFF: _ClassVar[FlightStage]
     AIRBORNE: _ClassVar[FlightStage]
     ON_APPROACH: _ClassVar[FlightStage]
+
+class DelayStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    GRAY: _ClassVar[DelayStatus]
+    GREEN: _ClassVar[DelayStatus]
+    YELLOW: _ClassVar[DelayStatus]
+    RED: _ClassVar[DelayStatus]
 UNKNOWN: FlightStage
 ON_GROUND: FlightStage
 TAKING_OFF: FlightStage
 AIRBORNE: FlightStage
 ON_APPROACH: FlightStage
+GRAY: DelayStatus
+GREEN: DelayStatus
+YELLOW: DelayStatus
+RED: DelayStatus
 
 class ImageInfo(_message.Message):
     __slots__ = ("url", "copyright", "thumbnail", "medium", "large")
@@ -151,7 +162,7 @@ class ScheduleInfo(_message.Message):
     def __init__(self, flight_number: _Optional[str] = ..., operated_by_id: _Optional[int] = ..., painted_as_id: _Optional[int] = ..., origin_id: _Optional[int] = ..., destination_id: _Optional[int] = ..., diverted_to_id: _Optional[int] = ..., scheduled_departure: _Optional[int] = ..., scheduled_arrival: _Optional[int] = ..., actual_departure: _Optional[int] = ..., actual_arrival: _Optional[int] = ..., arr_terminal: _Optional[str] = ..., arr_gate: _Optional[str] = ..., baggage_belt: _Optional[str] = ...) -> None: ...
 
 class FlightProgress(_message.Message):
-    __slots__ = ("traversed_distance", "remaining_distance", "elapsed_time", "remaining_time", "eta", "great_circle_distance", "mean_flight_time", "flight_stage")
+    __slots__ = ("traversed_distance", "remaining_distance", "elapsed_time", "remaining_time", "eta", "great_circle_distance", "mean_flight_time", "flight_stage", "delay_status")
     TRAVERSED_DISTANCE_FIELD_NUMBER: _ClassVar[int]
     REMAINING_DISTANCE_FIELD_NUMBER: _ClassVar[int]
     ELAPSED_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -160,6 +171,7 @@ class FlightProgress(_message.Message):
     GREAT_CIRCLE_DISTANCE_FIELD_NUMBER: _ClassVar[int]
     MEAN_FLIGHT_TIME_FIELD_NUMBER: _ClassVar[int]
     FLIGHT_STAGE_FIELD_NUMBER: _ClassVar[int]
+    DELAY_STATUS_FIELD_NUMBER: _ClassVar[int]
     traversed_distance: int
     remaining_distance: int
     elapsed_time: int
@@ -168,7 +180,8 @@ class FlightProgress(_message.Message):
     great_circle_distance: int
     mean_flight_time: int
     flight_stage: FlightStage
-    def __init__(self, traversed_distance: _Optional[int] = ..., remaining_distance: _Optional[int] = ..., elapsed_time: _Optional[int] = ..., remaining_time: _Optional[int] = ..., eta: _Optional[int] = ..., great_circle_distance: _Optional[int] = ..., mean_flight_time: _Optional[int] = ..., flight_stage: _Optional[_Union[FlightStage, str]] = ...) -> None: ...
+    delay_status: DelayStatus
+    def __init__(self, traversed_distance: _Optional[int] = ..., remaining_distance: _Optional[int] = ..., elapsed_time: _Optional[int] = ..., remaining_time: _Optional[int] = ..., eta: _Optional[int] = ..., great_circle_distance: _Optional[int] = ..., mean_flight_time: _Optional[int] = ..., flight_stage: _Optional[_Union[FlightStage, str]] = ..., delay_status: _Optional[_Union[DelayStatus, str]] = ...) -> None: ...
 
 class FollowFlightRequest(_message.Message):
     __slots__ = ("flight_id",)
@@ -177,13 +190,14 @@ class FollowFlightRequest(_message.Message):
     def __init__(self, flight_id: _Optional[int] = ...) -> None: ...
 
 class ExtendedFlightInfo(_message.Message):
-    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "timestamp", "on_ground", "callsign", "source", "ems_availability", "ems_info", "squawk_availability", "squawk", "vspeed_availability", "vspeed", "airspace_availability", "airspace")
+    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "status", "timestamp", "on_ground", "callsign", "source", "ems_availability", "ems_info", "squawk_availability", "squawk", "vspeed_availability", "vspeed", "airspace_availability", "airspace")
     FLIGHTID_FIELD_NUMBER: _ClassVar[int]
     LAT_FIELD_NUMBER: _ClassVar[int]
     LON_FIELD_NUMBER: _ClassVar[int]
     TRACK_FIELD_NUMBER: _ClassVar[int]
     ALT_FIELD_NUMBER: _ClassVar[int]
     SPEED_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     ON_GROUND_FIELD_NUMBER: _ClassVar[int]
     CALLSIGN_FIELD_NUMBER: _ClassVar[int]
@@ -202,6 +216,7 @@ class ExtendedFlightInfo(_message.Message):
     track: int
     alt: int
     speed: int
+    status: __common_pb2.Status
     timestamp: int
     on_ground: bool
     callsign: str
@@ -214,7 +229,7 @@ class ExtendedFlightInfo(_message.Message):
     vspeed: int
     airspace_availability: bool
     airspace: str
-    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[__common_pb2.DataSource, str]] = ..., ems_availability: _Optional[_Union[__common_pb2.EMSAvailability, _Mapping]] = ..., ems_info: _Optional[_Union[__common_pb2.EMSInfo, _Mapping]] = ..., squawk_availability: bool = ..., squawk: _Optional[int] = ..., vspeed_availability: bool = ..., vspeed: _Optional[int] = ..., airspace_availability: bool = ..., airspace: _Optional[str] = ...) -> None: ...
+    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., status: _Optional[_Union[__common_pb2.Status, str]] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[__common_pb2.DataSource, str]] = ..., ems_availability: _Optional[_Union[__common_pb2.EMSAvailability, _Mapping]] = ..., ems_info: _Optional[_Union[__common_pb2.EMSInfo, _Mapping]] = ..., squawk_availability: bool = ..., squawk: _Optional[int] = ..., vspeed_availability: bool = ..., vspeed: _Optional[int] = ..., airspace_availability: bool = ..., airspace: _Optional[str] = ...) -> None: ...
 
 class TrailPoint(_message.Message):
     __slots__ = ("snapshot_id", "lat", "lon", "altitude", "spd", "heading", "vspd")

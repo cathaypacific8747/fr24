@@ -99,19 +99,19 @@ This example is covered in detail in the [quickstart](./quickstart.md).
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/12_livefeed.py:script"
+    --8<-- "docs/usage/scripts/12_live_feed.py:script"
     ```
 
 === "`response`"
     
     ```py
-    --8<-- "docs/usage/scripts/12_livefeed.py:response"
+    --8<-- "docs/usage/scripts/12_live_feed.py:response"
     ```
 
 === "`lf.data.df`"
     
     ```
-    --8<-- "docs/usage/scripts/12_livefeed.py:df"
+    --8<-- "docs/usage/scripts/12_live_feed.py:df"
     ```
 
 #### Playback
@@ -120,7 +120,7 @@ Fetches the live feed three days ago.
 === "Jupyter cell"
 
     ```py hl_lines="6"
-    --8<-- "docs/usage/scripts/12_livefeed.py:script2"
+    --8<-- "docs/usage/scripts/12_live_feed.py:script2"
     ```
 
     1. Subtract current UTC by 3 days.
@@ -128,7 +128,7 @@ Fetches the live feed three days ago.
 === "`lf.data.df`"
     
     ```
-    --8<-- "docs/usage/scripts/12_livefeed.py:df2"
+    --8<-- "docs/usage/scripts/12_live_feed.py:df2"
     ```
 
 ## Lower-level functions
@@ -196,20 +196,20 @@ Fetches the live feed three days ago.
     ```
 
 ### Live feed
-*API Reference: [fr24.livefeed][]*
+*API Reference: [fr24.live_feed][]*
 
 Demonstrates custom bounding boxes.
 
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/24_livefeed.py:script0"
+    --8<-- "docs/usage/scripts/24_live_feed.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/24_livefeed.py:output0"
+    --8<-- "docs/usage/scripts/24_live_feed.py:output0"
     ```
 
 In JSON format:
@@ -217,11 +217,11 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/24_livefeed.py:script1"
+    --8<-- "docs/usage/scripts/24_live_feed.py:script1"
     ```
 
 === "Output"
     
     ```py
-    --8<-- "docs/usage/scripts/24_livefeed.py:output1"
+    --8<-- "docs/usage/scripts/24_live_feed.py:output1"
     ```

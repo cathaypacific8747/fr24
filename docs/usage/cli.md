@@ -22,8 +22,7 @@ List all commands and show help:
     ╭─ Commands ───────────────────────────────────────────────────────────────────╮
     │ auth          Commands for authentication                                    │
     │ dirs          Shows relevant directories                                     │
-    │ feed          Fetches current livefeed / playback of live feed at a given    │
-    │               time                                                           │
+    │ feed          Fetches current (or playback of) live feed at a given time     │
     │ flight-list   Fetches flight list for the given registration or flight       │
     │               number                                                         │
     │ playback      Fetches historical track playback data for the given flight    │
@@ -50,7 +49,7 @@ Dump the current (or playback of) live feed:
     
         Usage: fr24 feed [OPTIONS]                                                     
                                                                                     
-        Fetches current livefeed / playback of live feed at a given time               
+        Fetches current (or playback of) live feed at a given time           
                                                                                     
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
     │ --timestamp          TEXT  Time of the snapshot (optional), a                │

@@ -7,7 +7,5 @@ Read more about the protobuf definitions [here](https://github.com/cathaypacific
             - "!DESCRIPTOR"
             - "!_FIELD_NUMBER$"
             - "!__slots__"
-
-::: fr24.proto.v1_grpc
-    options:
-        show_if_no_docstring: true
+            - "!_sym_db"
+            - "!_globals"

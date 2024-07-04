@@ -1,9 +1,11 @@
 syntax = "proto3";
 
+import "fr24/proto/_common.proto";
+
 message LiveFlightStatusData {
     float lat = 1;
     float lon = 2;
-    // Status|EmergencyStatus? status = 3;
+    _common.Status status = 3; // ?
     uint32 squawk = 4;
 }
 

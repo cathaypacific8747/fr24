@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-import secrets
-import struct
 from typing import Any
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
 from loguru import logger
 
-from .common import DEFAULT_HEADERS_GRPC
+from .proto import encode_message, parse_data
+from .proto.headers import get_headers
 from .proto.v1_pb2 import (
     Flight,
     LiveFeedRequest,
@@ -24,16 +23,10 @@ from .proto.v1_pb2 import (
 from .static.bbox import lng_bounds
 from .types.authentication import Authentication
 from .types.cache import LiveFeedRecord
-from .types.fr24 import LivefeedField
-
-# N, S, W, E
-world_zones = [
-    (90, -90, lng_bounds[i], lng_bounds[i + 1])
-    for i in range(len(lng_bounds) - 1)
-]
+from .types.fr24 import LiveFeedField
 
 
-def livefeed_message_create(
+def live_feed_message_create(
     north: float = 50,
     south: float = 40,
     west: float = 0,
@@ -41,7 +34,7 @@ def livefeed_message_create(
     stats: bool = False,
     limit: int = 1500,
     maxage: int = 14400,
-    fields: list[LivefeedField] = [
+    fields: list[LiveFeedField] = [
         "flight",
         "reg",
         "route",
@@ -84,7 +77,7 @@ def livefeed_message_create(
     )
 
 
-def livefeed_playback_message_create(
+def live_feed_playback_message_create(
     message: LiveFeedRequest,
     timestamp: int,
     prefetch: int,
@@ -105,74 +98,51 @@ def livefeed_playback_message_create(
     )
 
 
-def livefeed_request_create(
+def live_feed_request_create(
     message: LiveFeedRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
     """Construct the POST request with encoded gRPC body."""
-    request_s = message.SerializeToString()
-    post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
-
-    headers = DEFAULT_HEADERS_GRPC.copy()
-    headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
-    if auth is not None and auth["userData"]["accessToken"] is not None:
-        headers["authorization"] = f"Bearer {auth['userData']['accessToken']}"
-
     return httpx.Request(
         "POST",
         "https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/LiveFeed",
-        headers=headers,
-        content=post_data,
+        headers=get_headers(auth),
+        content=encode_message(message),
     )
 
 
-def livefeed_playback_request_create(
+def live_feed_playback_request_create(
     message: PlaybackRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
     """Constructs the POST request with encoded gRPC body."""
-    request_s = message.SerializeToString()
-    post_data = b"\x00" + struct.pack("!I", len(request_s)) + request_s
-
-    headers = DEFAULT_HEADERS_GRPC.copy()
-    headers["fr24-device-id"] = f"web-{secrets.token_urlsafe(32)}"
-    if auth is not None and auth["userData"]["accessToken"] is not None:
-        headers["authorization"] = f"Bearer {auth['userData']['accessToken']}"
-
     return httpx.Request(
         "POST",
         "https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/Playback",
-        headers=headers,
-        content=post_data,
+        headers=get_headers(auth),
+        content=encode_message(message),
     )
 
 
-async def livefeed_post(
+async def live_feed_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> bytes:
-    """Send the request and extract the raw protobuf message."""
+) -> LiveFeedResponse:
+    """Send the request and parse the protobuf message."""
     response = await client.send(request)
     data = response.content
-    assert len(data) and data[0] == 0
-    data_len = int.from_bytes(data[1:5], byteorder="big")
-    return data[5 : 5 + data_len]
+    return parse_data(data, LiveFeedResponse)
 
 
-def livefeed_response_parse(data: bytes) -> LiveFeedResponse:
-    """:param data: raw protobuf message"""
-    lfr = LiveFeedResponse()
-    lfr.ParseFromString(data)
-    return lfr
+async def live_feed_playback_post(
+    client: httpx.AsyncClient, request: httpx.Request
+) -> PlaybackResponse:
+    """Send the request and parse raw protobuf message."""
+    response = await client.send(request)
+    data = response.content
+    return parse_data(data, PlaybackResponse)
 
 
-def livefeed_playback_response_parse(data: bytes) -> LiveFeedResponse:
-    """:param data: raw protobuf message"""
-    lfr = PlaybackResponse()
-    lfr.ParseFromString(data)
-    return lfr.live_feed_response
-
-
-def livefeed_flightdata_dict(
+def live_feed_flightdata_dict(
     lfr: Flight,
 ) -> LiveFeedRecord:
     """Convert the protobuf message to a dictionary."""
@@ -197,12 +167,19 @@ def livefeed_flightdata_dict(
     }
 
 
+# N, S, W, E
+world_zones = [
+    (90, -90, lng_bounds[i], lng_bounds[i + 1])
+    for i in range(len(lng_bounds) - 1)
+]
+
+
 # TODO: add parameter for custom bounds, e.g. from .bounds.lng_bounds_per_30_min
-async def livefeed_world_data(
+async def live_feed_world_data(
     client: httpx.AsyncClient,
     auth: None | Authentication = None,
     limit: int = 1500,
-    fields: list[LivefeedField] = [
+    fields: list[LiveFeedField] = [
         "flight",
         "reg",
         "route",
@@ -212,33 +189,35 @@ async def livefeed_world_data(
     """Retrieve live feed data for the entire world, in chunks."""
     results = await asyncio.gather(
         *[
-            livefeed_post(
+            live_feed_post(
                 client,
-                livefeed_request_create(
-                    livefeed_message_create(
+                live_feed_request_create(
+                    live_feed_message_create(
                         *bounds, limit=limit, fields=fields
                     ),
                     auth=auth,
                 ),
             )
             for bounds in world_zones
-        ]
+        ],
+        return_exceptions=True,
     )
     return [
-        livefeed_flightdata_dict(lfr)
+        live_feed_flightdata_dict(lfr)
         for r in results
-        for lfr in livefeed_response_parse(r).flights_list
+        if not isinstance(r, BaseException)
+        for lfr in r.flights_list
     ]
 
 
-async def livefeed_playback_world_data(
+async def live_feed_playback_world_data(
     client: httpx.AsyncClient,
     timestamp: int,
     duration: int = 7,
     hfreq: int = 0,
     auth: None | Authentication = None,
     limit: int = 1500,
-    fields: list[LivefeedField] = [
+    fields: list[LiveFeedField] = [
         "flight",
         "reg",
         "route",
@@ -248,15 +227,15 @@ async def livefeed_playback_world_data(
     """
     Retrieve live feed playback data for the entire world, in chunks.
 
-    :raises Exception: if more than half of the requests fail
+    :raises RuntimeError: if more than half of the requests fail
     """
     results = await asyncio.gather(
         *[
-            livefeed_post(
+            live_feed_playback_post(
                 client,
-                livefeed_playback_request_create(
-                    livefeed_playback_message_create(
-                        livefeed_message_create(
+                live_feed_playback_request_create(
+                    live_feed_playback_message_create(
+                        live_feed_message_create(
                             *bounds, limit=limit, fields=fields
                         ),
                         timestamp,
@@ -270,13 +249,15 @@ async def livefeed_playback_world_data(
         ],
         return_exceptions=True,
     )
-    if len(err := [r for r in results if not isinstance(r, bytes)]) > 0:
+    if len(err := [r for r in results if isinstance(r, BaseException)]) > 0:
         logger.warning(f"{len(err)} errors: {err}!")
         if len(err) > len(results) / 2:
-            raise Exception("Too many errors!")
+            raise RuntimeError(
+                f"playback world: found {len(err)} errors, aborting!"
+            )
     return [
-        livefeed_flightdata_dict(lfr)
+        live_feed_flightdata_dict(lfr)
         for r in results
-        if isinstance(r, bytes)
-        for lfr in livefeed_playback_response_parse(r).flights_list
+        if not isinstance(r, BaseException)
+        for lfr in r.live_feed_response.flights_list
     ]

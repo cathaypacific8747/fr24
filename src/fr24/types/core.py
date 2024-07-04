@@ -5,7 +5,7 @@ from typing import Literal
 
 from typing_extensions import NotRequired, TypedDict
 
-from .fr24 import LivefeedField
+from .fr24 import LiveFeedField
 
 
 # internally tagged
@@ -26,5 +26,5 @@ class LiveFeedContext(TypedDict):
     duration: NotRequired[int | None]
     hfreq: NotRequired[int | None]
     limit: NotRequired[int | None]
-    fields: NotRequired[list[LivefeedField] | None]
+    fields: NotRequired[list[LiveFeedField] | None]
     base_dir: NotRequired[Path]

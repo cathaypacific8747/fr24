@@ -1,5 +1,5 @@
 """
-livefeed will only return 1500 flights per bounding box:
+live feed will only return 1500 flights per bounding box:
 idea is to cut the world in vertical slices and collect them
 
 however, since an airspace is congested in different times of the day,
