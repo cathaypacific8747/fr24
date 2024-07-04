@@ -45,10 +45,10 @@ def live_feed_message_create(
     """
     Create the LiveFeedRequest protobuf message
 
-    :param north: North latitude
-    :param south: South latitude
-    :param west: West longitude
-    :param east: East longitude
+    :param north: North latitude (degrees)
+    :param south: South latitude (degrees)
+    :param west: West longitude (degrees)
+    :param east: East longitude (degrees)
     :param stats: Include stats of the given area
     :param limit: Max number of flights (default 1500 for unauthenticated users,
         2000 for authenticated users)

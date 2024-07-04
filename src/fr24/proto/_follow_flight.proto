@@ -104,7 +104,7 @@ message FlightProgress {
 
 message FollowFlightRequest {
     fixed32 flight_id = 1;
-    // RestrictionVisibility? restriction_mode = 2;
+    _common.RestrictionVisibility restriction_mode = 2; // ?
 } // updated: 24.171.1153
 
 message ExtendedFlightInfo {

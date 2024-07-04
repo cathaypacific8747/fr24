@@ -165,7 +165,6 @@ Fetches the live feed three days ago.
     ```
 
 ### Airport Arrivals
-
 *API Reference: [fr24.history.airport_list][]*
 
 === "Jupyter cell"
@@ -224,4 +223,108 @@ In JSON format:
     
     ```py
     --8<-- "docs/usage/scripts/24_live_feed.py:output1"
+    ```
+
+### Experimental
+!!! warning
+    The following gRPC endpoints are not thoroughly tested.
+
+#### Nearest Flights
+*API Reference: [fr24.nearest_flights][]*
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/25_nearest_flights.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/25_nearest_flights.py:output0"
+    ```
+
+#### Live Flight Status
+*API Reference: [fr24.live_flights_status][]*
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/26_live_flights_status.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/26_live_flights_status.py:output0"
+    ```
+
+#### Search Index
+*API Reference: [fr24.search_index][]*
+
+!!! failure "Failing: did not respond"
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/27_search_index.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/27_search_index.py:output0"
+    ```
+
+#### Follow Flight
+*API Reference: [fr24.follow_flight][]*
+
+!!! tip
+    This is a streaming API that repeatedly updates the aircraft state vectors.
+
+    Initial metadata (`aircraft_info`, `flight_plan` and `flight_trail_list`)
+    is only sent in the first packet of data.
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/28_follow_flight.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/28_follow_flight.py:output0"
+    ```
+
+#### Top Flights
+*API Reference: [fr24.top_flights][]*
+
+!!! failure "Failing: returned empty response"
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/29_top_flights.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/29_top_flights.py:output0"
+    ```
+
+#### Live Trail
+*API Reference: [fr24.live_trail][]*
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/30_live_trail.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/30_live_trail.py:output0"
     ```

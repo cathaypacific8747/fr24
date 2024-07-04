@@ -5,14 +5,21 @@ import "fr24/proto/_common.proto";
 message LiveFlightStatusData {
     float lat = 1;
     float lon = 2;
-    _common.Status status = 3; // ?
+    _common.Status status = 3;
     uint32 squawk = 4;
 }
 
-message LiveFlightsStatusRequest { // (sic)
+message LiveFlightsStatusRequest {
     repeated fixed32 flight_ids_list = 1;
 }
 
-message LiveFlightsStatusResponse { // (sic)
-    LiveFlightStatusData flights_map = 1;
+message _Unknown {
+    uint32 flight_id = 1; // unknown field name
+    LiveFlightStatusData data = 2; // unknown field name
 }
+
+message LiveFlightsStatusResponse {
+    repeated _Unknown flights_map = 1;
+}
+
+// NOTE: differs from web version

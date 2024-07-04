@@ -64,6 +64,7 @@ from fr24.proto._follow_flight_pb2 import ExtendedFlightInfo as ExtendedFlightIn
 from fr24.proto._follow_flight_pb2 import TrailPoint as TrailPoint
 from fr24.proto._follow_flight_pb2 import FollowFlightResponse as FollowFlightResponse
 from fr24.proto._follow_flight_pb2 import FlightStage as FlightStage
+from fr24.proto._follow_flight_pb2 import DelayStatus as DelayStatus
 from fr24.proto._top_flights_pb2 import FollowedFlight as FollowedFlight
 from fr24.proto._top_flights_pb2 import TopFlightsRequest as TopFlightsRequest
 from fr24.proto._top_flights_pb2 import TopFlightsResponse as TopFlightsResponse
@@ -154,3 +155,7 @@ ON_GROUND: __follow_flight_pb2.FlightStage
 TAKING_OFF: __follow_flight_pb2.FlightStage
 AIRBORNE: __follow_flight_pb2.FlightStage
 ON_APPROACH: __follow_flight_pb2.FlightStage
+GRAY: __follow_flight_pb2.DelayStatus
+GREEN: __follow_flight_pb2.DelayStatus
+YELLOW: __follow_flight_pb2.DelayStatus
+RED: __follow_flight_pb2.DelayStatus

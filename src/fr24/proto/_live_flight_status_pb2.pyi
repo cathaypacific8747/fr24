@@ -24,8 +24,16 @@ class LiveFlightsStatusRequest(_message.Message):
     flight_ids_list: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, flight_ids_list: _Optional[_Iterable[int]] = ...) -> None: ...
 
+class _Unknown(_message.Message):
+    __slots__ = ("flight_id", "data")
+    FLIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    flight_id: int
+    data: LiveFlightStatusData
+    def __init__(self, flight_id: _Optional[int] = ..., data: _Optional[_Union[LiveFlightStatusData, _Mapping]] = ...) -> None: ...
+
 class LiveFlightsStatusResponse(_message.Message):
     __slots__ = ("flights_map",)
     FLIGHTS_MAP_FIELD_NUMBER: _ClassVar[int]
-    flights_map: LiveFlightStatusData
-    def __init__(self, flights_map: _Optional[_Union[LiveFlightStatusData, _Mapping]] = ...) -> None: ...
+    flights_map: _containers.RepeatedCompositeFieldContainer[_Unknown]
+    def __init__(self, flights_map: _Optional[_Iterable[_Union[_Unknown, _Mapping]]] = ...) -> None: ...

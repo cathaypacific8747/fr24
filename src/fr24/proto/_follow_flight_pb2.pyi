@@ -184,10 +184,12 @@ class FlightProgress(_message.Message):
     def __init__(self, traversed_distance: _Optional[int] = ..., remaining_distance: _Optional[int] = ..., elapsed_time: _Optional[int] = ..., remaining_time: _Optional[int] = ..., eta: _Optional[int] = ..., great_circle_distance: _Optional[int] = ..., mean_flight_time: _Optional[int] = ..., flight_stage: _Optional[_Union[FlightStage, str]] = ..., delay_status: _Optional[_Union[DelayStatus, str]] = ...) -> None: ...
 
 class FollowFlightRequest(_message.Message):
-    __slots__ = ("flight_id",)
+    __slots__ = ("flight_id", "restriction_mode")
     FLIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    RESTRICTION_MODE_FIELD_NUMBER: _ClassVar[int]
     flight_id: int
-    def __init__(self, flight_id: _Optional[int] = ...) -> None: ...
+    restriction_mode: __common_pb2.RestrictionVisibility
+    def __init__(self, flight_id: _Optional[int] = ..., restriction_mode: _Optional[_Union[__common_pb2.RestrictionVisibility, str]] = ...) -> None: ...
 
 class ExtendedFlightInfo(_message.Message):
     __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "status", "timestamp", "on_ground", "callsign", "source", "ems_availability", "ems_info", "squawk_availability", "squawk", "vspeed_availability", "vspeed", "airspace_availability", "airspace")
