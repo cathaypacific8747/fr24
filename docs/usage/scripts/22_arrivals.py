@@ -6,7 +6,7 @@
 import httpx
 
 from fr24.types.airport_list import AirportList
-from fr24.history import airport_list
+from fr24.json import airport_list
 
 import pandas as pd
 

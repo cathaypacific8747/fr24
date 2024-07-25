@@ -133,7 +133,7 @@ Fetches the live feed three days ago.
 
 ## Lower-level functions
 ### Flight list
-*API Reference: [fr24.history.flight_list][], [fr24.history.flight_list_df][]*
+*API Reference: [fr24.json.flight_list][], [fr24.json.flight_list_df][]*
 
 === "Jupyter cell"
 
@@ -150,7 +150,7 @@ Fetches the live feed three days ago.
     ```
 
 ### Playback
-*API Reference: [fr24.history.playback][], [fr24.history.playback_df][]*
+*API Reference: [fr24.json.playback][], [fr24.json.playback_df][]*
 
 === "Jupyter cell"
 
@@ -165,7 +165,7 @@ Fetches the live feed three days ago.
     ```
 
 ### Airport Arrivals
-*API Reference: [fr24.history.airport_list][]*
+*API Reference: [fr24.json.airport_list][]*
 
 === "Jupyter cell"
 
@@ -180,7 +180,7 @@ Fetches the live feed three days ago.
     ```
 
 ### Airport Search
-*API Reference: [fr24.find][]*
+*API Reference: [fr24.json.find][]*
 
 === "Jupyter cell"
 
@@ -195,7 +195,7 @@ Fetches the live feed three days ago.
     ```
 
 ### Live feed
-*API Reference: [fr24.live_feed][]*
+*API Reference: [fr24.grpc.live_feed_post][]*
 
 Demonstrates custom bounding boxes.
 
@@ -226,7 +226,7 @@ In JSON format:
     ```
 
 ### Nearest Flights
-*API Reference: [fr24.nearest_flights][]*
+*API Reference: [fr24.grpc.nearest_flights_post][]*
 
 === "Jupyter cell"
 
@@ -241,7 +241,7 @@ In JSON format:
     ```
 
 ### Live Flight Status
-*API Reference: [fr24.live_flights_status][]*
+*API Reference: [fr24.grpc.live_flights_status_post][]*
 
 === "Jupyter cell"
 
@@ -256,7 +256,7 @@ In JSON format:
     ```
 
 ### Follow Flight
-*API Reference: [fr24.follow_flight][]*
+*API Reference: [fr24.grpc.follow_flight_stream][]*
 
 !!! tip
     This is a streaming API that repeatedly updates the aircraft state vectors.
@@ -277,7 +277,7 @@ In JSON format:
     ```
 
 ### Top Flights
-*API Reference: [fr24.top_flights][]*
+*API Reference: [fr24.grpc.top_flights_post][]*
 
 === "Jupyter cell"
 
@@ -292,7 +292,7 @@ In JSON format:
     ```
 
 ### Live Trail
-*API Reference: [fr24.live_trail][]*
+*API Reference: [fr24.grpc.live_trail_post][]*
 
 === "Jupyter cell"
 

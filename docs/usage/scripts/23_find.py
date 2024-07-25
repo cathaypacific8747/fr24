@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 from fr24.types.find import FindResult
-from fr24.find import find
+from fr24.json import find
 
 import pandas as pd
 import httpx

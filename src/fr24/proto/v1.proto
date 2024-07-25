@@ -14,6 +14,7 @@ import public "fr24/proto/_fetch_search_index.proto";
 import public "fr24/proto/_follow_flight.proto";
 import public "fr24/proto/_top_flights.proto";
 import public "fr24/proto/_live_trail.proto";
+import public "fr24/proto/_historic_trail.proto";
 
 service Feed {
     rpc Echo(Ping) returns (Pong);
@@ -26,4 +27,5 @@ service Feed {
     rpc FollowFlight(FollowFlightRequest) returns (stream FollowFlightResponse);
     rpc TopFlights(TopFlightsRequest) returns (TopFlightsResponse);
     rpc LiveTrail(LiveTrailRequest) returns (LiveTrailResponse);
+    rpc HistoricTrail(HistoricTrailRequest) returns (HistoricTrailResponse);
 }

@@ -18,13 +18,13 @@ import pandas as pd
 
 from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
 from .common import to_unix_timestamp
-from .history import (
+from .grpc import live_feed_playback_world_data, live_feed_world_data
+from .json import (
     flight_list,
     flight_list_arrow,
     playback,
     playback_arrow,
 )
-from .live_feed import live_feed_playback_world_data, live_feed_world_data
 from .types.authentication import TokenSubscriptionKey, UsernamePassword
 from .types.cache import (
     LiveFeedRecord,
@@ -256,7 +256,7 @@ class FlightListService(ServiceBase):
         Fetch one page of flight list for the given registration or
         flight number.
 
-        *Related: [fr24.history.flight_list][]*
+        *Related: [fr24.json.flight_list][]*
 
         Input **either** the registration or the flight number, not both.
 
@@ -284,7 +284,7 @@ class FlightListService(ServiceBase):
         Iteratively fetch all pages of the flight list for the given
         registration or flight number.
 
-        *Related: [fr24.history.flight_list][]*
+        *Related: [fr24.json.flight_list][]*
 
         Input **either** the registration or the flight number, not both.
 
@@ -342,7 +342,7 @@ class PlaybackAPI:
         """
         Fetch the historical track playback data for the given flight.
 
-        *Related: [fr24.history.playback][]*
+        *Related: [fr24.json.playback][]*
 
         :param timestamp: Unix timestamp (seconds) of ATD - optional, but
             it is recommended to include it
@@ -433,7 +433,7 @@ class PlaybackService(ServiceBase):
         """
         Fetch the historical track playback data for the given flight.
 
-        *Related: [fr24.history.playback][]*
+        *Related: [fr24.json.playback][]*
 
         :param flight_id: Hex Flight ID (e.g. `"2d81a27"`, `0x2d81a27`)
         :param timestamp: Unix timestamp (seconds) of ATD - optional, but
@@ -587,7 +587,7 @@ class LiveFeedService(ServiceBase):
         """
         Fetch live feed data.
 
-        *Related: [fr24.live_feed.live_feed_world_data][]*
+        *Related: [fr24.grpc.live_feed_world_data][]*
 
         :param timestamp: Unix timestamp (seconds) of the live feed data.
             If `None`, the latest live data will be fetched. Otherwise,

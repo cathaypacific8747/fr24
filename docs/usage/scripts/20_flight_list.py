@@ -6,7 +6,7 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.history import flight_list, flight_list_df
+from fr24.json import flight_list, flight_list_df
 
 import pandas as pd
 

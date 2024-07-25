@@ -8,7 +8,8 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import Input, Label, Static
 
-from fr24.find import find, is_aircraft, is_airport, is_schedule
+from fr24.json import find
+from fr24.types.find import is_aircraft, is_airport, is_schedule
 
 
 class AirportWidget(Static):

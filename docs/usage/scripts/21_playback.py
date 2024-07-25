@@ -6,7 +6,7 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.history import playback, playback_df
+from fr24.json import playback, playback_df
 
 import pandas as pd
 

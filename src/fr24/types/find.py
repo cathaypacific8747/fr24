@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, Union
 
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing_extensions import Annotated, NotRequired, TypedDict, TypeGuard
 
 
 class Live(TypedDict):
@@ -98,6 +98,26 @@ Entry = Union[
 ]
 # NOTE: in tests, we use Annotated[Entry, pydantic.Discriminator("type")]
 # not adding here because pydantic belongs to test dependencies
+
+
+def is_airport(entry: Entry) -> TypeGuard[AirportEntry]:
+    return entry["type"] == "airport"
+
+
+def is_operator(entry: Entry) -> TypeGuard[OperatorEntry]:
+    return entry["type"] == "operator"
+
+
+def is_live(entry: Entry) -> TypeGuard[LiveEntry]:
+    return entry["type"] == "live"
+
+
+def is_schedule(entry: Entry) -> TypeGuard[ScheduleEntry]:
+    return entry["type"] == "schedule"
+
+
+def is_aircraft(entry: Entry) -> TypeGuard[AircraftEntry]:
+    return entry["type"] == "aircraft"
 
 
 class StatsEntry(TypedDict):

@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.nearest_flights import (
+from fr24.grpc import (
     nearest_flights_message_create,
     nearest_flights_request_create,
     nearest_flights_post,

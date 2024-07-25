@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.top_flights import (
+from fr24.grpc import (
     top_flights_request_create,
     top_flights_post,
 )

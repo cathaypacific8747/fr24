@@ -1,14 +1,15 @@
 import httpx
 import pytest
-from fr24.find import (
-    find,
+from fr24.json import find
+from fr24.types.find import (
+    Entry,
+    Stats,
     is_aircraft,
     is_airport,
     is_live,
     is_operator,
     is_schedule,
 )
-from fr24.types.find import Entry, Stats
 from pydantic import BaseModel, Discriminator
 from typing_extensions import Annotated
 

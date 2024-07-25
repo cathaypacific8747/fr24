@@ -3,7 +3,7 @@ import time
 import httpx
 import pytest
 from fr24.core import FR24
-from fr24.live_feed import (
+from fr24.grpc import (
     live_feed_message_create,
     live_feed_playback_world_data,
     live_feed_post,

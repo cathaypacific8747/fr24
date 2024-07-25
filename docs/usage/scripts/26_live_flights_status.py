@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.live_flights_status import (
+from fr24.grpc import (
     live_flights_status_request_create,
     live_flights_status_post,
 )

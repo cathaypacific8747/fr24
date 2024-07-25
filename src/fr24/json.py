@@ -21,6 +21,7 @@ from .types.cache import (
     flight_list_schema,
     playback_track_schema,
 )
+from .types.find import FindResult
 from .types.flight_list import FlightList, FlightListItem, FlightListRequest
 from .types.playback import (
     FlightData,
@@ -196,6 +197,22 @@ async def playback(
 
     response = await client.send(request)
     response.raise_for_status()
+    return response.json()  # type: ignore
+
+
+async def find(client: httpx.AsyncClient, query: str) -> FindResult | None:
+    """
+    General search.
+    :param query: Airport, schedule (HKG-CDG), or aircraft.
+    """
+    request = httpx.Request(
+        "GET",
+        url="https://www.flightradar24.com/v1/search/web/find",
+        params={"query": query, "limit": 50},
+    )
+    response = await client.send(request)
+    if response.status_code != 200:
+        return None
     return response.json()  # type: ignore
 
 

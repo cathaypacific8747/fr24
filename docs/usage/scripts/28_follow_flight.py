@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.follow_flight import (
+from fr24.grpc import (
     follow_flight_request_create,
     follow_flight_stream,
 )

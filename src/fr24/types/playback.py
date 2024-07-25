@@ -105,7 +105,7 @@ class TrackData(TypedDict):
         is only available in [EMS][fr24.types.playback.EMS] data.
 
         This field is renamed to `track` to avoid confusion in
-        [fr24.history.playback_track_dict][].
+        [fr24.json.playback_track_dict][].
     """
     squawk: str
     timestamp: int

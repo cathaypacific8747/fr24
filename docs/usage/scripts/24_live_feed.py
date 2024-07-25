@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.live_feed import (
+from fr24.grpc import (
     live_feed_message_create,
     live_feed_post,
     live_feed_request_create,

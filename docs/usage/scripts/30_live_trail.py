@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.live_trail import (
+from fr24.grpc import (
     live_trail_request_create,
     live_trail_post,
 )

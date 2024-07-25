@@ -4,7 +4,7 @@
 # %%
 # --8<-- [start:script]
 import asyncio
-from fr24.find import find
+from fr24.json import find
 import httpx
 
 async def main() -> None:  # (1)!
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 # --8<-- [end:script]
 # %%
 # --8<-- [start:jupyter]
-from fr24.find import find
+from fr24.json import find
 import httpx
 
 async def main() -> None: # (1)!

@@ -180,7 +180,6 @@ message Flight {
     ExtraFlightInfo extra_info = 13;
 }
 
-// possibly used by FollowFlight and LiveFlightStatus
 enum EmergencyStatus {
     NO_EMERGENCY = 0;
     GENERAL_EMERGENCY = 1;
@@ -201,3 +200,16 @@ message Tick {
     uint32 count = 1;
 } // new: 24.169.0808
 
+// used in *trail
+message RadarHistoryRecord {
+    uint64 timestamp = 1;
+    float lat = 2;
+    float lon = 3;
+    int32 altitude = 4;
+    uint32 spd = 5;
+    uint32 heading = 6; // official naming says heading, but data is likely track
+    int32 vspd = 7;
+    uint32 squawk = 8;
+    _common.DataSource source = 9; // ?
+    string callsign = 10;
+} // new: 24.169.0808
