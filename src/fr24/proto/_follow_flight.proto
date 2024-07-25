@@ -98,8 +98,9 @@ message FlightProgress {
     uint32 eta = 5;
     uint32 great_circle_distance = 6;
     uint32 mean_flight_time = 7;
-    FlightStage flight_stage = 8; // ?
+    FlightStage flight_stage = 8;
     DelayStatus delay_status = 9; // updated: 24.184.2001
+    int32 progress_pct = 10; // updated: 24.200.1841
 } // new: 24.169.0808, updated: 24.171.1153
 
 message FollowFlightRequest {

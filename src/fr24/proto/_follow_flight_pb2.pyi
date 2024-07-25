@@ -162,7 +162,7 @@ class ScheduleInfo(_message.Message):
     def __init__(self, flight_number: _Optional[str] = ..., operated_by_id: _Optional[int] = ..., painted_as_id: _Optional[int] = ..., origin_id: _Optional[int] = ..., destination_id: _Optional[int] = ..., diverted_to_id: _Optional[int] = ..., scheduled_departure: _Optional[int] = ..., scheduled_arrival: _Optional[int] = ..., actual_departure: _Optional[int] = ..., actual_arrival: _Optional[int] = ..., arr_terminal: _Optional[str] = ..., arr_gate: _Optional[str] = ..., baggage_belt: _Optional[str] = ...) -> None: ...
 
 class FlightProgress(_message.Message):
-    __slots__ = ("traversed_distance", "remaining_distance", "elapsed_time", "remaining_time", "eta", "great_circle_distance", "mean_flight_time", "flight_stage", "delay_status")
+    __slots__ = ("traversed_distance", "remaining_distance", "elapsed_time", "remaining_time", "eta", "great_circle_distance", "mean_flight_time", "flight_stage", "delay_status", "progress_pct")
     TRAVERSED_DISTANCE_FIELD_NUMBER: _ClassVar[int]
     REMAINING_DISTANCE_FIELD_NUMBER: _ClassVar[int]
     ELAPSED_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -172,6 +172,7 @@ class FlightProgress(_message.Message):
     MEAN_FLIGHT_TIME_FIELD_NUMBER: _ClassVar[int]
     FLIGHT_STAGE_FIELD_NUMBER: _ClassVar[int]
     DELAY_STATUS_FIELD_NUMBER: _ClassVar[int]
+    PROGRESS_PCT_FIELD_NUMBER: _ClassVar[int]
     traversed_distance: int
     remaining_distance: int
     elapsed_time: int
@@ -181,7 +182,8 @@ class FlightProgress(_message.Message):
     mean_flight_time: int
     flight_stage: FlightStage
     delay_status: DelayStatus
-    def __init__(self, traversed_distance: _Optional[int] = ..., remaining_distance: _Optional[int] = ..., elapsed_time: _Optional[int] = ..., remaining_time: _Optional[int] = ..., eta: _Optional[int] = ..., great_circle_distance: _Optional[int] = ..., mean_flight_time: _Optional[int] = ..., flight_stage: _Optional[_Union[FlightStage, str]] = ..., delay_status: _Optional[_Union[DelayStatus, str]] = ...) -> None: ...
+    progress_pct: int
+    def __init__(self, traversed_distance: _Optional[int] = ..., remaining_distance: _Optional[int] = ..., elapsed_time: _Optional[int] = ..., remaining_time: _Optional[int] = ..., eta: _Optional[int] = ..., great_circle_distance: _Optional[int] = ..., mean_flight_time: _Optional[int] = ..., flight_stage: _Optional[_Union[FlightStage, str]] = ..., delay_status: _Optional[_Union[DelayStatus, str]] = ..., progress_pct: _Optional[int] = ...) -> None: ...
 
 class FollowFlightRequest(_message.Message):
     __slots__ = ("flight_id", "restriction_mode")

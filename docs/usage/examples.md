@@ -225,11 +225,7 @@ In JSON format:
     --8<-- "docs/usage/scripts/24_live_feed.py:output1"
     ```
 
-### Experimental
-!!! warning
-    The following gRPC endpoints are not thoroughly tested.
-
-#### Nearest Flights
+### Nearest Flights
 *API Reference: [fr24.nearest_flights][]*
 
 === "Jupyter cell"
@@ -244,7 +240,7 @@ In JSON format:
     --8<-- "docs/usage/scripts/25_nearest_flights.py:output0"
     ```
 
-#### Live Flight Status
+### Live Flight Status
 *API Reference: [fr24.live_flights_status][]*
 
 === "Jupyter cell"
@@ -259,24 +255,7 @@ In JSON format:
     --8<-- "docs/usage/scripts/26_live_flights_status.py:output0"
     ```
 
-#### Search Index
-*API Reference: [fr24.search_index][]*
-
-!!! failure "Failing: did not respond"
-
-=== "Jupyter cell"
-
-    ```py
-    --8<-- "docs/usage/scripts/27_search_index.py:script0"
-    ```
-
-=== "Protobuf Output"
-    
-    ```proto
-    --8<-- "docs/usage/scripts/27_search_index.py:output0"
-    ```
-
-#### Follow Flight
+### Follow Flight
 *API Reference: [fr24.follow_flight][]*
 
 !!! tip
@@ -297,10 +276,8 @@ In JSON format:
     --8<-- "docs/usage/scripts/28_follow_flight.py:output0"
     ```
 
-#### Top Flights
+### Top Flights
 *API Reference: [fr24.top_flights][]*
-
-!!! failure "Failing: returned empty response"
 
 === "Jupyter cell"
 
@@ -314,7 +291,7 @@ In JSON format:
     --8<-- "docs/usage/scripts/29_top_flights.py:output0"
     ```
 
-#### Live Trail
+### Live Trail
 *API Reference: [fr24.live_trail][]*
 
 === "Jupyter cell"

@@ -16,10 +16,10 @@ message FollowedFlight {
 } // new: 24.169.0808
 
 message TopFlightsRequest {
-    uint32 limit = 1;
+    uint32 limit = 1; // 1..=10
 } // new: 24.169.0808
 
 message TopFlightsResponse {
-    repeated FollowedFlight scoreboard_list = 2;
+    repeated FollowedFlight scoreboard_list = 1;
 } // new: 24.169.0808
 
