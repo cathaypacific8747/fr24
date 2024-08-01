@@ -22,7 +22,7 @@ httpx = { extras = ["http2"], version = "^0.27.0" }
 brotli = "^1.1.0"
 protobuf = ">=5.27.1"
 appdirs = "^1.4.4"
-textual = ">=0.58,<0.72"
+textual = ">=0.58,<0.76"
 loguru = "^0.7.2"
 typer = "^0.12.3"
 
