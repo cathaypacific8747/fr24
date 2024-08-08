@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "fr24/proto/_common.proto";
+
+message LiveTrailRequest {
+    fixed32 flight_id = 1;
+} // new: 24.169.0808
+
+message LiveTrailResponse {
+    repeated _common.RadarHistoryRecord radar_records_list = 1; // ?
+} // new: 24.169.0808

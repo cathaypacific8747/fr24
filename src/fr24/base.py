@@ -14,7 +14,7 @@ from typing_extensions import Self
 import pandas as pd
 
 from .authentication import login
-from .types.fr24 import (
+from .types.authentication import (
     Authentication,
     TokenSubscriptionKey,
     UsernamePassword,
@@ -48,7 +48,7 @@ Ctx = TypeVar("Ctx")
 """Type of the context for the service, a TypedDict"""
 ApiRspRaw = TypeVar("ApiRspRaw")
 """Type returned by the API, usually a TypedDict,
-e.g. [fr24.types.fr24.FlightList][]"""
+e.g. [fr24.types.flight_list.FlightList][]"""
 
 
 class APIResponse(Generic[Ctx, ApiRspRaw]):
@@ -69,7 +69,10 @@ class ArrowTable(Generic[Ctx]):
         # do not call directly. Use `from_file` instead.
         self.ctx = ctx
         self.data = table
-        # self.schema = schema
+
+    @classmethod
+    def new(cls, ctx: Ctx, sch_expected: pa.Schema | None = None) -> Self:
+        return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
 
     @classmethod
     def from_file(
@@ -85,7 +88,7 @@ class ArrowTable(Generic[Ctx]):
                 f"cannot find `{fp.stem}` in cache, "
                 "creating an empty in-memory table"
             )
-            return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
+            return cls.new(ctx, sch_expected)
 
         if sch_expected is not None:
             # enforce fp schema to match the provided.

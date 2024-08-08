@@ -15,7 +15,7 @@ nav:
     - Functions: 'api/functions.md'
     - Types: 'api/types.md'
     - Base Classes: 'api/base.md'
-    - Protobuf Messages: 'api/protobuf.md'
+    - Protobuf Definitions: 'api/protobuf.md'
 
 theme:
   name: material
@@ -53,13 +53,11 @@ plugins:
             members_order: source
             separate_signature: true
             show_signature_annotations: true
-            unwrap_annotated: true
             merge_init_into_class: true
             docstring_section_style: table
             signature_crossrefs: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
-            
             show_root_heading: true
             show_root_full_path: false
             show_source: false

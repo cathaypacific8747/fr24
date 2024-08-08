@@ -21,16 +21,13 @@ from textual.widgets import (
 
 import pandas as pd
 from fr24.authentication import login
-from fr24.find import find, is_schedule
-from fr24.history import airport_list, flight_list, playback
+from fr24.json import airport_list, find, flight_list, playback
 from fr24.tui.formatters import Aircraft, Airport, Time
 from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
-from fr24.types.fr24 import (
-    AirportList,
-    Authentication,
-    FlightList,
-    FlightListItem,
-)
+from fr24.types.airport_list import AirportList
+from fr24.types.authentication import Authentication
+from fr24.types.find import is_schedule
+from fr24.types.flight_list import FlightList, FlightListItem
 
 T = TypeVar("T")
 
@@ -70,7 +67,7 @@ class FR24(App[None]):
 
     def compose(self) -> ComposeResult:
         self.auth: Authentication | None = None
-        self.client = httpx.AsyncClient(http2=True)
+        self.client = httpx.AsyncClient(http1=False, http2=True)
         self.search_visible = True
         yield Header()
         yield Footer()

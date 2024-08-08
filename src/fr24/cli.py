@@ -131,7 +131,7 @@ def feed(
     output: Output = None,
     fmt: Fmt = "parquet",
 ) -> None:
-    """Fetches current livefeed / playback of live feed at a given time"""
+    """Fetches current (or playback of) live feed at a given time"""
 
     fp = resolve_path(output)
     console = get_console(fp)
@@ -139,7 +139,7 @@ def feed(
     async def feed_() -> None:
         async with FR24() as fr24:
             await fr24.login()
-            response = await fr24.livefeed.fetch(timestamp)
+            response = await fr24.live_feed.fetch(timestamp)
             datac = response.to_arrow()
             datac.save(fp, fmt)  # type: ignore[arg-type]
             console.print(get_success_message(datac, fp))

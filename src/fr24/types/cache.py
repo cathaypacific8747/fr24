@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import TypedDict
-
 import pyarrow as pa
+from typing_extensions import TypedDict
 
 # NOTE: Parquet does not support timestamp in seconds:
 # https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp
@@ -30,14 +29,14 @@ flight_list_schema = pa.schema(
 
 class FlightListRecord(TypedDict):
     flight_id: int | None
-    number: str
+    number: str | None
     callsign: str | None
     icao24: int | None
     registration: str | None
     typecode: str
     origin: str | None
     destination: str | None
-    status: str
+    status: str | None
     STOD: int | None
     ETOD: int | None
     ATOD: int | None
@@ -91,7 +90,7 @@ class PlaybackTrackRecord(TypedDict):
     longitude: float
     altitude: int
     ground_speed: int
-    vertical_speed: int
+    vertical_speed: int | None
     track: int
     squawk: int
 
@@ -118,7 +117,7 @@ class PlaybackTrackEMSRecord(TypedDict):
 
 
 # NOTE: not using pa.timestamp() to save space
-livefeed_schema = pa.schema(
+live_feed_schema = pa.schema(
     [
         pa.field("timestamp", pa.uint32()),
         pa.field("flightid", pa.uint32()),

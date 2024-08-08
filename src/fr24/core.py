@@ -18,17 +18,21 @@ import pandas as pd
 
 from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
 from .common import to_unix_timestamp
-from .history import (
+from .grpc import (
+    live_feed_playback_world_data,
+    live_feed_world_data,
+)
+from .json import (
     flight_list,
     flight_list_arrow,
     playback,
     playback_arrow,
 )
-from .livefeed import livefeed_playback_world_data, livefeed_world_data
+from .types.authentication import TokenSubscriptionKey, UsernamePassword
 from .types.cache import (
     LiveFeedRecord,
     flight_list_schema,
-    livefeed_schema,
+    live_feed_schema,
     playback_track_schema,
 )
 from .types.core import (
@@ -36,14 +40,9 @@ from .types.core import (
     LiveFeedContext,
     PlaybackContext,
 )
-from .types.fr24 import (
-    FlightData,
-    FlightList,
-    LivefeedField,
-    Playback,
-    TokenSubscriptionKey,
-    UsernamePassword,
-)
+from .types.flight_list import FlightList
+from .types.fr24 import LiveFeedField
+from .types.playback import FlightData, Playback
 
 
 class FR24:
@@ -58,7 +57,7 @@ class FR24:
 
         :param client: The `httpx` client to use. If not provided, a
             new one will be created with HTTP/2 enabled by default. It is
-            recommended to use `http2=True` to avoid
+            highly recommended to use `http2=True` to avoid
             [464 errors](https://github.com/cathaypacific8747/fr24/issues/23#issuecomment-2125624974)
             and to be consistent with the browser.
         :param base_dir:
@@ -70,7 +69,7 @@ class FR24:
         self._base_dir = Path(base_dir)
         self.flight_list = FlightListService(self.http, self._base_dir)
         self.playback = PlaybackService(self.http, self._base_dir)
-        self.livefeed = LiveFeedService(self.http, self._base_dir)
+        self.live_feed = LiveFeedService(self.http, self._base_dir)
 
     async def login(
         self,
@@ -159,8 +158,8 @@ class FlightListAPIResp(APIResponse[FlightListContext, FlightList]):
 
     def to_arrow(self) -> FlightListArrow:
         """
-        Parse each [fr24.types.fr24.FlightListItem][] in the API response and
-        transform it into a pyarrow.Table.
+        Parse each [fr24.types.flight_list.FlightListItem][] in the API response
+        and transform it into a pyarrow.Table.
         """
         return FlightListArrow(
             self.ctx, flight_list_arrow(self.data)
@@ -189,7 +188,7 @@ class FlightListArrow(ArrowTable[FlightListContext]):
     @override
     def concat(
         self,
-        data_new: FlightListArrow,  # | FlightListAPIResp,
+        data_new: FlightListArrow,
         inplace: bool = False,
     ) -> FlightListArrow:
         """
@@ -199,11 +198,9 @@ class FlightListArrow(ArrowTable[FlightListContext]):
 
         :param inplace: If `True`, the current table will be updated in place.
         """
-        # TODO: allow passing list[arrow|apiresp]
-        # if isinstance(data_new, FlightListAPIResp):
-        #     data_new = data_new.to_arrow()
+        # NOTE: not using `flight_id` as primary key as it is nullable
         mask: pa.ChunkedArray = pc.is_in(
-            self.data["flight_id"], value_set=data_new.data["flight_id"]
+            self.data["STOD"], value_set=data_new.data["STOD"]
         )
         if (dup_count := pc.sum(mask).as_py()) is not None and dup_count > 0:
             logger.info(f"overwriting {dup_count} duplicate flight ids")
@@ -260,7 +257,7 @@ class FlightListService(ServiceBase):
         Fetch one page of flight list for the given registration or
         flight number.
 
-        *Related: [fr24.history.flight_list][]*
+        *Related: [fr24.json.flight_list][]*
 
         Input **either** the registration or the flight number, not both.
 
@@ -288,7 +285,7 @@ class FlightListService(ServiceBase):
         Iteratively fetch all pages of the flight list for the given
         registration or flight number.
 
-        *Related: [fr24.history.flight_list][]*
+        *Related: [fr24.json.flight_list][]*
 
         Input **either** the registration or the flight number, not both.
 
@@ -314,6 +311,7 @@ class FlightListService(ServiceBase):
 
         Input **either** the registration or the flight number, not both.
         """
+        # TODO: allow passing list[str] and call .concat() underneath
         ctx = self._construct_ctx(reg, flight)
         return FlightListArrow.from_cache(ctx)
 
@@ -345,7 +343,7 @@ class PlaybackAPI:
         """
         Fetch the historical track playback data for the given flight.
 
-        *Related: [fr24.history.playback][]*
+        *Related: [fr24.json.playback][]*
 
         :param timestamp: Unix timestamp (seconds) of ATD - optional, but
             it is recommended to include it
@@ -360,9 +358,9 @@ class PlaybackApiResp(APIResponse[PlaybackContext, Playback]):
 
     def to_arrow(self) -> PlaybackArrow:
         """
-        Parse each [fr24.types.fr24.TrackData][] in the API response and
+        Parse each [fr24.types.playback.TrackData][] in the API response and
         transform it into a wrapped pyarrow.Table. Also adds
-        [fr24.types.fr24.FlightData][] into the schema's metadata with key
+        [fr24.types.playback.FlightData][] into the schema's metadata with key
         `_flight`.
         """
         return PlaybackArrow(self.ctx, playback_arrow(self.data))
@@ -436,7 +434,7 @@ class PlaybackService(ServiceBase):
         """
         Fetch the historical track playback data for the given flight.
 
-        *Related: [fr24.history.playback][]*
+        *Related: [fr24.json.playback][]*
 
         :param flight_id: Hex Flight ID (e.g. `"2d81a27"`, `0x2d81a27`)
         :param timestamp: Unix timestamp (seconds) of ATD - optional, but
@@ -484,16 +482,20 @@ class LiveFeedAPI:
                     if k in ("duration", "hfreq") and v is not None
                 }
             )
-            return await livefeed_playback_world_data(
+            return await live_feed_playback_world_data(
                 self.http.client,
                 ts,
                 **kw,  # type: ignore[arg-type]
                 auth=self.http.auth,
             )
-        resp = await livefeed_world_data(self.http.client, self.http.auth, **kw)  # type: ignore[arg-type]
+        resp = await live_feed_world_data(
+            self.http.client,
+            self.http.auth,
+            **kw,  # type: ignore[arg-type]
+        )
         ctx["timestamp"] = int(time.time())
         # TODO: use server time instead, but it doesn't really matter because
-        # livefeed messages have timestamps attached to them anyway
+        # live feed messages have timestamps attached to them anyway
         return resp
 
 
@@ -509,7 +511,7 @@ class LiveFeedAPIResp(APIResponse[LiveFeedContext, list[LiveFeedRecord]]):
             logger.warning("no data in response, table will be empty")
         table = pa.Table.from_pylist(
             self.data,
-            schema=livefeed_schema,
+            schema=live_feed_schema,
         )
         return LiveFeedArrow(self.ctx, table)
 
@@ -520,7 +522,7 @@ class LiveFeedArrow(ArrowTable[LiveFeedContext]):
     @classmethod
     def from_cache(cls, ctx: LiveFeedContext) -> LiveFeedArrow:
         fp = LiveFeedArrow._fp(ctx)
-        return super(LiveFeedArrow, cls).from_file(ctx, fp, livefeed_schema)
+        return super(LiveFeedArrow, cls).from_file(ctx, fp, live_feed_schema)
 
     @classmethod
     def _fp(cls, ctx: LiveFeedContext) -> Path:
@@ -576,7 +578,7 @@ class LiveFeedService(ServiceBase):
         duration: int | None = None,
         hfreq: int | None = None,
         limit: int = 1500,
-        fields: list[LivefeedField] = [
+        fields: list[LiveFeedField] = [
             "flight",
             "reg",
             "route",
@@ -586,7 +588,7 @@ class LiveFeedService(ServiceBase):
         """
         Fetch live feed data.
 
-        *Related: [fr24.livefeed.livefeed_world_data][]*
+        *Related: [fr24.grpc.live_feed_world_data][]*
 
         :param timestamp: Unix timestamp (seconds) of the live feed data.
             If `None`, the latest live data will be fetched. Otherwise,
@@ -624,7 +626,7 @@ class LiveFeedService(ServiceBase):
         duration: int | None,
         hfreq: int | None,
         limit: int | None,
-        fields: list[LivefeedField] | None,
+        fields: list[LiveFeedField] | None,
     ) -> LiveFeedContext:
         ts = to_unix_timestamp(timestamp)
         if ts is None and (hfreq is not None or duration is not None):

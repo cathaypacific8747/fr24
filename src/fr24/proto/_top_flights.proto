@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+message FollowedFlight {
+    uint32 flight_id = 1;
+    uint32 live_clicks = 2;
+    uint32 total_clicks = 3;
+    string flight_number = 4;
+    string callsign = 5;
+    uint32 squawk = 6;
+    string from_iata = 7;
+    string from_city = 8;
+    string to_iata = 9;
+    string to_city = 10;
+    string type = 11;
+    string full_description = 12;
+} // new: 24.169.0808
+
+message TopFlightsRequest {
+    uint32 limit = 1; // 1..=10
+} // new: 24.169.0808
+
+message TopFlightsResponse {
+    repeated FollowedFlight scoreboard_list = 1;
+} // new: 24.169.0808
+

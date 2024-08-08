@@ -1,27 +1,22 @@
-import sys
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Literal,
-    TypedDict,
-    TypeVar,
-    Union,
-)
+from __future__ import annotations
+
+from typing import Literal, Union
+
+from typing_extensions import Annotated, NotRequired, TypedDict, TypeGuard
 
 
 class Live(TypedDict):
     lat: float
     lon: float
     schd_from: str
-    schd_to: str
+    schd_to: NotRequired[str]
     ac_type: str
     route: str
-    logo: str
+    logo: NotRequired[str]
     reg: str
-    callsign: str
-    flight: str
-    operator: str
+    callsign: NotRequired[str]
+    flight: NotRequired[str]
+    operator: NotRequired[str]
 
 
 class Airport(TypedDict):
@@ -32,48 +27,101 @@ class Airport(TypedDict):
 
 class Operator(TypedDict):
     operator_id: int
-    iata: str
-    logo: str
+    iata: NotRequired[str]
+    logo: NotRequired[str]
 
 
 class Schedule(TypedDict):
-    logo: str
-    callsign: str
+    logo: NotRequired[str]
+    callsign: NotRequired[str]
     flight: str
-    operator: str
+    operator: NotRequired[str]
+    operator_id: NotRequired[int]
+    schd_from: NotRequired[str]
+    schd_to: NotRequired[str]
 
 
 class Aircraft(TypedDict):
-    equip: str
+    owner: str  # icao
+    equip: str  # aircraft type
     hex: str
+    operator_id: int
+    logo: str
 
 
-T = TypeVar("T", Airport, Operator, Live, Schedule, Aircraft)
+class EntryBase(TypedDict):
+    label: str
+    name: NotRequired[str]
 
 
-if sys.version_info >= (3, 11) or TYPE_CHECKING:
+Iata = Annotated[str, "IATA"]
+Icao = Annotated[str, "ICAO"]
 
-    class Entry(Generic[T], TypedDict):
-        id: str
-        label: str
-        detail: T
-        type: Literal["airport", "operator", "live", "schedule", "aircraft"]
-        match: Literal["icao", "iata", "begins"]
-        name: str
 
-else:
+class AirportEntry(EntryBase):
+    id: Iata | Icao  # iata if match == "begins"
+    detail: Airport
+    type: Literal["airport"]
+    match: Literal["icao", "iata", "begins", "contains"]
 
-    class Entry(TypedDict):
-        id: str
-        label: str
-        detail: dict[str, Any]
-        type: Literal["airport", "operator", "live", "schedule", "aircraft"]
-        match: Literal["icao", "iata", "begins"]
-        name: str
+
+class OperatorEntry(EntryBase):
+    id: str
+    detail: Operator
+    type: Literal["operator"]
+    match: Literal["begins", "icao"]
+
+
+class LiveEntry(EntryBase):
+    id: str
+    detail: Live
+    type: Literal["live"]
+    match: Literal["route", "begins"]
+
+
+class ScheduleEntry(EntryBase):
+    id: str
+    detail: Schedule
+    type: Literal["schedule"]
+    match: Literal["route", "begins"]
+
+
+class AircraftEntry(EntryBase):
+    id: str
+    detail: Aircraft
+    type: Literal["aircraft"]
+    match: Literal["begins"]
+
+
+Entry = Union[
+    AirportEntry, OperatorEntry, LiveEntry, ScheduleEntry, AircraftEntry
+]
+# NOTE: in tests, we use Annotated[Entry, pydantic.Discriminator("type")]
+# not adding here because pydantic belongs to test dependencies
+
+
+def is_airport(entry: Entry) -> TypeGuard[AirportEntry]:
+    return entry["type"] == "airport"
+
+
+def is_operator(entry: Entry) -> TypeGuard[OperatorEntry]:
+    return entry["type"] == "operator"
+
+
+def is_live(entry: Entry) -> TypeGuard[LiveEntry]:
+    return entry["type"] == "live"
+
+
+def is_schedule(entry: Entry) -> TypeGuard[ScheduleEntry]:
+    return entry["type"] == "schedule"
+
+
+def is_aircraft(entry: Entry) -> TypeGuard[AircraftEntry]:
+    return entry["type"] == "aircraft"
 
 
 class StatsEntry(TypedDict):
-    all: int
+    all: NotRequired[int]
     airport: int
     operator: int
     live: int
@@ -87,13 +135,5 @@ class Stats(TypedDict):
 
 
 class FindResult(TypedDict):
-    results: list[
-        Union[
-            Entry[Airport],
-            Entry[Operator],
-            Entry[Live],
-            Entry[Schedule],
-            Entry[Aircraft],
-        ]
-    ]
+    results: list[Entry]
     stats: Stats

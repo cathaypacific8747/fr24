@@ -49,19 +49,19 @@ Here is an example for using the [**Live Feed**][fr24.core.LiveFeedService] serv
 === "example.py"
 
     ```py hl_lines="4"
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:script"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:script"
     ```
 
 === "`response`"
     
     ```py
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:response"
     ```
 
 === "`datac.df`"
     
     ```
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:df"
     ```
 
 When `FR24()` is first initialised, it creates an unauthenticated [HTTPX client](https://www.python-httpx.org/async/) under the hood.
@@ -89,22 +89,22 @@ The `async with` statement ensures that it is properly authenticated by calling 
 === "Jupyter cell"
 
     ```py hl_lines="5"
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:script"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:script"
     ```
 
 === "`response`"
     
     ```py
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:response"
     ```
 
 === "`datac.df`"
     
     ```
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:df"
     ```
 
-`fr24.livefeed` returns a [LiveFeedService][fr24.core.LiveFeedService], with the following methods:
+`fr24.live_feed` returns a [LiveFeedService][fr24.core.LiveFeedService], with the following methods:
 
 | Method                                                                                        | Return type                    |
 | --------------------------------------------------------------------------------------------- | ------------------------------ |
@@ -124,23 +124,23 @@ uses 64-bit integers by default and can be storage-inefficient.
 === "Jupyter cell"
 
     ```py hl_lines="6"
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:script"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:script"
     ```
 
 === "`response`"
     
     ```py
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:response"
     ```
 
 === "`datac.df`"
     
     ```
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:df"
     ```
 
 Instead, you can call `.to_arrow()`, which creates a new
-[strongly typed][fr24.types.cache.livefeed_schema] Apache Arrow table from it.
+[strongly typed][fr24.types.cache.live_feed_schema] Apache Arrow table from it.
 
 [Arrow](https://arrow.apache.org/docs/index.html) is a columnar data storage format
 with [excellent interoperability](https://arrow.apache.org/docs/python/pandas.html)
@@ -155,19 +155,19 @@ with `pd.DataFrame`. You can retrieve:
 === "Jupyter cell"
 
     ```py hl_lines="7"
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:script"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:script"
     ```
 
 === "`response`"
     
     ```py
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:response"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:response"
     ```
 
 === "`datac.df`"
     
     ```
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:df"
     ```
 
 `.save()` writes the table to the default cache directory[^1] using the [Parquet](https://parquet.apache.org/)
@@ -206,13 +206,13 @@ These directories are created automatically whenever `datac.save()` is called.
 === "Jupyter cell"
 
     ```py hl_lines="5"
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:script2"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:script2"
     ```
 
 === "`datac.df`"
     
     ```
-    --8<-- "docs/usage/scripts/01_livefeed_live.py:df"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:df"
     ```
 
 To retrieve saved data, first pass in the unique identifier (timestamp in this case) to the `.load()`.

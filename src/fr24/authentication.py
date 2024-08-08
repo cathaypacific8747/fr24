@@ -14,7 +14,11 @@ from appdirs import user_config_dir
 from loguru import logger
 
 from .common import DEFAULT_HEADERS
-from .types.fr24 import Authentication, TokenSubscriptionKey, UsernamePassword
+from .types.authentication import (
+    Authentication,
+    TokenSubscriptionKey,
+    UsernamePassword,
+)
 
 
 def get_credentials() -> TokenSubscriptionKey | UsernamePassword | None:

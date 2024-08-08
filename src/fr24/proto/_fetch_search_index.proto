@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+message FlightSearchData {
+    string reg = 1;
+    string schd_from = 2;
+    string schd_to = 3;
+    string flight = 4;
+    string operator = 5;
+    string ac_type = 6;
+    float lat = 7;
+    float lon = 8;
+    string callsign = 9;
+    uint32 id = 10;
+    bool restricted = 11;
+}
+
+message FetchSearchIndexRequest {} // new: 24.169.0808
+
+message FetchSearchIndexResponse {
+    repeated FlightSearchData flights_list = 1;
+} // new: 24.169.0808

@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "fr24"
 homepage = "https://github.com/cathaypacific8747/fr24/"
-version = "0.1.2"
+version = "0.1.3"
 description = "Parse gRPC and JSON data from FlightRadar24"
 authors = [
   "Abraham Cheung <abraham@ylcheung.com>",
   "Xavier Olive <git@xoolive.org>",
 ]
 license = "MIT"
-include = ["LICENSE", "py.typed", "request.proto", "style.tcss"]
+include = ["LICENSE", "py.typed", "*.proto", "style.tcss"]
 readme = "README.md"
 
 [tool.poetry.scripts]
@@ -17,12 +17,11 @@ fr24 = 'fr24.cli:app'
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 pandas = "^2.2.2"
-pyarrow = "^16.1.0"
-httpx = { extras = ["http2"], version = "^0.27.0" }
-brotli = "^1.1.0"
-protobuf = ">=5.27.1"
+pyarrow = "^17.0.0"
+httpx = { extras = ["brotli", "http2"], version = "^0.27.0" }
+protobuf = ">=5.27.2"
 appdirs = "^1.4.4"
-textual = ">=0.58,<0.72"
+textual = ">=0.58,<0.75"
 loguru = "^0.7.2"
 typer = "^0.12.3"
 
@@ -30,11 +29,16 @@ typer = "^0.12.3"
 ipykernel = "^6.26.0"
 pytest = "^8.2.0"
 pytest-asyncio = "^0.23.7"
-ruff = ">=0.4.10,<0.6.0"
+ruff = ">=0.5.0,<0.6.0"
 mypy = "^1.10.1"
 textual-dev = "^1.5.1"
 types-protobuf = "^5.26.0.20240422"
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.2.0"
+pytest-asyncio = "^0.23.7"
+pydantic = "^2.8.0"
+eval-type-backport = "^0.2.0" # for pydantic, <3.10 syntax
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = { extras = ["imaging"], version = "^9.5.27" }
