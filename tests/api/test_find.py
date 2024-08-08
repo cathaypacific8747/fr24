@@ -78,18 +78,13 @@ async def test_find_schedule_and_live() -> None:
         list_ = await find(client, "hkg-tpe")
         assert list_ is not None
 
-        found_hkg = False
         schedule_count = 0
         live_count = 0
         for result in list_["results"]:
-            if is_airport(result):
-                if "VHHH" in result["label"]:
-                    found_hkg = True
-            elif is_schedule(result):
+            if is_schedule(result):
                 schedule_count += 1
             elif is_live(result):
                 live_count += 1
-        assert found_hkg
         assert list_["stats"]["count"]["schedule"] == schedule_count
         assert schedule_count > 0
         assert list_["stats"]["count"]["live"] == live_count

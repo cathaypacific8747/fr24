@@ -188,7 +188,7 @@ class FlightListArrow(ArrowTable[FlightListContext]):
     @override
     def concat(
         self,
-        data_new: FlightListArrow,  # | FlightListAPIResp,
+        data_new: FlightListArrow,
         inplace: bool = False,
     ) -> FlightListArrow:
         """
@@ -198,11 +198,9 @@ class FlightListArrow(ArrowTable[FlightListContext]):
 
         :param inplace: If `True`, the current table will be updated in place.
         """
-        # TODO: allow passing list[arrow|apiresp]
-        # if isinstance(data_new, FlightListAPIResp):
-        #     data_new = data_new.to_arrow()
+        # NOTE: not using `flight_id` as primary key as it is nullable
         mask: pa.ChunkedArray = pc.is_in(
-            self.data["flight_id"], value_set=data_new.data["flight_id"]
+            self.data["STOD"], value_set=data_new.data["STOD"]
         )
         if (dup_count := pc.sum(mask).as_py()) is not None and dup_count > 0:
             logger.info(f"overwriting {dup_count} duplicate flight ids")
