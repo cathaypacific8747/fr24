@@ -18,7 +18,10 @@ import pandas as pd
 
 from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
 from .common import to_unix_timestamp
-from .grpc import live_feed_playback_world_data, live_feed_world_data
+from .grpc import (
+    live_feed_playback_world_data,
+    live_feed_world_data,
+)
 from .json import (
     flight_list,
     flight_list_arrow,

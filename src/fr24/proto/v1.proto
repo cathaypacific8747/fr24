@@ -6,7 +6,6 @@ option optimize_for = SPEED;
 
 import public "fr24/proto/_common.proto";
 import public "fr24/proto/_live_feed.proto";
-// the following are not yet implemented in the python client
 import public "fr24/proto/_health.proto";
 import public "fr24/proto/_nearest_flights.proto";
 import public "fr24/proto/_live_flight_status.proto";
@@ -23,9 +22,9 @@ service Feed {
     rpc Playback(PlaybackRequest) returns (PlaybackResponse);
     rpc NearestFlights(NearestFlightsRequest) returns (NearestFlightsResponse);
     rpc LiveFlightsStatus(LiveFlightsStatusRequest) returns (LiveFlightsStatusResponse);
-    rpc FetchSearchIndex(FetchSearchIndexRequest) returns (FetchSearchIndexResponse);
+    rpc FetchSearchIndex(FetchSearchIndexRequest) returns (FetchSearchIndexResponse); // WARN: unstable
     rpc FollowFlight(FollowFlightRequest) returns (stream FollowFlightResponse);
     rpc TopFlights(TopFlightsRequest) returns (TopFlightsResponse);
     rpc LiveTrail(LiveTrailRequest) returns (LiveTrailResponse);
-    rpc HistoricTrail(HistoricTrailRequest) returns (HistoricTrailResponse);
+    rpc HistoricTrail(HistoricTrailRequest) returns (HistoricTrailResponse); // WARN: unstable
 }

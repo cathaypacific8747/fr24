@@ -17,11 +17,11 @@ fr24 = 'fr24.cli:app'
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 pandas = "^2.2.2"
-pyarrow = "^16.1.0"
+pyarrow = "^17.0.0"
 httpx = { extras = ["brotli", "http2"], version = "^0.27.0" }
 protobuf = ">=5.27.2"
 appdirs = "^1.4.4"
-textual = ">=0.58,<0.72"
+textual = ">=0.58,<0.75"
 loguru = "^0.7.2"
 typer = "^0.12.3"
 

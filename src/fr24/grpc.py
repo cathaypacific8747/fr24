@@ -31,7 +31,6 @@ from .proto.v1_pb2 import (
     Flight,
     FollowFlightRequest,
     FollowFlightResponse,
-    Geolocation,
     HistoricTrailRequest,
     HistoricTrailResponse,
     LiveFeedRequest,
@@ -309,27 +308,6 @@ async def live_feed_playback_world_data(
         if not isinstance(r, BaseException)
         for lfr in r.live_feed_response.flights_list
     ]
-
-
-def nearest_flights_message_create(
-    lat: float,
-    lon: float,
-    radius: int,
-    limit: int = 1500,
-) -> NearestFlightsRequest:
-    """
-    Create the LiveFeedRequest protobuf message
-
-    :param lat: Centerpoint latitude (degrees)
-    :param lon: Centerpoint longitude (degrees)
-    :param radius: Circle radius (metres)
-    :param limit: Max number of flights
-    """
-    return NearestFlightsRequest(
-        location=Geolocation(lat=lat, lon=lon),
-        radius=radius,
-        limit=limit,
-    )
 
 
 def nearest_flights_request_create(

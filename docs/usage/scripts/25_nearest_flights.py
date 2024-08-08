@@ -5,16 +5,19 @@
 # --8<-- [start:script0]
 import httpx
 from fr24.grpc import (
-    nearest_flights_message_create,
     nearest_flights_request_create,
     nearest_flights_post,
 )
-from fr24.proto.v1_pb2 import NearestFlightsResponse
+from fr24.proto.v1_pb2 import NearestFlightsResponse, NearestFlightsRequest, Geolocation
 
 
 async def nearest_flights_data() -> NearestFlightsResponse:
     async with httpx.AsyncClient() as client:
-        message = nearest_flights_message_create(lat=22.31257, lon=113.92708, radius=1000)
+        message = NearestFlightsRequest(
+            location=Geolocation(lat=22.31257, lon=113.92708),
+            radius=1000,
+            limit=1500
+        )
         request = nearest_flights_request_create(message)
         return await nearest_flights_post(client, request)
 
