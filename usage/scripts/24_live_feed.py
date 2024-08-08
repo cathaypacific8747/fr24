@@ -1,23 +1,22 @@
 # ruff: noqa
 # fmt: off
+# mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.livefeed import (
-    livefeed_message_create,
-    livefeed_post,
-    livefeed_request_create,
-    livefeed_response_parse,
+from fr24.grpc import (
+    live_feed_message_create,
+    live_feed_post,
+    live_feed_request_create,
 )
-from fr24.proto.request_pb2 import LiveFeedResponse
+from fr24.proto.v1_pb2 import LiveFeedResponse
 
 
 async def france_data() -> LiveFeedResponse:
     async with httpx.AsyncClient() as client:
-        message = livefeed_message_create(north=50, west=-7, south=40, east=10)
-        request = livefeed_request_create(message)
-        data = await livefeed_post(client, request)
-        return livefeed_response_parse(data)
+        message = live_feed_message_create(north=50, west=-7, south=40, east=10)
+        request = live_feed_request_create(message)
+        return await live_feed_post(client, request)
 
 
 data = await france_data()
@@ -61,7 +60,7 @@ flights_list {
 """
 # %% [markdown]
 # # explore in JSON format
-# take a look at src/fr24/livefeed.py to find more examples about how to use it
+# take a look at src/fr24/live_feed.py to find more examples about how to use it
 
 # %%
 # --8<-- [start:script1]

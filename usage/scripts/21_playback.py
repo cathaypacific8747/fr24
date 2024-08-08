@@ -1,11 +1,12 @@
 # ruff: noqa
 # fmt: off
+# mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script0]
 import httpx
 
 from fr24.authentication import login
-from fr24.history import playback, playback_df
+from fr24.json import playback, playback_df
 
 import pandas as pd
 
