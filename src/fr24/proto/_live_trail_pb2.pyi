@@ -6,30 +6,6 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class RadarHistoryRecord(_message.Message):
-    __slots__ = ("timestamp", "lat", "lon", "altitude", "spd", "heading", "vspd", "squawk", "source", "callsign")
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    LAT_FIELD_NUMBER: _ClassVar[int]
-    LON_FIELD_NUMBER: _ClassVar[int]
-    ALTITUDE_FIELD_NUMBER: _ClassVar[int]
-    SPD_FIELD_NUMBER: _ClassVar[int]
-    HEADING_FIELD_NUMBER: _ClassVar[int]
-    VSPD_FIELD_NUMBER: _ClassVar[int]
-    SQUAWK_FIELD_NUMBER: _ClassVar[int]
-    SOURCE_FIELD_NUMBER: _ClassVar[int]
-    CALLSIGN_FIELD_NUMBER: _ClassVar[int]
-    timestamp: int
-    lat: float
-    lon: float
-    altitude: int
-    spd: int
-    heading: int
-    vspd: int
-    squawk: int
-    source: __common_pb2.DataSource
-    callsign: str
-    def __init__(self, timestamp: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., altitude: _Optional[int] = ..., spd: _Optional[int] = ..., heading: _Optional[int] = ..., vspd: _Optional[int] = ..., squawk: _Optional[int] = ..., source: _Optional[_Union[__common_pb2.DataSource, str]] = ..., callsign: _Optional[str] = ...) -> None: ...
-
 class LiveTrailRequest(_message.Message):
     __slots__ = ("flight_id",)
     FLIGHT_ID_FIELD_NUMBER: _ClassVar[int]
@@ -39,5 +15,5 @@ class LiveTrailRequest(_message.Message):
 class LiveTrailResponse(_message.Message):
     __slots__ = ("radar_records_list",)
     RADAR_RECORDS_LIST_FIELD_NUMBER: _ClassVar[int]
-    radar_records_list: _containers.RepeatedCompositeFieldContainer[RadarHistoryRecord]
-    def __init__(self, radar_records_list: _Optional[_Iterable[_Union[RadarHistoryRecord, _Mapping]]] = ...) -> None: ...
+    radar_records_list: _containers.RepeatedCompositeFieldContainer[__common_pb2.RadarHistoryRecord]
+    def __init__(self, radar_records_list: _Optional[_Iterable[_Union[__common_pb2.RadarHistoryRecord, _Mapping]]] = ...) -> None: ...

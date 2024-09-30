@@ -59,7 +59,7 @@ message Filter {
     repeated AirportFilter origins_list = 12;
     repeated AirportFilter destinations_list = 13;
     repeated _common.Service categories_list = 14;
-    // repeated ? ? = 15;
+    repeated string airspaces_list = 15;
 }
 
 message LiveFeedRequest {

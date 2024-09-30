@@ -75,7 +75,7 @@ class AirlineFilter(_message.Message):
     def __init__(self, icao: _Optional[str] = ..., type: _Optional[_Union[AirlineFilterType, str]] = ...) -> None: ...
 
 class Filter(_message.Message):
-    __slots__ = ("altitude_ranges_list", "speed_ranges_list", "airlines_list", "callsigns_list", "radars_list", "regs_list", "airports_list", "flights_list", "types_list", "birth_year_ranges_list", "squawks_list", "origins_list", "destinations_list", "categories_list")
+    __slots__ = ("altitude_ranges_list", "speed_ranges_list", "airlines_list", "callsigns_list", "radars_list", "regs_list", "airports_list", "flights_list", "types_list", "birth_year_ranges_list", "squawks_list", "origins_list", "destinations_list", "categories_list", "airspaces_list")
     ALTITUDE_RANGES_LIST_FIELD_NUMBER: _ClassVar[int]
     SPEED_RANGES_LIST_FIELD_NUMBER: _ClassVar[int]
     AIRLINES_LIST_FIELD_NUMBER: _ClassVar[int]
@@ -90,6 +90,7 @@ class Filter(_message.Message):
     ORIGINS_LIST_FIELD_NUMBER: _ClassVar[int]
     DESTINATIONS_LIST_FIELD_NUMBER: _ClassVar[int]
     CATEGORIES_LIST_FIELD_NUMBER: _ClassVar[int]
+    AIRSPACES_LIST_FIELD_NUMBER: _ClassVar[int]
     altitude_ranges_list: _containers.RepeatedCompositeFieldContainer[Interval]
     speed_ranges_list: _containers.RepeatedCompositeFieldContainer[Interval]
     airlines_list: _containers.RepeatedCompositeFieldContainer[AirlineFilter]
@@ -104,7 +105,8 @@ class Filter(_message.Message):
     origins_list: _containers.RepeatedCompositeFieldContainer[AirportFilter]
     destinations_list: _containers.RepeatedCompositeFieldContainer[AirportFilter]
     categories_list: _containers.RepeatedScalarFieldContainer[__common_pb2.Service]
-    def __init__(self, altitude_ranges_list: _Optional[_Iterable[_Union[Interval, _Mapping]]] = ..., speed_ranges_list: _Optional[_Iterable[_Union[Interval, _Mapping]]] = ..., airlines_list: _Optional[_Iterable[_Union[AirlineFilter, _Mapping]]] = ..., callsigns_list: _Optional[_Iterable[str]] = ..., radars_list: _Optional[_Iterable[str]] = ..., regs_list: _Optional[_Iterable[str]] = ..., airports_list: _Optional[_Iterable[_Union[AirportFilter, _Mapping]]] = ..., flights_list: _Optional[_Iterable[str]] = ..., types_list: _Optional[_Iterable[str]] = ..., birth_year_ranges_list: _Optional[_Iterable[_Union[Interval, _Mapping]]] = ..., squawks_list: _Optional[_Iterable[int]] = ..., origins_list: _Optional[_Iterable[_Union[AirportFilter, _Mapping]]] = ..., destinations_list: _Optional[_Iterable[_Union[AirportFilter, _Mapping]]] = ..., categories_list: _Optional[_Iterable[_Union[__common_pb2.Service, str]]] = ...) -> None: ...
+    airspaces_list: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, altitude_ranges_list: _Optional[_Iterable[_Union[Interval, _Mapping]]] = ..., speed_ranges_list: _Optional[_Iterable[_Union[Interval, _Mapping]]] = ..., airlines_list: _Optional[_Iterable[_Union[AirlineFilter, _Mapping]]] = ..., callsigns_list: _Optional[_Iterable[str]] = ..., radars_list: _Optional[_Iterable[str]] = ..., regs_list: _Optional[_Iterable[str]] = ..., airports_list: _Optional[_Iterable[_Union[AirportFilter, _Mapping]]] = ..., flights_list: _Optional[_Iterable[str]] = ..., types_list: _Optional[_Iterable[str]] = ..., birth_year_ranges_list: _Optional[_Iterable[_Union[Interval, _Mapping]]] = ..., squawks_list: _Optional[_Iterable[int]] = ..., origins_list: _Optional[_Iterable[_Union[AirportFilter, _Mapping]]] = ..., destinations_list: _Optional[_Iterable[_Union[AirportFilter, _Mapping]]] = ..., categories_list: _Optional[_Iterable[_Union[__common_pb2.Service, str]]] = ..., airspaces_list: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class LiveFeedRequest(_message.Message):
     __slots__ = ("bounds", "settings", "filters_list", "fleets_list", "highlight_mode", "stats", "limit", "maxage", "restriction_mode", "field_mask", "selected_flight_ids_list")

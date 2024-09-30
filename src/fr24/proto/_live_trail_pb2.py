@@ -25,17 +25,15 @@ _sym_db = _symbol_database.Default()
 from fr24.proto import _common_pb2 as fr24_dot_proto_dot___common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x66r24/proto/_live_trail.proto\x1a\x18\x66r24/proto/_common.proto\"\xc6\x01\n\x12RadarHistoryRecord\x12\x11\n\ttimestamp\x18\x01 \x01(\x04\x12\x0b\n\x03lat\x18\x02 \x01(\x02\x12\x0b\n\x03lon\x18\x03 \x01(\x02\x12\x10\n\x08\x61ltitude\x18\x04 \x01(\x05\x12\x0b\n\x03spd\x18\x05 \x01(\r\x12\x0f\n\x07heading\x18\x06 \x01(\r\x12\x0c\n\x04vspd\x18\x07 \x01(\x05\x12\x0e\n\x06squawk\x18\x08 \x01(\r\x12#\n\x06source\x18\t \x01(\x0e\x32\x13._common.DataSource\x12\x10\n\x08\x63\x61llsign\x18\n \x01(\t\"%\n\x10LiveTrailRequest\x12\x11\n\tflight_id\x18\x01 \x01(\x07\"D\n\x11LiveTrailResponse\x12/\n\x12radar_records_list\x18\x01 \x03(\x0b\x32\x13.RadarHistoryRecordb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x66r24/proto/_live_trail.proto\x1a\x18\x66r24/proto/_common.proto\"%\n\x10LiveTrailRequest\x12\x11\n\tflight_id\x18\x01 \x01(\x07\"L\n\x11LiveTrailResponse\x12\x37\n\x12radar_records_list\x18\x01 \x03(\x0b\x32\x1b._common.RadarHistoryRecordb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'fr24.proto._live_trail_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_RADARHISTORYRECORD']._serialized_start=59
-  _globals['_RADARHISTORYRECORD']._serialized_end=257
-  _globals['_LIVETRAILREQUEST']._serialized_start=259
-  _globals['_LIVETRAILREQUEST']._serialized_end=296
-  _globals['_LIVETRAILRESPONSE']._serialized_start=298
-  _globals['_LIVETRAILRESPONSE']._serialized_end=366
+  _globals['_LIVETRAILREQUEST']._serialized_start=58
+  _globals['_LIVETRAILREQUEST']._serialized_end=95
+  _globals['_LIVETRAILRESPONSE']._serialized_start=97
+  _globals['_LIVETRAILRESPONSE']._serialized_end=173
 # @@protoc_insertion_point(module_scope)

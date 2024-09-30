@@ -8,6 +8,7 @@ message ImageInfo {
     string thumbnail = 3;
     string medium = 4;
     string large = 5;
+    string sideview = 6;
 } // new: 24.169.0808
 
 message AircraftInfo {
@@ -26,6 +27,7 @@ message AircraftInfo {
     bool msn_available = 13;
     bool age_available = 14;
     string registered_owners = 15;
+    bool is_country_of_reg_available = 16;
 } // new: 24.169.0808
 
 message Point {
@@ -128,6 +130,7 @@ message ExtendedFlightInfo {
     int32 vspeed = 17;
     bool airspace_availability = 18;
     string airspace = 19;
+    string airspace_id = 20;
 } // new: 24.169.0808
 
 message TrailPoint {

@@ -32,21 +32,23 @@ YELLOW: DelayStatus
 RED: DelayStatus
 
 class ImageInfo(_message.Message):
-    __slots__ = ("url", "copyright", "thumbnail", "medium", "large")
+    __slots__ = ("url", "copyright", "thumbnail", "medium", "large", "sideview")
     URL_FIELD_NUMBER: _ClassVar[int]
     COPYRIGHT_FIELD_NUMBER: _ClassVar[int]
     THUMBNAIL_FIELD_NUMBER: _ClassVar[int]
     MEDIUM_FIELD_NUMBER: _ClassVar[int]
     LARGE_FIELD_NUMBER: _ClassVar[int]
+    SIDEVIEW_FIELD_NUMBER: _ClassVar[int]
     url: str
     copyright: str
     thumbnail: str
     medium: str
     large: str
-    def __init__(self, url: _Optional[str] = ..., copyright: _Optional[str] = ..., thumbnail: _Optional[str] = ..., medium: _Optional[str] = ..., large: _Optional[str] = ...) -> None: ...
+    sideview: str
+    def __init__(self, url: _Optional[str] = ..., copyright: _Optional[str] = ..., thumbnail: _Optional[str] = ..., medium: _Optional[str] = ..., large: _Optional[str] = ..., sideview: _Optional[str] = ...) -> None: ...
 
 class AircraftInfo(_message.Message):
-    __slots__ = ("icao_address", "reg", "country_of_reg", "type", "icon", "full_description", "msn", "service", "ac_birth_date", "ac_age_text", "images_list", "is_test_flight", "msn_available", "age_available", "registered_owners")
+    __slots__ = ("icao_address", "reg", "country_of_reg", "type", "icon", "full_description", "msn", "service", "ac_birth_date", "ac_age_text", "images_list", "is_test_flight", "msn_available", "age_available", "registered_owners", "is_country_of_reg_available")
     ICAO_ADDRESS_FIELD_NUMBER: _ClassVar[int]
     REG_FIELD_NUMBER: _ClassVar[int]
     COUNTRY_OF_REG_FIELD_NUMBER: _ClassVar[int]
@@ -62,6 +64,7 @@ class AircraftInfo(_message.Message):
     MSN_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
     AGE_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
     REGISTERED_OWNERS_FIELD_NUMBER: _ClassVar[int]
+    IS_COUNTRY_OF_REG_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
     icao_address: int
     reg: int
     country_of_reg: int
@@ -77,7 +80,8 @@ class AircraftInfo(_message.Message):
     msn_available: bool
     age_available: bool
     registered_owners: str
-    def __init__(self, icao_address: _Optional[int] = ..., reg: _Optional[int] = ..., country_of_reg: _Optional[int] = ..., type: _Optional[str] = ..., icon: _Optional[_Union[__common_pb2.Icon, str]] = ..., full_description: _Optional[str] = ..., msn: _Optional[str] = ..., service: _Optional[_Union[__common_pb2.Service, str]] = ..., ac_birth_date: _Optional[str] = ..., ac_age_text: _Optional[str] = ..., images_list: _Optional[_Iterable[_Union[ImageInfo, _Mapping]]] = ..., is_test_flight: bool = ..., msn_available: bool = ..., age_available: bool = ..., registered_owners: _Optional[str] = ...) -> None: ...
+    is_country_of_reg_available: bool
+    def __init__(self, icao_address: _Optional[int] = ..., reg: _Optional[int] = ..., country_of_reg: _Optional[int] = ..., type: _Optional[str] = ..., icon: _Optional[_Union[__common_pb2.Icon, str]] = ..., full_description: _Optional[str] = ..., msn: _Optional[str] = ..., service: _Optional[_Union[__common_pb2.Service, str]] = ..., ac_birth_date: _Optional[str] = ..., ac_age_text: _Optional[str] = ..., images_list: _Optional[_Iterable[_Union[ImageInfo, _Mapping]]] = ..., is_test_flight: bool = ..., msn_available: bool = ..., age_available: bool = ..., registered_owners: _Optional[str] = ..., is_country_of_reg_available: bool = ...) -> None: ...
 
 class Point(_message.Message):
     __slots__ = ("latitude", "longitude")
@@ -194,7 +198,7 @@ class FollowFlightRequest(_message.Message):
     def __init__(self, flight_id: _Optional[int] = ..., restriction_mode: _Optional[_Union[__common_pb2.RestrictionVisibility, str]] = ...) -> None: ...
 
 class ExtendedFlightInfo(_message.Message):
-    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "status", "timestamp", "on_ground", "callsign", "source", "ems_availability", "ems_info", "squawk_availability", "squawk", "vspeed_availability", "vspeed", "airspace_availability", "airspace")
+    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "status", "timestamp", "on_ground", "callsign", "source", "ems_availability", "ems_info", "squawk_availability", "squawk", "vspeed_availability", "vspeed", "airspace_availability", "airspace", "airspace_id")
     FLIGHTID_FIELD_NUMBER: _ClassVar[int]
     LAT_FIELD_NUMBER: _ClassVar[int]
     LON_FIELD_NUMBER: _ClassVar[int]
@@ -214,6 +218,7 @@ class ExtendedFlightInfo(_message.Message):
     VSPEED_FIELD_NUMBER: _ClassVar[int]
     AIRSPACE_AVAILABILITY_FIELD_NUMBER: _ClassVar[int]
     AIRSPACE_FIELD_NUMBER: _ClassVar[int]
+    AIRSPACE_ID_FIELD_NUMBER: _ClassVar[int]
     flightid: int
     lat: float
     lon: float
@@ -233,7 +238,8 @@ class ExtendedFlightInfo(_message.Message):
     vspeed: int
     airspace_availability: bool
     airspace: str
-    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., status: _Optional[_Union[__common_pb2.Status, str]] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[__common_pb2.DataSource, str]] = ..., ems_availability: _Optional[_Union[__common_pb2.EMSAvailability, _Mapping]] = ..., ems_info: _Optional[_Union[__common_pb2.EMSInfo, _Mapping]] = ..., squawk_availability: bool = ..., squawk: _Optional[int] = ..., vspeed_availability: bool = ..., vspeed: _Optional[int] = ..., airspace_availability: bool = ..., airspace: _Optional[str] = ...) -> None: ...
+    airspace_id: str
+    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., status: _Optional[_Union[__common_pb2.Status, str]] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[__common_pb2.DataSource, str]] = ..., ems_availability: _Optional[_Union[__common_pb2.EMSAvailability, _Mapping]] = ..., ems_info: _Optional[_Union[__common_pb2.EMSInfo, _Mapping]] = ..., squawk_availability: bool = ..., squawk: _Optional[int] = ..., vspeed_availability: bool = ..., vspeed: _Optional[int] = ..., airspace_availability: bool = ..., airspace: _Optional[str] = ..., airspace_id: _Optional[str] = ...) -> None: ...
 
 class TrailPoint(_message.Message):
     __slots__ = ("snapshot_id", "lat", "lon", "altitude", "spd", "heading", "vspd")
