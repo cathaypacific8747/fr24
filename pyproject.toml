@@ -34,7 +34,7 @@ types-protobuf = "5.28.*"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.0"
-pytest-asyncio = "^0.23.7"
+pytest-asyncio = ">=0.23.7,<0.25.0"
 pydantic = "^2.8.0"
 eval-type-backport = "^0.2.0" # for pydantic, <3.10 syntax
 
