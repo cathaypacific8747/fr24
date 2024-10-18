@@ -18,7 +18,12 @@ We aim to adhere to the official structure and naming as far as possible. Althou
 
 ## Compilation
 
-Make sure the [correct version](https://protobuf.dev/support/version-support/#python) of `protoc` is installed.
+Make sure the [correct version](https://protobuf.dev/support/version-support/#python) of `protoc` is installed:
+
+```command
+curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v28.2/protoc-28.2-linux-x86_64.zip
+unzip protoc-28.2-linux-x86_64.zip -d $HOME/.local
+```
 
 cd into `./fr24` and run:
 ```command

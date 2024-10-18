@@ -11,9 +11,9 @@ class FlightStage(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     UNKNOWN: _ClassVar[FlightStage]
     ON_GROUND: _ClassVar[FlightStage]
-    TAKING_OFF: _ClassVar[FlightStage]
+    ASCENDING: _ClassVar[FlightStage]
     AIRBORNE: _ClassVar[FlightStage]
-    ON_APPROACH: _ClassVar[FlightStage]
+    DESCENDING: _ClassVar[FlightStage]
 
 class DelayStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -23,9 +23,9 @@ class DelayStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     RED: _ClassVar[DelayStatus]
 UNKNOWN: FlightStage
 ON_GROUND: FlightStage
-TAKING_OFF: FlightStage
+ASCENDING: FlightStage
 AIRBORNE: FlightStage
-ON_APPROACH: FlightStage
+DESCENDING: FlightStage
 GRAY: DelayStatus
 GREEN: DelayStatus
 YELLOW: DelayStatus

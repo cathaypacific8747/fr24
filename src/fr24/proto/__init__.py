@@ -20,6 +20,7 @@ def encode_message(msg: T) -> bytes:
 
 # TODO: use Result<T, E> instead
 def parse_data(data: bytes, msg_type: Type[T]) -> T:
+    """Decode a DATA frame into a protobuf message."""
     assert len(data), "empty DATA frame"
     assert data[0] != 1, "compressed message not implemented" # no compression
     assert data[0] == 0, f"received unknown message: {data}"

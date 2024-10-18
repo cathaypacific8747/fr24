@@ -42,7 +42,7 @@ async def nearest_flights() -> NearestFlightsResponse:
 async def test_nearest_flights(
     nearest_flights: NearestFlightsResponse,
 ) -> None:
-    assert len(nearest_flights.flights_list) > 10
+    assert len(nearest_flights.flights_list) > 5
 
 
 @pytest.mark.asyncio

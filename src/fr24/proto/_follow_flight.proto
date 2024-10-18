@@ -80,10 +80,10 @@ message ScheduleInfo {
 enum FlightStage {
     UNKNOWN = 0;
     ON_GROUND = 1;
-    TAKING_OFF = 2;
+    ASCENDING = 2;
     AIRBORNE = 3;
-    ON_APPROACH = 4;
-} // new: 24.169.0808
+    DESCENDING = 4;
+} // new: 24.169.0808, updated: 24.288
 
 enum DelayStatus {
     GRAY = 0;

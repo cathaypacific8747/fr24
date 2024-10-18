@@ -156,9 +156,9 @@ PAINTED_AS: __live_feed_pb2.AirlineFilterType
 OPERATED_AS: __live_feed_pb2.AirlineFilterType
 UNKNOWN: __follow_flight_pb2.FlightStage
 ON_GROUND: __follow_flight_pb2.FlightStage
-TAKING_OFF: __follow_flight_pb2.FlightStage
+ASCENDING: __follow_flight_pb2.FlightStage
 AIRBORNE: __follow_flight_pb2.FlightStage
-ON_APPROACH: __follow_flight_pb2.FlightStage
+DESCENDING: __follow_flight_pb2.FlightStage
 GRAY: __follow_flight_pb2.DelayStatus
 GREEN: __follow_flight_pb2.DelayStatus
 YELLOW: __follow_flight_pb2.DelayStatus

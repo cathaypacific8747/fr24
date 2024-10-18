@@ -180,6 +180,7 @@ message Flight {
     ExtraFlightInfo extra_info = 13;
 }
 
+// NOTE: unused anywhere
 enum EmergencyStatus {
     NO_EMERGENCY = 0;
     GENERAL_EMERGENCY = 1;
