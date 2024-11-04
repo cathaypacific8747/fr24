@@ -1,62 +1,79 @@
-[tool.poetry]
+[project]
 name = "fr24"
-homepage = "https://github.com/cathaypacific8747/fr24/"
 version = "0.1.3"
-description = "Parse gRPC and JSON data from FlightRadar24"
+description = "Parse gRPC and JSON data from flightradar24"
 authors = [
-  "Abraham Cheung <abraham@ylcheung.com>",
-  "Xavier Olive <git@xoolive.org>",
+    { name = "Abraham Cheung", email = "abraham@ylcheung.com" },
+    { name = "Xavier Olive", email = "git@xoolive.org" },
 ]
-license = "MIT"
-include = ["LICENSE", "py.typed", "*.proto", "style.tcss"]
+license = { file = "LICENSE" }
 readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+dependencies = [
+    "appdirs>=1.4.4",
+    "httpx[brotli,http2]>=0.27.2",
+    "loguru>=0.7.2",
+    "pandas>=2.2.3",
+    "protobuf==5.28.*",
+    "pyarrow>=18.0.0",
+    "textual>=0.85.2",
+    "typer>=0.12.5",
+]
 
-[tool.poetry.scripts]
+[project.optional-dependencies]
+dev = [
+    "ipykernel>=6.29.5",
+    "mypy>=1.13.0",
+    "ruff>=0.7.2",
+    "textual-dev>=1.6.1",
+    "types-protobuf==5.28.*",
+]
+test = [
+    "eval-type-backport>=0.2.0", # for pydantic, <3.10 syntax
+    "pydantic>=2.9.2",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+]
+docs = [
+    "black>=24.10.0",
+    "mkdocs-material[imaging]>=9.5.43",
+    "mkdocstrings-python>=1.12.2",
+]
+
+[project.urls]
+Repository = "https://github.com/cathaypacific8747/fr24.git"
+Documentation = "https://cathaypacific8747.github.io/fr24/"
+Issues = "https://github.com/cathaypacific8747/fr24/issues"
+
+[project.scripts]
 fr24 = 'fr24.cli:app'
 
-[tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-pandas = "^2.2.2"
-pyarrow = ">=17,<19"
-httpx = { extras = ["brotli", "http2"], version = "^0.27.0" }
-protobuf = "5.28.*"
-appdirs = "^1.4.4"
-textual = ">=0.83,<0.86"
-loguru = "^0.7.2"
-typer = "^0.12.3"
-
-[tool.poetry.group.dev.dependencies]
-ipykernel = "^6.26.0"
-ruff = "^0.7.0"
-mypy = "^1.10.1"
-textual-dev = "^1.5.1"
-types-protobuf = "5.28.*"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.2.0"
-pytest-asyncio = ">=0.23.7,<0.25.0"
-pydantic = "^2.8.0"
-eval-type-backport = "^0.2.0" # for pydantic, <3.10 syntax
-
-[tool.poetry.group.docs.dependencies]
-mkdocs-material = { extras = ["imaging"], version = "^9.5.27" }
-mkdocstrings-python = "^1.10.5"
-black = "^24.3.0"
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 lint.select = [
-  "E",
-  "W",   # pycodestyle
-  "F",   # pyflakes
-  "I",   # isort
-  "NPY", # numpy
-  # "PD",  # pandas
-  "DTZ", # flake8-datetimez
-  "RUF",
+    "E",
+    "W",   # pycodestyle
+    "F",   # pyflakes
+    "I",   # isort
+    "NPY", # numpy
+    # "PD",  # pandas
+    "DTZ", # flake8-datetimez
+    "RUF",
 ]
 exclude = ["proto"]
 line-length = 80

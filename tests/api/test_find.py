@@ -1,5 +1,8 @@
 import httpx
 import pytest
+from pydantic import BaseModel, Discriminator
+from typing_extensions import Annotated
+
 from fr24.json import find
 from fr24.types.find import (
     Entry,
@@ -10,8 +13,6 @@ from fr24.types.find import (
     is_operator,
     is_schedule,
 )
-from pydantic import BaseModel, Discriminator
-from typing_extensions import Annotated
 
 
 # overwriting the original FindResult for now

@@ -6,7 +6,7 @@ It supports querying live feed snapshots/playback, trajectory history and other 
 
 Please see the [documentation](https://cathaypacific8747.github.io/fr24/) for detailed usage guides. 
 
-## Installation and Usage
+## Installation
 
 For the latest stable version:
 
@@ -15,8 +15,9 @@ pip install fr24
 ```
 
 For a development version, clone the repository and run in the directory:
+
 ```sh
-pip install .
+pip install -e ".[dev,test,docs]"
 ```
 
 ## License

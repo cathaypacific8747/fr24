@@ -1,6 +1,7 @@
 import httpx
 import pytest
 import pytest_asyncio
+
 from fr24.grpc import (
     follow_flight_request_create,
     follow_flight_stream,
@@ -64,6 +65,7 @@ async def test_live_flights_status(
 async def test_follow_flight(
     nearest_flights: NearestFlightsResponse,
 ) -> None:
+    # TODO: fix httpx.ReadTimeout for flights with low update rate
     flight_id = nearest_flights.flights_list[0].flight.flightid
     async with httpx.AsyncClient() as client:
         message = FollowFlightRequest(flight_id=flight_id)

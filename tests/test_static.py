@@ -1,4 +1,6 @@
 import pytest
+from pydantic import TypeAdapter
+
 from fr24.static import (
     get_aircraft_family,
     get_airlines,
@@ -12,7 +14,6 @@ from fr24.types.static import (
     Countries,
     StaticData,
 )
-from pydantic import TypeAdapter
 
 
 @pytest.mark.parametrize(

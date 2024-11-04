@@ -2,6 +2,8 @@ import time
 
 import httpx
 import pytest
+from google.protobuf.json_format import MessageToDict
+
 from fr24.core import FR24
 from fr24.grpc import (
     live_feed_message_create,
@@ -10,7 +12,6 @@ from fr24.grpc import (
     live_feed_request_create,
     live_feed_world_data,
 )
-from google.protobuf.json_format import MessageToDict
 
 
 @pytest.mark.asyncio

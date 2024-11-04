@@ -6,10 +6,11 @@ from typing import Callable
 import httpx
 import pyarrow.parquet as pq
 import pytest
+from pydantic import TypeAdapter
+
 from fr24.core import FR24, FlightListArrow
 from fr24.json import flight_list, flight_list_df, playback
 from fr24.types.flight_list import FlightList
-from pydantic import TypeAdapter
 
 
 @pytest.mark.asyncio
