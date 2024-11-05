@@ -41,7 +41,7 @@ Repository = "https://github.com/cathaypacific8747/fr24.git"
 Documentation = "https://cathaypacific8747.github.io/fr24/"
 Issues = "https://github.com/cathaypacific8747/fr24/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "ipykernel>=6.29.5",
     "textual-dev>=1.6.1",
@@ -67,6 +67,10 @@ docs = [
 
 [project.scripts]
 fr24 = 'fr24.cli:app'
+
+# default-groups = ["dev"] by default, overriding for now
+[tool.uv]
+default-groups = ["dev", "typing", "lint", "test", "docs"]
 
 [tool.ruff]
 lint.select = [

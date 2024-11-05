@@ -27,7 +27,7 @@ For the latest stable version, create a new virtual environment and run:
     cd fr24
     uv venv
     source .venv/bin/activate
-    uv sync --all-extras --dev
+    uv sync
     ```
 
 ## License
