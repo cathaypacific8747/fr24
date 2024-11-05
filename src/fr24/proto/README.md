@@ -27,7 +27,8 @@ unzip protoc-28.2-linux-x86_64.zip -d $HOME/.local
 
 cd into `./fr24` and run:
 ```command
-protoc --proto_path=src --python_out=src --pyi_out=src src/fr24/proto/*.proto
+chmod +x scripts/proto-compile.sh
+scripts/proto-compile.sh
 ```
 
 ## Usage

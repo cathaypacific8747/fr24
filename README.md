@@ -17,7 +17,7 @@ pip install fr24
 For a development version, clone the repository and run in the directory:
 
 ```sh
-pip install -e ".[dev,test,docs]"
+uv sync --all-extras --dev
 ```
 
 ## License
