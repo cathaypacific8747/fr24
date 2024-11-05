@@ -1,18 +1,7 @@
-import json
-from pathlib import Path
-from typing import Any, Callable, Coroutine
-
 import httpx
 
 from ..common import DEFAULT_HEADERS
 from ..types.static import AircraftFamily, Airlines, Airports, Countries
-
-# filenames are based on indexeddb names
-base_dir = Path(__file__).parent
-AIRCRAFT_FAMILY_PATH = base_dir / "AircraftFamily.json"
-AIRPORTS_PATH = base_dir / "Airports.json"
-AIRLINES_PATH = base_dir / "Airlines.json"
-COUNTRIES_PATH = base_dir / "MobileCountries.json"
 
 DEFAULT_HEADERS_STATIC = {
     **DEFAULT_HEADERS,
@@ -67,38 +56,7 @@ async def fetch_countries(client: httpx.AsyncClient) -> Countries:
     return data.json()  # type: ignore[no-any-return]
 
 
-async def update_all() -> None:
-    async with httpx.AsyncClient(http2=True) as client:
-
-        async def update(
-            path: Path,
-            fetch_fn: Callable[[httpx.AsyncClient], Coroutine[None, None, Any]],
-        ) -> None:
-            with open(path, "w") as f:
-                data = await fetch_fn(client)
-                json.dump(data, f, indent=2)
-
-        await update(AIRCRAFT_FAMILY_PATH, fetch_aircraft_family)
-        await update(AIRPORTS_PATH, fetch_airports)
-        await update(AIRLINES_PATH, fetch_airlines)
-        await update(COUNTRIES_PATH, fetch_countries)
-
-
-def get_aircraft_family() -> AircraftFamily:
-    with open(AIRCRAFT_FAMILY_PATH, "r") as f:
-        return json.load(f)  # type: ignore[no-any-return]
-
-
-def get_airlines() -> Airlines:
-    with open(AIRLINES_PATH, "r") as f:
-        return json.load(f)  # type: ignore[no-any-return]
-
-
-def get_airports() -> Airports:
-    with open(AIRPORTS_PATH, "r") as f:
-        return json.load(f)  # type: ignore[no-any-return]
-
-
-def get_countries() -> Countries:
-    with open(COUNTRIES_PATH, "r") as f:
-        return json.load(f)  # type: ignore[no-any-return]
+# NOTE: previously, the code downloaded the static json data directly into
+# `Path(__file__).parent`. This gives a convenient way to access the data,
+# but is often outdated. To avoid committing large diffs, we should instead
+# save them into the user cache instead.

@@ -1,11 +1,15 @@
+import asyncio
+from typing import Awaitable, Callable, Type
+
+import httpx
 import pytest
-from pydantic import TypeAdapter
+from pydantic import ConfigDict, TypeAdapter
 
 from fr24.static import (
-    get_aircraft_family,
-    get_airlines,
-    get_airports,
-    get_countries,
+    fetch_aircraft_family,
+    fetch_airlines,
+    fetch_airports,
+    fetch_countries,
 )
 from fr24.types.static import (
     AircraftFamily,
@@ -17,14 +21,26 @@ from fr24.types.static import (
 
 
 @pytest.mark.parametrize(
-    "data,typed_dict",
+    "fetch_data,static_data_type",
     [
-        (get_aircraft_family(), AircraftFamily),
-        (get_airlines(), Airlines),
-        (get_airports(), Airports),
-        (get_countries(), Countries),
+        (fetch_aircraft_family, AircraftFamily),
+        (fetch_airlines, Airlines),
+        (fetch_airports, Airports),
+        (fetch_countries, Countries),
     ],
 )
-def test_static_types(data: StaticData, typed_dict: StaticData) -> None:
-    ta = TypeAdapter(typed_dict)  # type: ignore[var-annotated]
-    ta.validate_python(data)
+def test_fetch_static_types(
+    fetch_data: Callable[[httpx.AsyncClient], Awaitable[StaticData]],
+    static_data_type: Type[StaticData],
+) -> None:
+    async def fetch_data_() -> StaticData:
+        async with httpx.AsyncClient() as client:
+            return await fetch_data(client)
+
+    data = asyncio.run(fetch_data_())
+
+    class StaticDataType(static_data_type):  # type: ignore
+        __pydantic_model__ = ConfigDict(extra="forbid")
+
+    ta = TypeAdapter(StaticDataType)
+    ta.validate_python(data, strict=True)

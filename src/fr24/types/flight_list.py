@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from typing_extensions import Required, TypedDict
+from typing_extensions import NotRequired, Required, TypedDict
 
 from .common import (
     AircraftAge,
@@ -12,6 +12,7 @@ from .common import (
     AirportPairData,
     APIResult,
     FlightNumber,
+    ImageCollection,
     OwnerData,
     StatusData,
 )
@@ -24,7 +25,7 @@ class FlightListRequest(TypedDict, total=False):
     filterBy: str | None
     format: Literal["json"]
     limit: Required[int]
-    olderThenFlightID: None
+    olderThenFlightId: None
     page: int
     pk: None
     query: Required[str]
@@ -61,9 +62,11 @@ class FlightListCountry(TypedDict):
     alpha3: str | None
 
 
-class FlightListAircraftData(TypedDict):
+class AircraftInfo(TypedDict):
     model: AircraftModel
     registration: None | str
+    owner: NotRequired[OwnerData]
+    airline: NotRequired[AirlineData]
     country: None | FlightListCountry
     hex: None | str
     restricted: bool
@@ -93,18 +96,27 @@ class FlightListTime(TypedDict):
 class FlightListItem(TypedDict):
     identification: Identification
     status: StatusData
-    aircraft: FlightListAircraftData
+    aircraft: AircraftInfo
     owner: OwnerData
     airline: AirlineData
     airport: AirportPairData
     time: FlightListTime
 
 
+class AircraftImage(TypedDict):
+    registration: str
+    images: ImageCollection
+
+
 class FlightListResponse(TypedDict):
     item: Item
     page: Page
     timestamp: int
-    data: None | list[FlightListItem]
+    data: list[FlightListItem] | None
+    # TODO: depending on whether the flight list was queried by reg or flight
+    # this may change - check this again
+    aircraftInfo: AircraftInfo
+    aircraftImages: list[AircraftImage]
 
 
 class FlightListResult(TypedDict):

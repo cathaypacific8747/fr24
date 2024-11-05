@@ -1,6 +1,6 @@
 import httpx
 import pytest
-from pydantic import BaseModel, Discriminator
+from pydantic import BaseModel, ConfigDict, Discriminator
 from typing_extensions import Annotated
 
 from fr24.json import find
@@ -18,6 +18,8 @@ from fr24.types.find import (
 # overwriting the original FindResult for now
 # https://github.com/python/typing/issues/1467
 class FindResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     results: list[Annotated[Entry, Discriminator("type")]]
     stats: Stats
 

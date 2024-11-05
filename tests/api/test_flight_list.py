@@ -6,11 +6,11 @@ from typing import Callable
 import httpx
 import pyarrow.parquet as pq
 import pytest
-from pydantic import TypeAdapter
+from pydantic import ConfigDict, TypeAdapter
 
 from fr24.core import FR24, FlightListArrow
 from fr24.json import flight_list, flight_list_df, playback
-from fr24.types.flight_list import FlightList
+from fr24.types.flight_list import FlightList as _FlightList
 
 
 @pytest.mark.asyncio
@@ -39,8 +39,11 @@ async def test_ll_flight_list() -> None:
         )
         assert len(result) == landed.shape[0]
 
+        class FlightList(_FlightList):
+            __pydantic_config__ = ConfigDict(extra="forbid")  # type: ignore
+
         ta = TypeAdapter(FlightList)
-        ta.validate_python(list_)
+        ta.validate_python(list_, strict=True)
 
 
 # core

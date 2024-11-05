@@ -65,9 +65,9 @@ async def test_live_flights_status(
 async def test_follow_flight(
     nearest_flights: NearestFlightsResponse,
 ) -> None:
-    # TODO: fix httpx.ReadTimeout for flights with low update rate
     flight_id = nearest_flights.flights_list[0].flight.flightid
-    async with httpx.AsyncClient() as client:
+    timeout = httpx.Timeout(read=120)
+    async with httpx.AsyncClient(timeout=timeout) as client:
         message = FollowFlightRequest(flight_id=flight_id)
         request = follow_flight_request_create(message)
         i = 0

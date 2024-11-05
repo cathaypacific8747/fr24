@@ -1,8 +1,8 @@
 import pytest
-from pydantic import TypeAdapter
+from pydantic import ConfigDict, TypeAdapter
 
 from fr24.core import FR24
-from fr24.types.playback import Playback
+from fr24.types.playback import Playback as _Playback
 
 FLIGHT_ID = 0x2D81A27
 
@@ -21,8 +21,11 @@ async def test_playback_simple() -> None:
         assert df.shape[0] == datac.data.num_rows
         assert df.shape[1] == datac.data.num_columns
 
+        class Playback(_Playback):
+            __pydantic_config__ = ConfigDict(extra="forbid")  # type: ignore
+
         ta = TypeAdapter(Playback)
-        ta.validate_python(response.data)
+        ta.validate_python(response.data, strict=True)
 
 
 @pytest.mark.asyncio

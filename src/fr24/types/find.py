@@ -6,6 +6,7 @@ from typing_extensions import Annotated, NotRequired, TypedDict, TypeGuard
 
 
 class Live(TypedDict):
+    operator_id: NotRequired[int]
     lat: float
     lon: float
     schd_from: str

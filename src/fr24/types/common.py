@@ -10,6 +10,7 @@ class APIResult(TypedDict):
 
 class FlightNumber(TypedDict):
     default: str | None
+    alternative: NotRequired[str | None]
 
 
 class AircraftModel(TypedDict):
@@ -109,9 +110,8 @@ class Airport(TypedDict):
     name: str
     code: _AirportCode
     position: _AirportPosition
-
-
-timezone: _Timezone
+    timezone: _Timezone
+    visible: NotRequired[bool]
 
 
 # O/D can be null when route status is "unknown"
@@ -119,3 +119,19 @@ class AirportPairData(TypedDict):
     origin: None | Airport
     destination: None | Airport
     real: None | str
+
+
+### playback and flight list
+
+
+class _Image(TypedDict):
+    src: str
+    link: str
+    copyright: str
+    source: str
+
+
+class ImageCollection(TypedDict):
+    large: list[_Image]
+    medium: list[_Image]
+    thumbnails: list[_Image]

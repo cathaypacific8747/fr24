@@ -12,6 +12,7 @@ from .common import (
     AirportPairData,
     APIResult,
     FlightNumber,
+    ImageCollection,
     OwnerData,
     StatusData,
 )
@@ -112,15 +113,8 @@ class TrackData(TypedDict):
     ems: None | EMS
 
 
-class Thumbnail(TypedDict):
-    src: str
-    link: str
-    copyright: str
-    source: str
-
-
-class AircraftImages(TypedDict):
-    thumbnails: list[Thumbnail]
+class FlightDataAvailability(TypedDict):
+    ems: bool
 
 
 class FlightData(TypedDict):
@@ -132,7 +126,8 @@ class FlightData(TypedDict):
     airport: AirportPairData
     median: Median
     track: list[TrackData]
-    aircraftImages: AircraftImages
+    aircraftImages: ImageCollection
+    availability: FlightDataAvailability
 
 
 class PlaybackData(TypedDict):

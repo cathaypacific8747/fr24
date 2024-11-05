@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 from fr24.types.common import Airport as AirportJSON
-from fr24.types.flight_list import FlightListAircraftData
+from fr24.types.flight_list import AircraftInfo
 
 
 class Time:
@@ -44,7 +44,7 @@ class Airport:
 
 
 class Aircraft:
-    def __init__(self, aircraft: FlightListAircraftData):
+    def __init__(self, aircraft: AircraftInfo):
         self.aircraft = aircraft
 
     def __format__(self, __format_spec: str) -> str:
