@@ -14,7 +14,7 @@ async def follow_flight_data() -> None:
     # NOTE: fr24 often sends state vector packets every 1-60 seconds,
     # but httpx by default closes the stream after 5 seconds. We
     # increase the timeout to 120 seconds to avoid premature closure.
-    timeout = httpx.Timeout(read=120)
+    timeout = httpx.Timeout(5, read=120)
     async with httpx.AsyncClient(timeout=timeout) as client:
         message = FollowFlightRequest(flight_id=0x35fbf965)
         request = follow_flight_request_create(message)

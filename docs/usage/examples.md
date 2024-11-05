@@ -294,6 +294,9 @@ In JSON format:
 ### Live Trail
 *API Reference: [fr24.grpc.live_trail_post][]*
 
+!!! warning
+    Unstable API - does not return data reliably.
+
 === "Jupyter cell"
 
     ```py

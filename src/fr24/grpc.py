@@ -380,12 +380,14 @@ def live_trail_request_create(
     message: LiveTrailRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
+    """WARN: Unstable API - does not return data reliably."""
     return construct_request("LiveTrail", message, auth)
 
 
 async def live_trail_post(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> LiveTrailResponse:
+    """WARN: Unstable API - does not return data reliably."""
     return await post_unary(client, request, LiveTrailResponse)
 
 
