@@ -10,12 +10,12 @@ from typing import Any, AsyncIterator, BinaryIO, Literal
 import httpx
 import pyarrow as pa
 import pyarrow.compute as pc
-from appdirs import user_cache_dir
 from loguru import logger
 from typing_extensions import Self, override
 
 import pandas as pd
 
+from . import PATH_CACHE
 from .base import APIResponse, ArrowTable, HTTPClient, ServiceBase
 from .common import to_unix_timestamp
 from .grpc import (
@@ -50,7 +50,7 @@ class FR24:
         self,
         client: httpx.AsyncClient | None = None,
         *,
-        base_dir: str = user_cache_dir("fr24"),
+        base_dir: Path = PATH_CACHE,
     ) -> None:
         """
         See docs [quickstart](../usage/quickstart.md#initialisation).

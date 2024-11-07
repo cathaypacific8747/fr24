@@ -143,5 +143,5 @@ async def login_with_token_subscription_key(
             "accessToken": token,
             "dateExpires": exp,
         },
-        "message": "using environment `subscription_key` and `access_token`",
+        "message": "using environment `subscription_key` and `token`",
     }

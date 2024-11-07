@@ -7,22 +7,23 @@ from typing import Annotated, BinaryIO, Literal, Optional
 
 import rich
 import typer
-from appdirs import user_cache_dir, user_config_dir
 from loguru import logger
 from rich.console import Console
 
+from . import FP_CONFIG_FILE, PATH_CACHE, PATH_CONFIG
 from .core import FR24, FlightListArrow, LiveFeedArrow, PlaybackArrow
 from .tui.tui import main as tui_main
 
 app = typer.Typer(no_args_is_help=True)
 logger.configure(handlers=[{"sink": sys.stderr, "level": "INFO"}])
+console_err = Console(stderr=True)
 
 
 @app.command()
 def dirs() -> None:
     """Shows relevant directories"""
-    rich.print(f"Config: {user_config_dir('fr24')}")
-    rich.print(f" Cache: {user_cache_dir('fr24')}")
+    rich.print(f"Config: {PATH_CONFIG}")
+    rich.print(f" Cache: {PATH_CACHE}")
 
 
 @app.command()
@@ -45,23 +46,55 @@ app.add_typer(
 def show() -> None:
     """Shows authentication status"""
 
+    ERR_MSG = (
+        "[bold yellow]warning[/bold yellow]: not authenticated\n"
+        "[bold cyan]help[/bold cyan]: "
+        "provide your credentials in environment variables, either:\n"
+        "- `fr24_username` and `fr24_password`, or\n"
+        "- `fr24_subscription_key` and `fr24_token`\n"
+        "[bold cyan]help[/bold cyan]: "
+        "alternatively, create a template configuration file "
+        f"at `{FP_CONFIG_FILE}` with the command `fr24 auth create`."
+    )
+
     async def show_() -> None:
         async with FR24() as fr24:
             await fr24.login()
             if fr24.http.auth is None:
-                rich.print(
-                    "[bold red]You are not authenticated.[/bold red]\n"
-                    "Provide credentials in environment variables: either \n"
-                    "- fr24_username + fr24_password or \n"
-                    "- fr24_subscription_key + fr24_token\n"
-                    "Alternatively, copy the example config file to "
-                    f"{Path(user_config_dir('fr24')) / 'fr24.conf'}."
-                )
+                console_err.print(ERR_MSG)
             else:
-                rich.print("[bold green]Authenticated[/bold green]")
+                rich.print("[bold green]success[/bold green]: authenticated")
                 rich.print(fr24.http.auth)
 
     asyncio.run(show_())
+
+
+@app_auth.command()
+def create(
+    force: Annotated[
+        bool,
+        typer.Option(help="Overwrite existing configuration file"),
+    ] = False,
+) -> None:
+    """Create a template config file in the user config directory"""
+    import shutil
+
+    if FP_CONFIG_FILE.exists() and FP_CONFIG_FILE.is_file() and not force:
+        console_err.print(
+            f"[bold red]error[/bold red]: "
+            f"{FP_CONFIG_FILE} already exists, use `--force` to overwrite"
+        )
+        return
+
+    fp_config_template = (
+        Path(__file__).parent.parent.parent / "fr24.example.conf"
+    )
+    FP_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(fp_config_template, FP_CONFIG_FILE)
+    rich.print(
+        "[bold green]success[/bold green]: "
+        f"created template configuration file at {FP_CONFIG_FILE}"
+    )
 
 
 def get_success_message(
@@ -73,8 +106,8 @@ def get_success_message(
     size = datac.data.nbytes
     fp = fp or datac._fp(datac.ctx)  # type: ignore[arg-type]
     return (
-        f"[bold green]Success: {action} {num_rows} rows ({size} bytes) "
-        f"to {fp}.[/bold green]\n"
+        "[bold green]success[/bold green]: "
+        f"{action} {num_rows} rows ({size} bytes) to {fp}.\n"
         "Preview:\n"
         f"{datac.df}"
     )
