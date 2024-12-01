@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fr24"
-version = "0.1.3"
+version = "0.1.4"
 description = "Parse gRPC and JSON data from flightradar24"
 authors = [
     { name = "Abraham Cheung", email = "abraham@ylcheung.com" },
@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
 dependencies = [
@@ -42,18 +43,9 @@ Documentation = "https://cathaypacific8747.github.io/fr24/"
 Issues = "https://github.com/cathaypacific8747/fr24/issues"
 
 [dependency-groups]
-dev = [
-    "ipykernel>=6.29.5",
-    "textual-dev>=1.6.1",
-]
-typing = [
-    "mypy-protobuf>=3.6.0",
-    "mypy>=1.13.0",
-    "types-protobuf==5.28.*",
-]
-lint = [
-    "ruff>=0.7.2",
-]
+dev = ["ipykernel>=6.29.5", "textual-dev>=1.6.1"]
+typing = ["mypy-protobuf>=3.6.0", "mypy>=1.13.0", "types-protobuf==5.28.*"]
+lint = ["ruff>=0.7.2"]
 test = [
     "eval-type-backport>=0.2.0", # for pydantic, <3.10 syntax
     "pydantic>=2.9.2",

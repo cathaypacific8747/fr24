@@ -35,7 +35,7 @@ class _GenericStatus(TypedDict):
     text: str | None
     type: str
     color: str | None
-    diverted: None
+    diverted: str | None
 
 
 class _GenericEventTime(TypedDict):
@@ -118,7 +118,8 @@ class Airport(TypedDict):
 class AirportPairData(TypedDict):
     origin: None | Airport
     destination: None | Airport
-    real: None | str
+    real: None | Airport
+    """Destination airport for diverted"""
 
 
 ### playback and flight list
