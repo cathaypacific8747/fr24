@@ -84,21 +84,29 @@ enum Status {
     LIVE = 4;
 }
 
-// a =? altitude
+// TODO: check units
 message EMSInfo {
-    int32 qnh = 1; // often null
-    int32 amcp = 2; // likely barometric altitude
-    int32 afms = 3; // often null
+    // Altimeter setting (QFE or QNH/QNE)
+    int32 qnh = 1;
+    // MCP/FCU selected altitude (BDS4,0)
+    int32 amcp = 2;
+    // FMS selected altitude (BDS4,0)
+    int32 afms = 3;
+    // Outside air temperature
     int32 oat = 4;
+    // Indicated airspeed (BDS6,0), knots
     int32 ias = 5;
+    // True airspeed (BDS0,5), knots
     int32 tas = 6;
-    int32 mach = 7; // NOTE: 1000 = mach 1
+    // Mach number (BDS6,0), 1e3
+    // `704` = M0.704
+    int32 mach = 7;
     int32 agps = 8;
     int32 agpsdiff = 9; // |amcp - agps|
     int32 apflags = 10; // often null
     int32 wind_dir = 11;
     int32 wind_speed = 12;
-    int32 rs = 13; // unknown
+    int32 rs = 13;
 }
 
 message EMSAvailability {
@@ -122,7 +130,7 @@ message Schedule {
     int32 etd = 2;
     int32 atd = 3;
     int32 sta = 4;
-    int32 eta = 5; //!
+    int32 eta = 5;
     int32 ata = 6;
 }
 
@@ -132,14 +140,19 @@ message Route {
     string diverted_to = 3;
 }
 
+// 15, 16, 17, 18, 19 available only when flight is selected
 message ExtraFlightInfo {
-    string flight = 1; // iata flight number
+    // IATA Flight number, e.g. `CX8747`
+    string flight = 1;
+    // Aircraft registration, e.g. `B-HUJ`
     string reg = 2;
     Route route = 3;
     string type = 4;
-    int32 squawk = 5; // NOTE: 20852 -> 0x5174
+    // Squawk number, in base-10. 20852 -> 0x5174
+    int32 squawk = 5;
     int32 vspeed = 6;
-    string age = 7; // aircraft age, in years
+    // Aircraft age, years.
+    string age = 7;
     int32 country_of_reg = 8;
     Schedule schedule = 9;
     int32 logo_id = 10; // u32
@@ -147,7 +160,6 @@ message ExtraFlightInfo {
     EMSInfo ems_info = 12;
     EMSAvailability ems_availability = 13;
     uint32 icao_address = 14;
-    // following activated only when flight is selected
     uint32 operated_by_id = 15;
     bool squawk_availability = 16;
     bool vspeed_availability = 17;
@@ -177,16 +189,23 @@ message PositionBuffer {
 }
 
 message Flight {
-    int32 flightid = 1; // to hex
+    // FR24 flight id, in base-10. Convert to hex for use in URLs.
+    int32 flightid = 1;
+    // Latitude, degrees, -90 to 90
     float lat = 2;
+    // Longitude, degrees, -180 to 180
     float lon = 3;
+    // True track angle, degrees clockwise from North
     int32 track = 4;
+    // Barometric altitude, feet
     int32 alt = 5;
-    int32 speed = 6; // ground speed
+    // Ground speed, knots
+    int32 speed = 6;
     Icon icon = 7;
     Status status = 8;
     int32 timestamp = 9;
     bool on_ground = 10;
+    // Callsign, e.g. `CPA8747`
     string callsign = 11;
     DataSource source = 12;
     ExtraFlightInfo extra_info = 13;
@@ -221,7 +240,8 @@ message RadarHistoryRecord {
     float lon = 3;
     int32 altitude = 4;
     uint32 spd = 5;
-    uint32 heading = 6; // official naming says heading, but data is likely track
+    // True track angle, degrees clockwise from North
+    uint32 heading = 6;
     int32 vspd = 7;
     uint32 squawk = 8;
     _common.DataSource source = 9; // ?

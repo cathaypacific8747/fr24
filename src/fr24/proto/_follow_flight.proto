@@ -140,7 +140,8 @@ message TrailPoint {
     float lon = 3;
     int32 altitude = 4;
     uint32 spd = 5;
-    uint32 heading = 6;  // official naming says heading, but data is likely track
+    // Track angle, degrees. Not heading.
+    uint32 heading = 6;
     int32 vspd = 7;
 }
 

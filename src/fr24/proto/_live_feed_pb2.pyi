@@ -174,7 +174,7 @@ class AirlineFilter(Message):
     ICAO_FIELD_NUMBER: int
     TYPE_FIELD_NUMBER: int
     icao: str
-    """e.g. CPA"""
+    """ICAO airline designator, e.g. `CPA`"""
     type: AirlineFilterType.ValueType
     def __init__(
         self,
@@ -207,7 +207,7 @@ class Filter(Message):
     def altitude_ranges_list(self) -> RepeatedCompositeFieldContainer[Interval]: ...
     @property
     def speed_ranges_list(self) -> RepeatedCompositeFieldContainer[Interval]:
-        """NOTE: ground speed"""
+        """Minimum and maximum ground speed, knots"""
 
     @property
     def airlines_list(self) -> RepeatedCompositeFieldContainer[AirlineFilter]: ...
@@ -215,7 +215,7 @@ class Filter(Message):
     def callsigns_list(self) -> RepeatedScalarFieldContainer[str]: ...
     @property
     def radars_list(self) -> RepeatedScalarFieldContainer[str]:
-        """receiver: e.g. T-VHST000"""
+        """List of receiver IDs, e.g. `["T-VHST000"]`"""
 
     @property
     def regs_list(self) -> RepeatedScalarFieldContainer[str]: ...
@@ -225,7 +225,7 @@ class Filter(Message):
     def flights_list(self) -> RepeatedScalarFieldContainer[str]: ...
     @property
     def types_list(self) -> RepeatedScalarFieldContainer[str]:
-        """e.g. B7*"""
+        """List of aircraft types, e.g. `["B74*"]`"""
 
     @property
     def birth_year_ranges_list(self) -> RepeatedCompositeFieldContainer[Interval]: ...
@@ -279,10 +279,11 @@ class LiveFeedRequest(Message):
     """requires auth"""
     highlight_mode: bool
     stats: bool
+    """Include statistics for the given area"""
     limit: int
-    """default 1500/2000"""
+    """Maximum number of flights (default 1500 for unauthenticated users, 2000 for authenticated users)"""
     maxage: int
-    """default 14400"""
+    """Maximum age since last update, seconds (default 14400)"""
     restriction_mode: RestrictionVisibility.ValueType
     @property
     def bounds(self) -> LocationBoundaries: ...
@@ -291,9 +292,7 @@ class LiveFeedRequest(Message):
     @property
     def filters_list(self) -> Filter: ...
     @property
-    def field_mask(self) -> FieldMask:
-        """repeated string"""
-
+    def field_mask(self) -> FieldMask: ...
     @property
     def selected_flight_ids_list(self) -> RepeatedScalarFieldContainer[int]: ...
     def __init__(
@@ -347,8 +346,6 @@ class LiveFeedResponse(Message):
 
 @final
 class PlaybackRequest(Message):
-    """duration: floor(7.5*(multiplier)) seconds, i.e. 1x = 7s"""
-
     DESCRIPTOR: Descriptor
 
     LIVE_FEED_REQUEST_FIELD_NUMBER: int
@@ -356,9 +353,14 @@ class PlaybackRequest(Message):
     PREFETCH_FIELD_NUMBER: int
     HFREQ_FIELD_NUMBER: int
     timestamp: int
-    """1x: 7 second intervals"""
+    """Start timestamp"""
     prefetch: int
+    """End timestamp, should be timestamp + floor(7.5*(multiplier)) seconds
+
+    For 1x playback, it should be timestamp + 7 seconds.
+    """
     hfreq: int
+    """High frequency mode, likely used to return granular data"""
     @property
     def live_feed_request(self) -> LiveFeedRequest: ...
     def __init__(

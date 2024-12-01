@@ -9,12 +9,15 @@ message Geolocation {
 
 message NearestFlightsRequest {
     Geolocation location = 1;
+    // Radius, metres
     uint32 radius = 2;
+    // Maximum number of aircraft to return
     uint32 limit = 3;
 }
 
 message NearbyFlight {
     _common.Flight flight = 1;
+    // Distance from the location, metres
     uint32 distance = 2;
 }
 

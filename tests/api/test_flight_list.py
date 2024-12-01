@@ -10,7 +10,7 @@ from pydantic import ConfigDict, TypeAdapter
 
 from fr24.core import FR24, FlightListArrow
 from fr24.json import flight_list, flight_list_df, playback
-from fr24.types.flight_list import FlightList as _FlightList
+from fr24.types.flight_list import FlightList
 
 
 @pytest.mark.asyncio
@@ -39,10 +39,10 @@ async def test_ll_flight_list() -> None:
         )
         assert len(result) == landed.shape[0]
 
-        class FlightList(_FlightList):
+        class FlightList_(FlightList):
             __pydantic_config__ = ConfigDict(extra="forbid")  # type: ignore
 
-        ta = TypeAdapter(FlightList)
+        ta = TypeAdapter(FlightList_)
         ta.validate_python(list_, strict=True)
 
 

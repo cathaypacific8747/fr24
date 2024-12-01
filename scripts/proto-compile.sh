@@ -18,4 +18,7 @@ fi
 
 DIR_MYPY_PROTOBUF=".venv/bin/protoc-gen-mypy"
 
-protoc --plugin=$DIR_MYPY_PROTOBUF --proto_path=src --python_out=src --mypy_out=readable_stubs:src $DIR_PROTO/*.proto
+# NOTE: because protobuf does not support relative imports (https://github.com/protocolbuffers/protobuf/issues/1491)
+# we are forcing the exported package to be `fr24.proto.*`
+# workaround: https://grpc.io/docs/languages/python/basics/#generating-grpc-interfaces-with-custom-package-path
+protoc --plugin=$DIR_MYPY_PROTOBUF -Ifr24/proto=$DIR_PROTO --python_out=src --mypy_out=readable_stubs:src $DIR_PROTO/*.proto

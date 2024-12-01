@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO, Generic, Literal, TypeVar
 
@@ -21,12 +22,12 @@ from .types.authentication import (
 )
 
 
+@dataclass
 class HTTPClient:
     """An HTTPX client for making requests to the API."""
 
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self.client = client
-        self.auth: Authentication | None = None
+    client: httpx.AsyncClient
+    auth: Authentication | None = None
 
     async def _login(
         self,
@@ -51,24 +52,24 @@ ApiRspRaw = TypeVar("ApiRspRaw")
 e.g. [fr24.types.flight_list.FlightList][]"""
 
 
+@dataclass
 class APIResponse(Generic[Ctx, ApiRspRaw]):
     """Wraps an API response with context."""
 
-    def __init__(self, ctx: Ctx, response: ApiRspRaw) -> None:
-        self.ctx = ctx
-        self.data = response
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(ctx={self.ctx}, data={self.data})"
+    ctx: Ctx
+    data: ApiRspRaw
 
 
+@dataclass
 class ArrowTable(Generic[Ctx]):
-    """Manages storage and retrieval of an arrow table with context."""
+    """
+    Manages storage and retrieval of an arrow table with context.
 
-    def __init__(self, ctx: Ctx, table: pa.Table):
-        # do not call directly. Use `from_file` instead.
-        self.ctx = ctx
-        self.data = table
+    Do not construct directly, use `from_file` instead.
+    """
+
+    ctx: Ctx
+    data: pa.Table
 
     @classmethod
     def new(cls, ctx: Ctx, sch_expected: pa.Schema | None = None) -> Self:
@@ -156,9 +157,6 @@ class ArrowTable(Generic[Ctx]):
         data = self.data.to_pandas()
         data.attrs = self.ctx
         return data
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(ctx={self.ctx}, data={self.data})"
 
 
 class ServiceBase(ABC):

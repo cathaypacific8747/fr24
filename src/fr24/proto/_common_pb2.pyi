@@ -258,7 +258,7 @@ RESERVED: EmergencyStatus.ValueType  # 7
 
 @final
 class EMSInfo(Message):
-    """a =? altitude"""
+    """TODO: check units"""
 
     DESCRIPTOR: Descriptor
 
@@ -276,16 +276,21 @@ class EMSInfo(Message):
     WIND_SPEED_FIELD_NUMBER: int
     RS_FIELD_NUMBER: int
     qnh: int
-    """often null"""
+    """Altimeter setting (QFE or QNH/QNE)"""
     amcp: int
-    """likely barometric altitude"""
+    """MCP/FCU selected altitude (BDS4,0)"""
     afms: int
-    """often null"""
+    """FMS selected altitude (BDS4,0)"""
     oat: int
+    """Outside air temperature"""
     ias: int
+    """Indicated airspeed (BDS6,0), knots"""
     tas: int
+    """True airspeed (BDS0,5), knots"""
     mach: int
-    """NOTE: 1000 = mach 1"""
+    """Mach number (BDS6,0), 1e3
+    `704` = M0.704
+    """
     agps: int
     agpsdiff: int
     """|amcp - agps|"""
@@ -294,7 +299,6 @@ class EMSInfo(Message):
     wind_dir: int
     wind_speed: int
     rs: int
-    """unknown"""
     def __init__(
         self,
         *,
@@ -378,7 +382,6 @@ class Schedule(Message):
     atd: int
     sta: int
     eta: int
-    """!"""
     ata: int
     def __init__(
         self,
@@ -411,6 +414,8 @@ class Route(Message):
 
 @final
 class ExtraFlightInfo(Message):
+    """15, 16, 17, 18, 19 available only when flight is selected"""
+
     DESCRIPTOR: Descriptor
 
     FLIGHT_FIELD_NUMBER: int
@@ -433,14 +438,15 @@ class ExtraFlightInfo(Message):
     AIRSPACE_AVAILABILITY_FIELD_NUMBER: int
     AIRSPACE_ID_FIELD_NUMBER: int
     flight: str
-    """iata flight number"""
+    """IATA Flight number, e.g. `CX8747`"""
     reg: str
+    """Aircraft registration, e.g. `B-HUJ`"""
     type: str
     squawk: int
-    """NOTE: 20852 -> 0x5174"""
+    """Squawk number, in base-10. 20852 -> 0x5174"""
     vspeed: int
     age: str
-    """aircraft age, in years"""
+    """Aircraft age, years."""
     country_of_reg: int
     logo_id: int
     """u32"""
@@ -448,7 +454,6 @@ class ExtraFlightInfo(Message):
     """FIR"""
     icao_address: int
     operated_by_id: int
-    """following activated only when flight is selected"""
     squawk_availability: bool
     vspeed_availability: bool
     airspace_availability: bool
@@ -571,18 +576,23 @@ class Flight(Message):
     EXTRA_INFO_FIELD_NUMBER: int
     POSITION_BUFFER_FIELD_NUMBER: int
     flightid: int
-    """to hex"""
+    """FR24 flight id, in base-10. Convert to hex for use in URLs."""
     lat: float
+    """Latitude, degrees, -90 to 90"""
     lon: float
+    """Longitude, degrees, -180 to 180"""
     track: int
+    """True track angle, degrees clockwise from North"""
     alt: int
+    """Barometric altitude, feet"""
     speed: int
-    """ground speed"""
+    """Ground speed, knots"""
     icon: Icon.ValueType
     status: Status.ValueType
     timestamp: int
     on_ground: bool
     callsign: str
+    """Callsign, e.g. `CPA8747`"""
     source: DataSource.ValueType
     @property
     def extra_info(self) -> ExtraFlightInfo: ...
@@ -659,7 +669,7 @@ class RadarHistoryRecord(Message):
     altitude: int
     spd: int
     heading: int
-    """official naming says heading, but data is likely track"""
+    """True track angle, degrees clockwise from North"""
     vspd: int
     squawk: int
     source: DataSource.ValueType

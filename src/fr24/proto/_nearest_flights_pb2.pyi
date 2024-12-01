@@ -55,7 +55,9 @@ class NearestFlightsRequest(Message):
     RADIUS_FIELD_NUMBER: int
     LIMIT_FIELD_NUMBER: int
     radius: int
+    """Radius, metres"""
     limit: int
+    """Maximum number of aircraft to return"""
     @property
     def location(self) -> Geolocation: ...
     def __init__(
@@ -75,6 +77,7 @@ class NearbyFlight(Message):
     FLIGHT_FIELD_NUMBER: int
     DISTANCE_FIELD_NUMBER: int
     distance: int
+    """Distance from the location, metres"""
     @property
     def flight(self) -> Flight: ...
     def __init__(

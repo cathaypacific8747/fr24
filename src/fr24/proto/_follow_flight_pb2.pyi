@@ -483,7 +483,7 @@ class TrailPoint(Message):
     altitude: int
     spd: int
     heading: int
-    """official naming says heading, but data is likely track"""
+    """Track angle, degrees. Not heading."""
     vspd: int
     def __init__(
         self,
