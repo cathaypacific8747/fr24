@@ -26,41 +26,40 @@ data
 """
 # --8<-- [start:output0]
 flights_list {
-  flightid: 882295486
-  latitude: 40.4882507
-  longitude: -6.38517904
-  track: 33
-  altitude: 36000
-  ground_speed: 454
-  icon: 7
-  timestamp: 1711960343
-  callsign: "BTI4PX"
+  flightid: 941292228
+  lat: 40.0058289
+  lon: -5.02393532
+  track: 225
+  alt: 26800
+  speed: 427
+  icon: A320
+  timestamp: 1732481230
+  callsign: "IBS15MA"
   extra_info {
-    flight: "BT766"
-    reg: "YL-ABL"
+    flight: "IB1589"
+    reg: "EC-OAS"
     route {
-      from_: "LPA"
-      to: "RIX"
+      from: "MAD"
+      to: "TFN"
     }
-    type: "BCS3"
+    type: "A21N"
   }
-}
-flights_list {
-  flightid: 882307182
-  latitude: 40.1034851
-  longitude: -4.40472412
-  track: 162
-...
-      to: "HRG"
+  position_buffer {
+    recent_positions_list {
+      delta_lat: -418
+      delta_lon: -562
+      delta_ms: 3000
     }
-    type: "B738"
+...
+      delta_lon: -1958
+      delta_ms: 10000
+    }
   }
 }
 # --8<-- [end:output0]
 """
 # %% [markdown]
 # # explore in JSON format
-# take a look at src/fr24/live_feed.py to find more examples about how to use it
 
 # %%
 # --8<-- [start:script1]
@@ -71,37 +70,37 @@ MessageToDict(data)["flightsList"]
 #%%
 """
 # --8<-- [start:output1]
-[{'flightid': 882295486,
-  'latitude': 40.48825,
-  'longitude': -6.385179,
-  'track': 33,
-  'altitude': 36000,
-  'groundSpeed': 454,
-  'icon': 7,
-  'timestamp': 1711960343,
-  'callsign': 'BTI4PX',
-  'extraInfo': {'flight': 'BT766',
-   'reg': 'YL-ABL',
-   'route': {'from': 'LPA', 'to': 'RIX'},
-   'type': 'BCS3'}},
- {'flightid': 882307182,
-  'latitude': 40.103485,
-  'longitude': -4.404724,
-  'track': 162,
-  'altitude': 32950,
-  'groundSpeed': 513,
-  'icon': 10,
-  'timestamp': 1711960344,
-  'callsign': 'EVE1123',
-  'extraInfo': {'flight': 'E91123',
-   'reg': 'EC-LZD',
-   'route': {'from': 'VLL', 'to': 'AGP'},
+[{'flightid': 941292228,
+  'lat': 40.00583,
+  'lon': -5.0239353,
+  'track': 225,
+  'alt': 26800,
+  'speed': 427,
+  'icon': 'A320',
+  'timestamp': 1732481230,
+  'callsign': 'IBS15MA',
+  'extraInfo': {'flight': 'IB1589',
+   'reg': 'EC-OAS',
+   'route': {'from': 'MAD', 'to': 'TFN'},
+   'type': 'A21N'},
+  'positionBuffer': {'recentPositionsList': [{'deltaLat': -418,
+     'deltaLon': -562,
+     'deltaMs': 3000}]}},
+ {'flightid': 941277503,
+  'lat': 40.050613,
+  'lon': -6.7190137,
+  'track': 24,
+  'alt': 38000,
+  'speed': 481,
+  'icon': 'A320',
+  'timestamp': 1732481230,
+  'callsign': 'VOE2RY',
 ...
-  'callsign': 'CXI1015',
-  'extraInfo': {'flight': 'XR1015',
-   'reg': '9H-CXE',
-   'route': {'from': 'CGN', 'to': 'HRG'},
-   'type': 'B738'}}]
+  'positionBuffer': {'recentPositionsList': [{'deltaLat': 315,
+     'deltaLon': -660,
+     'deltaMs': 3000},
+    {'deltaLat': 553, 'deltaLon': -1170, 'deltaMs': 6000},
+    {'deltaLat': 929, 'deltaLon': -1958, 'deltaMs': 10000}]}}]
 # --8<-- [end:output1]
 """
 # %%

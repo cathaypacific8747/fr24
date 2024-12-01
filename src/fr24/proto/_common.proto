@@ -164,6 +164,18 @@ message Stats {
     repeated SourceStats sources = 1;
 }
 
+message RecentPosition {
+    // Offset from the current latitude, 1e5 degrees
+    int32 delta_lat = 1;
+    // Offset from the current longitude, 1e5 degrees
+    int32 delta_lon = 2;
+    uint32 delta_ms = 3;
+}
+
+message PositionBuffer {
+    repeated RecentPosition recent_positions_list = 1;
+}
+
 message Flight {
     int32 flightid = 1; // to hex
     float lat = 2;
@@ -178,6 +190,7 @@ message Flight {
     string callsign = 11;
     DataSource source = 12;
     ExtraFlightInfo extra_info = 13;
+    PositionBuffer position_buffer = 14;
 }
 
 // NOTE: unused anywhere

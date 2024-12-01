@@ -17,6 +17,8 @@ from fr24.proto._common_pb2 import Route as Route
 from fr24.proto._common_pb2 import ExtraFlightInfo as ExtraFlightInfo
 from fr24.proto._common_pb2 import SourceStats as SourceStats
 from fr24.proto._common_pb2 import Stats as Stats
+from fr24.proto._common_pb2 import RecentPosition as RecentPosition
+from fr24.proto._common_pb2 import PositionBuffer as PositionBuffer
 from fr24.proto._common_pb2 import Flight as Flight
 from fr24.proto._common_pb2 import Duration as Duration
 from fr24.proto._common_pb2 import Tick as Tick
@@ -159,6 +161,7 @@ ON_GROUND: __follow_flight_pb2.FlightStage
 ASCENDING: __follow_flight_pb2.FlightStage
 AIRBORNE: __follow_flight_pb2.FlightStage
 DESCENDING: __follow_flight_pb2.FlightStage
+DIVERSION: __follow_flight_pb2.FlightStage
 GRAY: __follow_flight_pb2.DelayStatus
 GREEN: __follow_flight_pb2.DelayStatus
 YELLOW: __follow_flight_pb2.DelayStatus

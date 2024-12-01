@@ -7,8 +7,6 @@ from fr24.grpc import (
     follow_flight_stream,
     live_flights_status_post,
     live_flights_status_request_create,
-    live_trail_post,
-    live_trail_request_create,
     nearest_flights_post,
     nearest_flights_request_create,
     top_flights_post,
@@ -18,7 +16,6 @@ from fr24.proto.v1_pb2 import (
     FollowFlightRequest,
     Geolocation,
     LiveFlightsStatusRequest,
-    LiveTrailRequest,
     NearestFlightsRequest,
     NearestFlightsResponse,
     Status,
@@ -89,11 +86,12 @@ async def test_top_flights() -> None:
         assert len(top_flights.scoreboard_list)
 
 
-@pytest.mark.asyncio
-async def test_live_trail(nearest_flights: NearestFlightsResponse) -> None:
-    flight_id = nearest_flights.flights_list[0].flight.flightid
-    async with httpx.AsyncClient() as client:
-        message = LiveTrailRequest(flight_id=flight_id)
-        request = live_trail_request_create(message)
-        data = await live_trail_post(client, request)
-        assert len(data.radar_records_list)
+# NOTE: the api has failed to return any data since Sep 2024.
+# @pytest.mark.asyncio
+# async def test_live_trail(nearest_flights: NearestFlightsResponse) -> None:
+#     flight_id = nearest_flights.flights_list[0].flight.flightid
+#     async with httpx.AsyncClient() as client:
+#         message = LiveTrailRequest(flight_id=flight_id)
+#         request = live_trail_request_create(message)
+#         data = await live_trail_post(client, request)
+#         assert len(data.radar_records_list)

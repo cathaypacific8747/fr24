@@ -83,6 +83,7 @@ enum FlightStage {
     ASCENDING = 2;
     AIRBORNE = 3;
     DESCENDING = 4;
+    DIVERSION = 5; // updated: 24.323
 } // new: 24.169.0808, updated: 24.288
 
 enum DelayStatus {

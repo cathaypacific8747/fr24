@@ -92,9 +92,10 @@ class ArrowTable(Generic[Ctx]):
 
         if sch_expected is not None:
             # enforce fp schema to match the provided.
+            # NOTE: when we migrate to polars soon, we want this to be optional.
             sch_actual = pq.read_schema(fp)
-            if diffs := set(sch_actual).difference(set(sch_expected)):
-                # in future releases we should consider casting/renaming columns
+            if not sch_actual.equals(sch_expected):
+                diffs = set(sch_actual).difference(set(sch_expected))
                 raise RuntimeError(
                     f"cached file `{fp}` have columns that do not match "
                     f"the expected schema: {diffs}"

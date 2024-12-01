@@ -312,8 +312,24 @@ class Stats(_message.Message):
     sources: _containers.RepeatedCompositeFieldContainer[SourceStats]
     def __init__(self, sources: _Optional[_Iterable[_Union[SourceStats, _Mapping]]] = ...) -> None: ...
 
+class RecentPosition(_message.Message):
+    __slots__ = ("delta_lat", "delta_lon", "delta_ms")
+    DELTA_LAT_FIELD_NUMBER: _ClassVar[int]
+    DELTA_LON_FIELD_NUMBER: _ClassVar[int]
+    DELTA_MS_FIELD_NUMBER: _ClassVar[int]
+    delta_lat: int
+    delta_lon: int
+    delta_ms: int
+    def __init__(self, delta_lat: _Optional[int] = ..., delta_lon: _Optional[int] = ..., delta_ms: _Optional[int] = ...) -> None: ...
+
+class PositionBuffer(_message.Message):
+    __slots__ = ("recent_positions_list",)
+    RECENT_POSITIONS_LIST_FIELD_NUMBER: _ClassVar[int]
+    recent_positions_list: _containers.RepeatedCompositeFieldContainer[RecentPosition]
+    def __init__(self, recent_positions_list: _Optional[_Iterable[_Union[RecentPosition, _Mapping]]] = ...) -> None: ...
+
 class Flight(_message.Message):
-    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "icon", "status", "timestamp", "on_ground", "callsign", "source", "extra_info")
+    __slots__ = ("flightid", "lat", "lon", "track", "alt", "speed", "icon", "status", "timestamp", "on_ground", "callsign", "source", "extra_info", "position_buffer")
     FLIGHTID_FIELD_NUMBER: _ClassVar[int]
     LAT_FIELD_NUMBER: _ClassVar[int]
     LON_FIELD_NUMBER: _ClassVar[int]
@@ -327,6 +343,7 @@ class Flight(_message.Message):
     CALLSIGN_FIELD_NUMBER: _ClassVar[int]
     SOURCE_FIELD_NUMBER: _ClassVar[int]
     EXTRA_INFO_FIELD_NUMBER: _ClassVar[int]
+    POSITION_BUFFER_FIELD_NUMBER: _ClassVar[int]
     flightid: int
     lat: float
     lon: float
@@ -340,7 +357,8 @@ class Flight(_message.Message):
     callsign: str
     source: DataSource
     extra_info: ExtraFlightInfo
-    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., icon: _Optional[_Union[Icon, str]] = ..., status: _Optional[_Union[Status, str]] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[DataSource, str]] = ..., extra_info: _Optional[_Union[ExtraFlightInfo, _Mapping]] = ...) -> None: ...
+    position_buffer: PositionBuffer
+    def __init__(self, flightid: _Optional[int] = ..., lat: _Optional[float] = ..., lon: _Optional[float] = ..., track: _Optional[int] = ..., alt: _Optional[int] = ..., speed: _Optional[int] = ..., icon: _Optional[_Union[Icon, str]] = ..., status: _Optional[_Union[Status, str]] = ..., timestamp: _Optional[int] = ..., on_ground: bool = ..., callsign: _Optional[str] = ..., source: _Optional[_Union[DataSource, str]] = ..., extra_info: _Optional[_Union[ExtraFlightInfo, _Mapping]] = ..., position_buffer: _Optional[_Union[PositionBuffer, _Mapping]] = ...) -> None: ...
 
 class Duration(_message.Message):
     __slots__ = ("count",)

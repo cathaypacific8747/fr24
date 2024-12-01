@@ -44,6 +44,7 @@ from .proto.v1_pb2 import (
     NearestFlightsResponse,
     PlaybackRequest,
     PlaybackResponse,
+    PositionBuffer,
     RestrictionVisibility,
     TopFlightsRequest,
     TopFlightsResponse,
@@ -52,7 +53,7 @@ from .proto.v1_pb2 import (
 )
 from .static.bbox import lng_bounds
 from .types.authentication import Authentication
-from .types.cache import LiveFeedRecord
+from .types.cache import LiveFeedRecord, RecentPosition
 from .types.fr24 import LiveFeedField
 
 
@@ -189,6 +190,19 @@ async def live_feed_playback_post(
     return await post_unary(client, request, PlaybackResponse)
 
 
+def live_feed_position_buffer_dict(
+    position_buffer: PositionBuffer,
+) -> list[RecentPosition]:
+    return [
+        {
+            "delta_lat": pb.delta_lat,
+            "delta_lon": pb.delta_lon,
+            "delta_ms": pb.delta_ms,
+        }
+        for pb in position_buffer.recent_positions_list
+    ]
+
+
 def live_feed_flightdata_dict(
     lfr: Flight,
 ) -> LiveFeedRecord:
@@ -211,6 +225,7 @@ def live_feed_flightdata_dict(
         "typecode": lfr.extra_info.type,
         "eta": lfr.extra_info.schedule.eta,
         "squawk": lfr.extra_info.squawk,
+        "position_buffer": live_feed_position_buffer_dict(lfr.position_buffer),
     }
 
 
@@ -273,6 +288,8 @@ async def live_feed_playback_world_data(
 ) -> list[LiveFeedRecord]:
     """
     Retrieve live feed playback data for the entire world, in chunks.
+
+    NOTE: playback data has no position buffer information.
 
     :raises RuntimeError: if more than half of the requests fail
     """
