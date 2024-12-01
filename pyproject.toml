@@ -47,6 +47,7 @@ dev = [
     "textual-dev>=1.6.1",
 ]
 typing = [
+    "mypy-protobuf>=3.6.0",
     "mypy>=1.13.0",
     "types-protobuf==5.28.*",
 ]

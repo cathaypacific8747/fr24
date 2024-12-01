@@ -10,11 +10,7 @@ We aim to adhere to the official structure and naming as far as possible. Althou
 
 - the `optional` keyword does not mean it's nullable, but for [presence tracking](https://protobuf.dev/programming-guides/field_presence/) which forces the field to be explicitly sent
 - when type is ambiguous, mark as `?`
-- when there are updates to messages, enums or fields, comment with the client version `// NEW: XX.YYY.ZZZZ`
-    - `XX`: year
-    - `YYY`: julian date
-    - `ZZZZ`: time
-    - omit commit version.
+- when there are updates to messages, enums or fields, update the [changelog](./CHANGELOG.md)
 
 ## Compilation
 

@@ -16,4 +16,6 @@ if [ ! -d "$DIR_PROTO" ]; then
     exit 1
 fi
 
-protoc --proto_path=src --python_out=src --pyi_out=src $DIR_PROTO/*.proto
+DIR_MYPY_PROTOBUF=".venv/bin/protoc-gen-mypy"
+
+protoc --plugin=$DIR_MYPY_PROTOBUF --proto_path=src --python_out=src --mypy_out=readable_stubs:src $DIR_PROTO/*.proto

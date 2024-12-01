@@ -9,7 +9,7 @@ message ImageInfo {
     string medium = 4;
     string large = 5;
     string sideview = 6;
-} // new: 24.169.0808
+}
 
 message AircraftInfo {
     int32 icao_address = 1;
@@ -28,28 +28,28 @@ message AircraftInfo {
     bool age_available = 14;
     string registered_owners = 15;
     bool is_country_of_reg_available = 16;
-} // new: 24.169.0808
+}
 
 message Point {
     int32 latitude = 1;
     int32 longitude = 2;
-} // new: 24.169.0808
+}
 
 message Coordinate {
     string code = 1;
     Point point = 2;
-} // new: 24.169.0808
+}
 
 message Fix {
     string airport = 1;
     string area = 2;
     Coordinate coordinate = 3;
-} // new: 24.169.0808
+}
 
 message AltArrival {
     Fix arrival = 1;
     float length = 2;
-} // new: 24.169.0808
+}
 
 message FlightPlan {
     string departure = 1;
@@ -59,7 +59,7 @@ message FlightPlan {
     AltArrival alt_arrival_1 = 5;
     AltArrival alt_arrival_2 = 6;
     repeated Point waypoints_list = 7;
-} // new: 24.169.0808
+}
 
 message ScheduleInfo {
     string flight_number = 1;
@@ -75,7 +75,7 @@ message ScheduleInfo {
     string arr_terminal = 11;
     string arr_gate = 12;
     string baggage_belt = 13;
-} // new: 24.169.0808
+}
 
 enum FlightStage {
     UNKNOWN = 0;
@@ -83,8 +83,8 @@ enum FlightStage {
     ASCENDING = 2;
     AIRBORNE = 3;
     DESCENDING = 4;
-    DIVERSION = 5; // updated: 24.323
-} // new: 24.169.0808, updated: 24.288
+    DIVERSION = 5;
+}
 
 enum DelayStatus {
     GRAY = 0;
@@ -102,14 +102,14 @@ message FlightProgress {
     uint32 great_circle_distance = 6;
     uint32 mean_flight_time = 7;
     FlightStage flight_stage = 8;
-    DelayStatus delay_status = 9; // updated: 24.184.2001
-    int32 progress_pct = 10; // updated: 24.200.1841
-} // new: 24.169.0808, updated: 24.171.1153
+    DelayStatus delay_status = 9;
+    int32 progress_pct = 10;
+}
 
 message FollowFlightRequest {
     fixed32 flight_id = 1;
     _common.RestrictionVisibility restriction_mode = 2; // ?
-} // updated: 24.171.1153
+}
 
 message ExtendedFlightInfo {
     uint32 flightid = 1;
@@ -132,7 +132,7 @@ message ExtendedFlightInfo {
     bool airspace_availability = 18;
     string airspace = 19;
     string airspace_id = 20;
-} // new: 24.169.0808
+}
 
 message TrailPoint {
     uint64 snapshot_id = 1;
@@ -142,7 +142,7 @@ message TrailPoint {
     uint32 spd = 5;
     uint32 heading = 6;  // official naming says heading, but data is likely track
     int32 vspd = 7;
-} // new: 24.169.0808
+}
 
 message FollowFlightResponse {
     AircraftInfo aircraft_info = 1;

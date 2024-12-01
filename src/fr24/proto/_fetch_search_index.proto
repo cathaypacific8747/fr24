@@ -14,8 +14,8 @@ message FlightSearchData {
     bool restricted = 11;
 }
 
-message FetchSearchIndexRequest {} // new: 24.169.0808
+message FetchSearchIndexRequest {}
 
 message FetchSearchIndexResponse {
     repeated FlightSearchData flights_list = 1;
-} // new: 24.169.0808
+}

@@ -4,8 +4,8 @@ package _common;
 
 enum RestrictionVisibility {
     NOT_VISIBLE = 0;
-    PARTIALLY_VISIBLE = 1; // changed: 24.169.0808
-    FULLY_VISIBLE = 2; // changed: 24.169.0808
+    PARTIALLY_VISIBLE = 1;
+    FULLY_VISIBLE = 2;
 }
 
 enum Service {
@@ -208,11 +208,11 @@ enum EmergencyStatus {
 // used in CountDown
 message Duration {
     uint32 count = 1;
-} // new: 24.169.0808
+}
 
 message Tick {
     uint32 count = 1;
-} // new: 24.169.0808
+}
 
 // used in *trail
 message RadarHistoryRecord {
@@ -226,4 +226,4 @@ message RadarHistoryRecord {
     uint32 squawk = 8;
     _common.DataSource source = 9; // ?
     string callsign = 10;
-} // new: 24.169.0808
+}

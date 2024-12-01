@@ -4,7 +4,7 @@ import "fr24/proto/_common.proto";
 
 message HistoricTrailRequest {
     fixed32 flight_id = 1;
-} // added: 24.200.1841
+}
 
 message HistoricTrailResponse {
     repeated _common.RadarHistoryRecord radar_records_list = 1;

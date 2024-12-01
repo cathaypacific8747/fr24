@@ -136,8 +136,26 @@ live_feed_schema = pa.schema(
         pa.field("eta", pa.uint32()),
         pa.field("vertical_speed", pa.int16()),  # 64 * 9-bit + 1-bit sign
         pa.field("squawk", pa.uint16()),
+        pa.field(
+            "position_buffer",
+            pa.list_(
+                pa.struct(
+                    [
+                        pa.field("delta_lat", pa.int32()),
+                        pa.field("delta_lon", pa.int32()),
+                        pa.field("delta_ms", pa.uint32()),
+                    ]
+                )
+            ),
+        ),
     ]
 )
+
+
+class RecentPosition(TypedDict):
+    delta_lat: int
+    delta_lon: int
+    delta_ms: int
 
 
 class LiveFeedRecord(TypedDict):
@@ -158,3 +176,4 @@ class LiveFeedRecord(TypedDict):
     typecode: str
     eta: int
     squawk: int
+    position_buffer: list[RecentPosition]
