@@ -44,7 +44,7 @@ Issues = "https://github.com/cathaypacific8747/fr24/issues"
 
 [dependency-groups]
 dev = ["ipykernel>=6.29.5", "textual-dev>=1.6.1"]
-typing = ["mypy-protobuf>=3.6.0", "mypy>=1.13.0", "types-protobuf==5.28.*"]
+typing = ["mypy-protobuf>=3.6.0", "mypy>=1.13.0", "types-protobuf==5.29.*"]
 lint = ["ruff>=0.7.2"]
 test = [
     "eval-type-backport>=0.2.0", # for pydantic, <3.10 syntax
