@@ -744,7 +744,7 @@ test = [
 typing = [
     { name = "mypy", specifier = ">=1.13.0" },
     { name = "mypy-protobuf", specifier = ">=3.6.0" },
-    { name = "types-protobuf", specifier = "==5.28.*" },
+    { name = "types-protobuf", specifier = "==5.29.*" },
 ]
 
 [[package]]
@@ -2716,11 +2716,11 @@ wheels = [
 
 [[package]]
 name = "types-protobuf"
-version = "5.28.3.20241203"
+version = "5.29.1.20241207"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c9/80/ed668c8bb4cb92e4cc4a8bfea6a6b0693a4c02c2a5634675ada41bb11919/types_protobuf-5.28.3.20241203.tar.gz", hash = "sha256:2e1c962bdf76c576506b5fc0678d28efa6652a54c04ae46562a6209e777bd789", size = 59278 }
+sdist = { url = "https://files.pythonhosted.org/packages/70/89/b661a447139f665ccea8e39bfdd52a92f803df4b5de0e6001a3537feaacb/types_protobuf-5.29.1.20241207.tar.gz", hash = "sha256:2ebcadb8ab3ef2e3e2f067e0882906d64ba0dc65fc5b0fd7a8b692315b4a0be9", size = 59190 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/98/3779835381fb3995d31db970b7384d42a42cb487771bd2e6ed98799afa6c/types_protobuf-5.28.3.20241203-py3-none-any.whl", hash = "sha256:5367632a4785394b0504e7c1e4d54a2dceeae9cd4f73a705d0f6499fc99cecb1", size = 73973 },
+    { url = "https://files.pythonhosted.org/packages/7e/6e/cdf152187019d6f6d04066b23e48659d961b527e9c6d43b48459d160e332/types_protobuf-5.29.1.20241207-py3-none-any.whl", hash = "sha256:92893c42083e9b718c678badc0af7a9a1307b92afe1599e5cba5f3d35b668b2f", size = 73902 },
 ]
 
 [[package]]
