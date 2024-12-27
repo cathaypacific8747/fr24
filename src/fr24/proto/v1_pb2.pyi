@@ -149,7 +149,7 @@ from fr24.proto._live_feed_pb2 import (
     LiveFeedRequest as LiveFeedRequest,
     LiveFeedResponse as LiveFeedResponse,
     LocationBoundaries as LocationBoundaries,
-    OPERATED_AS as OPERATED_AS,
+    OPERATED_BY as OPERATED_BY,
     OUTBOUND as OUTBOUND,
     PAINTED_AS as PAINTED_AS,
     PlaybackRequest as PlaybackRequest,

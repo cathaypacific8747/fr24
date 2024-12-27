@@ -103,7 +103,7 @@ message FlightProgress {
     uint32 mean_flight_time = 7;
     FlightStage flight_stage = 8;
     DelayStatus delay_status = 9;
-    int32 progress_pct = 10;
+    uint32 progress_pct = 10;
 }
 
 message FollowFlightRequest {
@@ -132,6 +132,7 @@ message ExtendedFlightInfo {
     bool airspace_availability = 18;
     string airspace = 19;
     string airspace_id = 20;
+    uint64 server_time_ms = 21;
 }
 
 message TrailPoint {
@@ -140,7 +141,8 @@ message TrailPoint {
     float lon = 3;
     int32 altitude = 4;
     uint32 spd = 5;
-    // Track angle, degrees. Not heading.
+    // True track angle, degrees clockwise from North.
+    // Note: despite the name, heading is not transmitted in ADS-B.
     uint32 heading = 6;
     int32 vspd = 7;
 }

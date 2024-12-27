@@ -42,7 +42,7 @@ message AirlineFilter {
 
 enum AirlineFilterType {
     PAINTED_AS = 0;
-    OPERATED_AS = 1;
+    OPERATED_BY = 1;
 }
 
 message Filter {
@@ -86,7 +86,8 @@ message LiveFeedRequest {
 message LiveFeedResponse {
     repeated _common.Flight flights_list = 1;
     _common.Stats stats = 2;
-    repeated _common.Flight selected_flight_info = 3;
+    repeated _common.Flight selected_flight_list = 3;
+    uint64 server_time_ms = 4;
 }
 
 message PlaybackRequest {

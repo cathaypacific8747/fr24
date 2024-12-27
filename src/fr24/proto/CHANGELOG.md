@@ -4,6 +4,12 @@ All known changes of the gRPC messages are documented here.
 
 Client versions are usually updated every 5 days, most frequently on Mon/Tue 10am. This list is not exhaustive.
 
+## `24.353.1121` (2024-12-19)
+
+- rename fields: `AirlineFilterType::OPERATED_AS`, `Stats.sources`
+- add field: `Schedule.progress_pct`, `ExtendedFlightInfo.server_time_ms`
+- fix field type: `FlightProgress.progress_pct`
+
 ## `24.333.0902` (2024-11-28)
 
 - add field: `Flight.position_buffer`

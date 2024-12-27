@@ -377,12 +377,14 @@ class Schedule(Message):
     STA_FIELD_NUMBER: int
     ETA_FIELD_NUMBER: int
     ATA_FIELD_NUMBER: int
+    PROGRESS_PCT_FIELD_NUMBER: int
     std: int
     etd: int
     atd: int
     sta: int
     eta: int
     ata: int
+    progress_pct: int
     def __init__(
         self,
         *,
@@ -392,8 +394,9 @@ class Schedule(Message):
         sta: int = ...,
         eta: int = ...,
         ata: int = ...,
+        progress_pct: int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: Literal["ata", b"ata", "atd", b"atd", "eta", b"eta", "etd", b"etd", "sta", b"sta", "std", b"std"]) -> None: ...
+    def ClearField(self, field_name: Literal["ata", b"ata", "atd", b"atd", "eta", b"eta", "etd", b"etd", "progress_pct", b"progress_pct", "sta", b"sta", "std", b"std"]) -> None: ...
 
 @final
 class Route(Message):
@@ -512,15 +515,15 @@ class SourceStats(Message):
 class Stats(Message):
     DESCRIPTOR: Descriptor
 
-    SOURCES_FIELD_NUMBER: int
+    TOTAL_LIST_FIELD_NUMBER: int
     @property
-    def sources(self) -> RepeatedCompositeFieldContainer[SourceStats]: ...
+    def total_list(self) -> RepeatedCompositeFieldContainer[SourceStats]: ...
     def __init__(
         self,
         *,
-        sources: Iterable[SourceStats] | None = ...,
+        total_list: Iterable[SourceStats] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: Literal["sources", b"sources"]) -> None: ...
+    def ClearField(self, field_name: Literal["total_list", b"total_list"]) -> None: ...
 
 @final
 class RecentPosition(Message):
@@ -669,7 +672,9 @@ class RadarHistoryRecord(Message):
     altitude: int
     spd: int
     heading: int
-    """True track angle, degrees clockwise from North"""
+    """True track angle, degrees clockwise from North.
+    Note: despite the name, heading is not transmitted in ADS-B.
+    """
     vspd: int
     squawk: int
     source: DataSource.ValueType

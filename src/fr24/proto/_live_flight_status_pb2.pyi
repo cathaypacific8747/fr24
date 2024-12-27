@@ -95,7 +95,9 @@ class LiveFlightsStatusResponse(Message):
 
     FLIGHTS_MAP_FIELD_NUMBER: int
     @property
-    def flights_map(self) -> RepeatedCompositeFieldContainer[_Unknown]: ...
+    def flights_map(self) -> RepeatedCompositeFieldContainer[_Unknown]:
+        """this should just be LiveFlightStatusData"""
+
     def __init__(
         self,
         *,

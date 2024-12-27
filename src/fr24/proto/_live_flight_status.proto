@@ -19,7 +19,5 @@ message _Unknown {
 }
 
 message LiveFlightsStatusResponse {
-    repeated _Unknown flights_map = 1;
-}
-
-// NOTE: differs from web version
+    repeated _Unknown flights_map = 1; // this should just be LiveFlightStatusData
+} // NOTE: differs from web version

@@ -415,6 +415,7 @@ class ExtendedFlightInfo(Message):
     AIRSPACE_AVAILABILITY_FIELD_NUMBER: int
     AIRSPACE_FIELD_NUMBER: int
     AIRSPACE_ID_FIELD_NUMBER: int
+    SERVER_TIME_MS_FIELD_NUMBER: int
     flightid: int
     lat: float
     lon: float
@@ -435,6 +436,7 @@ class ExtendedFlightInfo(Message):
     airspace_availability: bool
     airspace: str
     airspace_id: str
+    server_time_ms: int
     @property
     def ems_availability(self) -> EMSAvailability: ...
     @property
@@ -462,9 +464,10 @@ class ExtendedFlightInfo(Message):
         airspace_availability: bool = ...,
         airspace: str = ...,
         airspace_id: str = ...,
+        server_time_ms: int = ...,
     ) -> None: ...
     def HasField(self, field_name: Literal["ems_availability", b"ems_availability", "ems_info", b"ems_info"]) -> bool: ...
-    def ClearField(self, field_name: Literal["airspace", b"airspace", "airspace_availability", b"airspace_availability", "airspace_id", b"airspace_id", "alt", b"alt", "callsign", b"callsign", "ems_availability", b"ems_availability", "ems_info", b"ems_info", "flightid", b"flightid", "lat", b"lat", "lon", b"lon", "on_ground", b"on_ground", "source", b"source", "speed", b"speed", "squawk", b"squawk", "squawk_availability", b"squawk_availability", "status", b"status", "timestamp", b"timestamp", "track", b"track", "vspeed", b"vspeed", "vspeed_availability", b"vspeed_availability"]) -> None: ...
+    def ClearField(self, field_name: Literal["airspace", b"airspace", "airspace_availability", b"airspace_availability", "airspace_id", b"airspace_id", "alt", b"alt", "callsign", b"callsign", "ems_availability", b"ems_availability", "ems_info", b"ems_info", "flightid", b"flightid", "lat", b"lat", "lon", b"lon", "on_ground", b"on_ground", "server_time_ms", b"server_time_ms", "source", b"source", "speed", b"speed", "squawk", b"squawk", "squawk_availability", b"squawk_availability", "status", b"status", "timestamp", b"timestamp", "track", b"track", "vspeed", b"vspeed", "vspeed_availability", b"vspeed_availability"]) -> None: ...
 
 @final
 class TrailPoint(Message):
@@ -483,7 +486,9 @@ class TrailPoint(Message):
     altitude: int
     spd: int
     heading: int
-    """Track angle, degrees. Not heading."""
+    """True track angle, degrees clockwise from North.
+    Note: despite the name, heading is not transmitted in ADS-B.
+    """
     vspd: int
     def __init__(
         self,

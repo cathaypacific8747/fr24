@@ -77,12 +77,12 @@ class _AirlineFilterType:
 class _AirlineFilterTypeEnumTypeWrapper(_EnumTypeWrapper[_AirlineFilterType.ValueType], type):
     DESCRIPTOR: EnumDescriptor
     PAINTED_AS: _AirlineFilterType.ValueType  # 0
-    OPERATED_AS: _AirlineFilterType.ValueType  # 1
+    OPERATED_BY: _AirlineFilterType.ValueType  # 1
 
 class AirlineFilterType(_AirlineFilterType, metaclass=_AirlineFilterTypeEnumTypeWrapper): ...
 
 PAINTED_AS: AirlineFilterType.ValueType  # 0
-OPERATED_AS: AirlineFilterType.ValueType  # 1
+OPERATED_BY: AirlineFilterType.ValueType  # 1
 
 @final
 class LocationBoundaries(Message):
@@ -327,22 +327,25 @@ class LiveFeedResponse(Message):
 
     FLIGHTS_LIST_FIELD_NUMBER: int
     STATS_FIELD_NUMBER: int
-    SELECTED_FLIGHT_INFO_FIELD_NUMBER: int
+    SELECTED_FLIGHT_LIST_FIELD_NUMBER: int
+    SERVER_TIME_MS_FIELD_NUMBER: int
+    server_time_ms: int
     @property
     def flights_list(self) -> RepeatedCompositeFieldContainer[Flight]: ...
     @property
     def stats(self) -> Stats: ...
     @property
-    def selected_flight_info(self) -> RepeatedCompositeFieldContainer[Flight]: ...
+    def selected_flight_list(self) -> RepeatedCompositeFieldContainer[Flight]: ...
     def __init__(
         self,
         *,
         flights_list: Iterable[Flight] | None = ...,
         stats: Stats | None = ...,
-        selected_flight_info: Iterable[Flight] | None = ...,
+        selected_flight_list: Iterable[Flight] | None = ...,
+        server_time_ms: int = ...,
     ) -> None: ...
     def HasField(self, field_name: Literal["stats", b"stats"]) -> bool: ...
-    def ClearField(self, field_name: Literal["flights_list", b"flights_list", "selected_flight_info", b"selected_flight_info", "stats", b"stats"]) -> None: ...
+    def ClearField(self, field_name: Literal["flights_list", b"flights_list", "selected_flight_list", b"selected_flight_list", "server_time_ms", b"server_time_ms", "stats", b"stats"]) -> None: ...
 
 @final
 class PlaybackRequest(Message):

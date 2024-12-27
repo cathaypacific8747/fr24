@@ -132,6 +132,7 @@ message Schedule {
     int32 sta = 4;
     int32 eta = 5;
     int32 ata = 6;
+    int32 progress_pct = 7;
 }
 
 message Route {
@@ -173,7 +174,7 @@ message SourceStats {
 }
 
 message Stats {
-    repeated SourceStats sources = 1;
+    repeated SourceStats total_list = 1;
 }
 
 message RecentPosition {
@@ -240,7 +241,8 @@ message RadarHistoryRecord {
     float lon = 3;
     int32 altitude = 4;
     uint32 spd = 5;
-    // True track angle, degrees clockwise from North
+    // True track angle, degrees clockwise from North.
+    // Note: despite the name, heading is not transmitted in ADS-B.
     uint32 heading = 6;
     int32 vspd = 7;
     uint32 squawk = 8;
