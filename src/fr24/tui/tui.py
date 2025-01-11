@@ -21,10 +21,21 @@ from textual.widgets import (
 
 import pandas as pd
 from fr24.authentication import login
-from fr24.json import airport_list, find, flight_list, playback
+from fr24.json import (
+    AirportListRequest,
+    FlightListRequest,
+    PlaybackRequest,
+    airport_list,
+    find,
+    flight_list,
+    parse_airport_list,
+    parse_find,
+    parse_flight_list,
+    parse_playback,
+    playback,
+)
 from fr24.tui.formatters import Aircraft, Airport, Time
 from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
-from fr24.types.airport_list import AirportList
 from fr24.types.authentication import Authentication
 from fr24.types.find import is_schedule
 from fr24.types.flight_list import FlightList, FlightListItem
@@ -132,11 +143,15 @@ class FR24(App[None]):
         if len(self.line_info) == 0:
             return
         date = self.line_info["date"] + " " + self.line_info["STD"]
-        result = await playback(
-            self.client,
-            flight_id=self.line_info["flightid"],
-            timestamp=date,
-            auth=self.auth,
+        result = parse_playback(
+            await playback(
+                self.client,
+                PlaybackRequest(
+                    flight_id=self.line_info["flightid"],
+                    timestamp=date,
+                ),
+                auth=self.auth,
+            )
         )
         filename = f"{self.line_info['flightid']}.json"
         self.notify(f"Saving to {filename}")
@@ -168,21 +183,29 @@ class FR24(App[None]):
             return
 
     async def lookup_aircraft(self, value: str, ts: str) -> None:
-        results: FlightList = await flight_list(
-            self.client, reg=value, limit=100, timestamp=ts, auth=self.auth
+        results = parse_flight_list(
+            await flight_list(
+                self.client,
+                FlightListRequest(reg=value, limit=100, timestamp=ts),
+                auth=self.auth,
+            )
         )
         self.update_table(results["result"]["response"].get("data", None))
 
     async def lookup_number(self, value: str, ts: str) -> None:
-        results: FlightList = await flight_list(
-            self.client, flight=value, limit=100, timestamp=ts, auth=self.auth
+        results = parse_flight_list(
+            await flight_list(
+                self.client,
+                FlightListRequest(flight=value, limit=100, timestamp=ts),
+                auth=self.auth,
+            )
         )
         self.update_table(results["result"]["response"].get("data", None))
 
     async def lookup_city_pair(
         self, departure: str, arrival: str, ts: pd.Timestamp
     ) -> None:
-        results = await find(self.client, f"{departure}-{arrival}")
+        results = parse_find(await find(self.client, f"{departure}-{arrival}"))
         if results is None or results["stats"]["count"]["schedule"] == 0:
             return
         flight_numbers = list(
@@ -192,23 +215,26 @@ class FR24(App[None]):
         )
         flight_lists: list[FlightList] = []
         for value in flight_numbers:
+            flight_list_request = FlightListRequest(
+                flight=value, limit=10, timestamp=ts
+            )
             try:
-                res = await flight_list(
-                    self.client,
-                    flight=value,
-                    limit=10,
-                    timestamp=ts,
-                    auth=self.auth,
+                res = parse_flight_list(
+                    await flight_list(
+                        self.client,
+                        flight_list_request,
+                        auth=self.auth,
+                    )
                 )
             except httpx.HTTPStatusError as exc:
                 if exc.response.status_code == 402:  # payment required
                     await asyncio.sleep(10)
-                    res = await flight_list(
-                        self.client,
-                        flight=value,
-                        limit=10,
-                        timestamp=ts,
-                        auth=self.auth,
+                    res = parse_flight_list(
+                        await flight_list(
+                            self.client,
+                            flight_list_request,
+                            auth=self.auth,
+                        )
                     )
                 else:
                     raise exc
@@ -247,13 +273,17 @@ class FR24(App[None]):
             await asyncio.sleep(2)
 
     async def lookup_arrival(self, value: str, ts: str) -> None:
-        results: AirportList = await airport_list(
-            self.client,
-            airport=value,
-            mode="arrivals",
-            limit=100,
-            timestamp=ts,
-            auth=self.auth,
+        results = parse_airport_list(
+            await airport_list(
+                self.client,
+                AirportListRequest(
+                    airport=value,
+                    mode="arrivals",
+                    limit=100,
+                    timestamp=ts,
+                ),
+                auth=self.auth,
+            )
         )
         s = results["result"]["response"]["airport"]["pluginData"]["schedule"]
         data = s["arrivals"].get("data", None)
@@ -266,13 +296,17 @@ class FR24(App[None]):
             )
 
     async def lookup_departure(self, value: str, ts: str) -> None:
-        results: AirportList = await airport_list(
-            self.client,
-            airport=value,
-            mode="departures",
-            limit=100,
-            timestamp=ts,
-            auth=self.auth,
+        results = parse_airport_list(
+            await airport_list(
+                self.client,
+                AirportListRequest(
+                    airport=value,
+                    mode="departures",
+                    limit=100,
+                    timestamp=ts,
+                ),
+                auth=self.auth,
+            )
         )
         s = results["result"]["response"]["airport"]["pluginData"]["schedule"]
         data = s["departures"].get("data", None)

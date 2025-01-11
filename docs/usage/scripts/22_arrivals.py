@@ -6,18 +6,19 @@
 import httpx
 
 from fr24.types.airport_list import AirportList
-from fr24.json import airport_list
+from fr24.json import airport_list, AirportListRequest
 
 import pandas as pd
 
 async def my_arrivals() -> AirportList:
     async with httpx.AsyncClient() as client:
-        list_ = await airport_list(
+        response = await airport_list(
             client,
-            airport="tls",
-            mode="arrivals",
+            AirportListRequest(airport="tls", mode="arrivals"),
         )
-        return list_
+        response.raise_for_status()
+        list_ = response.json()
+        return list_ # type: ignore
 
 
 airports = await my_arrivals()

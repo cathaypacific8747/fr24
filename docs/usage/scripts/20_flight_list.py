@@ -6,7 +6,7 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.json import flight_list, flight_list_df
+from fr24.json import flight_list, flight_list_df, FlightListRequest
 
 import pandas as pd
 
@@ -15,12 +15,16 @@ async def my_list() -> pd.DataFrame:
         auth = await login(client)
         if auth is not None:
             print(auth["message"])
-        list_ = await flight_list(
+        response = await flight_list(
             client,
-            flight="AF291",
-            timestamp="2024-04-01",  # (1)!
+            FlightListRequest(
+                flight="AF291",
+                timestamp="2024-04-01",  # (1)!
+            ),
             auth=auth,
         )
+        response.raise_for_status()
+        list_ = response.json()
         return list_
 
 

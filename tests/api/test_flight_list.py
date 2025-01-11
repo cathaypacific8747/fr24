@@ -9,13 +9,25 @@ import pytest
 from pydantic import ConfigDict, TypeAdapter
 
 from fr24.core import FR24, FlightListArrow
-from fr24.json import flight_list, flight_list_df, playback
+from fr24.json import (
+    FlightListRequest,
+    PlaybackRequest,
+    flight_list,
+    flight_list_df,
+    parse_flight_list,
+    playback,
+)
 from fr24.types.flight_list import FlightList
+
+REG = "F-HEPK"
+FLIGHT = "AF7463"
 
 
 @pytest.mark.anyio
 async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
-    list_ = await flight_list(client, reg="F-HNAV")
+    list_ = parse_flight_list(
+        await flight_list(client, FlightListRequest(reg=REG))
+    )
     df = flight_list_df(list_)
     if df is None:
         return
@@ -27,13 +39,16 @@ async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
         *[
             playback(
                 client,
-                entry["identification"]["id"],  # type: ignore
-                entry["time"]["scheduled"]["arrival"],
+                PlaybackRequest(
+                    flight_id=flight_id,
+                    timestamp=entry["time"]["scheduled"]["arrival"],
+                ),
             )
             # the entry below is not None because of `if df is None:`
             for entry in list_["result"]["response"]["data"]  # type: ignore
             if (status := entry["status"]["text"]) is not None
             and status.startswith("Landed")
+            and (flight_id := entry["identification"]["id"]) is not None
         ]
     )
     assert len(result) == landed.shape[0]
@@ -46,9 +61,6 @@ async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
 
 
 # core
-
-REG = "F-HEPK"
-FLIGHT = "AF7463"
 
 
 @pytest.mark.anyio

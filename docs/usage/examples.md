@@ -137,7 +137,7 @@ Fetches the live feed three days ago.
 
 === "Jupyter cell"
 
-    ```py hl_lines="16"
+    ```py hl_lines="17"
     --8<-- "docs/usage/scripts/20_flight_list.py:script0"
     ```
 

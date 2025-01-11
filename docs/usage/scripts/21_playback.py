@@ -6,7 +6,7 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.json import playback, playback_df
+from fr24.json import playback, playback_df, PlaybackRequest
 
 import pandas as pd
 
@@ -15,12 +15,13 @@ async def my_playback() -> pd.DataFrame:
         auth = await login(client)
         if auth is not None:
             print(auth["message"])
-        list_ = await playback(
+        response = await playback(
             client,
-            flight_id="35d692b1",
-            timestamp=1719273600,
+            PlaybackRequest(flight_id="35d692b1", timestamp=1719273600),
             auth=auth,
         )
+        response.raise_for_status()
+        list_ = response.json()
         return list_
 
 

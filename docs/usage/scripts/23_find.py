@@ -11,9 +11,10 @@ import httpx
 
 async def my_find() -> FindResult:
     async with httpx.AsyncClient() as client:
-        results = await find(client, "paris")
-        assert results is not None
-        return results
+        response = await find(client, "paris")
+        response.raise_for_status()
+        results = response.json()
+        return results  # type: ignore
 
 
 results = await my_find()

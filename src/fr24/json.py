@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import secrets
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Generic, Literal, TypeVar
 
 import httpx
 import pyarrow as pa
@@ -22,61 +23,85 @@ from .types.cache import (
     playback_track_schema,
 )
 from .types.find import FindResult
-from .types.flight_list import FlightList, FlightListItem, FlightListRequest
+from .types.flight_list import FlightList, FlightListItem
+from .types.flight_list import FlightListRequest as FlightListRequest_
 from .types.playback import (
     FlightData,
     Playback,
-    PlaybackRequest,
     TrackData,
 )
+from .types.playback import (
+    PlaybackRequest as PlaybackRequest_,
+)
+
+# NOTE: we intentionally use dataclass to store request data so we can
+# serialise it to disk easily.
+
+
+@dataclass
+class FlightListRequest:
+    """
+    Request data to fetch metadata/history of flights for
+    *either* a given aircraft registration or flight number.
+    """
+
+    reg: str | None = None
+    """Aircraft registration (e.g. `B-HUJ`)"""
+    flight: str | None = None
+    """Flight number (e.g. `CX8747`)"""
+    page: int = 1
+    """Page number"""
+    limit: int = 10
+    """Number of results per page - use `100` if authenticated."""
+    timestamp: int | datetime | "pd.Timestamp" | str | None = "now"
+    """Show flights with ATD before this Unix timestamp"""
+
+    def __post_init__(self) -> None:
+        if self.reg is None and self.flight is None:
+            raise TypeError(
+                "expected one of `reg` or `flight` to be set, "
+                "but both are `None`"
+            )
+        if self.reg is not None and self.flight is not None:
+            raise TypeError(
+                "expected only one of `reg` or `flight` to be set, "
+                "but both are not `None`"
+            )
 
 
 async def flight_list(
     client: httpx.AsyncClient,
-    reg: None | str = None,
-    flight: None | str = None,
-    page: int = 1,
-    limit: int = 10,
-    timestamp: int | datetime | pd.Timestamp | str | None = "now",
+    data: FlightListRequest,
     auth: None | Authentication = None,
-) -> FlightList:
+) -> Annotated[httpx.Response, FlightList]:
     """
-    Fetch metadata/history of flights for a given aircraft or flight number.
+    Query flight list data.
+
+    To determine if there are more pages to query, check the response
+    [.result.response.page.more][fr24.types.flight_list.Page.more].
 
     Includes basic information such as status, O/D, scheduled/estimated/real
     times: see [fr24.types.flight_list.FlightList][] for more details.
 
-    Use *either* `reg` or `flight` to query.
-    To determine if there are more pages to query, check the response
-    [.result.response.page.more][fr24.types.flight_list.Page.more].
-
     :param client: HTTPX async client
-    :param reg: Aircraft registration (e.g. `B-HUJ`)
-    :param flight: Flight number (e.g. `CX8747`)
-    :param page: Page number
-    :param limit: Number of results per page - use `100` if authenticated.
-    :param timestamp: Show flights with ATD before this Unix timestamp
     :param auth: Authentication data
     """
-    timestamp = to_unix_timestamp(timestamp)
+    timestamp = to_unix_timestamp(data.timestamp)
 
-    if reg is not None:
-        key, value = "reg", reg
-    elif flight is not None:
-        key, value = "flight", flight
-    else:
-        raise TypeError(
-            "expected one of `reg` or `flight` to be set, but both are `None`"
-        )
+    if data.reg is not None:
+        key, value = "reg", data.reg
+    elif data.flight is not None:
+        key, value = "flight", data.flight
 
+    # TODO: remove duplication
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params: FlightListRequest = {
+    params: FlightListRequest_ = {
         "query": value,
         "fetchBy": key,
-        "page": page,
-        "limit": limit,
+        "page": data.page,
+        "limit": data.limit,
     }
 
     if timestamp is not None:
@@ -95,19 +120,32 @@ async def flight_list(
     )
 
     response = await client.send(request)
-    response.raise_for_status()
-    return response.json()  # type: ignore
+    return response
+
+
+@dataclass
+class AirportListRequest:
+    """
+    Request data to fetch metadata/history of flights
+    """
+
+    airport: str
+    """IATA airport code (e.g. `HKG`)"""
+    mode: Literal["arrivals"] | Literal["departures"] | Literal["ground"]
+    """arrivals, departures or on ground aircraft"""
+    page: int = 1
+    """Page number"""
+    limit: int = 10
+    """Number of results per page - use `100` if authenticated."""
+    timestamp: int | datetime | "pd.Timestamp" | str | None = "now"
+    """Show flights with STA before this timestamp"""
 
 
 async def airport_list(
     client: httpx.AsyncClient,
-    airport: str,
-    mode: Literal["arrivals"] | Literal["departures"] | Literal["ground"],
-    page: int = 1,
-    limit: int = 10,
-    timestamp: int | datetime | pd.Timestamp | str | None = "now",
+    data: AirportListRequest,
     auth: None | Authentication = None,
-) -> AirportList:
+) -> Annotated[httpx.Response, AirportList]:
     """
     Fetch aircraft arriving, departing or on ground at a given airport.
 
@@ -115,25 +153,22 @@ async def airport_list(
     [fr24.types.flight_list.FlightListItem][] for more details.
 
     :param client: HTTPX async client
-    :param airport: IATA airport code (e.g. `HKG`)
-    :param mode: arrivals, departures or on ground aircraft
-    :param page: Page number
-    :param limit: Number of results per page (max 100)
-    :param timestamp: Show flights with STA before this Unix timestamp
     :param auth: Authentication data
+    :returns: the raw binary response, representing a JSON-encoded
+        [fr24.types.flight_list.FlightList][].
     """
-    timestamp = to_unix_timestamp(timestamp)
+    timestamp = to_unix_timestamp(data.timestamp)
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
 
     params: AirportRequest = {
-        "code": airport,
+        "code": data.airport,
         "plugin[]": ["schedule"],
-        "plugin-setting[schedule][mode]": mode,
-        "page": page,
-        "limit": limit,
+        "plugin-setting[schedule][mode]": data.mode,
+        "page": data.page,
+        "limit": data.limit,
     }
 
     if timestamp is not None:
@@ -152,33 +187,46 @@ async def airport_list(
     )
 
     response = await client.send(request)
-    response.raise_for_status()
-    return response.json()  # type: ignore
+    return response
+
+
+@dataclass
+class PlaybackRequest:
+    """
+    Request data to fetch historical track playback data for a given flight.
+    """
+
+    flight_id: int | str
+    """fr24 hex flight id"""
+    timestamp: int | str | datetime | pd.Timestamp | None = None
+    """
+    Unix timestamp (seconds) of ATD - optional, but it is recommended to
+    include it
+    """
 
 
 async def playback(
     client: httpx.AsyncClient,
-    flight_id: int | str,
-    timestamp: int | str | datetime | pd.Timestamp | None = None,
+    data: PlaybackRequest,
     auth: None | Authentication = None,
-) -> Playback:
+) -> Annotated[httpx.Response, Playback]:
     """
     Fetch historical track playback data for a given flight.
 
     :param client: HTTPX async client
-    :param flight_id: fr24 hex flight id
-    :param timestamp: Unix timestamp (seconds) of ATD - optional, but
-    it is recommended to include it
     :param auth: Authentication data
     """
-    timestamp = to_unix_timestamp(timestamp)
-    if not isinstance(flight_id, str):
-        flight_id = f"{flight_id:x}"
+    timestamp = to_unix_timestamp(data.timestamp)
+    flight_id = (
+        f"{data.flight_id:x}"
+        if not isinstance(data.flight_id, str)
+        else data.flight_id
+    )
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params: PlaybackRequest = {
+    params: PlaybackRequest_ = {
         "flightId": flight_id,
     }
     if timestamp is not None:
@@ -196,13 +244,18 @@ async def playback(
     )
 
     response = await client.send(request)
-    response.raise_for_status()
-    return response.json()  # type: ignore
+    return response
 
 
-async def find(client: httpx.AsyncClient, query: str) -> FindResult | None:
+# NOTE: not using dataclasses for now.
+
+
+async def find(
+    client: httpx.AsyncClient, query: str
+) -> Annotated[httpx.Response, FindResult]:
     """
     General search.
+
     :param query: Airport, schedule (HKG-CDG), or aircraft.
     """
     request = httpx.Request(
@@ -211,9 +264,36 @@ async def find(client: httpx.AsyncClient, query: str) -> FindResult | None:
         params={"query": query, "limit": 50},
     )
     response = await client.send(request)
-    if response.status_code != 200:
-        return None
-    return response.json()  # type: ignore
+    return response
+
+
+#
+# helpers
+#
+
+_T = TypeVar("_T")
+
+
+# workaround for py<3.12: https://docs.python.org/3/reference/compound_stmts.html#type-params
+# just to silence mypy
+class _Parse(Generic[_T]):
+    @staticmethod
+    def parse_json(response: Annotated[httpx.Response, _T]) -> _T:
+        """
+        Parses binary representation into a python object.
+
+        Panics if the response did not succeed.
+        """
+        import orjson
+
+        response.raise_for_status()
+        return orjson.loads(response.content)  # type: ignore
+
+
+parse_flight_list = _Parse[FlightList].parse_json
+parse_airport_list = _Parse[AirportList].parse_json
+parse_playback = _Parse[Playback].parse_json
+parse_find = _Parse[FindResult].parse_json
 
 
 def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg]

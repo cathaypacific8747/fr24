@@ -23,8 +23,12 @@ from .grpc import (
     live_feed_world_data,
 )
 from .json import (
+    FlightListRequest,
+    PlaybackRequest,
     flight_list,
     flight_list_arrow,
+    parse_flight_list,
+    parse_playback,
     playback,
     playback_arrow,
 )
@@ -111,14 +115,18 @@ class FlightListAPI:
             reg, flight = ctx["ident"], None
         else:
             reg, flight = None, ctx["ident"]
-        return await flight_list(
-            self.http.client,
-            reg,
-            flight,
-            page,
-            limit,
-            timestamp,
-            self.http.auth,
+        return parse_flight_list(
+            await flight_list(
+                self.http.client,
+                FlightListRequest(
+                    reg,
+                    flight,
+                    page,
+                    limit,
+                    timestamp,
+                ),
+                self.http.auth,
+            )
         )
 
     async def _fetch_all(
@@ -348,8 +356,12 @@ class PlaybackAPI:
         :param timestamp: Unix timestamp (seconds) of ATD - optional, but
             it is recommended to include it
         """
-        return await playback(
-            self.http.client, ctx["flight_id"], timestamp, self.http.auth
+        return parse_playback(
+            await playback(
+                self.http.client,
+                PlaybackRequest(ctx["flight_id"], timestamp),
+                self.http.auth,
+            )
         )
 
 
