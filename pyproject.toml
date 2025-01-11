@@ -47,15 +47,14 @@ dev = ["ipykernel>=6.29.5", "textual-dev>=1.6.1"]
 typing = ["mypy-protobuf>=3.6.0", "mypy>=1.13.0", "types-protobuf==5.28.*"]
 lint = ["ruff>=0.7.2"]
 test = [
+    "anyio>=4.8.0",
     "eval-type-backport>=0.2.0", # for pydantic, <3.10 syntax
     "pydantic>=2.9.2",
     "pytest>=8.3.3",
-    "pytest-asyncio>=0.24.0",
 ]
 docs = [
-    "black>=24.10.0",
     "mkdocs-material[imaging]>=9.5.43",
-    "mkdocstrings-python>=1.12.2",
+    "mkdocstrings-python>=1.13.0",
 ]
 
 [project.scripts]
@@ -98,6 +97,3 @@ warn_no_return = true
 warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
-
-[tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"

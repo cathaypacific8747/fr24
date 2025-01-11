@@ -292,15 +292,15 @@ class FR24(App[None]):
         table.add_rows(
             [
                 (
-                    f'{Time(entry["time"]["scheduled"]["departure"]):%d %b %y}',
+                    f"{Time(entry['time']['scheduled']['departure']):%d %b %y}",
                     entry["identification"]["number"]["default"],
                     entry["identification"]["callsign"],
-                    f'{Aircraft(entry["aircraft"]):%r (%c)}',
-                    f'{Airport(entry["airport"]["origin"]):%y (%o)}',
-                    f'{Airport(entry["airport"]["destination"]):%y (%o)}',
-                    f'{Time(entry["time"]["scheduled"]["departure"]):%H:%MZ}',
-                    f'{Time(entry["time"]["real"]["departure"]):%H:%MZ}',
-                    f'{Time(entry["time"]["scheduled"]["arrival"]):%H:%MZ}',
+                    f"{Aircraft(entry['aircraft']):%r (%c)}",
+                    f"{Airport(entry['airport']['origin']):%y (%o)}",
+                    f"{Airport(entry['airport']['destination']):%y (%o)}",
+                    f"{Time(entry['time']['scheduled']['departure']):%H:%MZ}",
+                    f"{Time(entry['time']['real']['departure']):%H:%MZ}",
+                    f"{Time(entry['time']['scheduled']['arrival']):%H:%MZ}",
                     entry["status"]["text"],
                     entry["identification"]["id"],
                 )
