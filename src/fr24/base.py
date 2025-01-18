@@ -1,25 +1,36 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, BinaryIO, Generic, Literal, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    Protocol,
+    TypeVar,
+)
 
 import httpx
-import pyarrow as pa
-import pyarrow.csv as csv
-import pyarrow.parquet as pq
-from loguru import logger
-from typing_extensions import Self
-
-import pandas as pd
+import polars as pl
+from google.protobuf.message import Message
+from typing_extensions import runtime_checkable
 
 from .authentication import login
-from .types.authentication import (
-    Authentication,
-    TokenSubscriptionKey,
-    UsernamePassword,
-)
+
+if TYPE_CHECKING:
+    from typing import IO, Any, Literal
+
+    import httpx
+    from typing_extensions import Self
+
+    from .types.authentication import (
+        Authentication,
+        TokenSubscriptionKey,
+        UsernamePassword,
+    )
+
+#
+# api
+#
 
 
 @dataclass
@@ -45,127 +56,111 @@ class HTTPClient:
             await self.client.aclose()
 
 
-Ctx = TypeVar("Ctx")
-"""Type of the context for the service, a TypedDict"""
-ApiRspRaw = TypeVar("ApiRspRaw")
-"""Type returned by the API, usually a TypedDict,
-e.g. [fr24.types.flight_list.FlightList][]"""
+RequestT = TypeVar("RequestT")
+"""Arguments for the request"""
 
 
 @dataclass
-class APIResponse(Generic[Ctx, ApiRspRaw]):
-    """Wraps an API response with context."""
+class APIResult(Generic[RequestT]):
+    """Wraps raw bytes with context."""
 
-    ctx: Ctx
-    data: ApiRspRaw
-
-
-@dataclass
-class ArrowTable(Generic[Ctx]):
-    """
-    Manages storage and retrieval of an arrow table with context.
-
-    Do not construct directly, use `from_file` instead.
-    """
-
-    ctx: Ctx
-    data: pa.Table
-
-    @classmethod
-    def new(cls, ctx: Ctx, sch_expected: pa.Schema | None = None) -> Self:
-        return cls(ctx, pa.Table.from_pylist([], schema=sch_expected))
-
-    @classmethod
-    def from_file(
-        cls, ctx: Ctx, fp: Path, sch_expected: pa.Schema | None = None
-    ) -> Self:
-        """
-        Loads data from a parquet file, enforcing the schema if provided.
-
-        :raises RuntimeError: when column names and/or types are unrecognised
-        """
-        if not fp.exists():
-            logger.warning(
-                f"cannot find `{fp.stem}` in cache, "
-                "creating an empty in-memory table"
-            )
-            return cls.new(ctx, sch_expected)
-
-        if sch_expected is not None:
-            # enforce fp schema to match the provided.
-            # NOTE: when we migrate to polars soon, we want this to be optional.
-            sch_actual = pq.read_schema(fp)
-            if not sch_actual.equals(sch_expected):
-                diffs = set(sch_actual).difference(set(sch_expected))
-                raise RuntimeError(
-                    f"cached file `{fp}` have columns that do not match "
-                    f"the expected schema: {diffs}"
-                )
-            table = pq.read_table(
-                fp,
-                schema=sch_actual,
-            )
-        else:
-            table = pq.read_table(fp)
-
-        logger.debug(f"read {fp}: {table.num_rows=}")
-        return cls(ctx, table)
-
-    def concat(self, other: Self, inplace: bool = False) -> Self:
-        # TODO: check if self.ctx != other.ctx:
-        logger.warning(
-            "Using a non-overridden method to concatenate tables."
-            "Context in the incoming table will be discarded."
-        )
-        table = pa.concat_tables([self.data, other.data])
-        if inplace:
-            self.data = table
-            return self
-        return self.__class__(self.ctx, table)
-
-    def save(
-        self,
-        fp: Path | BinaryIO,
-        fmt: Literal["parquet", "csv"] = "parquet",
-    ) -> Self:
-        """
-        Writes the table as the specified format, with the schema if defined.
-
-        :param fp: The path of file-like object to write to,
-            e.g. `sys.stdout.buffer`
-        """
-        if isinstance(fp, Path):
-            fp.parent.mkdir(parents=True, exist_ok=True)
-
-        if fmt == "parquet":
-            with pq.ParquetWriter(fp, schema=self.data.schema) as writer:
-                writer.write_table(self.data)
-        elif fmt == "csv":
-            with csv.CSVWriter(fp, schema=self.data.schema) as writer:
-                writer.write_table(self.data)
-        else:
-            raise ValueError(
-                f"unsupported format: `{fmt}`, "
-                "consider converting the data to pandas with `.df`."
-            )
-
-        logger.debug(f"saved {self.data.num_rows} rows to {fp}")
-        return self
-
-    @property
-    def df(self) -> pd.DataFrame:
-        data = self.data.to_pandas()
-        data.attrs = self.ctx
-        return data
+    request: RequestT
+    response: httpx.Response
 
 
-class ServiceBase(ABC):
-    """A service to handle the API and disk operations."""
-
-    @abstractmethod
-    async def fetch(self, *args: Any, **kwargs: Any) -> APIResponse[Any, Any]:
+@runtime_checkable
+class Fetchable(Protocol, Generic[RequestT]):
+    async def fetch(self, *args: Any, **kwargs: Any) -> APIResult[RequestT]:
         """Fetches data from the API."""
 
-    @abstractmethod
-    def load(self, *args: Any, **kwargs: Any) -> ArrowTable[Any]:
-        """Loads data from storage."""
+
+#
+# converters
+#
+
+
+DictT_co = TypeVar("DictT_co", covariant=True)
+"""The dictionary representation of the raw bytes, e.g. `TypedDict`."""
+
+
+@runtime_checkable
+class SupportsToDict(Protocol, Generic[DictT_co]):
+    def to_dict(self) -> DictT_co:
+        """Converts the raw bytes to a dictionary."""
+
+
+ProtoT_co = TypeVar("ProtoT_co", bound=Message, covariant=True)
+
+
+@runtime_checkable
+class SupportsToProto(Protocol, Generic[ProtoT_co]):
+    def to_proto(self) -> ProtoT_co:
+        """Converts the raw bytes to a protobuf message."""
+
+
+@runtime_checkable
+class SupportsToPolars(Protocol):
+    def to_polars(self) -> pl.DataFrame:
+        """Converts the raw bytes to a polars dataframe."""
+
+
+#
+# file system
+#
+
+
+@runtime_checkable
+class HasFilePath(Protocol):
+    base_dir: Path
+
+    @property
+    def file_path(cls) -> Path:
+        """
+        Returns the default file path for the given context, without the file
+        extension.
+        """
+
+
+class CacheMixin(HasFilePath, SupportsToPolars):
+    def save(
+        self,
+        file: Path | IO[bytes] | None = None,
+        *,
+        format: Literal["parquet", "csv"] = "parquet",
+    ) -> Self:
+        """
+        Writes the table as the specified format via polars.
+
+        For more granular control, use `to_polars` and `_file_path`.
+
+        :param file: The path of a file or a file-like object write to,
+            e.g. `sys.stdout.buffer`.
+        """
+        file = file or self.file_path
+        if isinstance(file, Path):
+            file.parent.mkdir(parents=True, exist_ok=True)
+
+        data = self.to_polars()
+        if format == "parquet":
+            if isinstance(file, Path):
+                file = file.with_suffix(".parquet")
+            data.write_parquet(file)
+        elif format == "csv":
+            if isinstance(file, Path):
+                file = file.with_suffix(".csv")
+            data.write_csv(file)
+        else:
+            raise ValueError(f"unsupported format: `{format}`")
+
+        return self
+
+
+# def load(cls, *args, **args) -> Any:
+
+# def glob_cache(cls, pattern: str) -> list[Path]:
+#     """Returns a list of cached files matching the given pattern."""
+
+# def scan_cache(cls, pattern: str) -> pl.LazyFrame:
+#     """
+#     Returns a lazy dataframe of cached files matching the given pattern.
+#     """

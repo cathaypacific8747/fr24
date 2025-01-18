@@ -1,30 +1,28 @@
 from __future__ import annotations
 
-import pyarrow as pa
+import polars as pl
 from typing_extensions import TypedDict
 
 # NOTE: Parquet does not support timestamp in seconds:
 # https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp
-# using u32 or pa.timestamp("ms") for now
-flight_list_schema = pa.schema(
-    [
-        pa.field("flight_id", pa.uint64()),
-        pa.field("number", pa.string()),
-        pa.field("callsign", pa.string()),
-        pa.field("icao24", pa.uint32()),
-        pa.field("registration", pa.string()),
-        pa.field("typecode", pa.string()),
-        pa.field("origin", pa.string()),
-        pa.field("destination", pa.string()),
-        pa.field("status", pa.string()),
-        pa.field("STOD", pa.timestamp("ms", tz="UTC")),
-        pa.field("ETOD", pa.timestamp("ms", tz="UTC")),
-        pa.field("ATOD", pa.timestamp("ms", tz="UTC")),
-        pa.field("STOA", pa.timestamp("ms", tz="UTC")),
-        pa.field("ETOA", pa.timestamp("ms", tz="UTC")),
-        pa.field("ATOA", pa.timestamp("ms", tz="UTC")),
-    ]
-)
+# using u32 or timestamp_ms for now
+flight_list_schema = {
+    "flight_id": pl.UInt64(),
+    "number": pl.String(),
+    "callsign": pl.String(),
+    "icao24": pl.UInt32(),
+    "registration": pl.String(),
+    "typecode": pl.String(),
+    "origin": pl.String(),
+    "destination": pl.String(),
+    "status": pl.String(),
+    "STOD": pl.Datetime("ms", time_zone="UTC"),
+    "ETOD": pl.Datetime("ms", time_zone="UTC"),
+    "ATOD": pl.Datetime("ms", time_zone="UTC"),
+    "STOA": pl.Datetime("ms", time_zone="UTC"),
+    "ETOA": pl.Datetime("ms", time_zone="UTC"),
+    "ATOA": pl.Datetime("ms", time_zone="UTC"),
+}
 
 
 class FlightListRecord(TypedDict):
@@ -45,43 +43,38 @@ class FlightListRecord(TypedDict):
     ATOA: int | None
 
 
-playback_track_schema = pa.schema(
-    [
-        pa.field("timestamp", pa.uint32()),
-        pa.field("latitude", pa.float32()),
-        pa.field("longitude", pa.float32()),
-        pa.field("altitude", pa.int32()),
-        pa.field("ground_speed", pa.int16()),
-        pa.field("vertical_speed", pa.int16()),
-        pa.field("track", pa.int16()),
-        pa.field("squawk", pa.uint16()),
-        pa.field(
-            "ems",
-            pa.struct(
-                [
-                    pa.field("timestamp", pa.uint32()),
-                    pa.field("ias", pa.int16()),
-                    pa.field("tas", pa.int16()),
-                    pa.field("mach", pa.int16()),
-                    pa.field("mcp", pa.int32()),
-                    pa.field("fms", pa.int32()),
-                    pa.field("autopilot", pa.int8()),
-                    pa.field("oat", pa.int8()),
-                    pa.field("track", pa.float32()),
-                    pa.field("roll", pa.float32()),
-                    pa.field("qnh", pa.uint16()),
-                    pa.field("wind_dir", pa.int16()),
-                    pa.field("wind_speed", pa.int16()),
-                    pa.field("precision", pa.uint8()),
-                    pa.field("altitude_gps", pa.int32()),
-                    pa.field("emergency", pa.uint8()),
-                    pa.field("tcas_acas", pa.uint8()),
-                    pa.field("heading", pa.uint16()),
-                ]
-            ),
-        ),
-    ],
-)
+playback_track_schema = {
+    "timestamp": pl.UInt32(),
+    "latitude": pl.Float32(),
+    "longitude": pl.Float32(),
+    "altitude": pl.Int32(),
+    "ground_speed": pl.Int16(),
+    "vertical_speed": pl.Int16(),
+    "track": pl.Int16(),
+    "squawk": pl.UInt16(),
+    "ems": pl.Struct(
+        {
+            "timestamp": pl.UInt32(),
+            "ias": pl.Int16(),
+            "tas": pl.Int16(),
+            "mach": pl.Int16(),
+            "mcp": pl.Int32(),
+            "fms": pl.Int32(),
+            "autopilot": pl.Int8(),
+            "oat": pl.Int8(),
+            "track": pl.Float32(),
+            "roll": pl.Float32(),
+            "qnh": pl.UInt16(),
+            "wind_dir": pl.Int16(),
+            "wind_speed": pl.Int16(),
+            "precision": pl.UInt8(),
+            "altitude_gps": pl.Int32(),
+            "emergency": pl.UInt8(),
+            "tcas_acas": pl.UInt8(),
+            "heading": pl.UInt16(),
+        }
+    ),
+}
 
 
 class PlaybackTrackRecord(TypedDict):
@@ -116,40 +109,34 @@ class PlaybackTrackEMSRecord(TypedDict):
     heading: int | None
 
 
-# NOTE: not using pa.timestamp() to save space
-live_feed_schema = pa.schema(
-    [
-        pa.field("timestamp", pa.uint32()),
-        pa.field("flightid", pa.uint32()),
-        pa.field("latitude", pa.float32()),
-        pa.field("longitude", pa.float32()),
-        pa.field("track", pa.uint16()),
-        pa.field("altitude", pa.int32()),
-        pa.field("ground_speed", pa.int16()),
-        pa.field("on_ground", pa.bool_()),
-        pa.field("callsign", pa.string()),
-        pa.field("source", pa.uint8()),
-        pa.field("registration", pa.string()),
-        pa.field("origin", pa.string()),
-        pa.field("destination", pa.string()),
-        pa.field("typecode", pa.string()),
-        pa.field("eta", pa.uint32()),
-        pa.field("vertical_speed", pa.int16()),  # 64 * 9-bit + 1-bit sign
-        pa.field("squawk", pa.uint16()),
-        pa.field(
-            "position_buffer",
-            pa.list_(
-                pa.struct(
-                    [
-                        pa.field("delta_lat", pa.int32()),
-                        pa.field("delta_lon", pa.int32()),
-                        pa.field("delta_ms", pa.uint32()),
-                    ]
-                )
-            ),
-        ),
-    ]
-)
+live_feed_schema = {
+    "timestamp": pl.UInt32(),
+    "flightid": pl.UInt32(),
+    "latitude": pl.Float32(),
+    "longitude": pl.Float32(),
+    "track": pl.UInt16(),
+    "altitude": pl.Int32(),
+    "ground_speed": pl.Int16(),
+    "on_ground": pl.Boolean(),
+    "callsign": pl.String(),
+    "source": pl.UInt8(),
+    "registration": pl.String(),
+    "origin": pl.String(),
+    "destination": pl.String(),
+    "typecode": pl.String(),
+    "eta": pl.UInt32(),
+    "vertical_speed": pl.Int16(),  # 64 * 9-bit + 1-bit sign
+    "squawk": pl.UInt16(),
+    "position_buffer": pl.List(
+        pl.Struct(
+            {
+                "delta_lat": pl.Int32(),
+                "delta_lon": pl.Int32(),
+                "delta_ms": pl.UInt32(),
+            }
+        )
+    ),
+}
 
 
 class RecentPosition(TypedDict):
@@ -158,7 +145,7 @@ class RecentPosition(TypedDict):
     delta_ms: int
 
 
-class LiveFeedRecord(TypedDict):
+class LiveFeed(TypedDict):
     timestamp: int
     flightid: int
     latitude: float

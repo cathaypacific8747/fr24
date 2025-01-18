@@ -21,8 +21,8 @@ from typing import Any, AsyncIterator, Type
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
-from loguru import logger
 
+from . import logger
 from .proto import T, encode_message, parse_data
 from .proto.headers import get_headers
 from .proto.v1_pb2 import (
@@ -53,7 +53,7 @@ from .proto.v1_pb2 import (
 )
 from .static.bbox import lng_bounds
 from .types.authentication import Authentication
-from .types.cache import LiveFeedRecord, RecentPosition
+from .types.cache import LiveFeed, RecentPosition
 from .types.fr24 import LiveFeedField
 
 
@@ -206,7 +206,7 @@ def live_feed_position_buffer_dict(
 
 def live_feed_flightdata_dict(
     lfr: Flight,
-) -> LiveFeedRecord:
+) -> LiveFeed:
     """Convert the protobuf message to a dictionary."""
     return {
         "timestamp": lfr.timestamp,
@@ -248,7 +248,7 @@ async def live_feed_world_data(
         "route",
         "type",
     ],
-) -> list[LiveFeedRecord]:
+) -> list[LiveFeed]:
     """Retrieve live feed data for the entire world, in chunks."""
     results = await asyncio.gather(
         *[
@@ -286,7 +286,7 @@ async def live_feed_playback_world_data(
         "route",
         "type",
     ],
-) -> list[LiveFeedRecord]:
+) -> list[LiveFeed]:
     """
     Retrieve live feed playback data for the entire world, in chunks.
 

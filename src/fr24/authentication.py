@@ -11,8 +11,8 @@ from typing import Literal
 
 import httpx
 from appdirs import user_config_dir
-from loguru import logger
 
+from . import logger
 from .common import DEFAULT_HEADERS
 from .types.authentication import (
     Authentication,
@@ -123,14 +123,14 @@ async def login_with_token_subscription_key(
         payload = json.loads(base64.b64decode(token.split(".")[1]))
     except Exception as e:
         logger.error(
-            f"Failed to parse token: {e}. Falling back to anonymous access"
+            f"failed to parse token: {e}. Falling back to anonymous access"
         )
         return None
 
     if time.time() > (exp := payload["exp"]):
         exp_f = datetime.fromtimestamp(exp, timezone.utc).isoformat()
         logger.error(
-            f"Token has expired at {exp_f}. Falling back to anonymous access"
+            f"token has expired at {exp_f}. Falling back to anonymous access"
         )
         return None
 

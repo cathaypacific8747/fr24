@@ -23,7 +23,7 @@ def parse_data(data: bytes, msg_type: Type[T]) -> T:
     """Decode a DATA frame into a protobuf message."""
     assert len(data), "empty DATA frame"
     assert data[0] != 1, "compressed message not implemented" # no compression
-    assert data[0] == 0, f"received unknown message: {data}"
+    assert data[0] == 0, f"received unknown message: {data!r}"
     data_len = int.from_bytes(data[1:5], byteorder="big") # length of message
     assert data_len > 0, "empty message"
     data_proto = data[5:5 + data_len]

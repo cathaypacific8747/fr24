@@ -6,23 +6,21 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.json import playback, playback_df, PlaybackRequest
+from fr24.json import playback, playback_df, PlaybackRequest, Playback
 
-import pandas as pd
-
-async def my_playback() -> pd.DataFrame:
+async def my_playback() -> Playback:
     async with httpx.AsyncClient() as client:
         auth = await login(client)
         if auth is not None:
             print(auth["message"])
         response = await playback(
             client,
-            PlaybackRequest(flight_id="35d692b1", timestamp=1719273600),
+            PlaybackRequest(flight_id="38c59db3"),
             auth=auth,
         )
         response.raise_for_status()
         list_ = response.json()
-        return list_
+        return list_ # type: ignore
 
 
 list_ = await my_playback()
@@ -32,19 +30,24 @@ df
 # %%
 """
 # --8<-- [start:df0]
-                    timestamp   latitude   longitude  altitude  ground_speed  vertical_speed  track  squawk   ems  
-0   2024-06-25 00:34:31+00:00  25.083984  121.251160         0             3               0    137       0  None   
-1   2024-06-25 00:35:17+00:00  25.083664  121.251465         0             9               0    137       0  None   
-2   2024-06-25 00:35:27+00:00  25.083344  121.251770         0             9               0    140       0  None   
-3   2024-06-25 00:35:34+00:00  25.083101  121.251816         0             7               0    163       0  None   
-4   2024-06-25 00:35:47+00:00  25.082882  121.251541         0             5               0    216       0  None   
-..                        ...        ...         ...       ...           ...             ...    ...     ...   ...   
-413 2024-06-25 02:08:13+00:00  22.312042  113.929344         0             5               0     39    1459  None   
-414 2024-06-25 02:08:21+00:00  22.312243  113.929344         0             6               0     14    1459  None   
-415 2024-06-25 02:08:30+00:00  22.312475  113.929214         0             6               0    345    1459  None   
-416 2024-06-25 02:08:39+00:00  22.312706  113.929108         0             5               0    340    1459  None   
-417 2024-06-25 02:08:53+00:00  22.312906  113.929039         0             3               0    340    1459  None   
-
-[418 rows x 9 columns]
+shape: (203, 9)
+┌────────────┬───────────┬────────────┬──────────┬───┬───────────────┬───────┬────────┬────────────┐
+│ timestamp  ┆ latitude  ┆ longitude  ┆ altitude ┆ … ┆ vertical_spee ┆ track ┆ squawk ┆ ems        │
+│ ---        ┆ ---       ┆ ---        ┆ ---      ┆   ┆ d             ┆ ---   ┆ ---    ┆ ---        │
+│ u32        ┆ f32       ┆ f32        ┆ i32      ┆   ┆ ---           ┆ i16   ┆ u16    ┆ struct[18] │
+│            ┆           ┆            ┆          ┆   ┆ i16           ┆       ┆        ┆            │
+╞════════════╪═══════════╪════════════╪══════════╪═══╪═══════════════╪═══════╪════════╪════════════╡
+│ 1737166526 ┆ 22.313072 ┆ 113.931381 ┆ 0        ┆ … ┆ 0             ┆ 317   ┆ 0      ┆ null       │
+│ 1737166557 ┆ 22.312778 ┆ 113.931618 ┆ 0        ┆ … ┆ 0             ┆ 270   ┆ 0      ┆ null       │
+│ 1737166584 ┆ 22.312763 ┆ 113.931953 ┆ 0        ┆ … ┆ 0             ┆ 250   ┆ 0      ┆ null       │
+│ 1737166816 ┆ 22.312626 ┆ 113.931557 ┆ 0        ┆ … ┆ 0             ┆ 250   ┆ 3041   ┆ null       │
+│ 1737166864 ┆ 22.312477 ┆ 113.931068 ┆ 0        ┆ … ┆ 0             ┆ 250   ┆ 3041   ┆ null       │
+│ …          ┆ …         ┆ …          ┆ …        ┆ … ┆ …             ┆ …     ┆ …      ┆ …          │
+│ 1737167965 ┆ 22.200348 ┆ 114.345802 ┆ 13500    ┆ … ┆ 3328          ┆ 142   ┆ 3041   ┆ null       │
+│ 1737167997 ┆ 22.154388 ┆ 114.382454 ┆ 14850    ┆ … ┆ 1536          ┆ 143   ┆ 3041   ┆ null       │
+│ 1737168028 ┆ 22.107239 ┆ 114.419304 ┆ 16050    ┆ … ┆ 2368          ┆ 143   ┆ 3041   ┆ null       │
+│ 1737168060 ┆ 22.059942 ┆ 114.456535 ┆ 17200    ┆ … ┆ 2048          ┆ 143   ┆ 3041   ┆ null       │
+│ 1737168092 ┆ 22.008501 ┆ 114.497017 ┆ 18350    ┆ … ┆ 2048          ┆ 143   ┆ 3041   ┆ null       │
+└────────────┴───────────┴────────────┴──────────┴───┴───────────────┴───────┴────────┴────────────┘
 # --8<-- [end:df0]
 """

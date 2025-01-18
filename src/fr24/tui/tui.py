@@ -26,13 +26,13 @@ from fr24.json import (
     FlightListRequest,
     PlaybackRequest,
     airport_list,
+    airport_list_parse,
     find,
+    find_parse,
     flight_list,
-    parse_airport_list,
-    parse_find,
-    parse_flight_list,
-    parse_playback,
+    flight_list_parse,
     playback,
+    playback_parse,
 )
 from fr24.tui.formatters import Aircraft, Airport, Time
 from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
@@ -143,7 +143,7 @@ class FR24(App[None]):
         if len(self.line_info) == 0:
             return
         date = self.line_info["date"] + " " + self.line_info["STD"]
-        result = parse_playback(
+        result = playback_parse(
             await playback(
                 self.client,
                 PlaybackRequest(
@@ -183,7 +183,7 @@ class FR24(App[None]):
             return
 
     async def lookup_aircraft(self, value: str, ts: str) -> None:
-        results = parse_flight_list(
+        results = flight_list_parse(
             await flight_list(
                 self.client,
                 FlightListRequest(reg=value, limit=100, timestamp=ts),
@@ -193,7 +193,7 @@ class FR24(App[None]):
         self.update_table(results["result"]["response"].get("data", None))
 
     async def lookup_number(self, value: str, ts: str) -> None:
-        results = parse_flight_list(
+        results = flight_list_parse(
             await flight_list(
                 self.client,
                 FlightListRequest(flight=value, limit=100, timestamp=ts),
@@ -205,7 +205,7 @@ class FR24(App[None]):
     async def lookup_city_pair(
         self, departure: str, arrival: str, ts: pd.Timestamp
     ) -> None:
-        results = parse_find(await find(self.client, f"{departure}-{arrival}"))
+        results = find_parse(await find(self.client, f"{departure}-{arrival}"))
         if results is None or results["stats"]["count"]["schedule"] == 0:
             return
         flight_numbers = list(
@@ -219,7 +219,7 @@ class FR24(App[None]):
                 flight=value, limit=10, timestamp=ts
             )
             try:
-                res = parse_flight_list(
+                res = flight_list_parse(
                     await flight_list(
                         self.client,
                         flight_list_request,
@@ -229,7 +229,7 @@ class FR24(App[None]):
             except httpx.HTTPStatusError as exc:
                 if exc.response.status_code == 402:  # payment required
                     await asyncio.sleep(10)
-                    res = parse_flight_list(
+                    res = flight_list_parse(
                         await flight_list(
                             self.client,
                             flight_list_request,
@@ -273,7 +273,7 @@ class FR24(App[None]):
             await asyncio.sleep(2)
 
     async def lookup_arrival(self, value: str, ts: str) -> None:
-        results = parse_airport_list(
+        results = airport_list_parse(
             await airport_list(
                 self.client,
                 AirportListRequest(
@@ -296,7 +296,7 @@ class FR24(App[None]):
             )
 
     async def lookup_departure(self, value: str, ts: str) -> None:
-        results = parse_airport_list(
+        results = airport_list_parse(
             await airport_list(
                 self.client,
                 AirportListRequest(

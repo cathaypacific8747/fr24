@@ -135,6 +135,6 @@ class Stats(TypedDict):
     count: StatsEntry
 
 
-class FindResult(TypedDict):
+class Find(TypedDict):
     results: list[Entry]
     stats: Stats

@@ -1,4 +1,5 @@
 import os
+from logging import getLogger
 from pathlib import Path
 
 from appdirs import user_cache_dir, user_config_dir
@@ -12,3 +13,5 @@ if config_path := os.environ.get("XDG_CONFIG_HOME"):
     PATH_CONFIG = Path(config_path) / "fr24"
 
 FP_CONFIG_FILE = PATH_CONFIG / "fr24.conf"
+
+logger = getLogger(__name__)

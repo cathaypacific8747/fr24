@@ -3,15 +3,16 @@ from __future__ import annotations
 import asyncio
 import sys
 from pathlib import Path
-from typing import Annotated, BinaryIO, Literal, Optional
+from typing import IO, Annotated, Literal, Optional
 
+import click
 import rich
 import typer
 from loguru import logger
 from rich.console import Console
 
 from . import FP_CONFIG_FILE, PATH_CACHE, PATH_CONFIG
-from .core import FR24, FlightListArrow, LiveFeedArrow, PlaybackArrow
+from .core import FR24, FlightListResult, PlaybackResult
 from .tui.tui import main as tui_main
 
 app = typer.Typer(no_args_is_help=True)
@@ -98,22 +99,22 @@ def create(
 
 
 def get_success_message(
-    datac: FlightListArrow | LiveFeedArrow | PlaybackArrow,
-    fp: Path | BinaryIO | None,
+    result: FlightListResult | PlaybackResult,
+    fp: Path | IO[bytes] | None,
     action: Literal["added", "wrote"] = "wrote",
 ) -> str:
-    num_rows = datac.data.num_rows
-    size = datac.data.nbytes
-    fp = fp or datac._fp(datac.ctx)  # type: ignore[arg-type]
+    fp = fp or result.file_path
+    df = result.to_polars()
+    num_rows = df.height
     return (
         "[bold green]success[/bold green]: "
-        f"{action} {num_rows} rows ({size} bytes) to {fp}.\n"
+        f"{action} {num_rows} rows to {fp}.\n"
         "Preview:\n"
-        f"{datac.df}"
+        f"{df.head()}"
     )
 
 
-def resolve_path(path: Path | None) -> Path | BinaryIO | None:
+def resolve_path(path: Path | None) -> Path | IO[bytes] | None:
     if path is None:
         return None
     if str(path) == "-":
@@ -121,7 +122,7 @@ def resolve_path(path: Path | None) -> Path | BinaryIO | None:
     return path.resolve()
 
 
-def get_console(path: Path | BinaryIO | None) -> Console:
+def get_console(path: Path | IO[bytes] | None) -> Console:
     return Console(stderr=path is not None and not isinstance(path, Path))
 
 
@@ -139,12 +140,13 @@ Output = Annotated[
         dir_okay=False,
     ),
 ]
-Fmt = Annotated[
+Format = Annotated[
     str,  # literal not yet supported: https://github.com/tiangolo/typer/pull/429
     typer.Option(
         "-f",
         "--format",
         help="Output format, `parquet` or `csv`",
+        click_type=click.Choice(["parquet", "csv"]),
     ),
 ]
 
@@ -162,7 +164,7 @@ def feed(
         ),
     ] = None,
     output: Output = None,
-    fmt: Fmt = "parquet",
+    format: Format = "parquet",
 ) -> None:
     """Fetches current (or playback of) live feed at a given time"""
 
@@ -174,7 +176,7 @@ def feed(
             await fr24.login()
             response = await fr24.live_feed.fetch(timestamp)
             datac = response.to_arrow()
-            datac.save(fp, fmt)  # type: ignore[arg-type]
+            datac.save(fp, format)  # type: ignore[arg-type]
             console.print(get_success_message(datac, fp))
 
     asyncio.run(feed_())
@@ -204,7 +206,7 @@ def flight_list(
         ),
     ] = False,
     output: Output = None,
-    fmt: Fmt = "parquet",
+    format: Format = "parquet",
 ) -> None:
     """Fetches flight list for the given registration or flight number"""
 
@@ -216,24 +218,23 @@ def flight_list(
             await fr24.login()
             if all:
                 page = 0
-                datac = fr24.flight_list.load(reg=reg, flight=flight)
-                async for response in fr24.flight_list.fetch_all(
+                flight_list = fr24.flight_list.new()
+                async for result in fr24.flight_list.fetch_all(
                     reg=reg, flight=flight, timestamp=timestamp
                 ):
-                    data_new = response.to_arrow()
-                    datac.concat(data_new, inplace=True)
-                    datac.save(fp, fmt)  # type: ignore[arg-type]
+                    flight_list.append(result, inplace=True)
+                    result_all = flight_list.collect()
+                    result_all.save(fp, format=format)  # type: ignore[arg-type]
                     console.print(
-                        get_success_message(data_new, fp, action="added")
+                        get_success_message(result_all, fp, action="added")
                     )
                     page += 1
             else:
-                response = await fr24.flight_list.fetch(
+                result = await fr24.flight_list.fetch(
                     reg=reg, flight=flight, timestamp=timestamp
                 )
-                datac = response.to_arrow()
-                datac.save(fp, fmt)  # type: ignore[arg-type]
-                console.print(get_success_message(response.to_arrow(), fp))
+                result.save(fp, format=format)  # type: ignore[arg-type]
+                console.print(get_success_message(result, fp))
 
     asyncio.run(flight_list_())
 
@@ -253,7 +254,7 @@ def playback(
         ),
     ] = None,
     output: Output = None,
-    fmt: Fmt = "parquet",
+    format: Format = "parquet",
 ) -> None:
     """Fetches historical track playback data for the given flight"""
 
@@ -263,12 +264,11 @@ def playback(
     async def playback_() -> None:
         async with FR24() as fr24:
             await fr24.login()
-            response = await fr24.playback.fetch(
+            result = await fr24.playback.fetch(
                 flight_id=flight_id, timestamp=timestamp
             )
-            datac = response.to_arrow()
-            datac.save(fp, fmt)  # type: ignore[arg-type]
-            console.print(get_success_message(response.to_arrow(), fp))
+            result.save(fp, format=format)  # type: ignore[arg-type]
+            console.print(get_success_message(result, fp))
 
     asyncio.run(playback_())
 

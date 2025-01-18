@@ -3,13 +3,13 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script0]
-from fr24.types.find import FindResult
+from fr24.types.find import Find
 from fr24.json import find
 
 import pandas as pd
 import httpx
 
-async def my_find() -> FindResult:
+async def my_find() -> Find:
     async with httpx.AsyncClient() as client:
         response = await find(client, "paris")
         response.raise_for_status()

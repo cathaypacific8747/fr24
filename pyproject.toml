@@ -29,14 +29,10 @@ classifiers = [
 dependencies = [
     "appdirs>=1.4.4",
     "httpx[brotli,http2]>=0.27.2",
-    "loguru>=0.7.2",
     "orjson>=3.10.14",
-    "pandas>=2.2.3",
+    "pandas>=2.2.3", # scheduled for removal
     "polars>=1.19.0",
     "protobuf==5.28.*",
-    "pyarrow>=18.1.0",
-    "textual>=0.85.2",
-    "typer>=0.12.5",
 ]
 
 [project.urls]
@@ -61,6 +57,15 @@ docs = [
 
 [project.scripts]
 fr24 = 'fr24.cli:app'
+
+[project.optional-dependencies]
+cli = [
+    "loguru>=0.7.3",
+    "typer>=0.15.1",
+]
+tui = [
+    "textual>=1.0.0",
+]
 
 # default-groups = ["dev"] by default, overriding for now
 [tool.uv]

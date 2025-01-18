@@ -40,6 +40,9 @@ However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around t
     - [**Flight List**][fr24.core.FlightListService]: all historical flights for a given aircraft registration or flight number
     - [**Playback**][fr24.core.PlaybackService]: historical trajectory for one flight.
 
+!!! warn
+    The following section is for `fr24<v0.2.0`, and will be updated.
+
 Each service has its own async `.fetch()` method to retrieve raw data from the API. `.to_arrow()` can then be used to transform to an Apache Arrow table, and used to perform caching and downstream `pandas` operations.
 
 Here is an example for using the [**Live Feed**][fr24.core.LiveFeedService] service:
@@ -224,7 +227,9 @@ Each service inherits from the [fr24.base.ServiceBase][] and have similar APIs d
 See the [examples gallery](./examples.md) to learn more.
 
 !!! tip
+    
     Pyarrow unfortunately do not provide type hints. You can however, generate the stubs to your `site-packages` directory with:
+
     ```sh
     $ stubgen -p pyarrow -o $(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
     ```

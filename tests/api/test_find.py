@@ -3,7 +3,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict, Discriminator
 from typing_extensions import Annotated
 
-from fr24.json import find, parse_find
+from fr24.json import find, find_parse
 from fr24.types.find import (
     Entry,
     Stats,
@@ -26,7 +26,7 @@ class FindResult(BaseModel):
 
 @pytest.mark.anyio
 async def test_find_airport(client: httpx.AsyncClient) -> None:
-    list_ = parse_find(await find(client, "tou"))
+    list_ = find_parse(await find(client, "tou"))
     assert list_ is not None
     assert list_["stats"]["count"]["airport"] >= 2
 
@@ -42,7 +42,7 @@ async def test_find_airport(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_find_aircraft(client: httpx.AsyncClient) -> None:
-    list_ = parse_find(await find(client, "b-hp"))
+    list_ = find_parse(await find(client, "b-hp"))
     assert list_ is not None
 
     found_bhpb = False
@@ -57,7 +57,7 @@ async def test_find_aircraft(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_find_operator(client: httpx.AsyncClient) -> None:
-    list_ = parse_find(await find(client, "cat"))
+    list_ = find_parse(await find(client, "cat"))
     assert list_ is not None
 
     found_cathay = False
@@ -71,7 +71,7 @@ async def test_find_operator(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_find_schedule_and_live(client: httpx.AsyncClient) -> None:
-    list_ = parse_find(await find(client, "hkg-tpe"))
+    list_ = find_parse(await find(client, "hkg-tpe"))
     assert list_ is not None
 
     schedule_count = 0

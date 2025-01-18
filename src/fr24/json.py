@@ -1,38 +1,38 @@
 from __future__ import annotations
 
-import json
 import secrets
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Annotated, Generic, Literal, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 import httpx
-import pyarrow as pa
-from loguru import logger
+import polars as pl
 
-import pandas as pd
-
+from . import logger
 from .common import DEFAULT_HEADERS, to_unix_timestamp
-from .types.airport_list import AirportList, AirportRequest
-from .types.authentication import Authentication
-from .types.cache import (
-    FlightListRecord,
-    PlaybackTrackEMSRecord,
-    PlaybackTrackRecord,
-    flight_list_schema,
-    playback_track_schema,
-)
-from .types.find import FindResult
-from .types.flight_list import FlightList, FlightListItem
-from .types.flight_list import FlightListRequest as FlightListRequest_
-from .types.playback import (
-    FlightData,
-    Playback,
-    TrackData,
-)
-from .types.playback import (
-    PlaybackRequest as PlaybackRequest_,
-)
+from .types.airport_list import AirportList
+from .types.cache import flight_list_schema, playback_track_schema
+from .types.find import Find
+from .types.flight_list import FlightList
+from .types.playback import Playback
+
+if TYPE_CHECKING:
+    from typing import Annotated, Any, Literal
+
+    from .types.airport_list import AirportRequest
+    from .types.authentication import Authentication
+    from .types.cache import (
+        FlightListRecord,
+        PlaybackTrackEMSRecord,
+        PlaybackTrackRecord,
+    )
+    from .types.flight_list import FlightListItem
+    from .types.flight_list import FlightListRequest as _FlightListRequest
+    from .types.playback import (
+        FlightData,
+        TrackData,
+    )
+    from .types.playback import PlaybackRequest as _PlaybackRequest
 
 # NOTE: we intentionally use dataclass to store request data so we can
 # serialise it to disk easily.
@@ -45,6 +45,7 @@ class FlightListRequest:
     *either* a given aircraft registration or flight number.
     """
 
+    # NOTE: consider moving away from internally tagged enum
     reg: str | None = None
     """Aircraft registration (e.g. `B-HUJ`)"""
     flight: str | None = None
@@ -53,20 +54,28 @@ class FlightListRequest:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | "pd.Timestamp" | str | None = "now"
+    timestamp: int | datetime | str | None = "now"
     """Show flights with ATD before this Unix timestamp"""
 
     def __post_init__(self) -> None:
         if self.reg is None and self.flight is None:
-            raise TypeError(
+            raise ValueError(
                 "expected one of `reg` or `flight` to be set, "
                 "but both are `None`"
             )
         if self.reg is not None and self.flight is not None:
-            raise TypeError(
+            raise ValueError(
                 "expected only one of `reg` or `flight` to be set, "
                 "but both are not `None`"
             )
+
+    @property
+    def kind(self) -> Literal["reg", "flight"]:
+        return "reg" if self.reg is not None else "flight"
+
+    @property
+    def ident(self) -> str:
+        return self.reg if self.reg is not None else self.flight  # type: ignore
 
 
 async def flight_list(
@@ -97,7 +106,7 @@ async def flight_list(
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params: FlightListRequest_ = {
+    params: _FlightListRequest = {
         "query": value,
         "fetchBy": key,
         "page": data.page,
@@ -137,7 +146,7 @@ class AirportListRequest:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | "pd.Timestamp" | str | None = "now"
+    timestamp: int | datetime | str | None = "now"
     """Show flights with STA before this timestamp"""
 
 
@@ -197,8 +206,8 @@ class PlaybackRequest:
     """
 
     flight_id: int | str
-    """fr24 hex flight id"""
-    timestamp: int | str | datetime | pd.Timestamp | None = None
+    """fr24 flight id, represented in hex"""
+    timestamp: int | str | datetime | None = None
     """
     Unix timestamp (seconds) of ATD - optional, but it is recommended to
     include it
@@ -221,12 +230,12 @@ async def playback(
         f"{data.flight_id:x}"
         if not isinstance(data.flight_id, str)
         else data.flight_id
-    )
+    )  # TODO: move this up
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params: PlaybackRequest_ = {
+    params: _PlaybackRequest = {
         "flightId": flight_id,
     }
     if timestamp is not None:
@@ -252,7 +261,7 @@ async def playback(
 
 async def find(
     client: httpx.AsyncClient, query: str
-) -> Annotated[httpx.Response, FindResult]:
+) -> Annotated[httpx.Response, Find]:
     """
     General search.
 
@@ -271,32 +280,34 @@ async def find(
 # helpers
 #
 
-_T = TypeVar("_T")
-
-
 # workaround for py<3.12: https://docs.python.org/3/reference/compound_stmts.html#type-params
 # just to silence mypy
-class _Parse(Generic[_T]):
-    @staticmethod
-    def parse_json(response: Annotated[httpx.Response, _T]) -> _T:
-        """
-        Parses binary representation into a python object.
+_TypedDictT = TypeVar("_TypedDictT")
 
-        Panics if the response did not succeed.
+
+class _Parser(Generic[_TypedDictT]):
+    @staticmethod
+    def parse_json(
+        response: Annotated[httpx.Response, _TypedDictT],
+    ) -> _TypedDictT:
+        """
+        Parses binary representation into a python object (typed dict).
+
+        :raises httpx.HTTPStatusError: if the response did not succeed
         """
         import orjson
 
         response.raise_for_status()
-        return orjson.loads(response.content)  # type: ignore
+        return cast(_TypedDictT, orjson.loads(response.content))
 
 
-parse_flight_list = _Parse[FlightList].parse_json
-parse_airport_list = _Parse[AirportList].parse_json
-parse_playback = _Parse[Playback].parse_json
-parse_find = _Parse[FindResult].parse_json
+flight_list_parse = _Parser[FlightList].parse_json
+airport_list_parse = _Parser[AirportList].parse_json
+playback_parse = _Parser[Playback].parse_json
+find_parse = _Parser[Find].parse_json
 
 
-def playback_metadata_dict(flight: FlightData) -> dict:  # type: ignore[type-arg]
+def playback_metadata_dict(flight: FlightData) -> dict[str, Any]:
     """
     Flatten and rename important variables in the flight metadata to a
     dictionary.
@@ -395,18 +406,17 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
     return None
 
 
-def playback_arrow(data: Playback) -> pa.Table:
+def playback_df(data: Playback) -> pl.DataFrame:
     """
     Parse each [fr24.types.playback.TrackData][] in the API response into a
-    pyarrow.Table. Also adds [fr24.types.playback.FlightData][] into the
-    schema's metadata with key `_flight`.
+    dataframe.
 
     If the response is empty, a warning is logged and an empty table is returned
     """
     flight = data["result"]["response"]["data"]["flight"]
     if len(track := flight["track"]) == 0:
         logger.warning("no data in response, table will be empty")
-    return pa.Table.from_pylist(
+    return pl.DataFrame(
         [
             {
                 **playback_track_dict(point),
@@ -414,32 +424,9 @@ def playback_arrow(data: Playback) -> pa.Table:
             }
             for point in track
         ],
-        schema=playback_track_schema.with_metadata(
-            {
-                "_flight": json.dumps(playback_metadata_dict(flight)).encode(
-                    "utf-8"
-                )
-            }
-        ),
+        schema=playback_track_schema,
     )
-
-
-def playback_df(data: Playback) -> pd.DataFrame:
-    """
-    Parse each [fr24.types.playback.TrackData][] in the API response into a
-    pandas DataFrame. Also adds [fr24.types.playback.FlightData][] into the
-    DataFrame's `.attrs`.
-
-    If the response is empty, a warning is logged and an empty table is returned
-    """
-    arr = playback_arrow(data)
-    df: pd.DataFrame = arr.to_pandas()
-    df.attrs = json.loads(arr.schema.metadata[b"_flight"])
-    return df.eval(
-        """
-timestamp = @pd.to_datetime(timestamp, unit='s', utc=True)
-    """
-    )
+    # NOTE: original implementation returns pl.DateTime instead of timestamp
 
 
 def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
@@ -475,27 +462,17 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
     }
 
 
-def flight_list_arrow(data: FlightList) -> pa.Table:
+def flight_list_df(data: FlightList) -> pl.DataFrame:
     """
     Parse each [fr24.types.flight_list.FlightListItem][] in the API response
-    into a pyarrow.Table.
+    into a polars dataframe.
 
     If the response is empty, a warning is logged and an empty table is returned
     """
     flights = data["result"]["response"]["data"] or []
     if len(flights) == 0:
         logger.warning("no data in response, table will be empty")
-    return pa.Table.from_pylist(
+    return pl.DataFrame(
         [flight_list_dict(f) for f in flights],
         schema=flight_list_schema,
     )
-
-
-def flight_list_df(data: FlightList) -> pd.DataFrame:
-    """
-    Parse each [fr24.types.flight_list.FlightListItem][] in the API response
-    into a pandas DataFrame.
-
-    If the response is empty, a warning is logged and an empty table is returned
-    """
-    return flight_list_arrow(data).to_pandas()

@@ -4,17 +4,17 @@ from pathlib import Path
 from typing import Callable
 
 import httpx
-import pyarrow.parquet as pq
+import polars as pl
 import pytest
 from pydantic import ConfigDict, TypeAdapter
 
-from fr24.core import FR24, FlightListArrow
+from fr24.core import FR24, FlightListResult
 from fr24.json import (
     FlightListRequest,
     PlaybackRequest,
     flight_list,
     flight_list_df,
-    parse_flight_list,
+    flight_list_parse,
     playback,
 )
 from fr24.types.flight_list import FlightList
@@ -25,14 +25,12 @@ FLIGHT = "AF7463"
 
 @pytest.mark.anyio
 async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
-    list_ = parse_flight_list(
+    list_ = flight_list_parse(
         await flight_list(client, FlightListRequest(reg=REG))
     )
     df = flight_list_df(list_)
-    if df is None:
-        return
     assert df.shape[0] > 0
-    landed = df.query('status.str.startswith("Landed")')
+    landed = df.filter(pl.col("status").str.starts_with("Landed"))
     if landed.shape[0] == 0:
         return
     result = await asyncio.gather(
@@ -67,25 +65,22 @@ async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
 async def test_flight_list_reg(fr24: FR24) -> None:
     with pytest.raises(ValueError):  # missing reg/flight
         _ = await fr24.flight_list.fetch()
-    response = await fr24.flight_list.fetch(reg=REG)
-    assert response.data["result"]["response"]["data"] is not None
+    result = await fr24.flight_list.fetch(reg=REG)
+    data = result.to_dict()
+    assert data["result"]["response"]["data"] is not None
 
-    datac = response.to_arrow()
-    assert datac.data.num_rows > 5
-    # make sure pandas df shape is same as arrow table
-
-    df = datac.df
-    assert df.shape[0] == datac.data.num_rows
-    assert df.shape[1] == datac.data.num_columns
+    df = result.to_polars()
+    assert df.height > 5
 
 
 @pytest.mark.anyio
 async def test_flight_list_flight(fr24: FR24) -> None:
-    response = await fr24.flight_list.fetch(flight=FLIGHT)
-    assert response.data["result"]["response"]["data"] is not None
+    result = await fr24.flight_list.fetch(flight=FLIGHT)
+    data = result.to_dict()
+    assert data["result"]["response"]["data"] is not None
 
-    datac = response.to_arrow()
-    assert datac.data.num_rows > 5
+    df = result.to_polars()
+    assert df.height > 5
 
 
 @pytest.mark.anyio
@@ -97,14 +92,17 @@ async def test_flight_list_reg_paginate(fr24: FR24) -> None:
     assert datac.data.num_rows == 0
 
     i = 0
-    async for resp in fr24.flight_list.fetch_all(reg=REG, limit=2, delay=5):
-        assert resp.data["result"]["response"]["data"] is not None
-        datac_new = resp.to_arrow()
-        assert datac_new.data.num_rows > 0
+    async for result in fr24.flight_list.fetch_all(reg=REG, limit=2, delay=5):
+        data = result.to_dict()
+        assert data["result"]["response"]["data"] is not None
+
+        df_new = result.to_polars()
+        assert df_new.height > 0
+
         curr_rows = datac.data.num_rows
         assert curr_rows == i * 2
 
-        datac.concat(datac_new, inplace=True)
+        datac.concat(df_new, inplace=True)
         assert datac.data.num_rows == curr_rows + 2
         if datac.data.num_rows >= 6:
             break
@@ -119,20 +117,21 @@ async def test_flight_list_reg_concat(fr24: FR24) -> None:
     if we have existing flightids (10, 9, 8, 7) + new flightids (8, 7, 6, 5),
     the union of them should result in (10, 9, 8, 7, 6, 5)
     """
-    response = await fr24.flight_list.fetch(reg=REG, limit=6)
-    flights = response.data["result"]["response"]["data"]
+    result = await fr24.flight_list.fetch(reg=REG, limit=6)
+    data = result.to_dict()
+    flights = data["result"]["response"]["data"]
     assert flights is not None
     assert len(flights) == 6
 
-    response0 = deepcopy(response)
-    response0.data["result"]["response"]["data"] = flights[:4]
-    response1 = deepcopy(response)
-    response1.data["result"]["response"]["data"] = flights[2:]
+    data0 = deepcopy(data)
+    data0["result"]["response"]["data"] = flights[:4]
+    data1 = deepcopy(data)
+    data1["result"]["response"]["data"] = flights[2:]
 
     datac = fr24.flight_list.load(reg=REG)
-    datac.concat(response0.to_arrow(), inplace=True)
+    datac.concat(data0.to_arrow(), inplace=True)
     assert datac.data.num_rows == 4
-    datac.concat(response1.to_arrow(), inplace=True)
+    datac.concat(data1.to_arrow(), inplace=True)
     assert datac.data.num_rows == 6
 
 
@@ -142,25 +141,26 @@ async def test_flight_list_reg_file_ops(fr24: FR24) -> None:
     check that saving and reopening in a new instance yields the same rows
     test that auto-detect directory and specified directory saving works
     """
-    response = await fr24.flight_list.fetch(reg=REG)
+    result = await fr24.flight_list.fetch(reg=REG)
 
-    datac = response.to_arrow()
-    curr_rows = datac.data.num_rows
+    df = result.to_polars()
+    curr_rows = df.height
 
-    def test_ok(fp: Path, save: Callable[[], FlightListArrow]) -> None:
+    def test_ok(fp: Path, save: Callable[[], FlightListResult]) -> None:
         fp.parent.mkdir(parents=True, exist_ok=True)
         fp.unlink(missing_ok=True)
         _ = save()
         assert fp.exists()
-        table = pq.read_table(fp)
-        assert table.num_rows == curr_rows
+
+        df = pl.read_parquet(fp)
+        assert df.height == curr_rows
         fp.unlink()
 
     specific_fp = Path(__file__).parent / "tmp" / "flight_list.parquet"
-    test_ok(specific_fp, lambda: datac.save(specific_fp))
+    test_ok(specific_fp, lambda: result.save(specific_fp))
     specific_fp.parent.rmdir()
 
     test_ok(
         fr24.base_dir / "flight_list" / "reg" / f"{REG.upper()}.parquet",
-        lambda: datac.save(),
+        lambda: result.save(),
     )
