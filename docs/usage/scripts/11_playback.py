@@ -4,7 +4,7 @@
 #%%
 # --8<-- [start:script0]
 import rich
-from fr24.core import FR24
+from fr24 import FR24
 
 async def my_playback() -> None:
     async with FR24() as fr24:
@@ -65,7 +65,7 @@ shape: (363, 9)
 #%%
 # --8<-- [start:script1]
 import rich
-from fr24.core import FR24
+from fr24 import FR24
 
 async def my_playback() -> None:
     async with FR24() as fr24:

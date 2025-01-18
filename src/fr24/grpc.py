@@ -22,7 +22,7 @@ from typing import Any, AsyncIterator, Type
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
 
-from . import logger
+from .logging import logger
 from .proto import T, encode_message, parse_data
 from .proto.headers import get_headers
 from .proto.v1_pb2 import (

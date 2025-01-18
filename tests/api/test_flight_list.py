@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Callable
 
 import httpx
+import orjson
 import polars as pl
 import pytest
 from pydantic import ConfigDict, TypeAdapter
 
-from fr24.core import FR24, FlightListResult
+from fr24 import FR24
 from fr24.json import (
     FlightListRequest,
     PlaybackRequest,
@@ -17,6 +18,7 @@ from fr24.json import (
     flight_list_parse,
     playback,
 )
+from fr24.service import FlightListResult
 from fr24.types.flight_list import FlightList
 
 REG = "F-HEPK"
@@ -88,8 +90,7 @@ async def test_flight_list_reg_paginate(fr24: FR24) -> None:
     """
     call 2 rows in 3 pages, combining them should yield 6 rows
     """
-    datac = fr24.flight_list.load(reg=REG)
-    assert datac.data.num_rows == 0
+    results = fr24.flight_list.new_result_collection()
 
     i = 0
     async for result in fr24.flight_list.fetch_all(reg=REG, limit=2, delay=5):
@@ -99,15 +100,15 @@ async def test_flight_list_reg_paginate(fr24: FR24) -> None:
         df_new = result.to_polars()
         assert df_new.height > 0
 
-        curr_rows = datac.data.num_rows
+        curr_rows = results.to_polars().height
         assert curr_rows == i * 2
-
-        datac.concat(df_new, inplace=True)
-        assert datac.data.num_rows == curr_rows + 2
-        if datac.data.num_rows >= 6:
+        results.append(result)
+        updated_rows = results.to_polars().height
+        assert updated_rows == curr_rows + 2
+        if updated_rows >= 6:
             break
         if i > 5:
-            break  # safety net in case of infinite loop
+            assert False, "infinite loop"
         i += 1
 
 
@@ -119,20 +120,21 @@ async def test_flight_list_reg_concat(fr24: FR24) -> None:
     """
     result = await fr24.flight_list.fetch(reg=REG, limit=6)
     data = result.to_dict()
-    flights = data["result"]["response"]["data"]
+    flights = deepcopy(data["result"]["response"]["data"])
     assert flights is not None
     assert len(flights) == 6
 
-    data0 = deepcopy(data)
-    data0["result"]["response"]["data"] = flights[:4]
-    data1 = deepcopy(data)
-    data1["result"]["response"]["data"] = flights[2:]
+    results = fr24.flight_list.new_result_collection()
+    
+    data["result"]["response"]["data"] = flights[:4]
+    result.response._content = orjson.dumps(data)
+    results.append(deepcopy(result))
+    assert results.to_polars().height == 4
 
-    datac = fr24.flight_list.load(reg=REG)
-    datac.concat(data0.to_arrow(), inplace=True)
-    assert datac.data.num_rows == 4
-    datac.concat(data1.to_arrow(), inplace=True)
-    assert datac.data.num_rows == 6
+    data["result"]["response"]["data"] = flights[2:]
+    result.response._content = orjson.dumps(data)
+    results.append(deepcopy(result))
+    assert results.to_polars().height == 6
 
 
 @pytest.mark.anyio

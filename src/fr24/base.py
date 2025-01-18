@@ -10,50 +10,19 @@ from typing import (
 )
 
 import httpx
-import polars as pl
 from google.protobuf.message import Message
 from typing_extensions import runtime_checkable
-
-from .authentication import login
 
 if TYPE_CHECKING:
     from typing import IO, Any, Literal
 
-    import httpx
+    import polars as pl
     from typing_extensions import Self
 
-    from .types.authentication import (
-        Authentication,
-        TokenSubscriptionKey,
-        UsernamePassword,
-    )
 
 #
 # api
 #
-
-
-@dataclass
-class HTTPClient:
-    """An HTTPX client for making requests to the API."""
-
-    client: httpx.AsyncClient
-    auth: Authentication | None = None
-
-    async def _login(
-        self,
-        creds: (
-            TokenSubscriptionKey | UsernamePassword | Literal["from_env"] | None
-        ) = "from_env",
-    ) -> None:
-        self.auth = await login(self.client, creds)
-
-    async def __aenter__(self) -> HTTPClient:
-        return self
-
-    async def __aexit__(self, *args: Any) -> None:
-        if self.client is not None:
-            await self.client.aclose()
 
 
 RequestT = TypeVar("RequestT")
@@ -111,12 +80,10 @@ class SupportsToPolars(Protocol):
 
 @runtime_checkable
 class HasFilePath(Protocol):
-    base_dir: Path
-
     @property
     def file_path(cls) -> Path:
         """
-        Returns the default file path for the given context, without the file
+        Returns the default file path in the cache directory, without the file
         extension.
         """
 

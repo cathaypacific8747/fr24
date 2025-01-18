@@ -3,7 +3,7 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script]
-from fr24.core import FR24
+from fr24 import FR24
 
 async def my_feed() -> None:
     async with FR24() as fr24:
@@ -100,7 +100,7 @@ LiveFeedAPIResp(
 """
 # %%
 # --8<-- [start:script2]
-from fr24.core import FR24
+from fr24 import FR24
 import time
 
 async def my_feed() -> None:

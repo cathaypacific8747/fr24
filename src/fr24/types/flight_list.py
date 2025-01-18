@@ -127,3 +127,36 @@ class FlightListResult(TypedDict):
 class FlightList(TypedDict):
     result: FlightListResult
     _api: APIResult
+
+
+FLIGHT_LIST_EMPTY: FlightList = {
+    "result": {
+        "request": {
+            "fetchBy": "flight",
+            "format": "json",
+            "limit": 0,
+            "page": 0,
+            "query": "",
+            "timestamp": 0,
+        },
+        "response": {
+            "item": {"current": 0, "total": None, "limit": 0},
+            "page": {"current": 0, "more": False, "total": None},
+            "timestamp": 0,
+            "data": None,
+            "aircraftInfo": {
+                "model": {"code": "", "text": ""},
+                "registration": None,
+                "country": None,
+                "hex": None,
+                "restricted": False,
+                "serialNo": None,
+                "age": {"availability": False},
+                "availability": {"serialNo": False, "age": False},
+            },
+            "aircraftImages": [],
+        },
+    },
+    "_api": {"copyright": "", "legalNotice": ""},
+}
+"""An object with no flight list data, for use as a default value."""

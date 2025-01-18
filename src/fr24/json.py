@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast
 import httpx
 import polars as pl
 
-from . import logger
 from .common import DEFAULT_HEADERS, to_unix_timestamp
+from .logging import logger
 from .types.airport_list import AirportList
 from .types.cache import flight_list_schema, playback_track_schema
 from .types.find import Find
@@ -97,10 +97,7 @@ async def flight_list(
     """
     timestamp = to_unix_timestamp(data.timestamp)
 
-    if data.reg is not None:
-        key, value = "reg", data.reg
-    elif data.flight is not None:
-        key, value = "flight", data.flight
+    key, value = data.kind, data.ident
 
     # TODO: remove duplication
     device = f"web-{secrets.token_urlsafe(32)}"
@@ -469,9 +466,9 @@ def flight_list_df(data: FlightList) -> pl.DataFrame:
 
     If the response is empty, a warning is logged and an empty table is returned
     """
-    flights = data["result"]["response"]["data"] or []
-    if len(flights) == 0:
+    if (flights := data["result"]["response"]["data"]) is None:
         logger.warning("no data in response, table will be empty")
+        return pl.DataFrame(schema=flight_list_schema)
     return pl.DataFrame(
         [flight_list_dict(f) for f in flights],
         schema=flight_list_schema,

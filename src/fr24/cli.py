@@ -11,8 +11,8 @@ import typer
 from loguru import logger
 from rich.console import Console
 
-from . import FP_CONFIG_FILE, PATH_CACHE, PATH_CONFIG
-from .core import FR24, FlightListResult, PlaybackResult
+from . import FP_CONFIG_FILE, FR24, PATH_CACHE, PATH_CONFIG
+from .service import FlightListResult, PlaybackResult
 from .tui.tui import main as tui_main
 
 app = typer.Typer(no_args_is_help=True)
@@ -218,15 +218,14 @@ def flight_list(
             await fr24.login()
             if all:
                 page = 0
-                flight_list = fr24.flight_list.new()
+                results = fr24.flight_list.new_result_collection()
                 async for result in fr24.flight_list.fetch_all(
                     reg=reg, flight=flight, timestamp=timestamp
                 ):
-                    flight_list.append(result, inplace=True)
-                    result_all = flight_list.collect()
-                    result_all.save(fp, format=format)  # type: ignore[arg-type]
+                    results.append(result)
+                    results.save(fp, format=format)  # type: ignore[arg-type]
                     console.print(
-                        get_success_message(result_all, fp, action="added")
+                        get_success_message(result, fp, action="added")
                     )
                     page += 1
             else:

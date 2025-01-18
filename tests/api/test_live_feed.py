@@ -4,7 +4,7 @@ import httpx
 import pytest
 from google.protobuf.json_format import MessageToDict
 
-from fr24.core import FR24
+from fr24 import FR24
 from fr24.grpc import (
     live_feed_message_create,
     live_feed_playback_world_data,

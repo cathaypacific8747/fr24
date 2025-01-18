@@ -8,15 +8,10 @@ from typing import (
     Any,
 )
 
-import httpx
-from typing_extensions import Self
-
-from . import PATH_CACHE
 from .base import (
     APIResult,
     CacheMixin,
     Fetchable,
-    HTTPClient,
     SupportsToDict,
 )
 
@@ -36,7 +31,7 @@ from .json import (
     playback_parse,
 )
 from .types import overwrite_args_signature_from
-from .types.flight_list import FlightList
+from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
 
 if TYPE_CHECKING:
@@ -47,7 +42,7 @@ if TYPE_CHECKING:
 
     import polars as pl
 
-    from .types.authentication import TokenSubscriptionKey, UsernamePassword
+    from . import HTTPClient
 
     # from .types.cache import (
     #     LiveFeed,
@@ -64,64 +59,6 @@ if TYPE_CHECKING:
 
 # NOTE: saving metadata with polars is unfortunately not yet implemented
 # https://github.com/pola-rs/polars/issues/5117
-
-
-class FR24:
-    def __init__(
-        self,
-        client: httpx.AsyncClient | None = None,
-        *,
-        base_dir: Path | str = PATH_CACHE,
-    ) -> None:
-        """
-        See docs [quickstart](../usage/quickstart.md#initialisation).
-
-        :param client: The `httpx` client to use. If not provided, a
-            new one will be created with HTTP/2 enabled by default. It is
-            highly recommended to use `http2=True` to avoid
-            [464 errors](https://github.com/cathaypacific8747/fr24/issues/23#issuecomment-2125624974)
-            and to be consistent with the browser.
-        :param base_dir:
-            See [cache directory](../usage/cli.md#directories).
-        """
-        self.http = HTTPClient(
-            httpx.AsyncClient(http2=True) if client is None else client
-        )
-        """The HTTP client for use in requests"""
-        self.__base_dir = Path(base_dir)
-
-        factory = ServiceFactory(self.http, self.base_dir)
-        self.flight_list = factory.build_flight_list()
-        """Flight list service."""
-        self.playback = factory.build_playback()
-        """Playback service."""
-        self.live_feed = factory.build_live_feed()
-        """Live feed service."""
-
-    async def login(
-        self,
-        creds: (
-            TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
-        ) = "from_env",
-    ) -> None:
-        """
-        :param creds: Reads credentials from the environment variables or the
-            config file if `creds` is set to `"from_env"` (default). Otherwise,
-            provide the credentials directly.
-        """
-        await self.http._login(creds)
-
-    @property
-    def base_dir(self) -> Path:
-        """The [cache directory](../usage/cli.md#directories)."""
-        return self.__base_dir
-
-    async def __aenter__(self) -> Self:
-        await self.http.__aenter__()
-        return self
-
-    async def __aexit__(self, *args: Any) -> None:
-        await self.http.__aexit__(*args)
 
 
 @dataclass
@@ -209,33 +146,9 @@ class FlightListService(Fetchable[FlightListRequest]):
             more = response_dict["result"]["response"]["page"]["more"]
             await asyncio.sleep(delay)
 
-
-#     @override
-#     def concat(
-#         self,
-#         data_new: FlightListArrow,
-#         inplace: bool = False,
-#     ) -> FlightListArrow:
-#         """
-#         Returns a new list of flights merged with the current table.
-#         Duplicates are removed from the current table, which results in
-#         all `Estimated` flights to be updated with the new data (if any).
-
-#         :param inplace: If `True`, the current table will be updated in place.
-#         """
-#         # NOTE: not using `flight_id` as primary key as it is nullable
-#         mask: pa.ChunkedArray = pc.is_in(
-#             self.data["STOD"], value_set=data_new.data["STOD"]
-#         )
-#         if (dup_count := pc.sum(mask).as_py()) is not None and dup_count > 0:
-#             logger.info(f"overwriting {dup_count} duplicate flight ids")
-#         data = pa.concat_tables(
-#             [self.data.filter(pc.invert(mask.combine_chunks())), data_new.data]
-#         )
-#         if inplace:
-#             self.data = data
-#             return self
-#         return FlightListArrow(self.ctx, data)
+    def new_result_collection(self) -> FlightListResultCollection:
+        """Create an empty list of flight list API results."""
+        return FlightListResultCollection()
 
 
 @dataclass
@@ -260,6 +173,56 @@ class FlightListResult(
             / self.request.kind
             / f"{self.request.ident.upper()}"
         )
+
+
+@dataclass
+class FlightListResultCollection(
+    list[FlightListResult], SupportsToDict[FlightList], CacheMixin
+):
+    """A list of results from the flight list API."""
+
+    def to_dict(self) -> FlightList:
+        """
+        Collects the raw bytes in each response into a single result.
+        Duplicates are identified by their flight ids and are removed. Flights
+        without an assigned id are kept intact.
+
+        No checking is made for the homogenity of the request parameters.
+        """
+
+        if len(self) == 0:
+            return FLIGHT_LIST_EMPTY
+
+        flight_ids_seen: set[str | None] = set()
+        data = self[0].to_dict()
+        flights_all = []
+        for result in self:
+            if (
+                flights := result.to_dict()["result"]["response"]["data"]
+            ) is None:
+                continue
+            for flight in flights:
+                if (
+                    flight_id := flight["identification"]["id"]
+                ) is not None and flight_id in flight_ids_seen:
+                    continue
+                flight_ids_seen.add(flight_id)
+                flights_all.append(flight)
+
+        data["result"]["response"]["data"] = flights_all
+        return data
+
+    def to_polars(self) -> pl.DataFrame:
+        return flight_list_df(self.to_dict())
+
+    @property
+    def file_path(self) -> Path:
+        if len(self) == 0:
+            raise ValueError(
+                "cannot save an empty flight list, "
+                "must contain at least one valid flight list response"
+            )
+        return self[0].file_path
 
 
 @dataclass(frozen=True)
@@ -288,6 +251,7 @@ class PlaybackService(Fetchable[PlaybackRequest]):
 
     @classmethod
     def metadata(cls, response_dict: Playback) -> dict[str, Any]:
+        # TODO: reconsider if we really want this here
         return playback_metadata_dict(
             response_dict["result"]["response"]["data"]["flight"]
         )
@@ -310,14 +274,6 @@ class PlaybackResult(
     @property
     def file_path(self) -> Path:
         return self.base_dir / "playback" / str(self.request.flight_id)
-
-
-#     @property
-#     def metadata(self) -> FlightData | None:
-#         """Parse the flight metadata from the arrow table."""
-#         if m := self.data.schema.metadata.get(b"_flight"):
-#             return json.loads(m)  # type: ignore[no-any-return]
-#         return None
 
 
 # NOTE: putting here temporarily because namespace clash at .grpc.

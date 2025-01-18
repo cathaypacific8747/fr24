@@ -12,8 +12,8 @@ from typing import Literal
 import httpx
 from appdirs import user_config_dir
 
-from . import logger
 from .common import DEFAULT_HEADERS
+from .logging import logger
 from .types.authentication import (
     Authentication,
     TokenSubscriptionKey,

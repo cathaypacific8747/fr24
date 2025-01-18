@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 import httpx
 import pytest
 
-from fr24.core import FR24
+from fr24 import FR24
 
 
 @pytest.fixture(scope="session")

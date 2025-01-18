@@ -45,7 +45,7 @@ await main()
 #%%
 #%%
 # --8<-- [start:login]
-from fr24.core import FR24
+from fr24 import FR24
 
 async def main() -> None:
     async with FR24() as fr24:
@@ -58,7 +58,7 @@ async def main() -> None:
 # --8<-- [start:client-sharing]
 import httpx
 
-from fr24.core import FR24
+from fr24 import FR24
 
 client = httpx.AsyncClient(http1=False, http2=True, transport=httpx.AsyncHTTPTransport(retries=5))
 
