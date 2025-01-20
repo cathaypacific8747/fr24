@@ -5,7 +5,7 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
 ## `FR24` class
 
 ### Flight list
-*API reference: [fr24.core.FlightListService][], [fr24.core.FlightListService.fetch][], [fr24.core.FlightListService.fetch_all][]*
+*API reference: [fr24.service.FlightListService][], [fr24.service.FlightListService.fetch][], [fr24.service.FlightListService.fetch_all][]*
 
 #### Single page
 === "Jupyter cell"
@@ -33,7 +33,7 @@ Note that pagination cannot be run in parallel: fetching page N requires informa
     ```
 
     1. First attempt to load existing table from the [cache](../usage/cli.md#directories), otherwise it creates an empty in-memory arrow table for us to concat to.
-    2. [Upserts the data][fr24.core.FlightListArrow.concat], replacing older records with new ones.
+    2. [Upserts the data][fr24.service.FlightListArrow.concat], replacing older records with new ones.
 
 === "`data.df`"
     
@@ -42,7 +42,7 @@ Note that pagination cannot be run in parallel: fetching page N requires informa
     ```
 
 ### Playback
-*API reference: [fr24.core.PlaybackService][], [fr24.core.PlaybackService.fetch][]*
+*API reference: [fr24.service.PlaybackService][], [fr24.service.PlaybackService.fetch][]*
 
 #### Miracle on the Hudson
 Downloads the flight trajectory for [UA1549](https://en.wikipedia.org/wiki/US_Airways_Flight_1549)
@@ -91,7 +91,7 @@ Saves trajectory data to disk, reads the track and metadata from it.
     --8<-- "docs/usage/scripts/11_playback.py:metadata0"
     ```
 ### Live Feed
-*API reference: [fr24.core.LiveFeedService][], [fr24.core.LiveFeedService.fetch][]*
+*API reference: [fr24.service.LiveFeedService][], [fr24.service.LiveFeedService.fetch][]*
 
 #### Live
 This example is covered in detail in the [quickstart](./quickstart.md).

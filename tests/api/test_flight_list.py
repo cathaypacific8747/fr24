@@ -11,8 +11,8 @@ from pydantic import ConfigDict, TypeAdapter
 
 from fr24 import FR24
 from fr24.json import (
-    FlightListRequest,
-    PlaybackRequest,
+    FlightListParams,
+    PlaybackParams,
     flight_list,
     flight_list_df,
     flight_list_parse,
@@ -28,7 +28,7 @@ FLIGHT = "AF7463"
 @pytest.mark.anyio
 async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
     list_ = flight_list_parse(
-        await flight_list(client, FlightListRequest(reg=REG))
+        await flight_list(client, FlightListParams(reg=REG))
     )
     df = flight_list_df(list_)
     assert df.shape[0] > 0
@@ -39,7 +39,7 @@ async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
         *[
             playback(
                 client,
-                PlaybackRequest(
+                PlaybackParams(
                     flight_id=flight_id,
                     timestamp=entry["time"]["scheduled"]["arrival"],
                 ),
@@ -125,7 +125,7 @@ async def test_flight_list_reg_concat(fr24: FR24) -> None:
     assert len(flights) == 6
 
     results = fr24.flight_list.new_result_collection()
-    
+
     data["result"]["response"]["data"] = flights[:4]
     result.response._content = orjson.dumps(data)
     results.append(deepcopy(result))

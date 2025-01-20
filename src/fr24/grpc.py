@@ -17,13 +17,16 @@ Methods:
 from __future__ import annotations
 
 import asyncio
-from typing import Any, AsyncIterator, Type
+import time
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Union, overload
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
+from typing_extensions import override
 
-from .logging import logger
-from .proto import T, encode_message, parse_data
+from .base import SupportsToProto
+from .proto import T, encode_message, parse_data, to_proto
 from .proto.headers import get_headers
 from .proto.v1_pb2 import (
     FetchSearchIndexRequest,
@@ -51,10 +54,22 @@ from .proto.v1_pb2 import (
     TrafficType,
     VisibilitySettings,
 )
-from .static.bbox import lng_bounds
-from .types.authentication import Authentication
-from .types.cache import LiveFeed, RecentPosition
-from .types.fr24 import LiveFeedField
+from .static.bbox import BBOX_FRANCE_UIR, BoundingBox
+
+if TYPE_CHECKING:
+    from typing import (
+        Annotated,
+        AsyncGenerator,
+        Iterable,
+        Type,
+    )
+
+    import polars as pl
+    from typing_extensions import TypeAlias
+
+    from .types.authentication import Authentication
+    from .types.cache import LiveFeed, RecentPosition
+    from .types.fr24 import LiveFeedField
 
 
 def construct_request(
@@ -71,19 +86,50 @@ def construct_request(
     )
 
 
+# NOTE: overload not used for now.
+@overload
 async def post_unary(
-    client: httpx.AsyncClient, request: httpx.Request, msg_type: Type[T]
-) -> T:
-    """Execute the unary-unary call and return the parsed protobuf message."""
+    client: httpx.AsyncClient,
+    request: httpx.Request,
+    msg_type: Type[T],
+) -> T: ...
+
+
+@overload
+async def post_unary(
+    client: httpx.AsyncClient,
+    request: httpx.Request,
+    msg_type: None = None,
+) -> httpx.Response: ...
+
+
+async def post_unary(
+    client: httpx.AsyncClient,
+    request: httpx.Request,
+    msg_type: Type[T] | None = None,
+) -> T | httpx.Response:
+    """
+    Execute the unary-unary call.
+
+    :param msg_type: The protobuf message type to parse the response into.
+    If `None`, the raw httpx response is returned.
+    """
     response = await client.send(request)
+    if msg_type is None:
+        return response
     data = response.content
     return parse_data(data, msg_type)
 
 
+# TODO: make parsing optional.
 async def post_stream(
-    client: httpx.AsyncClient, request: httpx.Request, msg_type: Type[T]
-) -> AsyncIterator[T]:
-    """Execute the unary-stream call and yield each parsed protobuf message."""
+    client: httpx.AsyncClient,
+    request: httpx.Request,
+    msg_type: Type[T],
+) -> AsyncGenerator[T]:
+    """
+    Execute the unary-stream call, yielding each parsed response.
+    """
     response = await client.send(request, stream=True)
     try:
         async for chunk in response.aiter_bytes():
@@ -92,103 +138,96 @@ async def post_stream(
         await response.aclose()
 
 
-def live_feed_message_create(
-    north: float = 50,
-    south: float = 40,
-    west: float = 0,
-    east: float = 10,
-    stats: bool = False,
-    limit: int = 1500,
-    maxage: int = 14400,
-    fields: list[LiveFeedField] = [
-        "flight",
-        "reg",
-        "route",
-        "type",
-    ],
-    **kwargs: Any,
-) -> LiveFeedRequest:
-    """
-    Create the LiveFeedRequest protobuf message
+#
+# live feed
+#
 
-    :param north: North latitude (degrees)
-    :param south: South latitude (degrees)
-    :param west: West longitude (degrees)
-    :param east: East longitude (degrees)
-    :param stats: Include stats of the given area
-    :param limit: Max number of flights (default 1500 for unauthenticated users,
-        2000 for authenticated users)
-    :param maxage: Max age since last update, seconds
-    :param fields: fields to include - for unauthenticated users, max 4 fields.
-        When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
-        can be included
-    """
-    return LiveFeedRequest(
-        bounds=LocationBoundaries(
-            north=north, south=south, west=west, east=east
-        ),
-        settings=VisibilitySettings(
-            sources_list=range(10),  # type: ignore
-            services_list=range(12),  # type: ignore
-            traffic_type=TrafficType.ALL,
-            only_restricted=False,
-        ),
-        field_mask=FieldMask(paths=fields),
-        highlight_mode=False,
-        stats=stats,
-        limit=limit,
-        maxage=maxage,
-        restriction_mode=RestrictionVisibility.NOT_VISIBLE,
-        **kwargs,
-    )
+
+LiveFeedRequestLike: TypeAlias = Union[
+    SupportsToProto[LiveFeedRequest], LiveFeedRequest
+]
 
 
 def live_feed_request_create(
-    message: LiveFeedRequest,
+    message_like: LiveFeedRequestLike,
     auth: None | Authentication = None,
 ) -> httpx.Request:
-    return construct_request("LiveFeed", message, auth)
+    return construct_request("LiveFeed", to_proto(message_like), auth)
 
 
-async def live_feed_post(
-    client: httpx.AsyncClient, request: httpx.Request
-) -> LiveFeedResponse:
-    return await post_unary(client, request, LiveFeedResponse)
-
-
-# TODO: this is redundant, deprecate this since the generated pyi now has docs
-def live_feed_playback_message_create(
-    message: LiveFeedRequest,
-    timestamp: int,
-    prefetch: int,
-    hfreq: int,
-) -> PlaybackRequest:
+@dataclass
+class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
+    bounding_box: BoundingBox = BBOX_FRANCE_UIR
+    stats: bool = False
+    """Whether to include stats in the given area."""
+    limit: int = 1500
     """
-    Create the live feed playback request protobuf message.
-
-    :param timestamp: Start timestamp
-    :param prefetch: End timestamp: should be start timestamp + 7 seconds
-    :param hfreq: High frequency mode
+    Maximum number of flights (should be set to 1500 for unauthorized users,
+    2000 for authorized users).
     """
-    return PlaybackRequest(
-        live_feed_request=message,
-        timestamp=timestamp,
-        prefetch=prefetch,
-        hfreq=hfreq,
+    maxage: int = 14400
+    """Maximum time since last message update, seconds."""
+    fields: set[LiveFeedField] = field(
+        default_factory=lambda: {"flight", "reg", "route", "type"}
     )
+    """
+    Fields to include.
+
+    For unauthenticated users, a maximum of 4 fields can be included.
+    When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
+    can be included.
+    """
+
+    def to_proto(self) -> LiveFeedRequest:
+        return LiveFeedRequest(
+            bounds=LocationBoundaries(
+                north=self.bounding_box.north,
+                south=self.bounding_box.south,
+                west=self.bounding_box.west,
+                east=self.bounding_box.east,
+            ),
+            settings=VisibilitySettings(
+                sources_list=range(10),  # type: ignore
+                services_list=range(12),  # type: ignore
+                traffic_type=TrafficType.ALL,
+                only_restricted=False,
+            ),
+            field_mask=FieldMask(paths=self.fields),
+            highlight_mode=False,
+            stats=self.stats,
+            limit=self.limit,
+            maxage=self.maxage,
+            restriction_mode=RestrictionVisibility.NOT_VISIBLE,
+        )
 
 
-def live_feed_playback_request_create(
-    message: PlaybackRequest,
+# TODO: add typing.overload for return type
+async def live_feed(
+    client: httpx.AsyncClient,
+    message_like: LiveFeedRequestLike,
     auth: None | Authentication = None,
-) -> httpx.Request:
-    return construct_request("Playback", message, auth)
+) -> Annotated[httpx.Response, LiveFeedResponse]:
+    response = await client.send(live_feed_request_create(message_like, auth))
+    return response
 
 
-async def live_feed_playback_post(
-    client: httpx.AsyncClient, request: httpx.Request
-) -> PlaybackResponse:
-    return await post_unary(client, request, PlaybackResponse)
+async def live_feed_batched(
+    client: httpx.AsyncClient,
+    message_like_iterable: Iterable[LiveFeedRequestLike],
+    auth: None | Authentication = None,
+) -> list[Annotated[httpx.Response, LiveFeedResponse] | BaseException]:
+    tasks = (
+        client.send(live_feed_request_create(p, auth))
+        for p in message_like_iterable
+    )
+    responses = await asyncio.gather(*tasks, return_exceptions=True)
+    return responses
+
+
+def live_feed_parse(
+    response: Annotated[httpx.Response, LiveFeedResponse],
+) -> LiveFeedResponse:
+    return parse_data(response.content, LiveFeedResponse)
 
 
 def live_feed_position_buffer_dict(
@@ -230,102 +269,120 @@ def live_feed_flightdata_dict(
     }
 
 
-# N, S, W, E
-world_zones = [
-    (90, -90, lng_bounds[i], lng_bounds[i + 1])
-    for i in range(len(lng_bounds) - 1)
+def live_feed_df(
+    data: LiveFeedResponse,
+) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import live_feed_schema
+
+    return pl.DataFrame(
+        (live_feed_flightdata_dict(lfr) for lfr in data.flights_list),
+        schema=live_feed_schema,
+    )
+
+
+#
+# live feed playback
+#
+
+
+PlaybackRequestLike: TypeAlias = Union[
+    SupportsToProto[PlaybackRequest], PlaybackRequest
 ]
 
 
-# TODO: add parameter for custom bounds, e.g. from .bounds.lng_bounds_per_30_min
-async def live_feed_world_data(
-    client: httpx.AsyncClient,
+def live_feed_playback_request_create(
+    message_like: PlaybackRequestLike,
     auth: None | Authentication = None,
-    limit: int = 1500,
-    fields: list[LiveFeedField] = [
-        "flight",
-        "reg",
-        "route",
-        "type",
-    ],
-) -> list[LiveFeed]:
-    """Retrieve live feed data for the entire world, in chunks."""
-    results = await asyncio.gather(
-        *[
-            live_feed_post(
-                client,
-                live_feed_request_create(
-                    live_feed_message_create(
-                        *bounds, limit=limit, fields=fields
-                    ),
-                    auth=auth,
-                ),
-            )
-            for bounds in world_zones
-        ],
-        return_exceptions=True,
-    )
-    return [
-        live_feed_flightdata_dict(lfr)
-        for r in results
-        if not isinstance(r, BaseException)
-        for lfr in r.flights_list
-    ]
+) -> httpx.Request:
+    return construct_request("Playback", to_proto(message_like), auth)
 
 
-async def live_feed_playback_world_data(
+# TODO: refactor to allow more flexible timestamps
+# NOTE: composition would be better,
+# but we want a flat structure in the service API and avoid rewriting __init__
+@dataclass
+class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
+    timestamp: int | None = None
+    """Start timestamp"""
+    duration: int = 7
+    """
+    Duration of prefetch, `floor(7.5*(multiplier))` seconds
+
+    For 1x playback, this should be 7 seconds.
+    """
+    hfreq: int | None = None
+    """High frequency mode"""
+
+    @override  # type: ignore
+    def to_proto(self) -> PlaybackRequest:
+        timestamp = self.timestamp or (int(time.time()) - self.duration)
+        return PlaybackRequest(
+            live_feed_request=super().to_proto(),
+            timestamp=timestamp,
+            prefetch=timestamp + self.duration,
+            hfreq=self.hfreq,
+        )
+
+
+async def live_feed_playback(
     client: httpx.AsyncClient,
-    timestamp: int,
-    duration: int = 7,
-    hfreq: int = 0,
+    message_like: PlaybackRequestLike,
     auth: None | Authentication = None,
-    limit: int = 1500,
-    fields: list[LiveFeedField] = [
-        "flight",
-        "reg",
-        "route",
-        "type",
-    ],
-) -> list[LiveFeed]:
-    """
-    Retrieve live feed playback data for the entire world, in chunks.
-
-    NOTE: playback data has no position buffer information.
-
-    :raises RuntimeError: if more than half of the requests fail
-    """
-    results = await asyncio.gather(
-        *[
-            live_feed_playback_post(
-                client,
-                live_feed_playback_request_create(
-                    live_feed_playback_message_create(
-                        live_feed_message_create(
-                            *bounds, limit=limit, fields=fields
-                        ),
-                        timestamp,
-                        timestamp + duration,
-                        hfreq,
-                    ),
-                    auth=auth,
-                ),
-            )
-            for bounds in world_zones
-        ],
-        return_exceptions=True,
+) -> Annotated[httpx.Response, LiveFeedResponse]:
+    response = await client.send(
+        live_feed_playback_request_create(
+            message_like,
+            auth,
+        )
     )
-    if len(err := [r for r in results if isinstance(r, BaseException)]) > 0:
-        logger.warning(f"{len(err)} errors: {err}!")
-        if len(err) > len(results) / 2:
-            raise RuntimeError(
-                f"playback world: found {len(err)} errors, aborting!"
+    return response
+
+
+async def live_feed_playback_batched(
+    client: httpx.AsyncClient,
+    message_like_iterable: Iterable[PlaybackRequestLike],
+    auth: None | Authentication = None,
+) -> list[Annotated[httpx.Response, LiveFeedResponse] | BaseException]:
+    tasks = (
+        client.send(
+            live_feed_playback_request_create(
+                m,
+                auth,
             )
-    return [
-        live_feed_flightdata_dict(lfr)
-        for r in results
-        if not isinstance(r, BaseException)
-        for lfr in r.live_feed_response.flights_list
-    ]
+        )
+        for m in message_like_iterable
+    )
+    responses = await asyncio.gather(*tasks, return_exceptions=True)
+    return responses
+
+
+def live_feed_playback_parse(
+    response: Annotated[httpx.Response, PlaybackResponse],
+) -> PlaybackResponse:
+    return parse_data(response.content, PlaybackResponse)
+
+
+def live_feed_playback_df(
+    data: PlaybackResponse,
+) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import live_feed_schema
+
+    return pl.DataFrame(
+        (
+            live_feed_flightdata_dict(lfr)
+            for lfr in data.live_feed_response.flights_list
+        ),
+        schema=live_feed_schema,
+    )
+
+
+#
+# misc
+#
 
 
 def nearest_flights_request_create(
@@ -376,7 +433,7 @@ def follow_flight_request_create(
 
 async def follow_flight_stream(
     client: httpx.AsyncClient, request: httpx.Request
-) -> AsyncIterator[FollowFlightResponse]:
+) -> AsyncGenerator[FollowFlightResponse]:
     async for msg in post_stream(client, request, FollowFlightResponse):
         yield msg
 
@@ -420,3 +477,8 @@ async def _historic_trail_post(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> HistoricTrailResponse:
     return await post_unary(client, request, HistoricTrailResponse)
+
+
+__all__ = [
+    "BoundingBox",
+]

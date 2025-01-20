@@ -1,3 +1,3 @@
 See the [library quickstart](../usage/quickstart.md) to learn more.
 
-::: fr24.core
+::: fr24.service

@@ -6,7 +6,8 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.json import playback, playback_df, PlaybackRequest, Playback
+from fr24.json import playback, playback_df, PlaybackParams
+from fr24.types.playback import Playback
 
 async def my_playback() -> Playback:
     async with httpx.AsyncClient() as client:
@@ -15,7 +16,7 @@ async def my_playback() -> Playback:
             print(auth["message"])
         response = await playback(
             client,
-            PlaybackRequest(flight_id="38c59db3"),
+            PlaybackParams(flight_id="38c59db3"),
             auth=auth,
         )
         response.raise_for_status()

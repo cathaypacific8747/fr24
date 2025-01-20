@@ -26,22 +26,21 @@ if TYPE_CHECKING:
         PlaybackTrackEMSRecord,
         PlaybackTrackRecord,
     )
-    from .types.flight_list import FlightListItem
-    from .types.flight_list import FlightListRequest as _FlightListRequest
+    from .types.flight_list import FlightListItem, FlightListRequest
     from .types.playback import (
         FlightData,
+        PlaybackRequest,
         TrackData,
     )
-    from .types.playback import PlaybackRequest as _PlaybackRequest
 
 # NOTE: we intentionally use dataclass to store request data so we can
 # serialise it to disk easily.
 
 
 @dataclass
-class FlightListRequest:
+class FlightListParams:
     """
-    Request data to fetch metadata/history of flights for
+    Parameters to fetch metadata/history of flights for
     *either* a given aircraft registration or flight number.
     """
 
@@ -80,7 +79,7 @@ class FlightListRequest:
 
 async def flight_list(
     client: httpx.AsyncClient,
-    data: FlightListRequest,
+    params: FlightListParams,
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, FlightList]:
     """
@@ -95,34 +94,34 @@ async def flight_list(
     :param client: HTTPX async client
     :param auth: Authentication data
     """
-    timestamp = to_unix_timestamp(data.timestamp)
+    timestamp = to_unix_timestamp(params.timestamp)
 
-    key, value = data.kind, data.ident
+    key, value = params.kind, params.ident
 
     # TODO: remove duplication
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params: _FlightListRequest = {
+    request_data: FlightListRequest = {
         "query": value,
         "fetchBy": key,
-        "page": data.page,
-        "limit": data.limit,
+        "page": params.page,
+        "limit": params.limit,
     }
 
     if timestamp is not None:
-        params["timestamp"] = timestamp
+        request_data["timestamp"] = timestamp
 
     if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        params["token"] = auth["userData"]["subscriptionKey"]
+        request_data["token"] = auth["userData"]["subscriptionKey"]
     else:
-        params["device"] = device
+        request_data["device"] = device
 
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/flight/list.json",
         headers=headers,
-        params=params,  # type: ignore
+        params=request_data,  # type: ignore
     )
 
     response = await client.send(request)
@@ -130,7 +129,7 @@ async def flight_list(
 
 
 @dataclass
-class AirportListRequest:
+class AirportListParams:
     """
     Request data to fetch metadata/history of flights
     """
@@ -149,7 +148,7 @@ class AirportListRequest:
 
 async def airport_list(
     client: httpx.AsyncClient,
-    data: AirportListRequest,
+    params: AirportListParams,
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, AirportList]:
     """
@@ -163,27 +162,27 @@ async def airport_list(
     :returns: the raw binary response, representing a JSON-encoded
         [fr24.types.flight_list.FlightList][].
     """
-    timestamp = to_unix_timestamp(data.timestamp)
+    timestamp = to_unix_timestamp(params.timestamp)
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
 
-    params: AirportRequest = {
-        "code": data.airport,
+    request_data: AirportRequest = {
+        "code": params.airport,
         "plugin[]": ["schedule"],
-        "plugin-setting[schedule][mode]": data.mode,
-        "page": data.page,
-        "limit": data.limit,
+        "plugin-setting[schedule][mode]": params.mode,
+        "page": params.page,
+        "limit": params.limit,
     }
 
     if timestamp is not None:
-        params["plugin-setting[schedule][timestamp]"] = timestamp
+        request_data["plugin-setting[schedule][timestamp]"] = timestamp
 
     if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        params["token"] = auth["userData"]["subscriptionKey"]
+        request_data["token"] = auth["userData"]["subscriptionKey"]
     else:
-        params["device"] = device
+        request_data["device"] = device
 
     request = httpx.Request(
         "GET",
@@ -197,7 +196,7 @@ async def airport_list(
 
 
 @dataclass
-class PlaybackRequest:
+class PlaybackParams:
     """
     Request data to fetch historical track playback data for a given flight.
     """
@@ -213,7 +212,7 @@ class PlaybackRequest:
 
 async def playback(
     client: httpx.AsyncClient,
-    data: PlaybackRequest,
+    params: PlaybackParams,
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, Playback]:
     """
@@ -222,25 +221,25 @@ async def playback(
     :param client: HTTPX async client
     :param auth: Authentication data
     """
-    timestamp = to_unix_timestamp(data.timestamp)
+    timestamp = to_unix_timestamp(params.timestamp)
     flight_id = (
-        f"{data.flight_id:x}"
-        if not isinstance(data.flight_id, str)
-        else data.flight_id
+        f"{params.flight_id:x}"
+        if not isinstance(params.flight_id, str)
+        else params.flight_id
     )  # TODO: move this up
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
-    params: _PlaybackRequest = {
+    request_data: PlaybackRequest = {
         "flightId": flight_id,
     }
     if timestamp is not None:
-        params["timestamp"] = timestamp
+        request_data["timestamp"] = timestamp
     if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        params["token"] = auth["userData"]["subscriptionKey"]
+        request_data["token"] = auth["userData"]["subscriptionKey"]
     else:
-        params["device"] = device
+        request_data["device"] = device
 
     request = httpx.Request(
         "GET",

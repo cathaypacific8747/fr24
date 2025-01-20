@@ -6,7 +6,8 @@
 import httpx
 
 from fr24.authentication import login
-from fr24.json import flight_list, flight_list_df, FlightListRequest, FlightList
+from fr24.json import flight_list, flight_list_df, FlightListParams
+from fr24.types.flight_list import FlightList
 
 async def my_list() -> FlightList:
     async with httpx.AsyncClient() as client:
@@ -15,7 +16,7 @@ async def my_list() -> FlightList:
             print(auth["message"])
         response = await flight_list(
             client,
-            FlightListRequest(
+            FlightListParams(
                 flight="AF291",
                 timestamp="2025-01-16",  # (1)!
             ),
@@ -23,7 +24,7 @@ async def my_list() -> FlightList:
         )
         response.raise_for_status()
         list_ = response.json()
-        return list_
+        return list_ # type: ignore
 
 
 list_ = await my_list()

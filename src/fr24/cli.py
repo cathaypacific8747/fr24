@@ -12,7 +12,13 @@ from loguru import logger
 from rich.console import Console
 
 from . import FP_CONFIG_FILE, FR24, PATH_CACHE, PATH_CONFIG
-from .service import FlightListResult, PlaybackResult
+from .common import to_unix_timestamp
+from .service import (
+    FlightListResult,
+    LiveFeedPlaybackResult,
+    LiveFeedResult,
+    PlaybackResult,
+)
 from .tui.tui import main as tui_main
 
 app = typer.Typer(no_args_is_help=True)
@@ -99,7 +105,10 @@ def create(
 
 
 def get_success_message(
-    result: FlightListResult | PlaybackResult,
+    result: FlightListResult
+    | PlaybackResult
+    | LiveFeedResult
+    | LiveFeedPlaybackResult,
     fp: Path | IO[bytes] | None,
     action: Literal["added", "wrote"] = "wrote",
 ) -> str:
@@ -174,10 +183,15 @@ def feed(
     async def feed_() -> None:
         async with FR24() as fr24:
             await fr24.login()
-            response = await fr24.live_feed.fetch(timestamp)
-            datac = response.to_arrow()
-            datac.save(fp, format)  # type: ignore[arg-type]
-            console.print(get_success_message(datac, fp))
+            result: LiveFeedResult | LiveFeedPlaybackResult
+            if timestamp is None:
+                result = await fr24.live_feed.fetch()
+            else:
+                result = await fr24.live_feed_playback.fetch(
+                    timestamp=to_unix_timestamp(timestamp)
+                )
+            result.save(fp, format=format)  # type: ignore[arg-type]
+            console.print(get_success_message(result, fp))
 
     asyncio.run(feed_())
 

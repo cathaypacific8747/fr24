@@ -9,15 +9,17 @@ instead, we should use a dynamic bounding box that will change every 30 minutes
 to reduce the number of requests
 """
 
+from typing import NamedTuple
+
 # ruff: noqa: E501
 # fmt: off
-lng_bounds = [
+LNGS_WORLD_STATIC = [
     -180, -117, -110, -100, -95, -90, -85, -82, -79, -75, -68, -30, -2, 1,
     5, 8, 11, 15, 20, 30, 40, 60, 100, 110, 120, 140, 180
 ]
-"""default static bounds"""
+"""Default static longitude knots"""
 
-lng_bounds_per_30_min = {
+LNGS_WORLD_PER_HALF_HR = {
     0: [-180.0, -121.9, -113.3, -101.5, -95.3, -87.9, -82.2, -77.6, -66.9, 9.8, 47.6, 88.3, 113.7, 126.6, 164.1, 180],
     1: [-180.0, -121.5, -112.1, -99.8, -94.2, -86.4, -80.7, -74.7, -46.5, 29.3, 61.1, 104.0, 114.7, 125.0, 151.8, 180],
     2: [-180.0, -120.7, -111.3, -97.9, -91.6, -84.1, -78.3, -70.0, 7.6, 47.4, 80.9, 108.8, 117.0, 131.0, 171.0, 180],
@@ -68,7 +70,28 @@ lng_bounds_per_30_min = {
     47: [-180.0, -121.5, -114.0, -103.0, -95.7, -89.4, -84.0, -79.5, -74.3, -57.5, 11.8, 44.7, 77.7, 116.3, 145.1, 180],
 }
 """
-dynamic bounds every 30 minutes, 0 = 00:00UTC
+Dynamic bounds every 30 minutes, 0 = 00:00UTC
 this is tuned on 2023-06-15: each slice should contain 1000 flights.
 """
 # fmt: on
+
+
+class BoundingBox(NamedTuple):
+    south: float
+    """Latitude, minimum, degrees"""
+    north: float
+    """Latitude, maximum, degrees"""
+    west: float
+    """Longitude, minimum, degrees"""
+    east: float
+    """Longitude, maximum, degrees"""
+
+
+BBOXES_WORLD_STATIC = [
+    BoundingBox(-90, 90, LNGS_WORLD_STATIC[i], LNGS_WORLD_STATIC[i + 1])
+    for i in range(len(LNGS_WORLD_STATIC) - 1)
+]
+"""Default static bounding boxes covering the world"""
+
+BBOX_FRANCE_UIR = BoundingBox(42, 52, -8, 10)
+"""France UIR"""

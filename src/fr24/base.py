@@ -38,7 +38,7 @@ class APIResult(Generic[RequestT]):
 
 
 @runtime_checkable
-class Fetchable(Protocol, Generic[RequestT]):
+class Fetchable(Protocol[RequestT]):
     async def fetch(self, *args: Any, **kwargs: Any) -> APIResult[RequestT]:
         """Fetches data from the API."""
 
@@ -53,24 +53,24 @@ DictT_co = TypeVar("DictT_co", covariant=True)
 
 
 @runtime_checkable
-class SupportsToDict(Protocol, Generic[DictT_co]):
+class SupportsToDict(Protocol[DictT_co]):
     def to_dict(self) -> DictT_co:
-        """Converts the raw bytes to a dictionary."""
+        """Converts the object into a dictionary."""
 
 
 ProtoT_co = TypeVar("ProtoT_co", bound=Message, covariant=True)
 
 
 @runtime_checkable
-class SupportsToProto(Protocol, Generic[ProtoT_co]):
+class SupportsToProto(Protocol[ProtoT_co]):
     def to_proto(self) -> ProtoT_co:
-        """Converts the raw bytes to a protobuf message."""
+        """Converts the object into a protobuf message."""
 
 
 @runtime_checkable
 class SupportsToPolars(Protocol):
     def to_polars(self) -> pl.DataFrame:
-        """Converts the raw bytes to a polars dataframe."""
+        """Converts the object into a polars dataframe."""
 
 
 #
@@ -111,6 +111,8 @@ class CacheMixin(HasFilePath, SupportsToPolars):
         if format == "parquet":
             if isinstance(file, Path):
                 file = file.with_suffix(".parquet")
+            # NOTE: saving metadata with polars is not yet implemented
+            # https://github.com/pola-rs/polars/issues/5117
             data.write_parquet(file)
         elif format == "csv":
             if isinstance(file, Path):

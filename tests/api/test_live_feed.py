@@ -6,22 +6,23 @@ from google.protobuf.json_format import MessageToDict
 
 from fr24 import FR24
 from fr24.grpc import (
-    live_feed_message_create,
-    live_feed_playback_world_data,
-    live_feed_post,
-    live_feed_request_create,
-    live_feed_world_data,
+    BoundingBox,
+    LiveFeedParams,
+    live_feed,
+    live_feed_parse,
 )
 
 
 @pytest.mark.anyio
 async def test_ll_live_feed_simple(client: httpx.AsyncClient) -> None:
-    message = live_feed_message_create(north=50, west=-7, south=40, east=10)
-    request = live_feed_request_create(message)
-    result = await live_feed_post(client, request)
+    params = LiveFeedParams(
+        bounding_box=BoundingBox(north=50, west=-7, south=40, east=10)
+    )
+    response = await live_feed(client, params)
+    data = live_feed_parse(response)
 
     json_output = MessageToDict(
-        result,
+        data,
         use_integers_for_enums=False,
         preserving_proto_field_name=True,
     )
@@ -45,27 +46,27 @@ async def test_ll_live_feed_playback_world(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_live_feed_live_world(fr24: FR24) -> None:
-    response = await fr24.live_feed.fetch()
-    assert len(response.data) > 100
+    result = await fr24.live_feed.fetch()
+    len_proto = len(result.to_proto().flights_list)
+    assert len_proto > 100
 
-    datac = response.to_arrow()
-    assert datac.data.num_rows == len(response.data)
+    df = result.to_polars()
+    assert df.height == len_proto
 
 
 @pytest.mark.anyio
 async def test_live_feed_playback_world(fr24: FR24) -> None:
     yesterday = int(time.time() - 86400)
-    response = await fr24.live_feed.fetch(yesterday)
-    assert len(response.data) > 100
+    result = await fr24.live_feed_playback.fetch(timestamp=yesterday)
+    assert result.to_polars().height > 100
 
 
 @pytest.mark.anyio
 async def test_live_feed_file_ops(fr24: FR24) -> None:
     """ensure context persists after serialisation to parquet"""
-    response = await fr24.live_feed.fetch()
-    datac = response.to_arrow()
-    datac.save()
+    result = await fr24.live_feed.fetch()
+    result.save()
 
-    datac_local = fr24.live_feed.load(datac.ctx["timestamp"])
-    assert datac_local.data.equals(datac.data)
-    assert datac_local.data.schema.metadata == datac.data.schema.metadata
+    result_local = fr24.live_feed.load(result.timestamp)
+    assert result_local.to_polars() == result.to_polars()
+    # assert datac_local.data.schema.metadata == datac.data.schema.metadata

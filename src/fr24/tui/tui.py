@@ -22,9 +22,9 @@ from textual.widgets import (
 import pandas as pd
 from fr24.authentication import login
 from fr24.json import (
-    AirportListRequest,
-    FlightListRequest,
-    PlaybackRequest,
+    AirportListParams,
+    FlightListParams,
+    PlaybackParams,
     airport_list,
     airport_list_parse,
     find,
@@ -146,7 +146,7 @@ class FR24(App[None]):
         result = playback_parse(
             await playback(
                 self.client,
-                PlaybackRequest(
+                PlaybackParams(
                     flight_id=self.line_info["flightid"],
                     timestamp=date,
                 ),
@@ -186,7 +186,7 @@ class FR24(App[None]):
         results = flight_list_parse(
             await flight_list(
                 self.client,
-                FlightListRequest(reg=value, limit=100, timestamp=ts),
+                FlightListParams(reg=value, limit=100, timestamp=ts),
                 auth=self.auth,
             )
         )
@@ -196,7 +196,7 @@ class FR24(App[None]):
         results = flight_list_parse(
             await flight_list(
                 self.client,
-                FlightListRequest(flight=value, limit=100, timestamp=ts),
+                FlightListParams(flight=value, limit=100, timestamp=ts),
                 auth=self.auth,
             )
         )
@@ -215,7 +215,7 @@ class FR24(App[None]):
         )
         flight_lists: list[FlightList] = []
         for value in flight_numbers:
-            flight_list_request = FlightListRequest(
+            flight_list_request = FlightListParams(
                 flight=value, limit=10, timestamp=ts
             )
             try:
@@ -276,7 +276,7 @@ class FR24(App[None]):
         results = airport_list_parse(
             await airport_list(
                 self.client,
-                AirportListRequest(
+                AirportListParams(
                     airport=value,
                     mode="arrivals",
                     limit=100,
@@ -299,7 +299,7 @@ class FR24(App[None]):
         results = airport_list_parse(
             await airport_list(
                 self.client,
-                AirportListRequest(
+                AirportListParams(
                     airport=value,
                     mode="departures",
                     limit=100,

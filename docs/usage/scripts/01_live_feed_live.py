@@ -7,9 +7,10 @@ from fr24 import FR24
 
 async def my_feed() -> None:
     async with FR24() as fr24:
-        response = await fr24.live_feed.fetch()
-        datac = response.to_arrow()
-        datac.save()
+        result = await fr24.live_feed.fetch()
+        data = result.to_dict()
+        df = result.to_polars()
+        result.save()
 
 await my_feed()
 # --8<-- [end:script]
@@ -25,84 +26,124 @@ await my_feed()
 # --8<-- [end:script2]
 # %%
 """
-# --8<-- [start:response]
-LiveFeedAPIResp(
-    ctx={
-        "timestamp": 1733036597,
-        "source": "live",
-        "duration": None,
-        "hfreq": None,
-        "limit": 1500,
-        "fields": ["flight", "reg", "route", "type"],
-        "base_dir": PosixPath("/home/user/.cache/fr24"),
-    },
-    data=[
-        {
-            "timestamp": 1733036585,
-            "flightid": 942542957,
-            "latitude": -12.017459869384766,
-            "longitude": -175.8354034423828,
-            "track": 48,
-            "altitude": 32000,
-            "ground_speed": 500,
-            "vertical_speed": 0,
-            "on_ground": False,
-            "callsign": "AAL72",
-            "source": 0,
-            "registration": "N729AN",
-            "origin": "SYD",
-            "destination": "LAX",
-            "typecode": "B77W",
-            "eta": 0,
-            "squawk": 0,
-            "position_buffer": [
-                {"delta_lat": 432, "delta_lon": 494, "delta_ms": 2360}
-            ],
-        },
-        {
-            "timestamp": 1733036595,
-            "flightid": 942552952,
-            "latitude": -29.51480484008789,
-            "longitude": -174.44357299804688,
-            "track": 43,
-            "altitude": 29004,
-            "ground_speed": 525,
-            "vertical_speed": 0,
-            "on_ground": False,
-            "callsign": "ANZ4",
-            "source": 5,
-            "registration": "ZK-OKQ",
-            "origin": "AKL",
-            "destination": "LAX",
-            "typecode": "B77W",
-            "eta": 0,
-            "squawk": 0,
-            "position_buffer": [
-                {"delta_lat": 831, "delta_lon": 892, "delta_ms": 4687},
-                {"delta_lat": 1609, "delta_lon": 1727, "delta_ms": 9068},
-            ],
-        },
-        # ...
-    ]
+# --8<-- [start:result]
+LiveFeedResult(
+    request=LiveFeedParams(
+        bounding_box=BoundingBox(south=42, north=52, west=-8, east=10),
+        stats=False,
+        limit=1500,
+        maxage=14400,
+        fields={'reg', 'flight', 'type', 'route'}
+    ),
+    response=<Response [200 OK]>,
+    base_dir=PosixPath('/home/user/.cache/fr24'),
+    timestamp=1737360998
 )
-# --8<-- [end:response]
-"""
-#%%
-"""
+# --8<-- [end:result]
+# --8<-- [start:data]
+{
+    'flightsList': [
+        {
+            'flightid': 952888097,
+            'lat': 42.467102,
+            'lon': -6.0266876,
+            'track': 210,
+            'alt': 39000,
+            'speed': 437,
+            'timestamp': 1737360996,
+            'callsign': 'TVF96CL',
+            'extraInfo': {
+                'flight': 'TO3080',
+                'reg': 'F-HTVR',
+                'route': {'from': 'ORY', 'to': 'VIL'},
+                'type': 'B738'
+            },
+            'positionBuffer': {
+                'recentPositionsList': [
+                    {'deltaLat': -306, 'deltaLon': -241, 'deltaMs': 2100},
+                    {'deltaLat': -566, 'deltaLon': -445, 'deltaMs': 3110},
+                    {'deltaLat': -732, 'deltaLon': -574, 'deltaMs': 4260},
+                    {'deltaLat': -897, 'deltaLon': -707, 'deltaMs': 5280},
+                    {'deltaLat': -1055, 'deltaLon': -828, 'deltaMs': 6470},
+                    {'deltaLat': -1297, 'deltaLon': -1020, 'deltaMs': 7470},
+                    {'deltaLat': -1493, 'deltaLon': -1173, 'deltaMs': 8570},
+                    {'deltaLat': -1657, 'deltaLon': -1304, 'deltaMs': 9801}
+                ]
+            }
+        },
+        {
+            'flightid': 952890068,
+            'lat': 42.7418,
+            'lon': -5.856479,
+            'track': 276,
+            'alt': 41750,
+            'speed': 449,
+            'icon': 'LJ60',
+            'timestamp': 1737360995,
+            'callsign': 'QQE210',
+            'extraInfo': {
+                'flight': 'QE210',
+                'reg': 'A7-CGC',
+                'route': {'from': 'BCN', 'to': 'IAD'},
+                'type': 'GLF6'
+            },
+            'positionBuffer': {
+                'recentPositionsList': [
+                    {'deltaLat': 22, 'deltaLon': -276, 'deltaMs': 1106},
+                    {'deltaLat': 46, 'deltaLon': -562, 'deltaMs': 2187},
+                    {'deltaLat': 67, 'deltaLon': -838, 'deltaMs': 3189},
+                    {'deltaLat': 95, 'deltaLon': -1175, 'deltaMs': 4369},
+                    {'deltaLat': 130, 'deltaLon': -1564, 'deltaMs': 5481},
+                    {'deltaLat': 158, 'deltaLon': -1903, 'deltaMs': 6522},
+                    {'deltaLat': 177, 'deltaLon': -2126, 'deltaMs': 7540},
+                    {'deltaLat': 200, 'deltaLon': -2404, 'deltaMs': 8565}
+                ]
+            }
+        },
+    ]
+    'serverTimeMs': '1737360998825'
+}
+# --8<-- [end:data]
 # --8<-- [start:df]
-        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin destination typecode  eta  vertical_speed  squawk                                   position_buffer  
-0      1733036585  942542957 -12.017460 -175.835403     48     32000           500      False    AAL72       0       N729AN    SYD         LAX     B77W    0               0       0 [{'delta_lat': 432, 'delta_lon': 494, 'delta_m...  
-1      1733036595  942552952 -29.514805 -174.443573     43     29004           525      False     ANZ4       5       ZK-OKQ    AKL         LAX     B77W    0               0       0 [{'delta_lat': 831, 'delta_lon': 892, 'delta_m...  
-2      1733036595  942533540  -5.759705 -168.846771     47     37000           494      False   UAL100       5       N27965    SYD         IAH     B789    0               0       0 [{'delta_lat': 727, 'delta_lon': 793, 'delta_m...  
-3      1733036595  942536182  -4.503380 -179.264038     53     37000           514      False    QFA93       3       VH-ZNE    MEL         LAX     B789    0               0       0 [{'delta_lat': 670, 'delta_lon': 894, 'delta_m...  
-4      1733036592  942537131  -3.225645 -177.020752     59     32000           512      False   UAL830       5       N2333U    SYD         SFO     B77W    0               0       0 [{'delta_lat': 463, 'delta_lon': 775, 'delta_m...  
-...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...         ...      ...  ...             ...     ...                                               ...  
-11397  1733036592  942548650  55.756233  174.116119    237     32000           520      False  CPA3283       4        B-LJM    ANC         HKG     B748    0               0       0 [{'delta_lat': -586, 'delta_lon': -1608, 'delt...  
-11398  1733036592  942519223  57.377785  176.103302    234     38000           468      False  KAL9284       3       HL8252    YYZ         ICN     B77L    0               0       0 [{'delta_lat': -484, 'delta_lon': -1239, 'delt...  
-11399  1733036592  942521821  55.513550  176.156662     48     31000           493      False   KAL093       5       HL8041    ICN         IAD     B77W    0               0       0 [{'delta_lat': 682, 'delta_lon': 1342, 'delta_...  
-11400  1733036595  942532958  64.681732  179.871552    274     36000           469      False  CAO1058       0       B-2098    LAX         PEK     B77L    0               0       0 [{'delta_lat': 60, 'delta_lon': -2018, 'delta_...  
-11401  1733036592  942550038  57.237507  178.640396    241     37000           494      False   NCA167       4       JA18KZ    ANC         NRT     B748    0               0       0 [{'delta_lat': -495, 'delta_lon': -1657, 'delt...  
-
-[11402 rows x 18 columns]
+shape: (899, 18)
+┌────────────┬───────────┬───────────┬───────────┬───┬─────┬───────────────┬────────┬──────────────┐
+│ timestamp  ┆ flightid  ┆ latitude  ┆ longitude ┆ … ┆ eta ┆ vertical_spee ┆ squawk ┆ position_buf │
+│ ---        ┆ ---       ┆ ---       ┆ ---       ┆   ┆ --- ┆ d             ┆ ---    ┆ fer          │
+│ u32        ┆ u32       ┆ f32       ┆ f32       ┆   ┆ u32 ┆ ---           ┆ u16    ┆ ---          │
+│            ┆           ┆           ┆           ┆   ┆     ┆ i16           ┆        ┆ list[struct[ │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 3]]          │
+╞════════════╪═══════════╪═══════════╪═══════════╪═══╪═════╪═══════════════╪════════╪══════════════╡
+│ 1737360996 ┆ 952888097 ┆ 42.467102 ┆ -6.026688 ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{-306,-241, │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 2100},       │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ {-566,-445,… │
+│ 1737360995 ┆ 952890068 ┆ 42.741798 ┆ -5.856479 ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{22,-276,11 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 06}, {46,-56 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 2,2187…      │
+│ 1737360995 ┆ 952889599 ┆ 43.295025 ┆ -5.364467 ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{-279,-228, │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 1120},       │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ {-374,-307,… │
+│ 1737360996 ┆ 952886169 ┆ 42.944916 ┆ -5.611012 ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{-256,-210, │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 1004},       │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ {-445,-366,… │
+│ 1737360996 ┆ 952881151 ┆ 43.920135 ┆ -7.713935 ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{210,178,13 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 66}, {379,32 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 5,2442…      │
+│ …          ┆ …         ┆ …         ┆ …         ┆ … ┆ …   ┆ …             ┆ …      ┆ …            │
+│ 1737360996 ┆ 952890387 ┆ 51.8517   ┆ 8.181763  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{-170,-208, │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 2208},       │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ {-312,-386,… │
+│ 1737360995 ┆ 952894571 ┆ 51.961933 ┆ 8.233468  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{58,257,101 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 5}, {127,577 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ ,2055}…      │
+│ 1737360995 ┆ 952889383 ┆ 51.81115  ┆ 9.978867  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{-14,283,11 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 35}, {-32,57 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 2,2170…      │
+│ 1737360996 ┆ 952883520 ┆ 51.52737  ┆ 9.759674  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{400,68,204 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 0}, {597,99, │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 3163},…      │
+│ 1737360995 ┆ 952894664 ┆ 51.909981 ┆ 9.415519  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ [{-167,-31,1 │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 009}, {-409, │
+│            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ -78,20…      │
+└────────────┴───────────┴───────────┴───────────┴───┴─────┴───────────────┴────────┴──────────────┘
 # --8<-- [end:df]
 """

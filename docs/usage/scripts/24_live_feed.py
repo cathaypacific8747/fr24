@@ -5,18 +5,20 @@
 # --8<-- [start:script0]
 import httpx
 from fr24.grpc import (
-    live_feed_message_create,
-    live_feed_post,
-    live_feed_request_create,
+    LiveFeedParams,
+    BoundingBox,
+    live_feed,
+    live_feed_parse,
 )
 from fr24.proto.v1_pb2 import LiveFeedResponse
 
 
 async def france_data() -> LiveFeedResponse:
     async with httpx.AsyncClient() as client:
-        message = live_feed_message_create(north=50, west=-7, south=40, east=10)
-        request = live_feed_request_create(message)
-        return await live_feed_post(client, request)
+        params = LiveFeedParams(bounding_box=BoundingBox(north=50, west=-7, south=40, east=10))
+        response = await live_feed(client, params)
+        data = live_feed_parse(response)
+        return data
 
 
 data = await france_data()

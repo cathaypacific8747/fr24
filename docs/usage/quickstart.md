@@ -32,20 +32,20 @@ Here is a quick example in case you are not familiar with this code style:
 
 Most of the core code are developed in [many tiny functions](../api/functions.md) for flexibility.
 
-However, the [FR24][fr24.core.FR24] class provides a convenient wrapper around them. It:
+However, the [FR24][fr24.FR24] class provides a convenient wrapper around them. It:
 
 - Manages a shared HTTP client and authentication state
 - Has three services:
-    - [**Live Feed**][fr24.core.LiveFeedService]: snapshot of all aircraft state vectors
-    - [**Flight List**][fr24.core.FlightListService]: all historical flights for a given aircraft registration or flight number
-    - [**Playback**][fr24.core.PlaybackService]: historical trajectory for one flight.
+    - [**Live Feed**][fr24.service.LiveFeedService]: snapshot of all aircraft state vectors
+    - [**Flight List**][fr24.service.FlightListService]: all historical flights for a given aircraft registration or flight number
+    - [**Playback**][fr24.service.PlaybackService]: historical trajectory for one flight.
 
 !!! warn
     The following section is for `fr24<v0.2.0`, and will be updated.
 
 Each service has its own async `.fetch()` method to retrieve raw data from the API. `.to_arrow()` can then be used to transform to an Apache Arrow table, and used to perform caching and downstream `pandas` operations.
 
-Here is an example for using the [**Live Feed**][fr24.core.LiveFeedService] service:
+Here is an example for using the [**Live Feed**][fr24.service.LiveFeedService] service:
 
 ### Initialisation
 
@@ -55,10 +55,16 @@ Here is an example for using the [**Live Feed**][fr24.core.LiveFeedService] serv
     --8<-- "docs/usage/scripts/01_live_feed_live.py:script"
     ```
 
-=== "`response`"
+=== "`result`"
     
     ```py
-    --8<-- "docs/usage/scripts/01_live_feed_live.py:response"
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:result"
+    ```
+
+=== "`data` (truncated)"
+    
+    ```json
+    --8<-- "docs/usage/scripts/01_live_feed_live.py:data"
     ```
 
 === "`datac.df`"
@@ -79,7 +85,7 @@ When `FR24()` is first initialised, it creates an unauthenticated [HTTPX client]
 
 !!! question "How to pass in my own HTTPX client?"
     
-    To share clients across code, pass it into the [fr24.core.FR24][] constructor.
+    To share clients across code, pass it into the [fr24.FR24][] constructor.
 
     ```py
     --8<-- "docs/usage/scripts/00_introduction.py:client-sharing"
@@ -107,12 +113,12 @@ The `async with` statement ensures that it is properly authenticated by calling 
     --8<-- "docs/usage/scripts/01_live_feed_live.py:df"
     ```
 
-`fr24.live_feed` returns a [LiveFeedService][fr24.core.LiveFeedService], with the following methods:
+`fr24.live_feed` returns a [LiveFeedService][fr24.service.LiveFeedService], with the following methods:
 
 | Method                                                                                        | Return type                    |
 | --------------------------------------------------------------------------------------------- | ------------------------------ |
-| `.fetch` - [asynchronously query the the API for fresh data][fr24.core.LiveFeedService.fetch] | [fr24.core.LiveFeedAPIResp][]  |
-| `.load` - [load a previously cached snapshot from the disk][fr24.core.LiveFeedService.load]   | [fr24.core.LiveFeedArrow][]    |
+| `.fetch` - [asynchronously query the the API for fresh data][fr24.service.LiveFeedService.fetch] | [fr24.service.LiveFeedAPIResp][]  |
+| `.load` - [load a previously cached snapshot from the disk][fr24.service.LiveFeedService.load]   | [fr24.service.LiveFeedArrow][]    |
 
 You can retrieve:
 
@@ -180,12 +186,12 @@ You can always check its exact location using `datac.fp`. In general, where it g
 
 ### Storage Location
 
-- [Live feed][fr24.core.LiveFeedService]
+- [Live feed][fr24.service.LiveFeedService]
     - `feed/{timestamp}.parquet`
-- [Flight list][fr24.core.FlightListService]
+- [Flight list][fr24.service.FlightListService]
     - `flight_list/reg/{reg.upper()}.parquet`, or
     - `flight_list/flight/{iata_flight_num.upper()}.parquet`
-- [Playback][fr24.core.PlaybackService]
+- [Playback][fr24.service.PlaybackService]
     - `playback/{fr24_hex_id.lower()}.parquet`
 
 It should resemble the following on Linux:

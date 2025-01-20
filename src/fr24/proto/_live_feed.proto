@@ -103,5 +103,6 @@ message PlaybackRequest {
 }
 
 message PlaybackResponse {
+    // NOTE: position buffer is not included in the response.
     LiveFeedResponse live_feed_response = 1;
 }

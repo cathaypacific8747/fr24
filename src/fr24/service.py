@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import email.utils
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import (
@@ -8,20 +10,28 @@ from typing import (
     Any,
 )
 
+from google.protobuf.json_format import MessageToDict
+
 from .base import (
     APIResult,
     CacheMixin,
     Fetchable,
     SupportsToDict,
+    SupportsToProto,
 )
-
-# from .grpc import (
-#     live_feed_playback_world_data,
-#     live_feed_world_data,
-# )
+from .grpc import (
+    LiveFeedParams,
+    LiveFeedPlaybackParams,
+    live_feed,
+    live_feed_df,
+    live_feed_parse,
+    live_feed_playback,
+    live_feed_playback_df,
+    live_feed_playback_parse,
+)
 from .json import (
-    FlightListRequest,
-    PlaybackRequest,
+    FlightListParams,
+    PlaybackParams,
     flight_list,
     flight_list_df,
     flight_list_parse,
@@ -30,6 +40,7 @@ from .json import (
     playback_metadata_dict,
     playback_parse,
 )
+from .proto.v1_pb2 import LiveFeedResponse, PlaybackResponse
 from .types import overwrite_args_signature_from
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
@@ -37,28 +48,11 @@ from .types.playback import Playback
 if TYPE_CHECKING:
     from typing import (
         AsyncIterator,
-        Literal,
     )
 
     import polars as pl
 
     from . import HTTPClient
-
-    # from .types.cache import (
-    #     LiveFeed,
-    #     flight_list_schema,
-    #     live_feed_schema,
-    #     playback_track_schema,
-    # )
-    # from .types.core import (
-    #     LiveFeedContext,
-    # )
-    from .types.fr24 import LiveFeedField
-    # from .types.playback import FlightData
-
-
-# NOTE: saving metadata with polars is unfortunately not yet implemented
-# https://github.com/pola-rs/polars/issues/5117
 
 
 @dataclass
@@ -75,33 +69,36 @@ class ServiceFactory:
     def build_live_feed(self) -> LiveFeedService:
         return LiveFeedService(self)
 
+    def build_live_feed_playback(self) -> LiveFeedPlaybackService:
+        return LiveFeedPlaybackService(self)
+
 
 @dataclass(frozen=True)
-class FlightListService(Fetchable[FlightListRequest]):
+class FlightListService(Fetchable[FlightListParams]):
     """Flight list service."""
 
     __factory: ServiceFactory
 
-    @overwrite_args_signature_from(FlightListRequest)
+    @overwrite_args_signature_from(FlightListParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightListResult:
         """
         Fetch the flight list.
         See [fr24.json.FlightListRequest][] for the detailed signature.
         """
-        request = FlightListRequest(*args, **kwargs)
+        request = FlightListParams(*args, **kwargs)
         response = await flight_list(
             self.__factory.http.client,
             request,
             self.__factory.http.auth,
         )
         return FlightListResult(
-            request=FlightListRequest(*args, **kwargs),
+            request=FlightListParams(*args, **kwargs),
             response=response,
             base_dir=self.__factory.base_dir,
         )
 
     @dataclass
-    class FetchAllArgs(FlightListRequest):
+    class FetchAllArgs(FlightListParams):
         """Arguments for fetching all pages of the flight list."""
 
         delay: int = field(default=5)
@@ -113,7 +110,7 @@ class FlightListService(Fetchable[FlightListRequest]):
         """
         Fetch all pages of the flight list.
 
-        See [fr24.core.FlightListService.FetchAllArgs][] for the detailed
+        See [fr24.service.FlightListService.FetchAllArgs][] for the detailed
         signature.
         """
         # TODO: something nasty with async generators is happening here
@@ -153,7 +150,7 @@ class FlightListService(Fetchable[FlightListRequest]):
 
 @dataclass
 class FlightListResult(
-    APIResult[FlightListRequest],
+    APIResult[FlightListParams],
     SupportsToDict[FlightList],
     CacheMixin,
 ):
@@ -226,25 +223,25 @@ class FlightListResultCollection(
 
 
 @dataclass(frozen=True)
-class PlaybackService(Fetchable[PlaybackRequest]):
+class PlaybackService(Fetchable[PlaybackParams]):
     """Playback service."""
 
     __factory: ServiceFactory
 
-    @overwrite_args_signature_from(PlaybackRequest)
+    @overwrite_args_signature_from(PlaybackParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackResult:
         """
         FIXME - add docs
         See [fr24.json.PlaybackRequest][] for the detailed signature.
         """
-        request = PlaybackRequest(*args, **kwargs)
+        params = PlaybackParams(*args, **kwargs)
         response = await playback(
             self.__factory.http.client,
-            request,
+            params,
             self.__factory.http.auth,
         )
         return PlaybackResult(
-            request=PlaybackRequest(*args, **kwargs),
+            request=PlaybackParams(*args, **kwargs),
             response=response,
             base_dir=self.__factory.base_dir,
         )
@@ -259,7 +256,7 @@ class PlaybackService(Fetchable[PlaybackRequest]):
 
 @dataclass
 class PlaybackResult(
-    APIResult[PlaybackRequest],
+    APIResult[PlaybackParams],
     SupportsToDict[Playback],
     CacheMixin,
 ):
@@ -276,224 +273,108 @@ class PlaybackResult(
         return self.base_dir / "playback" / str(self.request.flight_id)
 
 
-# NOTE: putting here temporarily because namespace clash at .grpc.
-@dataclass
-class LiveFeedRequest:
-    timestamp: int | None
-    source: Literal["live", "playback"]
-    # FIXME: below should have defaults
-    duration: int | None
-    hfreq: int | None
-    limit: int | None
-    fields: list[LiveFeedField] | None
-    base_dir: Path
-
-
 @dataclass(frozen=True)
-class LiveFeedService(Fetchable[LiveFeedRequest]):
-    """Playback service."""
+class LiveFeedService(Fetchable[LiveFeedParams]):
+    """Live feed service."""
 
     __factory: ServiceFactory
 
-    @overwrite_args_signature_from(LiveFeedRequest)
+    @overwrite_args_signature_from(LiveFeedParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> LiveFeedResult:
         """
-        Fetch the flight list.
-        See [fr24.grpc.LiveFeedRequest][] for the detailed signature.
+        Fetch the live feed.
+        See [fr24.grpc.LiveFeedParams][] for the detailed signature.
         """
-        request = LiveFeedRequest(*args, **kwargs)
-        response = await playback(  # FIXME
+        params = LiveFeedParams(*args, **kwargs)
+        response = await live_feed(
             self.__factory.http.client,
-            request,
+            params.to_proto(),
             self.__factory.http.auth,
         )
+        # NOTE: serverTimeMs in the protobuf response would be more accurate
+        server_date: str = response.headers.get("date")
+        timestamp = int(
+            email.utils.parsedate_to_datetime(server_date).timestamp()
+            if server_date is not None
+            else time.time()
+        )
         return LiveFeedResult(
-            request=LiveFeedRequest(*args, **kwargs),
+            request=LiveFeedParams(*args, **kwargs),
+            response=response,
+            base_dir=self.__factory.base_dir,
+            timestamp=timestamp,
+        )
+
+
+@dataclass
+class LiveFeedResult(
+    APIResult[LiveFeedParams],
+    SupportsToProto[LiveFeedResponse],
+    SupportsToDict[dict[str, Any]],
+    CacheMixin,
+):
+    base_dir: Path
+    timestamp: int
+
+    def to_proto(self) -> LiveFeedResponse:
+        return live_feed_parse(self.response)
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto())
+
+    def to_polars(self) -> pl.DataFrame:
+        return live_feed_df(self.to_proto())
+
+    @property
+    def file_path(self) -> Path:
+        return self.base_dir / "feed" / str(self.timestamp)
+
+
+@dataclass(frozen=True)
+class LiveFeedPlaybackService(Fetchable[LiveFeedPlaybackParams]):
+    """Live feed service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(LiveFeedPlaybackParams)
+    async def fetch(
+        self, /, *args: Any, **kwargs: Any
+    ) -> LiveFeedPlaybackResult:
+        """
+        Fetch a playback of the live feed.
+        See [fr24.grpc.LiveFeedPlaybackParams][] for the detailed signature.
+        """
+        params = LiveFeedPlaybackParams(*args, **kwargs)
+        response = await live_feed_playback(
+            self.__factory.http.client,
+            params.to_proto(),
+            self.__factory.http.auth,
+        )
+        return LiveFeedPlaybackResult(
+            request=LiveFeedPlaybackParams(*args, **kwargs),
             response=response,
             base_dir=self.__factory.base_dir,
         )
 
 
 @dataclass
-class LiveFeedResult(
-    APIResult[LiveFeedRequest],
-    SupportsToDict[dict[str, Any]],  # FIXME
+class LiveFeedPlaybackResult(
+    APIResult[LiveFeedPlaybackParams],
+    SupportsToProto[PlaybackResponse],
+    SupportsToDict[dict[str, Any]],
     CacheMixin,
 ):
     base_dir: Path
 
-    def to_dict(self) -> dict[str, Any]:  # FIXME
-        return live_feed_parse(self.response)
+    def to_proto(self) -> PlaybackResponse:
+        return live_feed_playback_parse(self.response)
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto())
 
     def to_polars(self) -> pl.DataFrame:
-        return live_feed_df(self.to_dict())
+        return live_feed_playback_df(self.to_proto())
 
     @property
     def file_path(self) -> Path:
         return self.base_dir / "feed" / str(self.request.timestamp)
-
-
-# class LiveFeedAPI:
-#     def __init__(self, http: HTTPClient) -> None:
-#         self.http = http
-
-#     async def _fetch(
-#         self,
-#         ctx: LiveFeedContext,
-#     ) -> list[LiveFeedRecord]:
-#         kw = {
-#             k: v
-#             for k, v in ctx.items()
-#             if k in ("limit", "fields") and v is not None
-#         }
-#         if (ts := ctx["timestamp"]) is not None:
-#             kw.update(
-#                 {
-#                     k: v
-#                     for k, v in ctx.items()
-#                     if k in ("duration", "hfreq") and v is not None
-#                 }
-#             )
-#             return await live_feed_playback_world_data(
-#                 self.http.client,
-#                 ts,
-#                 **kw,  # type: ignore[arg-type]
-#                 auth=self.http.auth,
-#             )
-#         resp = await live_feed_world_data(
-#             self.http.client,
-#             self.http.auth,
-#             **kw,  # type: ignore[arg-type]
-#         )
-#         ctx["timestamp"] = int(time.time())
-#         # TODO: use server time instead, but it doesn't really matter because
-#         # live feed messages have timestamps attached to them anyway
-#         return resp
-
-
-# class LiveFeedArrow(ArrowTable[LiveFeedContext]):
-#     """Arrow table for live feed data."""
-
-#     @classmethod
-#     def from_cache(cls, ctx: LiveFeedContext) -> LiveFeedArrow:
-#         fp = LiveFeedArrow._fp(ctx)
-#         return super(LiveFeedArrow, cls).from_file(ctx, fp, live_feed_schema)
-
-#     @classmethod
-#     def _fp(cls, ctx: LiveFeedContext) -> Path:
-#         ts = ctx["timestamp"]
-#         assert ts is not None, (
-#             "tried to get a cached snapshot of the live feed, but the "
-#             "timestamp was not provided."
-#         )
-#         return ctx["base_dir"] / "feed" / f"{ts}.parquet"
-
-#     @override
-#     def concat(
-#         self, data_new: LiveFeedArrow, inplace: bool = False
-#     ) -> LiveFeedArrow:
-#         raise NotImplementedError(
-#             "live feed data cannot be concatenated together"
-#         )
-
-#     @override
-#     def save(
-#         self,
-#         fp: Path | BinaryIO | None = None,
-#         fmt: Literal["parquet", "csv"] = "parquet",
-#     ) -> Self:
-#         """
-#         Write the table to the given file path or file-like object,
-#         e.g. `./tmp/foo.parquet`, `sys.stdout`.
-
-#         :param fp: File path to save the table to. If `None`, the table will
-#             be saved to the appropriate cache directory.
-
-#         :raises ValueError: If a format other than `parquet` is provided when
-#             saving to cache.
-#         """
-#         if fp is None and fmt != "parquet":
-#             raise ValueError("format must be `parquet` when saving to cache")
-#         super().save(fp if fp is not None else LiveFeedArrow._fp(self.ctx), fmt)
-#         return self
-
-
-# class LiveFeedService(ServiceBase):
-#     """A service to handle the live feed API and file operations."""
-
-#     def __init__(self, http: HTTPClient, base_dir: Path) -> None:
-#         self._http = http
-#         self._base_dir = base_dir
-#         self._api = LiveFeedAPI(http)
-
-#     async def fetch(
-#         self,
-#         timestamp: int | str | datetime | pd.Timestamp | None = None,
-#         *,
-#         duration: int | None = None,
-#         hfreq: int | None = None,
-#         limit: int = 1500,
-#         fields: list[LiveFeedField] = [
-#             "flight",
-#             "reg",
-#             "route",
-#             "type",
-#         ],
-#     ) -> LiveFeedAPIResp:
-#         """
-#         Fetch live feed data.
-
-#         *Related: [fr24.grpc.live_feed_world_data][]*
-
-#         :param timestamp: Unix timestamp (seconds) of the live feed data.
-#             If `None`, the latest live data will be fetched. Otherwise,
-#             historical data will be fetched instead.
-#         :param duration: Prefetch duration (default: `7` seconds). Should only
-#             be set for historical data.
-#         :param hfreq: High frequency mode (default: `0`). Should only be set
-#             for historical data.
-#         :param limit: Max number of flights (default 1500 for unauthenticated
-#             users, 2000 for authenticated users)
-#         :param fields: fields to include - for unauthenticated users, max 4
-#             fields. When authenticated, `squawk`, `vspeed`, `airspace`,
-#             `logo_id` and `age` can be included
-#         """
-#         ctx = self._construct_ctx(timestamp, duration, hfreq, limit, fields)
-#         return LiveFeedAPIResp(ctx, await self._api._fetch(ctx))
-
-#     def load(
-#         self,
-#         timestamp: int | str | datetime | pd.Timestamp,
-#     ) -> LiveFeedArrow:
-#         """
-#         Get live feed data from the
-#         [cache](../usage/cli.md#directories). If the file does not exist,
-#         an empty table will be returned.
-
-#         :param timestamp: Unix timestamp (seconds) of the saved feed snapshot.
-#         """
-#         ctx = self._construct_ctx(timestamp, None, None, None, None)
-#         return LiveFeedArrow.from_cache(ctx)
-
-#     def _construct_ctx(
-#         self,
-#         timestamp: int | str | datetime | pd.Timestamp | None,
-#         duration: int | None,
-#         hfreq: int | None,
-#         limit: int | None,
-#         fields: list[LiveFeedField] | None,
-#     ) -> LiveFeedContext:
-#         ts = to_unix_timestamp(timestamp)
-#         if ts is None and (hfreq is not None or duration is not None):
-#             raise ValueError(
-#                 "`hfreq` and `duration` can only be set for historical data."
-#             )
-#         return {
-#             "timestamp": ts,
-#             "source": "live" if ts is None else "playback",
-#             "duration": duration,
-#             "hfreq": hfreq,
-#             "limit": limit,
-#             "fields": fields,
-#             "base_dir": self._base_dir,
-#         }

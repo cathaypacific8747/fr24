@@ -59,12 +59,16 @@ class FR24:
         self.__base_dir = Path(base_dir)
 
         factory = ServiceFactory(self.http, self.base_dir)
+        # json
         self.flight_list = factory.build_flight_list()
         """Flight list service."""
         self.playback = factory.build_playback()
         """Playback service."""
+        # gRPC
         self.live_feed = factory.build_live_feed()
         """Live feed service."""
+        self.live_feed_playback = factory.build_live_feed_playback()
+        """Live feed playback service."""
 
     async def login(
         self,

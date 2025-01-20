@@ -384,7 +384,9 @@ class PlaybackResponse(Message):
 
     LIVE_FEED_RESPONSE_FIELD_NUMBER: int
     @property
-    def live_feed_response(self) -> LiveFeedResponse: ...
+    def live_feed_response(self) -> LiveFeedResponse:
+        """NOTE: position buffer is not included in the response."""
+
     def __init__(
         self,
         *,

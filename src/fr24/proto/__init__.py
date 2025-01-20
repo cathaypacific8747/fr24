@@ -1,14 +1,24 @@
 """
-Helper functions for the gRPC protocol.
+Helper functions for the gRPC+protobuf protocol.
 For more information, see: https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
 """
-
+from __future__ import annotations
 from typing import Type, TypeVar
 import struct
 
 from google.protobuf.message import Message
+from ..base import SupportsToProto
 
 T = TypeVar("T", bound=Message)
+
+# similar to impl Into<Proto>
+def to_proto(message_like: SupportsToProto[T] | T) -> T:
+    return (
+        message_like.to_proto()
+        if isinstance(message_like, SupportsToProto)
+        else message_like
+    )
+
 
 def encode_message(msg: T) -> bytes:
     msg_bytes = msg.SerializeToString()
