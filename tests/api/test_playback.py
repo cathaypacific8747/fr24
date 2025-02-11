@@ -31,17 +31,16 @@ async def test_playback_file_ops(fr24: FR24) -> None:
 
     result = await fr24.playback.fetch(flight_id=FLIGHT_ID)
 
-    df = result.to_polars()
-
     fp = (
         fr24.base_dir / "playback" / f"{format(FLIGHT_ID, 'x').lower()}.parquet"
     )
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)
-    result.save()
+    result.save(fp)
     assert fp.exists()
 
-    datac_local = fr24.playback.load(flight_id=FLIGHT_ID)
+    df = result.to_polars()
+    datac_local = fr24.playback.load(flight_id=FLIGHT_ID)  # FIXME
     assert datac_local.data.num_rows == df.height
     assert datac_local.data.equals(df)
 

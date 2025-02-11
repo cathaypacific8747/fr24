@@ -9,8 +9,6 @@ instead, we should use a dynamic bounding box that will change every 30 minutes
 to reduce the number of requests
 """
 
-from typing import NamedTuple
-
 # ruff: noqa: E501
 # fmt: off
 LNGS_WORLD_STATIC = [
@@ -74,24 +72,3 @@ Dynamic bounds every 30 minutes, 0 = 00:00UTC
 this is tuned on 2023-06-15: each slice should contain 1000 flights.
 """
 # fmt: on
-
-
-class BoundingBox(NamedTuple):
-    south: float
-    """Latitude, minimum, degrees"""
-    north: float
-    """Latitude, maximum, degrees"""
-    west: float
-    """Longitude, minimum, degrees"""
-    east: float
-    """Longitude, maximum, degrees"""
-
-
-BBOXES_WORLD_STATIC = [
-    BoundingBox(-90, 90, LNGS_WORLD_STATIC[i], LNGS_WORLD_STATIC[i + 1])
-    for i in range(len(LNGS_WORLD_STATIC) - 1)
-]
-"""Default static bounding boxes covering the world"""
-
-BBOX_FRANCE_UIR = BoundingBox(42, 52, -8, 10)
-"""France UIR"""

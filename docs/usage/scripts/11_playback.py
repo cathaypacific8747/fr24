@@ -72,6 +72,7 @@ async def my_playback() -> None:
         result = await fr24.playback.fetch(0x2FB3041)
         result.save()  # (1)!
         # some time later...
+        # FIXME
         df_local = fr24.playback.load(0x2FB3041)  # (2)!
         print(df_local)
         rich.print(df_local.metadata)

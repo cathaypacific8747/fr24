@@ -4,18 +4,18 @@ repo_name: cathaypacific8747/fr24
 repo_url: https://github.com/cathaypacific8747/fr24
 site_url: https://cathaypacific8747.github.io/fr24/
 nav:
-  - Home: 'index.md'
+  - Home: "index.md"
   - Usage:
-    - CLI: 'usage/cli.md'
-    - Library Quickstart: 'usage/quickstart.md'
-    - Example Gallery: 'usage/examples.md'
-    - Authentication: 'usage/authentication.md'
+      - CLI: "usage/cli.md"
+      - Library Quickstart: "usage/quickstart.md"
+      - Example Gallery: "usage/examples.md"
+      - Authentication: "usage/authentication.md"
   - API Reference:
-    - Core: 'api/core.md'
-    - Functions: 'api/functions.md'
-    - Types: 'api/types.md'
-    - Base Classes: 'api/base.md'
-    - Protobuf Definitions: 'api/protobuf.md'
+      - Core: "api/core.md"
+      - Functions: "api/functions.md"
+      - Types: "api/types.md"
+      - Base Classes: "api/base.md"
+      - Protobuf Definitions: "api/protobuf.md"
 
 theme:
   name: material
@@ -23,9 +23,9 @@ theme:
     - search.suggest
     - search.highlight
     - content.code.copy
-    - content.code.annotate 
+    - content.code.annotate
     - navigation.expand
-  palette: 
+  palette:
     - scheme: default
       toggle:
         icon: material/brightness-7
@@ -44,7 +44,7 @@ plugins:
       handlers:
         python:
           paths: [src]
-          import:
+          inventories:
             - https://docs.python.org/3/objects.inv
             - http://pandas.pydata.org/pandas-docs/stable/objects.inv
             - https://numpy.org/doc/stable/objects.inv
@@ -66,35 +66,35 @@ plugins:
             docstring_style: sphinx
       enable_inventory: true
 markdown_extensions:
-- abbr
-- attr_list
-- admonition
-- footnotes
-- md_in_html
-- pymdownx.blocks.admonition
-- pymdownx.blocks.details
-- pymdownx.blocks.tab:
-    alternate_style: true
-    slugify: !!python/object/apply:pymdownx.slugs.slugify
-      kwds:
-        case: lower
-- pymdownx.tilde
-- pymdownx.emoji:
-    emoji_index: !!python/name:material.extensions.emoji.twemoji
-    emoji_generator: !!python/name:material.extensions.emoji.to_svg
-- pymdownx.highlight:
-    pygments_lang_class: true
-- pymdownx.inlinehilite:
-    style_plain_text: py3
-- pymdownx.magiclink
-- pymdownx.snippets
-- pymdownx.superfences
-- pymdownx.tabbed:
-    alternate_style: true
-    slugify: !!python/object/apply:pymdownx.slugs.slugify
-      kwds:
-        case: lower
-- pymdownx.tasklist:
-    custom_checkbox: true
-- toc:
-    permalink: "¤"
+  - abbr
+  - attr_list
+  - admonition
+  - footnotes
+  - md_in_html
+  - pymdownx.blocks.admonition
+  - pymdownx.blocks.details
+  - pymdownx.blocks.tab:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tilde
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      pygments_lang_class: true
+  - pymdownx.inlinehilite:
+      style_plain_text: py3
+  - pymdownx.magiclink
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: "¤"

@@ -16,10 +16,9 @@ Methods:
 
 from __future__ import annotations
 
-import asyncio
 import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Union, overload
+from typing import TYPE_CHECKING, NamedTuple, Union, overload
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -54,13 +53,12 @@ from .proto.v1_pb2 import (
     TrafficType,
     VisibilitySettings,
 )
-from .static.bbox import BBOX_FRANCE_UIR, BoundingBox
+from .static.bbox import LNGS_WORLD_STATIC
 
 if TYPE_CHECKING:
     from typing import (
         Annotated,
         AsyncGenerator,
-        Iterable,
         Type,
     )
 
@@ -155,6 +153,27 @@ def live_feed_request_create(
     return construct_request("LiveFeed", to_proto(message_like), auth)
 
 
+class BoundingBox(NamedTuple):
+    south: float
+    """Latitude, minimum, degrees"""
+    north: float
+    """Latitude, maximum, degrees"""
+    west: float
+    """Longitude, minimum, degrees"""
+    east: float
+    """Longitude, maximum, degrees"""
+
+
+BBOXES_WORLD_STATIC = [
+    BoundingBox(-90, 90, LNGS_WORLD_STATIC[i], LNGS_WORLD_STATIC[i + 1])
+    for i in range(len(LNGS_WORLD_STATIC) - 1)
+]
+"""Default static bounding boxes covering the entire world"""
+
+BBOX_FRANCE_UIR = BoundingBox(42, 52, -8, 10)
+"""Bounding box for france UIR"""
+
+
 @dataclass
 class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
     bounding_box: BoundingBox = BBOX_FRANCE_UIR
@@ -209,19 +228,6 @@ async def live_feed(
 ) -> Annotated[httpx.Response, LiveFeedResponse]:
     response = await client.send(live_feed_request_create(message_like, auth))
     return response
-
-
-async def live_feed_batched(
-    client: httpx.AsyncClient,
-    message_like_iterable: Iterable[LiveFeedRequestLike],
-    auth: None | Authentication = None,
-) -> list[Annotated[httpx.Response, LiveFeedResponse] | BaseException]:
-    tasks = (
-        client.send(live_feed_request_create(p, auth))
-        for p in message_like_iterable
-    )
-    responses = await asyncio.gather(*tasks, return_exceptions=True)
-    return responses
 
 
 def live_feed_parse(
@@ -287,18 +293,6 @@ def live_feed_df(
 #
 
 
-PlaybackRequestLike: TypeAlias = Union[
-    SupportsToProto[PlaybackRequest], PlaybackRequest
-]
-
-
-def live_feed_playback_request_create(
-    message_like: PlaybackRequestLike,
-    auth: None | Authentication = None,
-) -> httpx.Request:
-    return construct_request("Playback", to_proto(message_like), auth)
-
-
 # TODO: refactor to allow more flexible timestamps
 # NOTE: composition would be better,
 # but we want a flat structure in the service API and avoid rewriting __init__
@@ -315,8 +309,8 @@ class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
     hfreq: int | None = None
     """High frequency mode"""
 
-    @override  # type: ignore
-    def to_proto(self) -> PlaybackRequest:
+    @override
+    def to_proto(self) -> PlaybackRequest:  # type: ignore
         timestamp = self.timestamp or (int(time.time()) - self.duration)
         return PlaybackRequest(
             live_feed_request=super().to_proto(),
@@ -326,36 +320,27 @@ class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
         )
 
 
+PlaybackRequestLike: TypeAlias = Union[
+    SupportsToProto[PlaybackRequest], PlaybackRequest, LiveFeedPlaybackParams
+]
+
+
+def live_feed_playback_request_create(
+    message_like: PlaybackRequestLike,
+    auth: None | Authentication = None,
+) -> httpx.Request:
+    return construct_request("Playback", to_proto(message_like), auth)
+
+
 async def live_feed_playback(
     client: httpx.AsyncClient,
     message_like: PlaybackRequestLike,
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, LiveFeedResponse]:
     response = await client.send(
-        live_feed_playback_request_create(
-            message_like,
-            auth,
-        )
+        live_feed_playback_request_create(message_like, auth)
     )
     return response
-
-
-async def live_feed_playback_batched(
-    client: httpx.AsyncClient,
-    message_like_iterable: Iterable[PlaybackRequestLike],
-    auth: None | Authentication = None,
-) -> list[Annotated[httpx.Response, LiveFeedResponse] | BaseException]:
-    tasks = (
-        client.send(
-            live_feed_playback_request_create(
-                m,
-                auth,
-            )
-        )
-        for m in message_like_iterable
-    )
-    responses = await asyncio.gather(*tasks, return_exceptions=True)
-    return responses
 
 
 def live_feed_playback_parse(

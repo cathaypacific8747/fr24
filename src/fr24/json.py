@@ -188,7 +188,7 @@ async def airport_list(
         "GET",
         "https://api.flightradar24.com/common/v1/airport.json",
         headers=headers,
-        params=params,  # type: ignore
+        params=request_data,  # type: ignore
     )
 
     response = await client.send(request)
@@ -245,7 +245,7 @@ async def playback(
         "GET",
         "https://api.flightradar24.com/common/v1/flight-playback.json",
         headers=headers,
-        params=params,  # type: ignore[arg-type]
+        params=request_data,  # type: ignore
     )
 
     response = await client.send(request)

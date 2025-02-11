@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 import httpx
@@ -6,18 +7,21 @@ from google.protobuf.json_format import MessageToDict
 
 from fr24 import FR24
 from fr24.grpc import (
+    BBOX_FRANCE_UIR,
+    BBOXES_WORLD_STATIC,
     BoundingBox,
     LiveFeedParams,
+    LiveFeedPlaybackParams,
     live_feed,
     live_feed_parse,
+    live_feed_playback,
 )
+from fr24.proto.v1_pb2 import Flight
 
 
 @pytest.mark.anyio
 async def test_ll_live_feed_simple(client: httpx.AsyncClient) -> None:
-    params = LiveFeedParams(
-        bounding_box=BoundingBox(north=50, west=-7, south=40, east=10)
-    )
+    params = LiveFeedParams(bounding_box=BBOX_FRANCE_UIR)
     response = await live_feed(client, params)
     data = live_feed_parse(response)
 
@@ -31,14 +35,32 @@ async def test_ll_live_feed_simple(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_ll_live_feed_world(client: httpx.AsyncClient) -> None:
-    data = await live_feed_world_data(client)
-    assert len(data) > 100
+    async def get_data(bbox: BoundingBox) -> list[Flight]:
+        params = LiveFeedParams(bounding_box=bbox)
+        response = await live_feed(client, params)
+        data = live_feed_parse(response)
+        return list(data.flights_list)
+
+    tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]
+    flightss = await asyncio.gather(*tasks)
+    assert all(len(f) > 0 for f in flightss)
+    assert len([f for flights in flightss for f in flights]) > 100
 
 
 @pytest.mark.anyio
 async def test_ll_live_feed_playback_world(client: httpx.AsyncClient) -> None:
-    data = await live_feed_playback_world_data(client, int(time.time() - 86400))
-    assert len(data) > 100
+    timestamp = int(time.time() - 86400)
+
+    async def get_data(bbox: BoundingBox) -> list[Flight]:
+        params = LiveFeedPlaybackParams(bounding_box=bbox, timestamp=timestamp)
+        response = await live_feed_playback(client, params)
+        data = live_feed_parse(response)
+        return list(data.flights_list)
+
+    tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]
+    flightss = await asyncio.gather(*tasks)
+    assert all(len(f) > 0 for f in flightss)
+    assert len([f for flights in flightss for f in flights]) > 100
 
 
 # core tests
@@ -67,6 +89,6 @@ async def test_live_feed_file_ops(fr24: FR24) -> None:
     result = await fr24.live_feed.fetch()
     result.save()
 
-    result_local = fr24.live_feed.load(result.timestamp)
+    result_local = fr24.live_feed.load(result.timestamp)  # FIXME
     assert result_local.to_polars() == result.to_polars()
     # assert datac_local.data.schema.metadata == datac.data.schema.metadata
