@@ -7,7 +7,7 @@ from typing import Type, TypeVar
 import struct
 
 from google.protobuf.message import Message
-from ..base import SupportsToProto
+from ..utils import SupportsToProto
 
 T = TypeVar("T", bound=Message)
 

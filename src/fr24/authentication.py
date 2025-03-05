@@ -10,7 +10,7 @@ from typing import Literal
 
 import httpx
 
-from . import FP_CONFIG_FILE
+from .configuration import FP_CONFIG_FILE
 from .logging import logger
 from .types.authentication import (
     Authentication,

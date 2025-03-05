@@ -11,7 +11,9 @@ import typer
 from loguru import logger
 from rich.console import Console
 
-from . import FP_CONFIG_FILE, FR24, PATH_CACHE, PATH_CONFIG
+from . import FR24
+from .cache import PATH_CACHE
+from .configuration import FP_CONFIG_FILE, PATH_CONFIG
 from .service import (
     FlightListResult,
     LiveFeedPlaybackResult,

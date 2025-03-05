@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Protocol, TypeVar
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal, Protocol, TypeVar
 
+from google.protobuf.message import Message
 from typing_extensions import runtime_checkable
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from typing import IO, Any
 
     import polars as pl
-    from google.protobuf.message import Message
-    from typing_extensions import Literal, TypeAlias
+    from typing_extensions import TypeAlias
 
     import pandas as pd
 

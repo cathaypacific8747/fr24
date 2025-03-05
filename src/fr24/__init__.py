@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import httpx
-from appdirs import user_cache_dir, user_config_dir
 
 from .authentication import login
 from .cache import Cache
+from .configuration import FP_CONFIG_FILE, PATH_CONFIG
 from .service import ServiceFactory
 
 if TYPE_CHECKING:
@@ -22,17 +20,6 @@ if TYPE_CHECKING:
         TokenSubscriptionKey,
         UsernamePassword,
     )
-
-
-PATH_CACHE = Path(user_cache_dir("fr24"))
-if cache_path := os.environ.get("XDG_CACHE_HOME"):
-    PATH_CACHE = Path(cache_path) / "fr24"
-
-PATH_CONFIG = Path(user_config_dir("fr24"))
-if config_path := os.environ.get("XDG_CONFIG_HOME"):
-    PATH_CONFIG = Path(config_path) / "fr24"
-
-FP_CONFIG_FILE = PATH_CONFIG / "fr24.conf"
 
 
 class FR24:
