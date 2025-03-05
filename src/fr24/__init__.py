@@ -9,6 +9,7 @@ import httpx
 from appdirs import user_cache_dir, user_config_dir
 
 from .authentication import login
+from .cache import Cache
 from .service import ServiceFactory
 
 if TYPE_CHECKING:
@@ -38,8 +39,6 @@ class FR24:
     def __init__(
         self,
         client: httpx.AsyncClient | None = None,
-        *,
-        base_dir: Path | str = PATH_CACHE,
     ) -> None:
         """
         See docs [quickstart](../usage/quickstart.md#initialisation).
@@ -56,9 +55,8 @@ class FR24:
             httpx.AsyncClient(http2=True) if client is None else client
         )
         """The HTTP client for use in requests"""
-        self.__base_dir = Path(base_dir)
 
-        factory = ServiceFactory(self.http, self.base_dir)
+        factory = ServiceFactory(self.http)
         # json
         self.flight_list = factory.build_flight_list()
         """Flight list service."""
@@ -82,11 +80,6 @@ class FR24:
             provide the credentials directly.
         """
         await self.http._login(creds)
-
-    @property
-    def base_dir(self) -> Path:
-        """The [cache directory](../usage/cli.md#directories)."""
-        return self.__base_dir
 
     async def __aenter__(self) -> Self:
         await self.http.__aenter__()
@@ -117,3 +110,13 @@ class HTTPClient:
     async def __aexit__(self, *args: Any) -> None:
         if self.client is not None:
             await self.client.aclose()
+
+
+__all__ = [
+    "FP_CONFIG_FILE",
+    "FR24",
+    "PATH_CACHE",
+    "PATH_CONFIG",
+    "Cache",
+    "HTTPClient",
+]

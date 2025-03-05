@@ -6,19 +6,18 @@ import json
 import os
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Literal
 
 import httpx
-from appdirs import user_config_dir
 
-from .common import DEFAULT_HEADERS
+from . import FP_CONFIG_FILE
 from .logging import logger
 from .types.authentication import (
     Authentication,
     TokenSubscriptionKey,
     UsernamePassword,
 )
+from .utils import DEFAULT_HEADERS
 
 
 def get_credentials() -> TokenSubscriptionKey | UsernamePassword | None:
@@ -31,9 +30,9 @@ def get_credentials() -> TokenSubscriptionKey | UsernamePassword | None:
     subscription_key = os.environ.get("fr24_subscription_key", None)
     token = os.environ.get("fr24_token", None)
 
-    if (config_file := (Path(user_config_dir("fr24")) / "fr24.conf")).exists():
+    if FP_CONFIG_FILE.exists():
         config = configparser.ConfigParser()
-        config.read(config_file.as_posix())
+        config.read(FP_CONFIG_FILE.as_posix())
 
         username = config.get("global", "username", fallback=None)
         password = config.get("global", "password", fallback=None)

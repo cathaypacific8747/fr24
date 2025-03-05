@@ -24,7 +24,6 @@ import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
 from typing_extensions import override
 
-from .base import SupportsToProto
 from .proto import T, encode_message, parse_data, to_proto
 from .proto.headers import get_headers
 from .proto.v1_pb2 import (
@@ -54,6 +53,7 @@ from .proto.v1_pb2 import (
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
+from .utils import SupportsToProto
 
 if TYPE_CHECKING:
     from typing import (

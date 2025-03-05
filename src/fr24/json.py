@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast
 import httpx
 import polars as pl
 
-from .common import DEFAULT_HEADERS, to_unix_timestamp
 from .logging import logger
 from .types.airport_list import AirportList
 from .types.cache import flight_list_schema, playback_track_schema
 from .types.find import Find
 from .types.flight_list import FlightList
 from .types.playback import Playback
+from .utils import DEFAULT_HEADERS, to_unix_timestamp
 
 if TYPE_CHECKING:
     from typing import Annotated, Any, Literal

@@ -1,7 +1,7 @@
 import httpx
 
-from ..common import DEFAULT_HEADERS
 from ..types.static import AircraftFamily, Airlines, Airports, Countries
+from ..utils import DEFAULT_HEADERS
 
 DEFAULT_HEADERS_STATIC = {
     **DEFAULT_HEADERS,

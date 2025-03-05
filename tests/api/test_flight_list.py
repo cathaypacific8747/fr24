@@ -9,7 +9,7 @@ import polars as pl
 import pytest
 from pydantic import ConfigDict, TypeAdapter
 
-from fr24 import FR24
+from fr24 import FR24, Cache
 from fr24.json import (
     FlightListParams,
     PlaybackParams,
@@ -18,7 +18,6 @@ from fr24.json import (
     flight_list_parse,
     playback,
 )
-from fr24.service import FlightListResult
 from fr24.types.flight_list import FlightList
 
 REG = "F-HEPK"
@@ -138,7 +137,7 @@ async def test_flight_list_reg_concat(fr24: FR24) -> None:
 
 
 @pytest.mark.anyio
-async def test_flight_list_reg_file_ops(fr24: FR24) -> None:
+async def test_flight_list_reg_file_ops(fr24: FR24, cache: Cache) -> None:
     """
     check that saving and reopening in a new instance yields the same rows
     test that auto-detect directory and specified directory saving works
@@ -148,10 +147,10 @@ async def test_flight_list_reg_file_ops(fr24: FR24) -> None:
     df = result.to_polars()
     curr_rows = df.height
 
-    def test_ok(fp: Path, save: Callable[[], FlightListResult]) -> None:
+    def test_ok(fp: Path, save: Callable[[], None]) -> None:
         fp.parent.mkdir(parents=True, exist_ok=True)
         fp.unlink(missing_ok=True)
-        _ = save()
+        save()
         assert fp.exists()
 
         df = pl.read_parquet(fp)
@@ -159,10 +158,10 @@ async def test_flight_list_reg_file_ops(fr24: FR24) -> None:
         fp.unlink()
 
     specific_fp = Path(__file__).parent / "tmp" / "flight_list.parquet"
-    test_ok(specific_fp, lambda: result.save(specific_fp))
+    test_ok(specific_fp, lambda: result.write(specific_fp))
     specific_fp.parent.rmdir()
 
     test_ok(
-        fr24.base_dir / "flight_list" / "reg" / f"{REG.upper()}.parquet",
-        lambda: result.save(),
+        cache.base_dir / "flight_list" / "reg" / f"{REG.upper()}.parquet",
+        lambda: result.write(cache),
     )

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import secrets
-from ..common import DEFAULT_HEADERS
+from ..utils import DEFAULT_HEADERS
 
-from ..authentication import Authentication
+from ..types.authentication import Authentication
 
 DEFAULT_HEADERS_GRPC = {
     **DEFAULT_HEADERS,

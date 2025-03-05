@@ -3,13 +3,13 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 #%%
 # --8<-- [start:script0]
-from fr24 import FR24
+from fr24 import FR24, Cache
 
 async def my_list() -> None:
     async with FR24() as fr24:
         result = await fr24.flight_list.fetch(reg="B-LRA")
         print(result.to_polars())
-        result.save()
+        result.write(Cache.default())
 
 await my_list()
 # --8<-- [end:script0]
@@ -56,7 +56,7 @@ shape: (10, 15)
 """
 # %%
 # --8<-- [start:script1]
-from fr24 import FR24
+from fr24 import FR24, Cache
 
 async def my_full_list() -> None:
     async with FR24() as fr24:
@@ -65,7 +65,7 @@ async def my_full_list() -> None:
             results.append(result)  # (2)!
             if input() == "x":
                 break
-            results.save()
+            results.write(Cache.default())
         print(results.to_polars())
 
 await my_full_list()

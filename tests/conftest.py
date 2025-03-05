@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 import httpx
 import pytest
 
-from fr24 import FR24
+from fr24 import FR24, Cache
 
 
 @pytest.fixture(scope="session")
@@ -20,6 +20,13 @@ async def client() -> AsyncGenerator[httpx.AsyncClient, None]:
 
 
 @pytest.fixture(scope="session", autouse=True)
+def cache() -> Cache:
+    base_dir = Path(tempfile.gettempdir()) / "fr24"
+    cache = Cache(base_dir)
+    return cache
+
+
+@pytest.fixture(scope="session", autouse=True)
 async def fr24() -> AsyncGenerator[FR24, None]:
-    async with FR24(base_dir=Path(tempfile.gettempdir()) / "fr24") as fr24:
+    async with FR24() as fr24:
         yield fr24

@@ -3,14 +3,14 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script]
-from fr24 import FR24
+from fr24 import FR24, Cache
 
 async def my_feed() -> None:
     async with FR24() as fr24:
         result = await fr24.live_feed.fetch()
         data = result.to_dict()
         df = result.to_polars()
-        result.save()
+        result.write(Cache.default())
 
 await my_feed()
 # --8<-- [end:script]
@@ -20,7 +20,9 @@ from fr24 import FR24
 
 async def my_feed() -> None:
     async with FR24() as fr24:
-        datac = fr24.live_feed.load(1733036597) # FIXME
+        # FIXME
+        # datac = fr24.live_feed.load(1733036597)
+        pass
 
 await my_feed()
 # --8<-- [end:script2]

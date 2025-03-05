@@ -12,7 +12,6 @@ from loguru import logger
 from rich.console import Console
 
 from . import FP_CONFIG_FILE, FR24, PATH_CACHE, PATH_CONFIG
-from .common import to_unix_timestamp
 from .service import (
     FlightListResult,
     LiveFeedPlaybackResult,
@@ -20,6 +19,7 @@ from .service import (
     PlaybackResult,
 )
 from .tui.tui import main as tui_main
+from .utils import to_unix_timestamp
 
 app = typer.Typer(no_args_is_help=True)
 logger.configure(handlers=[{"sink": sys.stderr, "level": "INFO"}])
@@ -112,12 +112,12 @@ def get_success_message(
     fp: Path | IO[bytes] | None,
     action: Literal["added", "wrote"] = "wrote",
 ) -> str:
-    fp = fp or result.file_path
     df = result.to_polars()
     num_rows = df.height
     return (
         "[bold green]success[/bold green]: "
-        f"{action} {num_rows} rows to {fp}.\n"
+        f"{action} {num_rows} rows to {fp or 'cache'}.\n"
+        # FIXME: find a better way to compute the cached filepath
         "Preview:\n"
         f"{df.head()}"
     )
@@ -190,7 +190,7 @@ def feed(
                 result = await fr24.live_feed_playback.fetch(
                     timestamp=to_unix_timestamp(timestamp)
                 )
-            result.save(fp, format=format)  # type: ignore[arg-type]
+            result.write(fp, format=format)  # type: ignore[arg-type]
             console.print(get_success_message(result, fp))
 
     asyncio.run(feed_())
@@ -237,7 +237,7 @@ def flight_list(
                     reg=reg, flight=flight, timestamp=timestamp
                 ):
                     results.append(result)
-                    results.save(fp, format=format)  # type: ignore[arg-type]
+                    results.write(fp, format=format)  # type: ignore[arg-type]
                     console.print(
                         get_success_message(result, fp, action="added")
                     )
@@ -246,7 +246,7 @@ def flight_list(
                 result = await fr24.flight_list.fetch(
                     reg=reg, flight=flight, timestamp=timestamp
                 )
-                result.save(fp, format=format)  # type: ignore[arg-type]
+                result.write(fp, format=format)  # type: ignore[arg-type]
                 console.print(get_success_message(result, fp))
 
     asyncio.run(flight_list_())
@@ -280,7 +280,7 @@ def playback(
             result = await fr24.playback.fetch(
                 flight_id=flight_id, timestamp=timestamp
             )
-            result.save(fp, format=format)  # type: ignore[arg-type]
+            result.write(fp, format=format)  # type: ignore[arg-type]
             console.print(get_success_message(result, fp))
 
     asyncio.run(playback_())

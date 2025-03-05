@@ -8,17 +8,24 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
+    Generic,
+    Protocol,
+    TypeVar,
 )
 
 from google.protobuf.json_format import MessageToDict
+from typing_extensions import runtime_checkable
 
-from .base import (
-    APIResult,
-    CacheMixin,
-    Fetchable,
-    SupportsToDict,
-    SupportsToProto,
-)
+from .utils import SupportsToDict, SupportsToPolars, SupportsToProto
+
+if TYPE_CHECKING:
+    from typing import IO, Any
+
+    import httpx
+    import polars as pl
+
+    from .cache import Cache
+
 from .grpc import (
     LiveFeedParams,
     LiveFeedPlaybackParams,
@@ -44,21 +51,27 @@ from .proto.v1_pb2 import LiveFeedResponse, PlaybackResponse
 from .types import overwrite_args_signature_from
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
+from .utils import BarePath, write_table
 
 if TYPE_CHECKING:
-    from typing import (
-        AsyncIterator,
-    )
+    from pathlib import Path
+    from typing import IO, AsyncIterator
 
     import polars as pl
 
     from . import HTTPClient
+    from .cache import Cache
+    from .utils import SupportedFormats
+
+
+#
+# important traits and dataclasses
+#
 
 
 @dataclass
 class ServiceFactory:
     http: HTTPClient
-    base_dir: Path
 
     def build_flight_list(self) -> FlightListService:
         return FlightListService(self)
@@ -73,8 +86,37 @@ class ServiceFactory:
         return LiveFeedPlaybackService(self)
 
 
+RequestT = TypeVar("RequestT")
+"""Arguments for the request"""
+
+
+@runtime_checkable
+class SupportsFetch(Protocol[RequestT]):
+    async def fetch(self, *args: Any, **kwargs: Any) -> APIResult[RequestT]:
+        """Fetches data from the API."""
+
+
+@dataclass
+class APIResult(Generic[RequestT]):
+    """Wraps raw bytes with context."""
+
+    request: RequestT
+    response: httpx.Response
+
+
+@runtime_checkable
+class SupportsWrite(Protocol):
+    def write(self, file: Path | IO[bytes] | Cache) -> None:
+        """Writes the object to the given file path."""
+
+
+#
+# definitions for services and results
+#
+
+
 @dataclass(frozen=True)
-class FlightListService(Fetchable[FlightListParams]):
+class FlightListService(SupportsFetch[FlightListParams]):
     """Flight list service."""
 
     __factory: ServiceFactory
@@ -94,7 +136,6 @@ class FlightListService(Fetchable[FlightListParams]):
         return FlightListResult(
             request=FlightListParams(*args, **kwargs),
             response=response,
-            base_dir=self.__factory.base_dir,
         )
 
     @dataclass
@@ -152,29 +193,35 @@ class FlightListService(Fetchable[FlightListParams]):
 class FlightListResult(
     APIResult[FlightListParams],
     SupportsToDict[FlightList],
-    CacheMixin,
+    SupportsToPolars,
+    SupportsWrite,
 ):
-    base_dir: Path
-
     def to_dict(self) -> FlightList:
         return flight_list_parse(self.response)
 
     def to_polars(self) -> pl.DataFrame:
         return flight_list_df(self.to_dict())
 
-    @property
-    def file_path(self) -> Path:
-        return (
-            self.base_dir
-            / "flight_list"
-            / self.request.kind
-            / f"{self.request.ident.upper()}"
-        )
+    def write(
+        self,
+        file: Path | IO[bytes] | Cache,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, Cache):
+            file = BarePath(
+                file._flight_list_path(self.request.kind)
+                / self.request.ident.upper()
+            )
+        write_table(self, file, format=format)
 
 
 @dataclass
 class FlightListResultCollection(
-    list[FlightListResult], SupportsToDict[FlightList], CacheMixin
+    list[FlightListResult],
+    SupportsToDict[FlightList],
+    SupportsToPolars,
+    SupportsWrite,
 ):
     """A list of results from the flight list API."""
 
@@ -212,18 +259,27 @@ class FlightListResultCollection(
     def to_polars(self) -> pl.DataFrame:
         return flight_list_df(self.to_dict())
 
-    @property
-    def file_path(self) -> Path:
-        if len(self) == 0:
+    def write(
+        self,
+        file: Path | IO[bytes] | Cache,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if not self:
             raise ValueError(
                 "cannot save an empty flight list, "
                 "must contain at least one valid flight list response"
             )
-        return self[0].file_path
+        if isinstance(file, Cache):
+            file = BarePath(
+                file._flight_list_path(self[0].request.kind)
+                / self[0].request.ident.upper()
+            )
+        write_table(self, file, format=format)
 
 
 @dataclass(frozen=True)
-class PlaybackService(Fetchable[PlaybackParams]):
+class PlaybackService(SupportsFetch[PlaybackParams]):
     """Playback service."""
 
     __factory: ServiceFactory
@@ -243,7 +299,6 @@ class PlaybackService(Fetchable[PlaybackParams]):
         return PlaybackResult(
             request=PlaybackParams(*args, **kwargs),
             response=response,
-            base_dir=self.__factory.base_dir,
         )
 
     @classmethod
@@ -258,23 +313,28 @@ class PlaybackService(Fetchable[PlaybackParams]):
 class PlaybackResult(
     APIResult[PlaybackParams],
     SupportsToDict[Playback],
-    CacheMixin,
+    SupportsToPolars,
+    SupportsWrite,
 ):
-    base_dir: Path
-
     def to_dict(self) -> Playback:
         return playback_parse(self.response)
 
     def to_polars(self) -> pl.DataFrame:
         return playback_df(self.to_dict())
 
-    @property
-    def file_path(self) -> Path:
-        return self.base_dir / "playback" / str(self.request.flight_id)
+    def write(
+        self,
+        file: Path | IO[bytes] | Cache,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, Cache):
+            file = BarePath(file._playback_path() / str(self.request.flight_id))
+        write_table(self, file, format=format)
 
 
 @dataclass(frozen=True)
-class LiveFeedService(Fetchable[LiveFeedParams]):
+class LiveFeedService(SupportsFetch[LiveFeedParams]):
     """Live feed service."""
 
     __factory: ServiceFactory
@@ -301,9 +361,13 @@ class LiveFeedService(Fetchable[LiveFeedParams]):
         return LiveFeedResult(
             request=LiveFeedParams(*args, **kwargs),
             response=response,
-            base_dir=self.__factory.base_dir,
             timestamp=timestamp,
         )
+
+
+#
+# gRPC
+#
 
 
 @dataclass
@@ -311,9 +375,9 @@ class LiveFeedResult(
     APIResult[LiveFeedParams],
     SupportsToProto[LiveFeedResponse],
     SupportsToDict[dict[str, Any]],
-    CacheMixin,
+    SupportsToPolars,
+    SupportsWrite,
 ):
-    base_dir: Path
     timestamp: int
 
     def to_proto(self) -> LiveFeedResponse:
@@ -325,13 +389,19 @@ class LiveFeedResult(
     def to_polars(self) -> pl.DataFrame:
         return live_feed_df(self.to_proto())
 
-    @property
-    def file_path(self) -> Path:
-        return self.base_dir / "feed" / str(self.timestamp)
+    def write(
+        self,
+        file: Path | IO[bytes] | Cache,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, Cache):
+            file = BarePath(file._feed_path() / str(self.timestamp))
+        write_table(self, file, format=format)
 
 
 @dataclass(frozen=True)
-class LiveFeedPlaybackService(Fetchable[LiveFeedPlaybackParams]):
+class LiveFeedPlaybackService(SupportsFetch[LiveFeedPlaybackParams]):
     """Live feed service."""
 
     __factory: ServiceFactory
@@ -353,7 +423,6 @@ class LiveFeedPlaybackService(Fetchable[LiveFeedPlaybackParams]):
         return LiveFeedPlaybackResult(
             request=LiveFeedPlaybackParams(*args, **kwargs),
             response=response,
-            base_dir=self.__factory.base_dir,
         )
 
 
@@ -362,10 +431,9 @@ class LiveFeedPlaybackResult(
     APIResult[LiveFeedPlaybackParams],
     SupportsToProto[PlaybackResponse],
     SupportsToDict[dict[str, Any]],
-    CacheMixin,
+    SupportsToPolars,
+    SupportsWrite,
 ):
-    base_dir: Path
-
     def to_proto(self) -> PlaybackResponse:
         return live_feed_playback_parse(self.response)
 
@@ -375,6 +443,12 @@ class LiveFeedPlaybackResult(
     def to_polars(self) -> pl.DataFrame:
         return live_feed_playback_df(self.to_proto())
 
-    @property
-    def file_path(self) -> Path:
-        return self.base_dir / "feed" / str(self.request.timestamp)
+    def write(
+        self,
+        file: Path | IO[bytes] | Cache,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, Cache):
+            file = BarePath(file._feed_path() / str(self.request.timestamp))
+        write_table(self, file, format=format)
