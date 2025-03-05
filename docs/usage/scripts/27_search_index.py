@@ -15,7 +15,8 @@ async def search_index_data() -> FetchSearchIndexResponse:
     async with httpx.AsyncClient() as client:
         message = FetchSearchIndexRequest()
         request = _search_index_request_create(message)
-        return await _search_index_post(client, request)
+        result = await _search_index_post(client, request)
+        return result.unwrap()
 
 
 data = await search_index_data()

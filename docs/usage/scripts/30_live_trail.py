@@ -16,7 +16,8 @@ async def live_trail_data() -> LiveTrailResponse:
     async with httpx.AsyncClient() as client:
         message = LiveTrailRequest(flight_id=0x395c43cf)
         request = live_trail_request_create(message)
-        return await live_trail_post(client, request)
+        result = await live_trail_post(client, request)
+        return result.unwrap()
 
 
 data = await live_trail_data()

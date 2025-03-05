@@ -89,7 +89,7 @@ class Collection:
         """
         - `cache.flight_list.reg`: Registration number, upper cased
         - `cache.flight_list.flight`: Flight number, upper cased
-        - `cache.playback`: Flight id, hex representation
+        - `cache.playback`: Flight id, hex representation, lower cased
         - `cache.feed`: Unix Timestamp, integer seconds since epoch
         """
         return scan_table(self.new_bare_path(str(ident)), format=format)

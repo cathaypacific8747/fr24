@@ -15,7 +15,8 @@ async def live_flights_status_data() -> LiveFlightsStatusResponse:
     async with httpx.AsyncClient() as client:
         message = LiveFlightsStatusRequest(flight_ids_list=[0x35fbc363, 0x35fbf180])
         request = live_flights_status_request_create(message)
-        return await live_flights_status_post(client, request)
+        result = await live_flights_status_post(client, request)
+        return result.unwrap()
 
 
 data = await live_flights_status_data()

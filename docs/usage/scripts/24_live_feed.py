@@ -17,8 +17,8 @@ async def france_data() -> LiveFeedResponse:
     async with httpx.AsyncClient() as client:
         params = LiveFeedParams(bounding_box=BoundingBox(north=50, west=-7, south=40, east=10))
         response = await live_feed(client, params)
-        data = live_feed_parse(response)
-        return data
+        result = live_feed_parse(response)
+        return result.unwrap()
 
 
 data = await france_data()

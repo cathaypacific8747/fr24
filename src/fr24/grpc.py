@@ -24,7 +24,14 @@ import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
 from typing_extensions import override
 
-from .proto import T, encode_message, parse_data, to_proto
+from .proto import (
+    ProtoError,
+    SupportsToProto,
+    T,
+    encode_message,
+    parse_data,
+    to_proto,
+)
 from .proto.headers import get_headers
 from .proto.v1_pb2 import (
     FetchSearchIndexRequest,
@@ -53,7 +60,7 @@ from .proto.v1_pb2 import (
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
-from .utils import SupportsToProto, to_unix_timestamp
+from .utils import Result, to_unix_timestamp
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -91,7 +98,7 @@ async def post_unary(
     client: httpx.AsyncClient,
     request: httpx.Request,
     msg_type: Type[T],
-) -> T: ...
+) -> Result[T, ProtoError]: ...
 
 
 @overload
@@ -106,7 +113,7 @@ async def post_unary(
     client: httpx.AsyncClient,
     request: httpx.Request,
     msg_type: Type[T] | None = None,
-) -> T | httpx.Response:
+) -> Result[T, ProtoError] | httpx.Response:
     """
     Execute the unary-unary call.
 
@@ -125,7 +132,7 @@ async def post_stream(
     client: httpx.AsyncClient,
     request: httpx.Request,
     msg_type: Type[T],
-) -> AsyncGenerator[T]:
+) -> AsyncGenerator[Result[T, ProtoError]]:
     """
     Execute the unary-stream call, yielding each parsed response.
     """
@@ -233,7 +240,7 @@ async def live_feed(
 
 def live_feed_parse(
     response: Annotated[httpx.Response, LiveFeedResponse],
-) -> LiveFeedResponse:
+) -> Result[LiveFeedResponse, ProtoError]:
     return parse_data(response.content, LiveFeedResponse)
 
 
@@ -348,7 +355,7 @@ async def live_feed_playback(
 
 def live_feed_playback_parse(
     response: Annotated[httpx.Response, PlaybackResponse],
-) -> PlaybackResponse:
+) -> Result[PlaybackResponse, ProtoError]:
     return parse_data(response.content, PlaybackResponse)
 
 
@@ -382,7 +389,7 @@ def nearest_flights_request_create(
 
 async def nearest_flights_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> NearestFlightsResponse:
+) -> Result[NearestFlightsResponse, ProtoError]:
     return await post_unary(client, request, NearestFlightsResponse)
 
 
@@ -395,7 +402,7 @@ def live_flights_status_request_create(
 
 async def live_flights_status_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> LiveFlightsStatusResponse:
+) -> Result[LiveFlightsStatusResponse, ProtoError]:
     return await post_unary(client, request, LiveFlightsStatusResponse)
 
 
@@ -408,7 +415,7 @@ def _search_index_request_create(
 
 async def _search_index_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> FetchSearchIndexResponse:
+) -> Result[FetchSearchIndexResponse, ProtoError]:
     return await post_unary(client, request, FetchSearchIndexResponse)
 
 
@@ -421,7 +428,7 @@ def follow_flight_request_create(
 
 async def follow_flight_stream(
     client: httpx.AsyncClient, request: httpx.Request
-) -> AsyncGenerator[FollowFlightResponse]:
+) -> AsyncGenerator[Result[FollowFlightResponse, ProtoError]]:
     async for msg in post_stream(client, request, FollowFlightResponse):
         yield msg
 
@@ -435,7 +442,7 @@ def top_flights_request_create(
 
 async def top_flights_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> TopFlightsResponse:
+) -> Result[TopFlightsResponse, ProtoError]:
     return await post_unary(client, request, TopFlightsResponse)
 
 
@@ -449,7 +456,7 @@ def live_trail_request_create(
 
 async def live_trail_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> LiveTrailResponse:
+) -> Result[LiveTrailResponse, ProtoError]:
     """WARN: Unstable API - does not return data reliably."""
     return await post_unary(client, request, LiveTrailResponse)
 
@@ -463,7 +470,7 @@ def _historic_trail_request_create(
 
 async def _historic_trail_post(
     client: httpx.AsyncClient, request: httpx.Request
-) -> HistoricTrailResponse:
+) -> Result[HistoricTrailResponse, ProtoError]:
     # empty DATA frame
     return await post_unary(client, request, HistoricTrailResponse)
 

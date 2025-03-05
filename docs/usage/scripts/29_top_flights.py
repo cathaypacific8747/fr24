@@ -15,7 +15,8 @@ async def top_flights_data() -> TopFlightsResponse:
     async with httpx.AsyncClient() as client:
         message = TopFlightsRequest(limit=10)
         request = top_flights_request_create(message)
-        return await top_flights_post(client, request)
+        result = await top_flights_post(client, request)
+        return result.unwrap()
 
 
 data = await top_flights_data()

@@ -17,7 +17,8 @@ from google.protobuf.json_format import MessageToDict
 from typing_extensions import runtime_checkable
 
 from .cache import Cache
-from .utils import SupportsToDict, SupportsToPolars, SupportsToProto
+from .proto import SupportsToProto
+from .utils import SupportsToDict, SupportsToPolars
 
 if TYPE_CHECKING:
     from typing import IO, Any
@@ -381,7 +382,7 @@ class LiveFeedResult(
     timestamp: int
 
     def to_proto(self) -> LiveFeedResponse:
-        return live_feed_parse(self.response)
+        return live_feed_parse(self.response).unwrap()
 
     def to_dict(self) -> dict[str, Any]:
         return MessageToDict(self.to_proto())
@@ -435,7 +436,7 @@ class LiveFeedPlaybackResult(
     SupportsWrite,
 ):
     def to_proto(self) -> PlaybackResponse:
-        return live_feed_playback_parse(self.response)
+        return live_feed_playback_parse(self.response).unwrap()
 
     def to_dict(self) -> dict[str, Any]:
         return MessageToDict(self.to_proto())

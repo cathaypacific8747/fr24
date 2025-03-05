@@ -1,15 +1,22 @@
 from __future__ import annotations
 
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Protocol, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    Literal,
+    Protocol,
+    TypeVar,
+    Union,
+)
 
-from google.protobuf.message import Message
 from typing_extensions import runtime_checkable
 
 if TYPE_CHECKING:
-    from typing import IO, Any
+    from typing import IO, Any, NoReturn
 
     import polars as pl
     from typing_extensions import TypeAlias
@@ -138,15 +145,6 @@ def scan_table(
 # subclassing is not necessary, but recommended for static type checking
 #
 
-ProtoT_co = TypeVar("ProtoT_co", bound=Message, covariant=True)
-
-
-@runtime_checkable
-class SupportsToProto(Protocol[ProtoT_co]):
-    def to_proto(self) -> ProtoT_co:
-        """Converts the object into a protobuf message."""
-
-
 DictT_co = TypeVar("DictT_co", covariant=True)
 """The dictionary representation of an object, e.g. `TypedDict`."""
 
@@ -161,3 +159,65 @@ class SupportsToDict(Protocol[DictT_co]):
 class SupportsToPolars(Protocol):
     def to_polars(self) -> pl.DataFrame:
         """Converts the object into a polars dataframe."""
+
+
+T = TypeVar("T")
+E = TypeVar("E")
+
+
+@dataclass(frozen=True)
+class Ok(Generic[T]):
+    __slots__ = ("_value",)  # py39 compat
+    _value: T
+
+    def ok(self) -> T:
+        return self._value
+
+    def err(self) -> None:
+        return None
+
+    def is_ok(self) -> Literal[True]:
+        return True
+
+    def is_err(self) -> Literal[False]:
+        return False
+
+    def unwrap(self) -> T:
+        return self._value
+
+
+@dataclass(frozen=True)
+class Err(Generic[E]):
+    __slots__ = ("_value",)
+    _value: E
+
+    def ok(self) -> None:
+        return None
+
+    def err(self) -> E:
+        return self._value
+
+    def is_ok(self) -> Literal[False]:
+        return False
+
+    def is_err(self) -> Literal[True]:
+        return True
+
+    def unwrap(self) -> NoReturn:
+        raise UnwrapError(
+            self, f"called `Result.unwrap()` on errored result: {self._value!r}"
+        )
+
+
+class UnwrapError(Exception):
+    def __init__(self, err: Any, message: str) -> None:
+        self._err = err
+        super().__init__(message)
+
+    @property
+    def err(self) -> Any:
+        return self._err
+
+
+Result: TypeAlias = Union[Ok[T], Err[E]]
+"""A type that represents either success (`Ok`) or failure (`Err`)."""

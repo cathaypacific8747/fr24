@@ -24,10 +24,10 @@ from fr24.proto.v1_pb2 import Flight
 async def test_ll_live_feed_simple(client: httpx.AsyncClient) -> None:
     params = LiveFeedParams(bounding_box=BBOX_FRANCE_UIR)
     response = await live_feed(client, params)
-    data = live_feed_parse(response)
+    result = live_feed_parse(response)
 
     json_output = MessageToDict(
-        data,
+        result.unwrap(),
         use_integers_for_enums=False,
         preserving_proto_field_name=True,
     )
@@ -39,8 +39,8 @@ async def test_ll_live_feed_world(client: httpx.AsyncClient) -> None:
     async def get_data(bbox: BoundingBox) -> list[Flight]:
         params = LiveFeedParams(bounding_box=bbox)
         response = await live_feed(client, params)
-        data = live_feed_parse(response)
-        return list(data.flights_list)
+        result = live_feed_parse(response)
+        return list(result.unwrap().flights_list)
 
     tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]
     flightss = await asyncio.gather(*tasks)
@@ -55,8 +55,8 @@ async def test_ll_live_feed_playback_world(client: httpx.AsyncClient) -> None:
     async def get_data(bbox: BoundingBox) -> list[Flight]:
         params = LiveFeedPlaybackParams(bounding_box=bbox, timestamp=timestamp)
         response = await live_feed_playback(client, params)
-        data = live_feed_playback_parse(response)
-        return list(data.live_feed_response.flights_list)
+        result = live_feed_playback_parse(response)
+        return list(result.unwrap().live_feed_response.flights_list)
 
     tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]
     flightss = await asyncio.gather(*tasks)

@@ -19,7 +19,8 @@ async def nearest_flights_data() -> NearestFlightsResponse:
             limit=1500
         )
         request = nearest_flights_request_create(message)
-        return await nearest_flights_post(client, request)
+        result = await nearest_flights_post(client, request)
+        return result.unwrap()
 
 
 data = await nearest_flights_data()

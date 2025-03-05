@@ -31,7 +31,7 @@ async def nearest_flights(client: httpx.AsyncClient) -> NearestFlightsResponse:
     )
     request = nearest_flights_request_create(message)
     data = await nearest_flights_post(client, request)
-    return data
+    return data.unwrap()
 
 
 @pytest.mark.anyio
@@ -49,7 +49,8 @@ async def test_live_flights_status(
 
     message = LiveFlightsStatusRequest(flight_ids_list=flight_ids[:3])
     request = live_flights_status_request_create(message)
-    data_status = await live_flights_status_post(client, request)
+    result = await live_flights_status_post(client, request)
+    data_status = result.unwrap()
     assert len(data_status.flights_map) == 3
     for flight in data_status.flights_map:
         assert flight.data.status == Status.LIVE
@@ -67,8 +68,8 @@ async def test_follow_flight(
         i = 0
         async for response in follow_flight_stream(client, request):
             if i == 0:
-                assert len(response.flight_trail_list)
-            assert response.flight_info.flightid == flight_id
+                assert len(response.unwrap().flight_trail_list)
+            assert response.unwrap().flight_info.flightid == flight_id
             i += 1
             if i > 2:
                 break
@@ -78,7 +79,8 @@ async def test_follow_flight(
 async def test_top_flights(client: httpx.AsyncClient) -> None:
     message = TopFlightsRequest(limit=10)
     request = top_flights_request_create(message)
-    top_flights = await top_flights_post(client, request)
+    results = await top_flights_post(client, request)
+    top_flights = results.unwrap()
     assert len(top_flights.scoreboard_list)
 
 
@@ -95,3 +97,21 @@ async def test_top_flights(client: httpx.AsyncClient) -> None:
 #     request = live_trail_request_create(message)
 #     data = await live_trail_post(client, request)
 #     assert len(data.radar_records_list)
+
+
+def test_parse_data_grpc_status_error() -> None:
+    """Fix for: https://github.com/cathaypacific8747/fr24/issues/68"""
+    from fr24.proto import GrpcError, parse_data
+    from fr24.proto.v1_pb2 import FollowFlightResponse
+
+    error_data = (
+        b"\x80\x00\x00\x00/grpc-status:5\r\ngrpc-message:Flight not found!\r\n"
+    )
+
+    result = parse_data(error_data, FollowFlightResponse)
+
+    assert result.is_err()
+    err = result.err()
+    assert isinstance(err, GrpcError)
+    assert err.status == 5
+    assert err.status_message == b"Flight not found!"
