@@ -211,6 +211,7 @@ message Flight {
     DataSource source = 12;
     ExtraFlightInfo extra_info = 13;
     PositionBuffer position_buffer = 14;
+    uint64 timestamp_ms = 15;
 }
 
 // NOTE: unused anywhere

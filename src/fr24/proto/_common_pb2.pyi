@@ -578,6 +578,7 @@ class Flight(Message):
     SOURCE_FIELD_NUMBER: int
     EXTRA_INFO_FIELD_NUMBER: int
     POSITION_BUFFER_FIELD_NUMBER: int
+    TIMESTAMP_MS_FIELD_NUMBER: int
     flightid: int
     """FR24 flight id, in base-10. Convert to hex for use in URLs."""
     lat: float
@@ -597,6 +598,7 @@ class Flight(Message):
     callsign: str
     """Callsign, e.g. `CPA8747`"""
     source: DataSource.ValueType
+    timestamp_ms: int
     @property
     def extra_info(self) -> ExtraFlightInfo: ...
     @property
@@ -618,9 +620,10 @@ class Flight(Message):
         source: DataSource.ValueType = ...,
         extra_info: ExtraFlightInfo | None = ...,
         position_buffer: PositionBuffer | None = ...,
+        timestamp_ms: int = ...,
     ) -> None: ...
     def HasField(self, field_name: Literal["extra_info", b"extra_info", "position_buffer", b"position_buffer"]) -> bool: ...
-    def ClearField(self, field_name: Literal["alt", b"alt", "callsign", b"callsign", "extra_info", b"extra_info", "flightid", b"flightid", "icon", b"icon", "lat", b"lat", "lon", b"lon", "on_ground", b"on_ground", "position_buffer", b"position_buffer", "source", b"source", "speed", b"speed", "status", b"status", "timestamp", b"timestamp", "track", b"track"]) -> None: ...
+    def ClearField(self, field_name: Literal["alt", b"alt", "callsign", b"callsign", "extra_info", b"extra_info", "flightid", b"flightid", "icon", b"icon", "lat", b"lat", "lon", b"lon", "on_ground", b"on_ground", "position_buffer", b"position_buffer", "source", b"source", "speed", b"speed", "status", b"status", "timestamp", b"timestamp", "timestamp_ms", b"timestamp_ms", "track", b"track"]) -> None: ...
 
 @final
 class Duration(Message):

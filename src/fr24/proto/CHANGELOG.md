@@ -4,6 +4,10 @@ All known changes of the gRPC messages are documented here.
 
 Client versions are usually updated every 5 days, most frequently on Mon/Tue 10am. This list is not exhaustive.
 
+## `25.056.2130` (2025-02-25)
+- rename field: `ExtendedFlightInfo.timestamp`
+- add field: `Flight.timestamp_ms`
+
 ## `24.353.1121` (2024-12-19)
 
 - rename fields: `AirlineFilterType::OPERATED_AS`, `Stats.sources`

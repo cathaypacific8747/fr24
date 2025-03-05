@@ -402,7 +402,7 @@ class ExtendedFlightInfo(Message):
     ALT_FIELD_NUMBER: int
     SPEED_FIELD_NUMBER: int
     STATUS_FIELD_NUMBER: int
-    TIMESTAMP_FIELD_NUMBER: int
+    TIMESTAMP_MS_FIELD_NUMBER: int
     ON_GROUND_FIELD_NUMBER: int
     CALLSIGN_FIELD_NUMBER: int
     SOURCE_FIELD_NUMBER: int
@@ -424,7 +424,7 @@ class ExtendedFlightInfo(Message):
     speed: int
     status: Status.ValueType
     """?"""
-    timestamp: int
+    timestamp_ms: int
     on_ground: bool
     callsign: str
     source: DataSource.ValueType
@@ -451,7 +451,7 @@ class ExtendedFlightInfo(Message):
         alt: int = ...,
         speed: int = ...,
         status: Status.ValueType = ...,
-        timestamp: int = ...,
+        timestamp_ms: int = ...,
         on_ground: bool = ...,
         callsign: str = ...,
         source: DataSource.ValueType = ...,
@@ -467,7 +467,7 @@ class ExtendedFlightInfo(Message):
         server_time_ms: int = ...,
     ) -> None: ...
     def HasField(self, field_name: Literal["ems_availability", b"ems_availability", "ems_info", b"ems_info"]) -> bool: ...
-    def ClearField(self, field_name: Literal["airspace", b"airspace", "airspace_availability", b"airspace_availability", "airspace_id", b"airspace_id", "alt", b"alt", "callsign", b"callsign", "ems_availability", b"ems_availability", "ems_info", b"ems_info", "flightid", b"flightid", "lat", b"lat", "lon", b"lon", "on_ground", b"on_ground", "server_time_ms", b"server_time_ms", "source", b"source", "speed", b"speed", "squawk", b"squawk", "squawk_availability", b"squawk_availability", "status", b"status", "timestamp", b"timestamp", "track", b"track", "vspeed", b"vspeed", "vspeed_availability", b"vspeed_availability"]) -> None: ...
+    def ClearField(self, field_name: Literal["airspace", b"airspace", "airspace_availability", b"airspace_availability", "airspace_id", b"airspace_id", "alt", b"alt", "callsign", b"callsign", "ems_availability", b"ems_availability", "ems_info", b"ems_info", "flightid", b"flightid", "lat", b"lat", "lon", b"lon", "on_ground", b"on_ground", "server_time_ms", b"server_time_ms", "source", b"source", "speed", b"speed", "squawk", b"squawk", "squawk_availability", b"squawk_availability", "status", b"status", "timestamp_ms", b"timestamp_ms", "track", b"track", "vspeed", b"vspeed", "vspeed_availability", b"vspeed_availability"]) -> None: ...
 
 @final
 class TrailPoint(Message):

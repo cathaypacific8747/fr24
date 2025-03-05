@@ -119,7 +119,7 @@ message ExtendedFlightInfo {
     int32 alt = 5;
     int32 speed = 6;
     _common.Status status = 7; // ?
-    uint64 timestamp = 8;
+    uint64 timestamp_ms = 8;
     bool on_ground = 9;
     string callsign = 10;
     _common.DataSource source = 11; // ?
