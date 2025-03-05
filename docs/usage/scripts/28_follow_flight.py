@@ -16,7 +16,7 @@ async def follow_flight_data() -> None:
     # increase the timeout to 120 seconds to avoid premature closure.
     timeout = httpx.Timeout(5, read=120)
     async with httpx.AsyncClient(timeout=timeout) as client:
-        message = FollowFlightRequest(flight_id=0x35fbf965)
+        message = FollowFlightRequest(flight_id=0x395c43cf)
         request = follow_flight_request_create(message)
         i = 0
         async for response in follow_flight_stream(client, request):

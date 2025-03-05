@@ -15,6 +15,7 @@ from fr24.grpc import (
     live_feed,
     live_feed_parse,
     live_feed_playback,
+    live_feed_playback_parse,
 )
 from fr24.proto.v1_pb2 import Flight
 
@@ -54,8 +55,8 @@ async def test_ll_live_feed_playback_world(client: httpx.AsyncClient) -> None:
     async def get_data(bbox: BoundingBox) -> list[Flight]:
         params = LiveFeedPlaybackParams(bounding_box=bbox, timestamp=timestamp)
         response = await live_feed_playback(client, params)
-        data = live_feed_parse(response)
-        return list(data.flights_list)
+        data = live_feed_playback_parse(response)
+        return list(data.live_feed_response.flights_list)
 
     tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]
     flightss = await asyncio.gather(*tasks)
@@ -87,9 +88,8 @@ async def test_live_feed_playback_world(fr24: FR24) -> None:
 async def test_live_feed_file_ops(fr24: FR24, cache: Cache) -> None:
     """ensure context persists after serialisation to parquet"""
     result = await fr24.live_feed.fetch()
-    result.write(cache)
+    result.write_table(cache)
 
-    # FIXME
-    # result_local = fr24.live_feed.load(result.timestamp)
-    # assert result_local.to_polars() == result.to_polars()
-    # assert datac_local.data.schema.metadata == datac.data.schema.metadata
+    df_local = cache.live_feed.scan_table(result.timestamp).collect()
+    assert df_local.equals(result.to_polars())
+    # NOTE: metadata serialisation is not implemented

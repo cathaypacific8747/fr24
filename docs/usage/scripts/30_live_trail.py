@@ -14,7 +14,7 @@ from fr24.proto.v1_pb2 import LiveTrailRequest, LiveTrailResponse
 async def live_trail_data() -> LiveTrailResponse:
     """raises empty `DATA` frame error if flight_id is not live"""
     async with httpx.AsyncClient() as client:
-        message = LiveTrailRequest(flight_id=0x35fbad0e)
+        message = LiveTrailRequest(flight_id=0x395c43cf)
         request = live_trail_request_create(message)
         return await live_trail_post(client, request)
 

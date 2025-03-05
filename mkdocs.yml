@@ -11,10 +11,10 @@ nav:
       - Example Gallery: "usage/examples.md"
       - Authentication: "usage/authentication.md"
   - API Reference:
-      - Core: "api/core.md"
+      - Services: "api/service.md"
       - Functions: "api/functions.md"
       - Types: "api/types.md"
-      - Base Classes: "api/base.md"
+      - Utilities: "api/utils.md"
       - Protobuf Definitions: "api/protobuf.md"
 
 theme:

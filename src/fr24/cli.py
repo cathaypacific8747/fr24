@@ -192,7 +192,7 @@ def feed(
                 result = await fr24.live_feed_playback.fetch(
                     timestamp=to_unix_timestamp(timestamp)
                 )
-            result.write(fp, format=format)  # type: ignore[arg-type]
+            result.write_table(fp, format=format)  # type: ignore[arg-type]
             console.print(get_success_message(result, fp))
 
     asyncio.run(feed_())
@@ -239,7 +239,7 @@ def flight_list(
                     reg=reg, flight=flight, timestamp=timestamp
                 ):
                     results.append(result)
-                    results.write(fp, format=format)  # type: ignore[arg-type]
+                    results.write_table(fp, format=format)  # type: ignore[arg-type]
                     console.print(
                         get_success_message(result, fp, action="added")
                     )
@@ -248,7 +248,7 @@ def flight_list(
                 result = await fr24.flight_list.fetch(
                     reg=reg, flight=flight, timestamp=timestamp
                 )
-                result.write(fp, format=format)  # type: ignore[arg-type]
+                result.write_table(fp, format=format)  # type: ignore[arg-type]
                 console.print(get_success_message(result, fp))
 
     asyncio.run(flight_list_())
@@ -282,7 +282,7 @@ def playback(
             result = await fr24.playback.fetch(
                 flight_id=flight_id, timestamp=timestamp
             )
-            result.write(fp, format=format)  # type: ignore[arg-type]
+            result.write_table(fp, format=format)  # type: ignore[arg-type]
             console.print(get_success_message(result, fp))
 
     asyncio.run(playback_())

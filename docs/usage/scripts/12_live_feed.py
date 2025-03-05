@@ -10,7 +10,7 @@ async def my_feed() -> None:
         result = await fr24.live_feed.fetch()
         print(result)
         print(result.to_polars())
-        result.write(Cache.default())
+        result.write_table(Cache.default())
 
 await my_feed()
 # --8<-- [end:script]

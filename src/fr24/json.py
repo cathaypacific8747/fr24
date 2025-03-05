@@ -53,7 +53,7 @@ class FlightListParams:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | str | None = "now"
+    timestamp: int | datetime | str | Literal["now"] | None = "now"
     """Show flights with ATD before this Unix timestamp"""
 
     def __post_init__(self) -> None:

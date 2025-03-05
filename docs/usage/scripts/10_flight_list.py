@@ -9,7 +9,7 @@ async def my_list() -> None:
     async with FR24() as fr24:
         result = await fr24.flight_list.fetch(reg="B-LRA")
         print(result.to_polars())
-        result.write(Cache.default())
+        result.write_table(Cache.default())
 
 await my_list()
 # --8<-- [end:script0]
@@ -65,7 +65,7 @@ async def my_full_list() -> None:
             results.append(result)  # (2)!
             if input() == "x":
                 break
-            results.write(Cache.default())
+            results.write_table(Cache.default())
         print(results.to_polars())
 
 await my_full_list()

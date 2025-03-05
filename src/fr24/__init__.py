@@ -35,8 +35,6 @@ class FR24:
             highly recommended to use `http2=True` to avoid
             [464 errors](https://github.com/cathaypacific8747/fr24/issues/23#issuecomment-2125624974)
             and to be consistent with the browser.
-        :param base_dir:
-            See [cache directory](../usage/cli.md#directories).
         """
         self.http = HTTPClient(
             httpx.AsyncClient(http2=True) if client is None else client

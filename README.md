@@ -27,7 +27,7 @@ uv sync
 
 ```json
 {
-  "copyright": "Copyright (c) 2014-2023 Flightradar24 AB. All rights reserved.",
+  "copyright": "Copyright (c) 2014-2025 Flightradar24 AB. All rights reserved.",
   "legalNotice": "The contents of this file and all derived data are the property of Flightradar24 AB for use exclusively by its products and applications. Using, modifying or redistributing the data without the prior written permission of Flightradar24 AB is not allowed and may result in prosecutions."
 }
 ```

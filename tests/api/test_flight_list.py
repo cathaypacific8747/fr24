@@ -158,10 +158,10 @@ async def test_flight_list_reg_file_ops(fr24: FR24, cache: Cache) -> None:
         fp.unlink()
 
     specific_fp = Path(__file__).parent / "tmp" / "flight_list.parquet"
-    test_ok(specific_fp, lambda: result.write(specific_fp))
+    test_ok(specific_fp, lambda: result.write_table(specific_fp))
     specific_fp.parent.rmdir()
 
     test_ok(
-        cache.base_dir / "flight_list" / "reg" / f"{REG.upper()}.parquet",
-        lambda: result.write(cache),
+        cache.path / "flight_list" / "reg" / f"{REG.upper()}.parquet",
+        lambda: result.write_table(cache),
     )

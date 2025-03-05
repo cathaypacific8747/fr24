@@ -53,9 +53,10 @@ from .proto.v1_pb2 import (
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
-from .utils import SupportsToProto
+from .utils import SupportsToProto, to_unix_timestamp
 
 if TYPE_CHECKING:
+    from datetime import datetime
     from typing import (
         Annotated,
         AsyncGenerator,
@@ -298,7 +299,7 @@ def live_feed_df(
 # but we want a flat structure in the service API and avoid rewriting __init__
 @dataclass
 class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
-    timestamp: int | None = None
+    timestamp: int | datetime | str | None = None
     """Start timestamp"""
     duration: int = 7
     """
@@ -311,7 +312,9 @@ class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
 
     @override
     def to_proto(self) -> PlaybackRequest:  # type: ignore
-        timestamp = self.timestamp or (int(time.time()) - self.duration)
+        timestamp = to_unix_timestamp(self.timestamp) or (
+            int(time.time()) - self.duration
+        )
         return PlaybackRequest(
             live_feed_request=super().to_proto(),
             timestamp=timestamp,
@@ -461,6 +464,7 @@ def _historic_trail_request_create(
 async def _historic_trail_post(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> HistoricTrailResponse:
+    # empty DATA frame
     return await post_unary(client, request, HistoricTrailResponse)
 
 

@@ -10,22 +10,25 @@ async def my_feed() -> None:
         result = await fr24.live_feed.fetch()
         data = result.to_dict()
         df = result.to_polars()
-        result.write(Cache.default())
+        result.write_table(Cache.default())
 
 await my_feed()
 # --8<-- [end:script]
 # %%
 # --8<-- [start:script2]
-from fr24 import FR24
+from fr24 import Cache
 
-async def my_feed() -> None:
-    async with FR24() as fr24:
-        # FIXME
-        # datac = fr24.live_feed.load(1733036597)
-        pass
-
-await my_feed()
+cache = Cache.default()
+print(cache.live_feed.scan_table(1737360998).collect())
 # --8<-- [end:script2]
+# %%
+# --8<-- [start:script3]
+from fr24 import Cache
+import polars as pl
+
+cache = Cache.default()
+print(pl.scan_parquet([fp for fp in cache.live_feed.path.glob("*.parquet")]).collect())
+# --8<-- [end:script3]
 # %%
 """
 # --8<-- [start:result]

@@ -12,7 +12,7 @@ async def my_playback() -> None:
         df = result.to_polars()
         print(df)
         rich.print(fr24.playback.metadata(result.to_dict()))
-        result.write(Cache.default())
+        result.write_table(Cache.default())
 
 await my_playback()
 # --8<-- [end:script0]
@@ -67,15 +67,15 @@ shape: (363, 9)
 import rich
 from fr24 import FR24, Cache
 
+cache = Cache.default()
+
 async def my_playback() -> None:
     async with FR24() as fr24:
         result = await fr24.playback.fetch(0x2FB3041)
-        result.write(Cache.default())  # (1)!
-        # some time later...
-        # FIXME
-        # df_local = fr24.playback.load(0x2FB3041)  # (2)!
-        # print(df_local)
-        # rich.print(df_local.metadata)
+        result.write_table(cache)  # (1)!
+    # some time later...
+    df_local = cache.playback.scan_table(0x2FB3041).collect()  # (2)!
+    print(df_local)
 
 await my_playback()
 # --8<-- [end:script1]

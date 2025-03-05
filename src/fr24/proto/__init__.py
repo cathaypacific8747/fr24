@@ -38,3 +38,4 @@ def parse_data(data: bytes, msg_type: Type[T]) -> T:
     assert data_len > 0, "empty message"
     data_proto = data[5:5 + data_len]
     return msg_type.FromString(data_proto)
+

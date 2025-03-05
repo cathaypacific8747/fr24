@@ -1,4 +1,4 @@
-Mostly used in the [core](core.md).
+Mostly used in the [service](service.md).
 
 ::: fr24.utils
     options:

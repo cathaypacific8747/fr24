@@ -16,6 +16,7 @@ from typing import (
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import runtime_checkable
 
+from .cache import Cache
 from .utils import SupportsToDict, SupportsToPolars, SupportsToProto
 
 if TYPE_CHECKING:
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
     import httpx
     import polars as pl
 
-    from .cache import Cache
 
 from .grpc import (
     LiveFeedParams,
@@ -51,7 +51,7 @@ from .proto.v1_pb2 import LiveFeedResponse, PlaybackResponse
 from .types import overwrite_args_signature_from
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
-from .utils import BarePath, write_table
+from .utils import write_table
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -106,7 +106,7 @@ class APIResult(Generic[RequestT]):
 
 @runtime_checkable
 class SupportsWrite(Protocol):
-    def write(self, file: Path | IO[bytes] | Cache) -> None:
+    def write_table(self, file: Path | IO[bytes] | Cache) -> None:
         """Writes the object to the given file path."""
 
 
@@ -202,16 +202,15 @@ class FlightListResult(
     def to_polars(self) -> pl.DataFrame:
         return flight_list_df(self.to_dict())
 
-    def write(
+    def write_table(
         self,
         file: Path | IO[bytes] | Cache,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, Cache):
-            file = BarePath(
-                file._flight_list_path(self.request.kind)
-                / self.request.ident.upper()
+            file = file.flight_list(self.request.kind).new_bare_path(
+                self.request.ident.upper()
             )
         write_table(self, file, format=format)
 
@@ -259,7 +258,7 @@ class FlightListResultCollection(
     def to_polars(self) -> pl.DataFrame:
         return flight_list_df(self.to_dict())
 
-    def write(
+    def write_table(
         self,
         file: Path | IO[bytes] | Cache,
         *,
@@ -271,9 +270,8 @@ class FlightListResultCollection(
                 "must contain at least one valid flight list response"
             )
         if isinstance(file, Cache):
-            file = BarePath(
-                file._flight_list_path(self[0].request.kind)
-                / self[0].request.ident.upper()
+            file = file.flight_list(self[0].request.kind).new_bare_path(
+                self[0].request.ident.upper()
             )
         write_table(self, file, format=format)
 
@@ -322,15 +320,22 @@ class PlaybackResult(
     def to_polars(self) -> pl.DataFrame:
         return playback_df(self.to_dict())
 
-    def write(
+    def write_table(
         self,
         file: Path | IO[bytes] | Cache,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, Cache):
-            file = BarePath(file._playback_path() / str(self.request.flight_id))
+            file = file.playback.new_bare_path(
+                str(self.request.flight_id).upper()
+            )
         write_table(self, file, format=format)
+
+
+#
+# gRPC
+#
 
 
 @dataclass(frozen=True)
@@ -365,11 +370,6 @@ class LiveFeedService(SupportsFetch[LiveFeedParams]):
         )
 
 
-#
-# gRPC
-#
-
-
 @dataclass
 class LiveFeedResult(
     APIResult[LiveFeedParams],
@@ -389,14 +389,14 @@ class LiveFeedResult(
     def to_polars(self) -> pl.DataFrame:
         return live_feed_df(self.to_proto())
 
-    def write(
+    def write_table(
         self,
         file: Path | IO[bytes] | Cache,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, Cache):
-            file = BarePath(file._feed_path() / str(self.timestamp))
+            file = file.live_feed.new_bare_path(str(self.timestamp))
         write_table(self, file, format=format)
 
 
@@ -443,12 +443,12 @@ class LiveFeedPlaybackResult(
     def to_polars(self) -> pl.DataFrame:
         return live_feed_playback_df(self.to_proto())
 
-    def write(
+    def write_table(
         self,
         file: Path | IO[bytes] | Cache,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, Cache):
-            file = BarePath(file._feed_path() / str(self.request.timestamp))
+            file = file.live_feed.new_bare_path(str(self.request.timestamp))
         write_table(self, file, format=format)

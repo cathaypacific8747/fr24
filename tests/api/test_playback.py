@@ -32,21 +32,14 @@ async def test_playback_file_ops(fr24: FR24, cache: Cache) -> None:
 
     result = await fr24.playback.fetch(flight_id=FLIGHT_ID)
 
-    fp = (
-        cache.base_dir
-        / "playback"
-        / f"{format(FLIGHT_ID, 'x').lower()}.parquet"
-    )
+    fp = cache.path / "playback" / f"{format(FLIGHT_ID, 'x').lower()}.parquet"
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)
-    result.write(fp)
+    result.write_table(fp)
     assert fp.exists()
 
-    # FIXME
-    # df = result.to_polars()
-    # datac_local = fr24.playback.load(flight_id=FLIGHT_ID)  # FIXME
-    # assert datac_local.data.num_rows == df.height
-    # assert datac_local.data.equals(df)
+    df_local = cache.playback.scan_table(FLIGHT_ID).collect()
+    assert df_local.equals(result.to_polars())
 
     # NOTE: making sure that flight metadata is preserved and consistent
     # has been removed.
