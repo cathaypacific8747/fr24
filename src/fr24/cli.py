@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import sys
 from pathlib import Path
 from typing import IO, Annotated, Literal, Optional
@@ -8,7 +9,6 @@ from typing import IO, Annotated, Literal, Optional
 import click
 import rich
 import typer
-from loguru import logger
 from rich.console import Console
 
 from . import FR24
@@ -24,7 +24,9 @@ from .tui.tui import main as tui_main
 from .utils import to_unix_timestamp
 
 app = typer.Typer(no_args_is_help=True)
-logger.configure(handlers=[{"sink": sys.stderr, "level": "INFO"}])
+
+_log = logging.getLogger(__name__)
+_log.setLevel(logging.INFO)
 console_err = Console(stderr=True)
 
 

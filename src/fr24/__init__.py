@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -95,6 +96,50 @@ class HTTPClient:
     async def __aexit__(self, *args: Any) -> None:
         if self.client is not None:
             await self.client.aclose()
+
+
+def intercept_logs_with_loguru(
+    level: logging._Level = logging.INFO, modules: tuple[str, ...] = ()
+) -> None:
+    """
+    Intercepts stdlib logging to stderr with loguru.
+
+    :param level: The stdlib logging level to intercept.
+    :param modules: The modules to intercept.
+    """
+    import inspect
+    from itertools import chain
+
+    from loguru import logger
+
+    class InterceptHandler(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            # Get corresponding Loguru level if it exists.
+            try:
+                level: str | int = logger.level(record.levelname).name
+            except ValueError:
+                level = record.levelno
+
+            # Find caller from where originated the logged message.
+            frame, depth = inspect.currentframe(), 0
+            while frame:
+                filename = frame.f_code.co_filename
+                is_logging = filename == logging.__file__
+                is_frozen = "importlib" in filename and "_bootstrap" in filename
+                if depth > 0 and not (is_logging or is_frozen):
+                    break
+                frame = frame.f_back
+                depth += 1
+
+            logger.opt(depth=depth, exception=record.exc_info).log(
+                level, record.getMessage()
+            )
+
+    logging.basicConfig(handlers=[InterceptHandler()], level=level, force=True)
+    for logger_name in chain(("",), modules):
+        logger_module = logging.getLogger(logger_name)
+        logger_module.handlers = [InterceptHandler(level=level)]
+        logger_module.propagate = False
 
 
 __all__ = [

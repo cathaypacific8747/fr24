@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import email.utils
+import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,16 +18,6 @@ from google.protobuf.json_format import MessageToDict
 from typing_extensions import runtime_checkable
 
 from .cache import Cache
-from .proto import SupportsToProto
-from .utils import SupportsToDict, SupportsToPolars
-
-if TYPE_CHECKING:
-    from typing import IO, Any
-
-    import httpx
-    import polars as pl
-
-
 from .grpc import (
     LiveFeedParams,
     LiveFeedPlaybackParams,
@@ -48,22 +39,25 @@ from .json import (
     playback_metadata_dict,
     playback_parse,
 )
+from .proto import SupportsToProto
 from .proto.v1_pb2 import LiveFeedResponse, PlaybackResponse
 from .types import overwrite_args_signature_from
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
-from .utils import write_table
+from .utils import SupportsToDict, SupportsToPolars, write_table
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import IO, AsyncIterator
+    from typing import IO, Any, AsyncIterator
 
+    import httpx
     import polars as pl
 
     from . import HTTPClient
     from .cache import Cache
     from .utils import SupportedFormats
 
+_log = logging.getLogger(__name__)
 
 #
 # important traits and dataclasses
@@ -228,8 +222,8 @@ class FlightListResultCollection(
     def to_dict(self) -> FlightList:
         """
         Collects the raw bytes in each response into a single result.
-        Duplicates are identified by their flight ids and are removed. Flights
-        without an assigned id are kept intact.
+        Duplicates are identified by their (flight id, time of departure),
+        and are removed.
 
         No checking is made for the homogenity of the request parameters.
         """
@@ -237,7 +231,7 @@ class FlightListResultCollection(
         if len(self) == 0:
             return FLIGHT_LIST_EMPTY
 
-        flight_ids_seen: set[str | None] = set()
+        ident_hashes: set[int] = set()
         data = self[0].to_dict()
         flights_all = []
         for result in self:
@@ -246,11 +240,20 @@ class FlightListResultCollection(
             ) is None:
                 continue
             for flight in flights:
+                # for flights scheduled to depart in the future, fr24 returns an
+                # empty flight id, so we identify a "duplicate" using the
+                # standard time of departure instead
+                flight_id = flight["identification"]["id"]
+                stod = flight["time"]["scheduled"]["departure"]
+                ident_hash = hash((flight_id, stod))
                 if (
-                    flight_id := flight["identification"]["id"]
-                ) is not None and flight_id in flight_ids_seen:
+                    flight_id is not None and stod is not None
+                ) and ident_hash in ident_hashes:
+                    _log.info(
+                        f"found duplicate: {flight_id=} and {stod=}, skipping"
+                    )
                     continue
-                flight_ids_seen.add(flight_id)
+                ident_hashes.add(ident_hash)
                 flights_all.append(flight)
 
         data["result"]["response"]["data"] = flights_all

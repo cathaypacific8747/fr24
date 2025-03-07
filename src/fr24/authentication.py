@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import configparser
 import json
+import logging
 import os
 import time
 from datetime import datetime, timezone
@@ -11,13 +12,14 @@ from typing import Literal
 import httpx
 
 from .configuration import FP_CONFIG_FILE
-from .logging import logger
 from .types.authentication import (
     Authentication,
     TokenSubscriptionKey,
     UsernamePassword,
 )
 from .utils import DEFAULT_HEADERS
+
+_log = logging.getLogger(__name__)
 
 
 def get_credentials() -> TokenSubscriptionKey | UsernamePassword | None:
@@ -74,7 +76,7 @@ async def login(
         t = creds.get("token")
         return await login_with_token_subscription_key(client, s, t)  # type: ignore[arg-type]
 
-    logger.warning(
+    _log.warning(
         "Expected username+password or subscriptionKey+Optional[token] pair,"
         "but one or both are missing. Falling back to anonymous access."
     )
@@ -121,14 +123,14 @@ async def login_with_token_subscription_key(
     try:
         payload = json.loads(base64.b64decode(token.split(".")[1]))
     except Exception as e:
-        logger.error(
+        _log.error(
             f"failed to parse token: {e}. Falling back to anonymous access"
         )
         return None
 
     if time.time() > (exp := payload["exp"]):
         exp_f = datetime.fromtimestamp(exp, timezone.utc).isoformat()
-        logger.error(
+        _log.error(
             f"token has expired at {exp_f}. Falling back to anonymous access"
         )
         return None

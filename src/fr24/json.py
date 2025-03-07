@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import secrets
 from dataclasses import dataclass
 from datetime import datetime
@@ -8,7 +9,6 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast
 import httpx
 import polars as pl
 
-from .logging import logger
 from .types.airport_list import AirportList
 from .types.cache import flight_list_schema, playback_track_schema
 from .types.find import Find
@@ -32,6 +32,8 @@ if TYPE_CHECKING:
         PlaybackRequest,
         TrackData,
     )
+
+_log = logging.getLogger(__name__)
 
 # NOTE: we intentionally use dataclass to store request data so we can
 # serialise it to disk easily.
@@ -411,7 +413,7 @@ def playback_df(data: Playback) -> pl.DataFrame:
     """
     flight = data["result"]["response"]["data"]["flight"]
     if len(track := flight["track"]) == 0:
-        logger.warning("no data in response, table will be empty")
+        _log.warning("no data in response, table will be empty")
     return pl.DataFrame(
         [
             {
@@ -466,7 +468,7 @@ def flight_list_df(data: FlightList) -> pl.DataFrame:
     If the response is empty, a warning is logged and an empty table is returned
     """
     if (flights := data["result"]["response"]["data"]) is None:
-        logger.warning("no data in response, table will be empty")
+        _log.warning("no data in response, table will be empty")
         return pl.DataFrame(schema=flight_list_schema)
     return pl.DataFrame(
         [flight_list_dict(f) for f in flights],

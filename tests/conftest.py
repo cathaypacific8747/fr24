@@ -5,7 +5,12 @@ from typing import AsyncGenerator
 import httpx
 import pytest
 
-from fr24 import FR24, Cache
+from fr24 import FR24, Cache, intercept_logs_with_loguru
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    # captures httpx requests
+    intercept_logs_with_loguru()
 
 
 @pytest.fixture(scope="session")

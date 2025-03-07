@@ -49,6 +49,7 @@ test = [
     "eval-type-backport>=0.2.0", # for pydantic, <3.10 syntax
     "pydantic>=2.9.2",
     "pytest>=8.3.3",
+    "fr24[rich]",
 ]
 docs = [
     "mkdocs-material[imaging]>=9.5.43",
@@ -59,8 +60,11 @@ docs = [
 fr24 = 'fr24.cli:app'
 
 [project.optional-dependencies]
+rich = [
+    "loguru",
+    "rich"
+]
 cli = [
-    "loguru>=0.7.3",
     "typer>=0.15.1",
 ]
 tui = [
