@@ -4,6 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
+from datetime import datetime
 
 from fr24.authentication import login
 from fr24.json import flight_list, flight_list_df, FlightListParams
@@ -18,7 +19,7 @@ async def my_list() -> FlightList:
             client,
             FlightListParams(
                 flight="AF291",
-                timestamp="2025-01-16",  # (1)!
+                timestamp=datetime.strptime("2025-01-16", "%Y-%m-%d"),  # (1)!
             ),
             auth=auth,
         )

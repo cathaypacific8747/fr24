@@ -21,8 +21,6 @@ if TYPE_CHECKING:
     import polars as pl
     from typing_extensions import TypeAlias
 
-    import pandas as pd
-
 
 DEFAULT_HEADERS = {
     "User-Agent": (
@@ -44,19 +42,15 @@ DEFAULT_HEADERS = {
 
 
 def to_unix_timestamp(
-    timestamp: int | datetime | pd.Timestamp | str | Literal["now"] | None,
-) -> int | None:
+    timestamp: int | datetime | Literal["now"] | None,
+) -> int | Literal["now"] | None:
     """
     Casts timestamp-like object to a Unix timestamp in integer seconds,
     returning `None` if `timestamp` is `None`.
     """
-    import pandas as pd
-
     if timestamp == "now":
-        return int(time.time())
-    if isinstance(timestamp, (str, datetime)):
-        return int(pd.Timestamp(timestamp).timestamp())
-    if isinstance(timestamp, pd.Timestamp):
+        return "now"
+    if isinstance(timestamp, datetime):
         return int(timestamp.timestamp())
     if isinstance(timestamp, int):
         assert timestamp < 4102462800, (
@@ -64,6 +58,13 @@ def to_unix_timestamp(
         )  # 2100-01-01
         return timestamp
     return None
+
+
+def get_current_timestamp() -> int:
+    """
+    Returns the current Unix timestamp in seconds.
+    """
+    return int(time.time())
 
 
 class BarePath(Path):

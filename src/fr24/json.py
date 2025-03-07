@@ -14,7 +14,7 @@ from .types.cache import flight_list_schema, playback_track_schema
 from .types.find import Find
 from .types.flight_list import FlightList
 from .types.playback import Playback
-from .utils import DEFAULT_HEADERS, to_unix_timestamp
+from .utils import DEFAULT_HEADERS, get_current_timestamp, to_unix_timestamp
 
 if TYPE_CHECKING:
     from typing import Annotated, Any, Literal
@@ -55,7 +55,7 @@ class FlightListParams:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | str | Literal["now"] | None = "now"
+    timestamp: int | datetime | Literal["now"] | None = "now"
     """Show flights with ATD before this Unix timestamp"""
 
     def __post_init__(self) -> None:
@@ -97,6 +97,8 @@ async def flight_list(
     :param auth: Authentication data
     """
     timestamp = to_unix_timestamp(params.timestamp)
+    if timestamp == "now":
+        timestamp = get_current_timestamp()
 
     key, value = params.kind, params.ident
 
@@ -144,7 +146,7 @@ class AirportListParams:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | str | None = "now"
+    timestamp: int | datetime | Literal["now"] | None = "now"
     """Show flights with STA before this timestamp"""
 
 
@@ -165,6 +167,8 @@ async def airport_list(
         [fr24.types.flight_list.FlightList][].
     """
     timestamp = to_unix_timestamp(params.timestamp)
+    if timestamp == "now":
+        timestamp = get_current_timestamp()
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
@@ -205,7 +209,7 @@ class PlaybackParams:
 
     flight_id: int | str
     """fr24 flight id, represented in hex"""
-    timestamp: int | str | datetime | None = None
+    timestamp: int | Literal["now"] | datetime | None = None
     """
     Unix timestamp (seconds) of ATD - optional, but it is recommended to
     include it
@@ -224,6 +228,8 @@ async def playback(
     :param auth: Authentication data
     """
     timestamp = to_unix_timestamp(params.timestamp)
+    if timestamp == "now":
+        timestamp = get_current_timestamp()
     flight_id = (
         f"{params.flight_id:x}"
         if not isinstance(params.flight_id, str)

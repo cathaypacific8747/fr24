@@ -692,6 +692,7 @@ typing = [
     { name = "mypy" },
     { name = "mypy-protobuf" },
     { name = "types-protobuf" },
+    { name = "types-pytz" },
 ]
 
 [package.metadata]
@@ -730,6 +731,7 @@ typing = [
     { name = "mypy", specifier = ">=1.13.0" },
     { name = "mypy-protobuf", specifier = ">=3.6.0" },
     { name = "types-protobuf", specifier = "==5.28.*" },
+    { name = "types-pytz", specifier = ">=2025.1.0.20250204" },
 ]
 
 [[package]]
@@ -2807,6 +2809,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c9/80/ed668c8bb4cb92e4cc4a8bfea6a6b0693a4c02c2a5634675ada41bb11919/types_protobuf-5.28.3.20241203.tar.gz", hash = "sha256:2e1c962bdf76c576506b5fc0678d28efa6652a54c04ae46562a6209e777bd789", size = 59278 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/30/98/3779835381fb3995d31db970b7384d42a42cb487771bd2e6ed98799afa6c/types_protobuf-5.28.3.20241203-py3-none-any.whl", hash = "sha256:5367632a4785394b0504e7c1e4d54a2dceeae9cd4f73a705d0f6499fc99cecb1", size = 73973 },
+]
+
+[[package]]
+name = "types-pytz"
+version = "2025.1.0.20250204"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/d2/2190c54d53c04491ad72a1df019c5dfa692e6ab6c2dba1be7b6c9d530e30/types_pytz-2025.1.0.20250204.tar.gz", hash = "sha256:00f750132769f1c65a4f7240bc84f13985b4da774bd17dfbe5d9cd442746bd49", size = 10352 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/50/65ffad73746f1d8b15992c030e0fd22965fd5ae2c0206dc28873343b3230/types_pytz-2025.1.0.20250204-py3-none-any.whl", hash = "sha256:32ca4a35430e8b94f6603b35beb7f56c32260ddddd4f4bb305fdf8f92358b87e", size = 10059 },
 ]
 
 [[package]]

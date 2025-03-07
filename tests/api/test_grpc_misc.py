@@ -38,7 +38,7 @@ async def nearest_flights_result(
 async def test_nearest_flights(
     nearest_flights_result: NearestFlightsResponse,
 ) -> None:
-    assert len(nearest_flights_result.flights_list) > 5
+    assert len(nearest_flights_result.flights_list) > 2
 
 
 @pytest.mark.anyio

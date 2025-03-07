@@ -16,9 +16,8 @@ Methods:
 
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, NamedTuple, Union, overload
+from typing import TYPE_CHECKING, NamedTuple, Union, cast, overload
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -60,15 +59,11 @@ from .proto.v1_pb2 import (
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
-from .utils import Result, to_unix_timestamp
+from .utils import Result, get_current_timestamp, to_unix_timestamp
 
 if TYPE_CHECKING:
     from datetime import datetime
-    from typing import (
-        Annotated,
-        AsyncGenerator,
-        Type,
-    )
+    from typing import Annotated, AsyncGenerator, Literal, Type
 
     import polars as pl
     from typing_extensions import TypeAlias
@@ -304,7 +299,7 @@ def live_feed_df(
 # but we want a flat structure in the service API and avoid rewriting __init__
 @dataclass
 class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
-    timestamp: int | datetime | str | None = None
+    timestamp: int | datetime | Literal["now"] = "now"
     """Start timestamp"""
     duration: int = 7
     """
@@ -317,9 +312,11 @@ class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
 
     @override
     def to_proto(self) -> PlaybackRequest:  # type: ignore
-        timestamp = to_unix_timestamp(self.timestamp) or (
-            int(time.time()) - self.duration
-        )
+        timestamp = to_unix_timestamp(self.timestamp)
+        if timestamp == "now":
+            timestamp = get_current_timestamp() - self.duration
+        # timestamp should not be None, silence mypy
+        timestamp = cast(int, timestamp)
         return PlaybackRequest(
             live_feed_request=super().to_proto(),
             timestamp=timestamp,

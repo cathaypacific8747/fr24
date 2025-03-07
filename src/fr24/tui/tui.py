@@ -143,12 +143,13 @@ class FR24(App[None]):
         if len(self.line_info) == 0:
             return
         date = self.line_info["date"] + " " + self.line_info["STD"]
+        timestamp = int(pd.Timestamp(date).timestamp())
         result = playback_parse(
             await playback(
                 self.client,
                 PlaybackParams(
                     flight_id=self.line_info["flightid"],
-                    timestamp=date,
+                    timestamp=timestamp,
                 ),
                 auth=self.auth,
             )
@@ -186,7 +187,11 @@ class FR24(App[None]):
         results = flight_list_parse(
             await flight_list(
                 self.client,
-                FlightListParams(reg=value, limit=100, timestamp=ts),
+                FlightListParams(
+                    reg=value,
+                    limit=100,
+                    timestamp=int(pd.Timestamp(ts).timestamp()),
+                ),
                 auth=self.auth,
             )
         )
@@ -196,7 +201,11 @@ class FR24(App[None]):
         results = flight_list_parse(
             await flight_list(
                 self.client,
-                FlightListParams(flight=value, limit=100, timestamp=ts),
+                FlightListParams(
+                    flight=value,
+                    limit=100,
+                    timestamp=int(pd.Timestamp(ts).timestamp()),
+                ),
                 auth=self.auth,
             )
         )
@@ -280,7 +289,7 @@ class FR24(App[None]):
                     airport=value,
                     mode="arrivals",
                     limit=100,
-                    timestamp=ts,
+                    timestamp=int(pd.Timestamp(ts).timestamp()),
                 ),
                 auth=self.auth,
             )
@@ -303,7 +312,7 @@ class FR24(App[None]):
                     airport=value,
                     mode="departures",
                     limit=100,
-                    timestamp=ts,
+                    timestamp=int(pd.Timestamp(ts).timestamp()),
                 ),
                 auth=self.auth,
             )

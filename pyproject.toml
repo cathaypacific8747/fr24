@@ -30,7 +30,6 @@ dependencies = [
     "appdirs>=1.4.4",
     "httpx[brotli,http2]>=0.27.2",
     "orjson>=3.10.14",
-    "pandas>=2.2.3", # scheduled for removal
     "polars>=1.19.0",
     "protobuf==5.28.*",
 ]
@@ -51,25 +50,15 @@ test = [
     "pytest>=8.3.3",
     "fr24[rich]",
 ]
-docs = [
-    "mkdocs-material[imaging]>=9.5.43",
-    "mkdocstrings-python>=1.13.0",
-]
+docs = ["mkdocs-material[imaging]>=9.5.43", "mkdocstrings-python>=1.13.0"]
 
 [project.scripts]
 fr24 = 'fr24.cli:app'
 
 [project.optional-dependencies]
-rich = [
-    "loguru",
-    "rich"
-]
-cli = [
-    "typer>=0.15.1",
-]
-tui = [
-    "textual>=1.0.0",
-]
+rich = ["loguru", "rich"]
+cli = ["typer>=0.15.1"]
+tui = ["textual>=1.0.0", "pandas>=2.2.3"]
 
 # default-groups = ["dev"] by default, overriding for now
 [tool.uv]
@@ -82,7 +71,6 @@ lint.select = [
     "F",   # pyflakes
     "I",   # isort
     "NPY", # numpy
-    # "PD",  # pandas
     "DTZ", # flake8-datetimez
     "RUF",
 ]
