@@ -6,18 +6,12 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Protocol,
-    TypeVar,
-)
+from typing import IO, TYPE_CHECKING, Any, Generic, Protocol, TypeVar, Union
 
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import runtime_checkable
 
-from .cache import Cache
+from .cache import FR24Cache
 from .grpc import (
     LiveFeedParams,
     LiveFeedPlaybackParams,
@@ -48,13 +42,14 @@ from .utils import SupportsToDict, SupportsToPolars, write_table
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import IO, Any, AsyncIterator
+    from typing import Any, AsyncIterator
 
     import httpx
     import polars as pl
+    from typing_extensions import TypeAlias
 
     from . import HTTPClient
-    from .cache import Cache
+    from .cache import FR24Cache
     from .utils import SupportedFormats
 
 _log = logging.getLogger(__name__)
@@ -93,15 +88,24 @@ class SupportsFetch(Protocol[RequestT]):
 
 @dataclass
 class APIResult(Generic[RequestT]):
-    """Wraps raw bytes with context."""
+    """
+    Wraps the raw `Response` with request context.
+
+    Note that at this stage, the response holds the *raw* bytes, possibly
+    encoded with a scheme. Retrieve the raw bytes with `response.content` or
+    parse it into json with `response.json()`.
+    """
 
     request: RequestT
     response: httpx.Response
 
 
+WriteLocation: TypeAlias = Union[str, Path, IO[bytes], FR24Cache]
+
+
 @runtime_checkable
-class SupportsWrite(Protocol):
-    def write_table(self, file: Path | IO[bytes] | Cache) -> None:
+class SupportsWriteTable(Protocol):
+    def write_table(self, file: WriteLocation) -> None:
         """Writes the object to the given file path."""
 
 
@@ -120,7 +124,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
     async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightListResult:
         """
         Fetch the flight list.
-        See [fr24.json.FlightListRequest][] for the detailed signature.
+        See [fr24.json.FlightListParams][] for the detailed signature.
         """
         request = FlightListParams(*args, **kwargs)
         response = await flight_list(
@@ -129,7 +133,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
             self.__factory.http.auth,
         )
         return FlightListResult(
-            request=FlightListParams(*args, **kwargs),
+            request=request,
             response=response,
         )
 
@@ -180,7 +184,12 @@ class FlightListService(SupportsFetch[FlightListParams]):
             await asyncio.sleep(delay)
 
     def new_result_collection(self) -> FlightListResultCollection:
-        """Create an empty list of flight list API results."""
+        """
+        Create an empty list of flight list API results.
+
+        Methods `to_dict` and `to_polars` can be used collect all unique rows in
+        each flight list.
+        """
         return FlightListResultCollection()
 
 
@@ -189,8 +198,10 @@ class FlightListResult(
     APIResult[FlightListParams],
     SupportsToDict[FlightList],
     SupportsToPolars,
-    SupportsWrite,
+    SupportsWriteTable,
 ):
+    """A single result from the flight list API."""
+
     def to_dict(self) -> FlightList:
         return flight_list_parse(self.response)
 
@@ -199,11 +210,11 @@ class FlightListResult(
 
     def write_table(
         self,
-        file: Path | IO[bytes] | Cache,
+        file: WriteLocation,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
-        if isinstance(file, Cache):
+        if isinstance(file, FR24Cache):
             file = file.flight_list(self.request.kind).new_bare_path(
                 self.request.ident.upper()
             )
@@ -215,7 +226,7 @@ class FlightListResultCollection(
     list[FlightListResult],
     SupportsToDict[FlightList],
     SupportsToPolars,
-    SupportsWrite,
+    SupportsWriteTable,
 ):
     """A list of results from the flight list API."""
 
@@ -264,7 +275,7 @@ class FlightListResultCollection(
 
     def write_table(
         self,
-        file: Path | IO[bytes] | Cache,
+        file: WriteLocation,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
@@ -273,7 +284,7 @@ class FlightListResultCollection(
                 "cannot save an empty flight list, "
                 "must contain at least one valid flight list response"
             )
-        if isinstance(file, Cache):
+        if isinstance(file, FR24Cache):
             file = file.flight_list(self[0].request.kind).new_bare_path(
                 self[0].request.ident.upper()
             )
@@ -316,7 +327,7 @@ class PlaybackResult(
     APIResult[PlaybackParams],
     SupportsToDict[Playback],
     SupportsToPolars,
-    SupportsWrite,
+    SupportsWriteTable,
 ):
     def to_dict(self) -> Playback:
         return playback_parse(self.response)
@@ -326,11 +337,11 @@ class PlaybackResult(
 
     def write_table(
         self,
-        file: Path | IO[bytes] | Cache,
+        file: WriteLocation,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
-        if isinstance(file, Cache):
+        if isinstance(file, FR24Cache):
             file = file.playback.new_bare_path(
                 str(self.request.flight_id).upper()
             )
@@ -380,7 +391,7 @@ class LiveFeedResult(
     SupportsToProto[LiveFeedResponse],
     SupportsToDict[dict[str, Any]],
     SupportsToPolars,
-    SupportsWrite,
+    SupportsWriteTable,
 ):
     timestamp: int
 
@@ -395,11 +406,11 @@ class LiveFeedResult(
 
     def write_table(
         self,
-        file: Path | IO[bytes] | Cache,
+        file: WriteLocation,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
-        if isinstance(file, Cache):
+        if isinstance(file, FR24Cache):
             file = file.live_feed.new_bare_path(str(self.timestamp))
         write_table(self, file, format=format)
 
@@ -436,7 +447,7 @@ class LiveFeedPlaybackResult(
     SupportsToProto[PlaybackResponse],
     SupportsToDict[dict[str, Any]],
     SupportsToPolars,
-    SupportsWrite,
+    SupportsWriteTable,
 ):
     def to_proto(self) -> PlaybackResponse:
         return live_feed_playback_parse(self.response).unwrap()
@@ -449,10 +460,10 @@ class LiveFeedPlaybackResult(
 
     def write_table(
         self,
-        file: Path | IO[bytes] | Cache,
+        file: WriteLocation,
         *,
         format: SupportedFormats = "parquet",
     ) -> None:
-        if isinstance(file, Cache):
+        if isinstance(file, FR24Cache):
             file = file.live_feed.new_bare_path(str(self.request.timestamp))
         write_table(self, file, format=format)

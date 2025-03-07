@@ -9,7 +9,7 @@ import polars as pl
 import pytest
 from pydantic import ConfigDict, TypeAdapter
 
-from fr24 import FR24, Cache
+from fr24 import FR24, FR24Cache
 from fr24.json import (
     FlightListParams,
     PlaybackParams,
@@ -137,7 +137,7 @@ async def test_flight_list_reg_concat(fr24: FR24) -> None:
 
 
 @pytest.mark.anyio
-async def test_flight_list_reg_file_ops(fr24: FR24, cache: Cache) -> None:
+async def test_flight_list_reg_file_ops(fr24: FR24, cache: FR24Cache) -> None:
     """
     check that saving and reopening in a new instance yields the same rows
     test that auto-detect directory and specified directory saving works

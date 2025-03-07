@@ -6,21 +6,23 @@ It supports querying live feed snapshots/playback, trajectory history and other 
 
 For the latest stable version, create a new virtual environment and run:
 
-=== "Pip"
-
-    ```sh
-    pip install fr24
-    ```
-
-=== "uv"
+=== "`uv`"
 
     ```sh
     uv add fr24
     ```
 
+=== "`pip`"
+
+    ```sh
+    virtualenv .venv
+    source .venv/bin/activate
+    pip install fr24
+    ```
+
 ### Development
 
-=== "uv"
+=== "`uv`"
 
     ```sh
     git clone https://github.com/cathaypacific8747/fr24.git
@@ -29,6 +31,13 @@ For the latest stable version, create a new virtual environment and run:
     source .venv/bin/activate
     uv sync
     ```
+
+
+Build and hotload documentation:
+
+```sh
+mkdocs serve
+```
 
 ## License
 
@@ -39,7 +48,7 @@ For the latest stable version, create a new virtual environment and run:
 
 ```json
 {
-  "copyright": "Copyright (c) 2014-2023 Flightradar24 AB. All rights reserved.",
+  "copyright": "Copyright (c) 2014-2025 Flightradar24 AB. All rights reserved.",
   "legalNotice": "The contents of this file and all derived data are the property of Flightradar24 AB for use exclusively by its products and applications. Using, modifying or redistributing the data without the prior written permission of Flightradar24 AB is not allowed and may result in prosecutions."
 }
 ```

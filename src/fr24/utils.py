@@ -85,7 +85,7 @@ def format_bare_path(path: BarePath, format: SupportedFormats) -> BarePath:
 
 def write_table(
     result: SupportsToPolars,
-    file: Path | IO[bytes] | BarePath,
+    file: str | Path | IO[bytes] | BarePath,
     *,
     format: SupportedFormats = "parquet",
     **kwargs: Any,
@@ -99,6 +99,8 @@ def write_table(
 
     if isinstance(file, BarePath):
         file = format_bare_path(file, format)
+    if isinstance(file, str):
+        file = Path(file)
     if isinstance(file, Path):
         file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -160,6 +162,12 @@ class SupportsToPolars(Protocol):
     def to_polars(self) -> pl.DataFrame:
         """Converts the object into a polars dataframe."""
 
+
+# In the json api, the httpx.Response class stores the response body AND any
+# errors in the same object. For example, `response.json()` effectively tries to
+# parse the response body as JSON, and if it fails, raises an error.
+# We want to mirror this behaviour in the gRPC api, so we define a Result type
+# that can be *either* a successful parsed protocol buffer or a gRPC error.
 
 T = TypeVar("T")
 E = TypeVar("E")

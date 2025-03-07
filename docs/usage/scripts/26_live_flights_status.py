@@ -6,7 +6,7 @@
 import httpx
 from fr24.grpc import (
     live_flights_status_request_create,
-    live_flights_status_post,
+    live_flights_status,
 )
 from fr24.proto.v1_pb2 import LiveFlightsStatusRequest, LiveFlightsStatusResponse
 
@@ -15,7 +15,7 @@ async def live_flights_status_data() -> LiveFlightsStatusResponse:
     async with httpx.AsyncClient() as client:
         message = LiveFlightsStatusRequest(flight_ids_list=[0x35fbc363, 0x35fbf180])
         request = live_flights_status_request_create(message)
-        result = await live_flights_status_post(client, request)
+        result = await live_flights_status(client, request)
         return result.unwrap()
 
 

@@ -10,9 +10,11 @@ nav:
       - Library Quickstart: "usage/quickstart.md"
       - Example Gallery: "usage/examples.md"
       - Authentication: "usage/authentication.md"
+      - Directories: "usage/directories.md"
   - API Reference:
       - Services: "api/service.md"
-      - Functions: "api/functions.md"
+      - Cache: "api/cache.md"
+      - Lower-level Functions: "api/functions.md"
       - Types: "api/types.md"
       - Utilities: "api/utils.md"
       - Protobuf Definitions: "api/protobuf.md"
@@ -98,3 +100,6 @@ markdown_extensions:
       custom_checkbox: true
   - toc:
       permalink: "¤"
+
+extra_css:
+  - css/mkdocstrings.css

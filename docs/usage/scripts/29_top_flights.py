@@ -6,7 +6,7 @@
 import httpx
 from fr24.grpc import (
     top_flights_request_create,
-    top_flights_post,
+    top_flights,
 )
 from fr24.proto.v1_pb2 import TopFlightsRequest, TopFlightsResponse
 
@@ -15,7 +15,7 @@ async def top_flights_data() -> TopFlightsResponse:
     async with httpx.AsyncClient() as client:
         message = TopFlightsRequest(limit=10)
         request = top_flights_request_create(message)
-        result = await top_flights_post(client, request)
+        result = await top_flights(client, request)
         return result.unwrap()
 
 

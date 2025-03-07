@@ -5,17 +5,17 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from appdirs import user_cache_dir
 
 from .utils import BarePath, scan_table
 
 if TYPE_CHECKING:
-    from typing import Any, Generator
+    from typing import Generator
 
     import polars as pl
-    from typing_extensions import Literal
+    from typing_extensions import Literal, TypeAlias
 
     from .utils import SupportedFormats
 
@@ -25,7 +25,7 @@ if cache_path := os.environ.get("XDG_CACHE_HOME"):
     PATH_CACHE = Path(cache_path) / "fr24"
 
 
-class Cache:
+class FR24Cache:
     """
     - `flight_list/{kind}/{ident}`
     - `playback/{flight_id}`
@@ -33,22 +33,22 @@ class Cache:
     """
 
     @classmethod
-    def default(cls) -> Cache:
+    def default(cls) -> FR24Cache:
         """
         Create a cache in the [default directory](../usage/cli.md#directories).
         """
         return cls(PATH_CACHE)
 
-    def __init__(self, path: Path) -> None:
-        self.path = path
+    def __init__(self, path: Path | str) -> None:
+        self.path = Path(path)
 
-        flight_list_dir = path / "flight_list"
+        flight_list_dir = self.path / "flight_list"
         self.flight_list = FlightListBy(
             reg=Collection(flight_list_dir / "reg"),
             flight=Collection(flight_list_dir / "flight"),
         )
-        self.playback = Collection(path / "playback")
-        self.live_feed = Collection(path / "feed")
+        self.playback = Collection(self.path / "playback")
+        self.live_feed = Collection(self.path / "feed")
 
         for collection in (
             self.flight_list.reg,
@@ -62,10 +62,16 @@ class Cache:
 @dataclass(frozen=True)
 class FlightListBy:
     reg: Collection
+    """Collection of flight lists by registration number."""
     flight: Collection
+    """Collection of flight lists by flight number."""
 
     def __call__(self, kind: Literal["reg", "flight"]) -> Collection:
         return getattr(self, kind)  # type: ignore
+
+
+Ident: TypeAlias = Union[str, int]
+"""The identifier for the cached file."""
 
 
 @dataclass(frozen=True)
@@ -84,17 +90,35 @@ class Collection:
             yield File(fp)
 
     def scan_table(
-        self, ident: Any, *, format: SupportedFormats = "parquet"
+        self,
+        ident: File | Path | Ident,
+        *,
+        format: SupportedFormats = "parquet",
     ) -> pl.LazyFrame:
         """
-        - `cache.flight_list.reg`: Registration number, upper cased
-        - `cache.flight_list.flight`: Flight number, upper cased
-        - `cache.playback`: Flight id, hex representation, lower cased
-        - `cache.feed`: Unix Timestamp, integer seconds since epoch
+        Lazily load a file from this collection.
+
+        :param ident: The path to the file to scan, or the identifier of the
+            record in the collection:
+
+            - `cache.flight_list.reg.scan_table`: Registration number, uppercase
+            - `cache.flight_list.flight.scan_table`: Flight number, upper cased
+            - `cache.playback.scan_table`: Flight id, hex representation,
+                lowercase
+            - `cache.feed.scan_table`: Unix timestamp, integer seconds since
+                epoch
         """
-        return scan_table(self.new_bare_path(str(ident)), format=format)
+        if isinstance(ident, (File, Path)):
+            file = ident
+        else:
+            file = self.new_bare_path(str(ident))
+        return scan_table(file, format=format)
 
     def new_bare_path(self, ident: str) -> BarePath:
+        """
+        Returns the bare path (without the file extension) to the file in this
+        collection.
+        """
         return BarePath(self.path / ident)
 
 

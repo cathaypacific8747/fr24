@@ -35,6 +35,7 @@ def to_proto(message_like: SupportsToProto[T] | T) -> T:
 
 
 def encode_message(msg: T) -> bytes:
+    """Encode to a length-prefixed message."""
     msg_bytes = msg.SerializeToString()
     return (
         b"\x00"  # u8, no compression
@@ -72,6 +73,11 @@ def parse_data(data: bytes, msg_type: Type[T]) -> Result[T, ProtoError]:
 
 
 class GrpcError(Exception):
+    """
+    When an application or runtime error occurs during an RPC a
+    `Status` and `Status-Message` are delivered in `Trailers`.
+    """
+
     def __init__(
         self,
         message: str,
@@ -83,9 +89,13 @@ class GrpcError(Exception):
     ):
         super().__init__(message)
         self.raw_data = raw_data
+        """Length-prefixed message"""
         self.status = status
+        """1*DIGIT ; 0-9"""
         self.status_message = status_message
+        """Percent-Encoded"""
         self.status_details = status_details
+        """`google.rpc.Status` proto message"""
 
     @classmethod
     def from_trailers(cls, data: bytes) -> GrpcError:

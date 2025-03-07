@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import httpx
 
 from .authentication import login
-from .cache import Cache
+from .cache import FR24Cache
 from .configuration import FP_CONFIG_FILE, PATH_CONFIG
 from .service import ServiceFactory
 
@@ -147,6 +147,6 @@ __all__ = [
     "FR24",
     "PATH_CACHE",
     "PATH_CONFIG",
-    "Cache",
+    "FR24Cache",
     "HTTPClient",
 ]

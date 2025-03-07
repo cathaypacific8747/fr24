@@ -5,8 +5,8 @@
 # --8<-- [start:script0]
 import httpx
 from fr24.grpc import (
-    _search_index_request_create,
-    _search_index_post,
+    search_index_request_create,
+    search_index,
 )
 from fr24.proto.v1_pb2 import FetchSearchIndexRequest, FetchSearchIndexResponse
 
@@ -14,8 +14,8 @@ from fr24.proto.v1_pb2 import FetchSearchIndexRequest, FetchSearchIndexResponse
 async def search_index_data() -> FetchSearchIndexResponse:
     async with httpx.AsyncClient() as client:
         message = FetchSearchIndexRequest()
-        request = _search_index_request_create(message)
-        result = await _search_index_post(client, request)
+        request = search_index_request_create(message)
+        result = await search_index(client, request)
         return result.unwrap()
 
 

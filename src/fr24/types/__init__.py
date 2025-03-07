@@ -2,18 +2,30 @@ from typing import Callable, TypeVar, cast
 
 from typing_extensions import Concatenate, ParamSpec
 
+#
+# In this library, we have a clear separation between
+# lower-level functions (e.g. `fr24.json.flight_list`) and
+# higher-level OOP wrappers (e.g. `fr24.flight_list.fetch()`).
+#
+# Lower-level functions accept a `dataclass` as request params
+# (e.g. `FlightListParams`) which has extensive documentation for each member.
+# To avoid having to rewrite same documentation for its higher level counterpart
+# , the following decorator copies the signature from a target `dataclass`.
+#
+# IDEs will show the correct signature for the higher-level function and MyPy
+# will also be happy with it.
+#
+
 T = TypeVar("T")
 """origin return type"""
 P = ParamSpec("P")
 """origin parameter type"""
 S = TypeVar("S")
-"""Extra `self` in target"""
+"""Extra `self` in target method"""
 R = TypeVar("R")
 """Actual return type"""
 
 
-# NOTE: this only keeps mypy happy, mkdocs will not show it properly.
-# quick hack to reduce code duplication
 def overwrite_args_signature_from(
     _origin: Callable[P, T],
 ) -> Callable[
@@ -31,12 +43,14 @@ def overwrite_args_signature_from(
     >>> def foo(a: int, b: int) -> float:
     ...     ...
     >>> @overwrite_args_signature_from(foo)
-    ... def foo_stringed(args: Any, kwargs: Any) -> str:
+    ... def bar(args: Any, kwargs: Any) -> str:
     ...     return str(foo(*args, **kwargs))
-    >>> # IDEs will now show `foo_stringed` as having signature
+    >>> # IDEs will now show `bar` as having signature
     >>> # `Callable[[int, int], str]`
     ```
     """
+    # NOTE: when mkdocs builds the docs, it will not show the signature of `foo`
+    # but rather the signature of `bar`.
 
     def decorator(
         target: Callable[Concatenate[S, ...], R],

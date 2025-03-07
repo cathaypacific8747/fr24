@@ -1,3 +1,19 @@
+# Overview
+
+
+|Name|Lower-level functions|Service and Cache Location
+|-|-|-|
+|[Flight List](#flight-list)<br><span class="chip chip-json">JSON</span>|[`flight_list`][fr24.json.flight_list]<br>[`flight_list_df`][fr24.json.flight_list_df]|[`FlightListService`][fr24.service.FlightListService]<br><br>Cache Location:<br>`flight_list/`<br>`└── reg/`<br>`​    └── {reg.upper()}.parquet`<br>`└── flight_list/`<br>`​    └── {iata_flight_num.upper()}.parquet`|
+|[Playback](#playback)<br><span class="chip chip-json">JSON</span>|[`playback`][fr24.json.playback]<br>[`playback_df`][fr24.json.playback_df]|[`PlaybackService`][fr24.service.PlaybackService]<br><br>Cache Location:<br>`playback/`<br>`└── {fr24_hex_id.lower()}.parquet`|
+|[Live Feed](#live-feed)<br><span class="chip chip-grpc">gRPC</span>|[`live_feed`][fr24.grpc.live_feed]<br>[`live_feed_df`][fr24.grpc.live_feed_df]|[`LiveFeedService`][fr24.service.LiveFeedService]<br><br>Cache Location:<br>`feed/`<br>`└── {timestamp_s}.parquet`|
+|[Airport Arrivals](#airport-arrivals)<br><span class="chip chip-json">JSON</span>|[`airport_list`][fr24.json.airport_list]|-|
+|[Airport Search](#airport-search)<br><span class="chip chip-json">JSON</span>|[`find`][fr24.json.find]|-|
+|[Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>|[`nearest_flights`][fr24.grpc.nearest_flights]|-|
+|[Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span>|[`live_flights_status`][fr24.grpc.live_flights_status]|-|
+|[Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>|[`follow_flight_stream`][fr24.grpc.follow_flight_stream]|-|
+|[Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>|[`top_flights`][fr24.grpc.top_flights]|-|
+|[Live Trail](#live-trail)<br><span class="chip chip-grpc">gRPC</span>|[`live_trail`][fr24.grpc.live_trail]|-|
+
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
 
 [Skip to lower level functions](#lower-level-functions)
@@ -5,7 +21,6 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
 ## `FR24` class
 
 ### Flight list
-*API reference: [fr24.service.FlightListService][], [fr24.service.FlightListService.fetch][], [fr24.service.FlightListService.fetch_all][]*
 
 #### Single page
 === "Jupyter cell"
@@ -14,7 +29,7 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
     --8<-- "docs/usage/scripts/10_flight_list.py:script0"
     ```
 
-=== "`data.df`"
+=== "`result.to_polars()`"
     
     ```
     --8<-- "docs/usage/scripts/10_flight_list.py:df0"
@@ -22,27 +37,27 @@ You can find even more usage examples under [`tests/`](https://github.com/cathay
 
 #### Paginate all pages
 Queries for next page as long as user doesn't enter `x`, or if there are no pages left.
-In each iteration, rows are upserted and saved to the [cache](../usage/cli.md#directories).
+In each iteration, rows are upserted and saved to the [cache](./directories.md).
 
 Note that pagination cannot be run in parallel: fetching page N requires information from page N-1.
 
 === "Jupyter cell"
 
-    ```py hl_lines="5 8"
+    ```py hl_lines="7 9 13"
     --8<-- "docs/usage/scripts/10_flight_list.py:script1"
     ```
 
-    1. First attempt to load existing table from the [cache](../usage/cli.md#directories), otherwise it creates an empty in-memory arrow table for us to concat to.
-    2. [Upserts the data][fr24.service.FlightListArrow.concat], replacing older records with new ones.
+    1. Create a new result collections, a list under the hood.
+    2. Appends the current flight list to the collection. Note that it does not remove duplicates.
+    3. Merges the collections into a single table. Removes duplicates (if any).
 
-=== "`data.df`"
+=== "`results.to_polars()`"
     
     ```
     --8<-- "docs/usage/scripts/10_flight_list.py:df1"
     ```
 
 ### Playback
-*API reference: [fr24.service.PlaybackService][], [fr24.service.PlaybackService.fetch][]*
 
 #### Miracle on the Hudson
 Downloads the flight trajectory for [UA1549](https://en.wikipedia.org/wiki/US_Airways_Flight_1549)
@@ -76,8 +91,8 @@ Saves trajectory data to disk, reads the track and metadata from it.
     --8<-- "docs/usage/scripts/11_playback.py:script1"
     ```
     
-    1. Saves the parquet to the [cache](../usage/cli.md#directories).
-    2. Load the parquet from the [cache](../usage/cli.md#directories).
+    1. Saves the parquet to the [cache](./directories.md).
+    2. Load the parquet from the [cache](./directories.md).
 
 === "`data_local.df`"
     
@@ -91,7 +106,6 @@ Saves trajectory data to disk, reads the track and metadata from it.
     --8<-- "docs/usage/scripts/11_playback.py:metadata0"
     ```
 ### Live Feed
-*API reference: [fr24.service.LiveFeedService][], [fr24.service.LiveFeedService.fetch][]*
 
 #### Live
 This example is covered in detail in the [quickstart](./quickstart.md).
@@ -102,13 +116,13 @@ This example is covered in detail in the [quickstart](./quickstart.md).
     --8<-- "docs/usage/scripts/12_live_feed.py:script"
     ```
 
-=== "`response`"
+=== "`result`"
     
     ```py
     --8<-- "docs/usage/scripts/12_live_feed.py:response"
     ```
 
-=== "`lf.data.df`"
+=== "`result.to_polars()`"
     
     ```
     --8<-- "docs/usage/scripts/12_live_feed.py:df"
@@ -119,13 +133,11 @@ Fetches the live feed three days ago.
 
 === "Jupyter cell"
 
-    ```py hl_lines="6"
+    ```py hl_lines="4"
     --8<-- "docs/usage/scripts/12_live_feed.py:script2"
     ```
 
-    1. Subtract current UTC by 3 days.
-
-=== "`lf.data.df`"
+=== "`result.to_polars()`"
     
     ```
     --8<-- "docs/usage/scripts/12_live_feed.py:df2"
@@ -133,11 +145,10 @@ Fetches the live feed three days ago.
 
 ## Lower-level functions
 ### Flight list
-*API Reference: [fr24.json.flight_list][], [fr24.json.flight_list_df][]*
 
 === "Jupyter cell"
 
-    ```py hl_lines="17"
+    ```py hl_lines="16"
     --8<-- "docs/usage/scripts/20_flight_list.py:script0"
     ```
 
@@ -150,7 +161,6 @@ Fetches the live feed three days ago.
     ```
 
 ### Playback
-*API Reference: [fr24.json.playback][], [fr24.json.playback_df][]*
 
 === "Jupyter cell"
 
@@ -165,7 +175,6 @@ Fetches the live feed three days ago.
     ```
 
 ### Airport Arrivals
-*API Reference: [fr24.json.airport_list][]*
 
 === "Jupyter cell"
 
@@ -180,7 +189,6 @@ Fetches the live feed three days ago.
     ```
 
 ### Airport Search
-*API Reference: [fr24.json.find][]*
 
 === "Jupyter cell"
 
@@ -195,7 +203,6 @@ Fetches the live feed three days ago.
     ```
 
 ### Live feed
-*API Reference: [fr24.grpc.live_feed_post][]*
 
 Demonstrates custom bounding boxes.
 
@@ -204,6 +211,8 @@ Demonstrates custom bounding boxes.
     ```py
     --8<-- "docs/usage/scripts/24_live_feed.py:script0"
     ```
+
+    1. The type is a `Result[LiveFeedResponse, ProtoError]`, calling the `.unwrap()` method raises an exception if there is an error.
 
 === "Protobuf Output"
     
@@ -226,7 +235,6 @@ In JSON format:
     ```
 
 ### Nearest Flights
-*API Reference: [fr24.grpc.nearest_flights_post][]*
 
 === "Jupyter cell"
 
@@ -241,7 +249,6 @@ In JSON format:
     ```
 
 ### Live Flight Status
-*API Reference: [fr24.grpc.live_flights_status_post][]*
 
 === "Jupyter cell"
 
@@ -256,7 +263,6 @@ In JSON format:
     ```
 
 ### Follow Flight
-*API Reference: [fr24.grpc.follow_flight_stream][]*
 
 !!! tip
     This is a streaming API that repeatedly updates the aircraft state vectors.
@@ -277,7 +283,6 @@ In JSON format:
     ```
 
 ### Top Flights
-*API Reference: [fr24.grpc.top_flights_post][]*
 
 === "Jupyter cell"
 
@@ -292,7 +297,6 @@ In JSON format:
     ```
 
 ### Live Trail
-*API Reference: [fr24.grpc.live_trail_post][]*
 
 !!! warning
     Unstable API - does not return data reliably.

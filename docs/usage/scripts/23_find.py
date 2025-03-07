@@ -6,7 +6,7 @@
 from fr24.types.find import Find
 from fr24.json import find
 
-import pandas as pd
+import polars as pl
 import httpx
 
 async def my_find() -> Find:
@@ -18,19 +18,35 @@ async def my_find() -> Find:
 
 
 results = await my_find()
-pd.DataFrame(pd.json_normalize(results["results"]))
+df = pl.json_normalize(results["results"])
+print(df)
 # --8<-- [end:script0]
 # %%
 """
 # --8<-- [start:df0]
-    id                                            label     type   match  detail.lat  detail.lon  detail.size
-0  CDG     Paris Charles de Gaulle Airport (CDG / LFPG)  airport  begins   49.012516    2.555752       199939
-1  ORY                  Paris Orly Airport (ORY / LFPO)  airport  begins   48.723331    2.379444        87577
-2  LBG            Paris Le Bourget Airport (LBG / LFPB)  airport  begins   48.958801    2.433600        27873
-3  BVA        Paris Beauvais-Tille Airport (BVA / LFOB)  airport  begins   49.454189    2.113550        16566
-4  PRX                     Paris Cox Field (PRX / KPRX)  airport  begins   33.636665  -95.450279         1402
-5  XCR         Paris Vatry Chalons Airport (XCR / LFOK)  airport  begins   48.759998    4.200000         1008
-6  VIY  Paris Villacoublay Velizy Air Base (VIY / LFPV)  airport  begins   48.774399    2.201540          993
-7  PHT          Paris Henry County Airport (PHT / KPHT)  airport  begins   36.336384  -88.384270          390
+shape: (9, 7)
+┌─────┬───────────────────────────────┬─────────┬──────────┬────────────┬────────────┬─────────────┐
+│ id  ┆ label                         ┆ type    ┆ match    ┆ detail.lat ┆ detail.lon ┆ detail.size │
+│ --- ┆ ---                           ┆ ---     ┆ ---      ┆ ---        ┆ ---        ┆ ---         │
+│ str ┆ str                           ┆ str     ┆ str      ┆ f64        ┆ f64        ┆ i64         │
+╞═════╪═══════════════════════════════╪═════════╪══════════╪════════════╪════════════╪═════════════╡
+│ CDG ┆ Paris Charles de Gaulle       ┆ airport ┆ begins   ┆ 49.012516  ┆ 2.555752   ┆ 201280      │
+│     ┆ Airpor…                       ┆         ┆          ┆            ┆            ┆             │
+│ ORY ┆ Paris Orly Airport (ORY /     ┆ airport ┆ begins   ┆ 48.723331  ┆ 2.379444   ┆ 84510       │
+│     ┆ LFPO…                         ┆         ┆          ┆            ┆            ┆             │
+│ LBG ┆ Paris Le Bourget Airport (LBG ┆ airport ┆ begins   ┆ 48.958801  ┆ 2.4336     ┆ 24465       │
+│     ┆ …                             ┆         ┆          ┆            ┆            ┆             │
+│ BVA ┆ Paris Beauvais-Tille Airport  ┆ airport ┆ begins   ┆ 49.453465  ┆ 2.115138   ┆ 15939       │
+│     ┆ (…                            ┆         ┆          ┆            ┆            ┆             │
+│ VIY ┆ Paris Villacoublay Velizy Air ┆ airport ┆ begins   ┆ 48.774399  ┆ 2.20154    ┆ 1038        │
+│     ┆ …                             ┆         ┆          ┆            ┆            ┆             │
+│ PRX ┆ Paris Cox Field (PRX / KPRX)  ┆ airport ┆ begins   ┆ 33.636665  ┆ -95.450279 ┆ 953         │
+│ XCR ┆ Paris Vatry Chalons Airport   ┆ airport ┆ begins   ┆ 48.759998  ┆ 4.2        ┆ 710         │
+│     ┆ (X…                           ┆         ┆          ┆            ┆            ┆             │
+│ PHT ┆ Paris Henry County Airport    ┆ airport ┆ begins   ┆ 36.336384  ┆ -88.38427  ┆ 199         │
+│     ┆ (PH…                          ┆         ┆          ┆            ┆            ┆             │
+│ OPL ┆ Opelousas St. Landry Parish   ┆ airport ┆ contains ┆ 30.555695  ┆ -92.098915 ┆ 194         │
+│     ┆ Ai…                           ┆         ┆          ┆            ┆            ┆             │
+└─────┴───────────────────────────────┴─────────┴──────────┴────────────┴────────────┴─────────────┘
 # --8<-- [end:df0]
 """

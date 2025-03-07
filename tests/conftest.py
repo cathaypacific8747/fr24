@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 import httpx
 import pytest
 
-from fr24 import FR24, Cache, intercept_logs_with_loguru
+from fr24 import FR24, FR24Cache, intercept_logs_with_loguru
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -25,9 +25,9 @@ async def client() -> AsyncGenerator[httpx.AsyncClient, None]:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def cache() -> Cache:
+def cache() -> FR24Cache:
     base_dir = Path(tempfile.gettempdir()) / "fr24"
-    cache = Cache(base_dir)
+    cache = FR24Cache(base_dir)
     return cache
 
 

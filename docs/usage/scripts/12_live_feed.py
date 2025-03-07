@@ -3,14 +3,14 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script]
-from fr24 import FR24, Cache
+from fr24 import FR24, FR24Cache
 
 async def my_feed() -> None:
     async with FR24() as fr24:
         result = await fr24.live_feed.fetch()
         print(result)
         print(result.to_polars())
-        result.write_table(Cache.default())
+        result.write_table(FR24Cache.default())
 
 await my_feed()
 # --8<-- [end:script]
@@ -145,9 +145,11 @@ shape: (899, 18)
 from fr24 import FR24
 import time
 
+yesterday = int(time.time() - 86400)
+
 async def my_feed() -> None:
     async with FR24() as fr24:
-        result = await fr24.live_feed_playback.fetch(timestamp=int(time.time() - 86400 * 3))  # (1)!
+        result = await fr24.live_feed_playback.fetch(timestamp=yesterday)
         print(result.to_polars())
 
 await my_feed()

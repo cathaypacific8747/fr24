@@ -8,7 +8,7 @@ import httpx
 from fr24.types.airport_list import AirportList
 from fr24.json import airport_list, AirportListParams
 
-import pandas as pd
+import polars as pl
 
 async def my_arrivals() -> AirportList:
     async with httpx.AsyncClient() as client:
@@ -22,29 +22,45 @@ async def my_arrivals() -> AirportList:
 
 
 airports = await my_arrivals()
-pd.DataFrame(
-    pd.json_normalize(
-        airports["result"]["response"]["airport"]["pluginData"]["schedule"][
-            "arrivals"
-        ]["data"]
-    )
+arrivals = (
+    airports["result"]["response"]["airport"]["pluginData"]["schedule"]["arrivals"]["data"]
 )
+assert arrivals is not None
+df = pl.json_normalize(arrivals)
+print(df)
 # --8<-- [end:script0]
 # %%
 """
 # --8<-- [start:df0]
-    flight.identification.id   flight.identification.row   flight.identification.number.default   flight.identification.number.alternative   flight.identification.callsign   flight.identification.codeshare   flight.status.live   flight.status.text   flight.status.icon   flight.status.estimated   ...   flight.time.scheduled.departure   flight.time.scheduled.arrival   flight.time.real.departure   flight.time.real.arrival   flight.time.estimated.departure   flight.time.estimated.arrival   flight.time.other.eta   flight.time.other.duration   flight.aircraft.images   flight.owner  
-0                       None                  5488300922                                 FR8125                                    MAY8125                          RYR8125                              None                False            Scheduled                 None                      None   ...                        1711986600                      1711991100                         None                       None                      1.711987e+09                            None                    None                         None                      NaN            NaN  
-1                       None                  5488216841                                 AF6124                                       None                             None                              None                False            Scheduled                 None                      None   ...                        1711987200                      1711991700                         None                       None                               NaN                            None                    None                         None                      NaN            NaN  
-2                       None                  5488418617                                 U24849                                     EC4849                          EJU51KM                              None                False            Scheduled                 None                      None   ...                        1711987500                      1711992000                         None                       None                      1.711988e+09                            None                    None                         None                      NaN            NaN  
-3                       None                  5488418658                                 U24988                                     EC4988                          EJU82LE                              None                False            Scheduled                 None                      None   ...                        1711986900                      1711992300                         None                       None                      1.711987e+09                            None                    None                         None                      NaN            NaN  
-4                       None                  5488216846                                 AF6126                                       None                             None                              None                False            Scheduled                 None                      None   ...                        1711989000                      1711993500                         None                       None                               NaN                            None                    None                         None                      NaN            NaN  
-5                       None                  5488417705                                 U21311                                     DS1311                          EZS15PY                              None                False            Scheduled                 None                      None   ...                        1711990500                      1711995000                         None                       None                      1.711990e+09                            None                    None                         None                      NaN            NaN  
-6                       None                  5488297888                                 FR1995                                    MAY1995                          RYR1995                              None                False            Scheduled                 None                      None   ...                        1711989600                      1711996500                         None                       None                      1.711990e+09                            None                    None                         None                      NaN            NaN  
-7                       None                  5488418631                                 U24851                                     EC4851                          EJU69EW                              None                False            Scheduled                 None                      None   ...                        1711992000                      1711996500                         None                       None                      1.711992e+09                            None                    None                         None                      NaN            NaN  
-8                       None                  5488298693                                 FR3358                                       None                             None                              None                False            Scheduled                 None                      None   ...                        1711986900                      1711996800                         None                       None                      1.711987e+09                            None                    None                         None                      NaN            NaN  
-9                       None                  5488418589                                 U24729                                     EC4729                          EJU89CR                              None                False            Scheduled                 None                      None   ...                        1711993200                      1711997400                         None                       None                      1.711993e+09                            None                    None                         None                      NaN            NaN  
-
-[10 rows x 75 columns]
+shape: (10, 76)
+┌───────────┬───────────┬───────────┬───────────┬───┬───────────┬───────────┬───────────┬──────────┐
+│ flight.id ┆ flight.id ┆ flight.id ┆ flight.id ┆ … ┆ flight.ti ┆ flight.ai ┆ flight.ow ┆ flight.a │
+│ entificat ┆ entificat ┆ entificat ┆ entificat ┆   ┆ me.other. ┆ rcraft.im ┆ ner       ┆ irline   │
+│ ion.id    ┆ ion.row   ┆ ion.numbe ┆ ion.numbe ┆   ┆ duration  ┆ ages      ┆ ---       ┆ ---      │
+│ ---       ┆ ---       ┆ r.d…      ┆ r.a…      ┆   ┆ ---       ┆ ---       ┆ null      ┆ null     │
+│ str       ┆ i64       ┆ ---       ┆ ---       ┆   ┆ null      ┆ null      ┆           ┆          │
+│           ┆           ┆ str       ┆ str       ┆   ┆           ┆           ┆           ┆          │
+╞═══════════╪═══════════╪═══════════╪═══════════╪═══╪═══════════╪═══════════╪═══════════╪══════════╡
+│ 3963916d  ┆ 563063588 ┆ AF6132    ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 1         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ null      ┆ 563365562 ┆ null      ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 4         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 39638d76  ┆ 563085809 ┆ T71527    ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 2         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 3963a803  ┆ 563063662 ┆ AF7408    ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 2         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 396399a4  ┆ 563087474 ┆ U24849    ┆ EC4849    ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 7         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ null      ┆ 563088423 ┆ V72371    ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 4         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 3963978d  ┆ 563085809 ┆ T73718    ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 1         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 3963ab98  ┆ 563089434 ┆ XK720     ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 8         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 396398ab  ┆ 563071223 ┆ FR3903    ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 6         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+│ 3963b61f  ┆ 563072081 ┆ GP155     ┆ null      ┆ … ┆ null      ┆ null      ┆ null      ┆ null     │
+│           ┆ 9         ┆           ┆           ┆   ┆           ┆           ┆           ┆          │
+└───────────┴───────────┴───────────┴───────────┴───┴───────────┴───────────┴───────────┴──────────┘
 # --8<-- [end:df0]
 """

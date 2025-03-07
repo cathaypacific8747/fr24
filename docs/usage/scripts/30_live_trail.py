@@ -6,7 +6,7 @@
 import httpx
 from fr24.grpc import (
     live_trail_request_create,
-    live_trail_post,
+    live_trail,
 )
 from fr24.proto.v1_pb2 import LiveTrailRequest, LiveTrailResponse
 
@@ -16,7 +16,7 @@ async def live_trail_data() -> LiveTrailResponse:
     async with httpx.AsyncClient() as client:
         message = LiveTrailRequest(flight_id=0x395c43cf)
         request = live_trail_request_create(message)
-        result = await live_trail_post(client, request)
+        result = await live_trail(client, request)
         return result.unwrap()
 
 

@@ -257,9 +257,7 @@ def live_feed_position_buffer_dict(
     ]
 
 
-def live_feed_flightdata_dict(
-    lfr: Flight,
-) -> LiveFeed:
+def live_feed_flightdata_dict(lfr: Flight) -> LiveFeed:
     """Convert the protobuf message to a dictionary."""
     return {
         "timestamp": lfr.timestamp,
@@ -387,7 +385,7 @@ def nearest_flights_request_create(
     return construct_request("NearestFlights", message, auth)
 
 
-async def nearest_flights_post(
+async def nearest_flights(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> Result[NearestFlightsResponse, ProtoError]:
     return await post_unary(client, request, NearestFlightsResponse)
@@ -400,22 +398,23 @@ def live_flights_status_request_create(
     return construct_request("LiveFlightsStatus", message, auth)
 
 
-async def live_flights_status_post(
+async def live_flights_status(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> Result[LiveFlightsStatusResponse, ProtoError]:
     return await post_unary(client, request, LiveFlightsStatusResponse)
 
 
-def _search_index_request_create(
+def search_index_request_create(
     message: FetchSearchIndexRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
     return construct_request("FetchSearchIndex", message, auth)
 
 
-async def _search_index_post(
+async def search_index(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> Result[FetchSearchIndexResponse, ProtoError]:
+    """WARN: Unstable API - does not return data reliably."""
     return await post_unary(client, request, FetchSearchIndexResponse)
 
 
@@ -440,7 +439,7 @@ def top_flights_request_create(
     return construct_request("TopFlights", message, auth)
 
 
-async def top_flights_post(
+async def top_flights(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> Result[TopFlightsResponse, ProtoError]:
     return await post_unary(client, request, TopFlightsResponse)
@@ -450,27 +449,27 @@ def live_trail_request_create(
     message: LiveTrailRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
-    """WARN: Unstable API - does not return data reliably."""
     return construct_request("LiveTrail", message, auth)
 
 
-async def live_trail_post(
+async def live_trail(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> Result[LiveTrailResponse, ProtoError]:
     """WARN: Unstable API - does not return data reliably."""
     return await post_unary(client, request, LiveTrailResponse)
 
 
-def _historic_trail_request_create(
+def historic_trail_request_create(
     message: HistoricTrailRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
     return construct_request("HistoricTrail", message, auth)
 
 
-async def _historic_trail_post(
+async def historic_trail(
     client: httpx.AsyncClient, request: httpx.Request
 ) -> Result[HistoricTrailResponse, ProtoError]:
+    """WARN: Unstable API - does not return data reliably."""
     # empty DATA frame
     return await post_unary(client, request, HistoricTrailResponse)
 

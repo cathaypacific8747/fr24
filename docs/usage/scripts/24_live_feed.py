@@ -18,7 +18,7 @@ async def france_data() -> LiveFeedResponse:
         params = LiveFeedParams(bounding_box=BoundingBox(north=50, west=-7, south=40, east=10))
         response = await live_feed(client, params)
         result = live_feed_parse(response)
-        return result.unwrap()
+        return result.unwrap() # (1)!
 
 
 data = await france_data()

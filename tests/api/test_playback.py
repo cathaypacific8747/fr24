@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ConfigDict, TypeAdapter
 
-from fr24 import FR24, Cache
+from fr24 import FR24, FR24Cache
 
 FLIGHT_ID = 0x2D81A27
 
@@ -25,7 +25,7 @@ async def test_playback_simple(fr24: FR24) -> None:
 
 
 @pytest.mark.anyio
-async def test_playback_file_ops(fr24: FR24, cache: Cache) -> None:
+async def test_playback_file_ops(fr24: FR24, cache: FR24Cache) -> None:
     """
     check that saving and reopening in a new instance yields the same rows
     """
