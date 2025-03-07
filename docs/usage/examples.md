@@ -1,7 +1,7 @@
 # Overview
 
 
-|Name|Lower-level functions|Service and Cache Location
+|Name|Core functions|Service and Cache Location
 |-|-|-|
 |[Flight List](#flight-list)<br><span class="chip chip-json">JSON</span>|[`flight_list`][fr24.json.flight_list]<br>[`flight_list_df`][fr24.json.flight_list_df]|[`FlightListService`][fr24.service.FlightListService]<br><br>Cache Location:<br>`flight_list/`<br>`└── reg/`<br>`​    └── {reg.upper()}.parquet`<br>`└── flight_list/`<br>`​    └── {iata_flight_num.upper()}.parquet`|
 |[Playback](#playback)<br><span class="chip chip-json">JSON</span>|[`playback`][fr24.json.playback]<br>[`playback_df`][fr24.json.playback_df]|[`PlaybackService`][fr24.service.PlaybackService]<br><br>Cache Location:<br>`playback/`<br>`└── {fr24_hex_id.lower()}.parquet`|
@@ -16,7 +16,7 @@
 
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
 
-[Skip to lower level functions](#lower-level-functions)
+[Skip to core functions](#core-functions)
 
 ## `FR24` class
 
@@ -143,7 +143,7 @@ Fetches the live feed three days ago.
     --8<-- "docs/usage/scripts/12_live_feed.py:df2"
     ```
 
-## Lower-level functions
+## Core functions
 ### Flight list
 
 === "Jupyter cell"

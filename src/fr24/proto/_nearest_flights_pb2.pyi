@@ -38,7 +38,9 @@ class Geolocation(Message):
     LAT_FIELD_NUMBER: int
     LON_FIELD_NUMBER: int
     lat: float
+    """Latitude, degrees, -90 to 90"""
     lon: float
+    """Longitude, degrees, -180 to 180"""
     def __init__(
         self,
         *,

@@ -93,9 +93,13 @@ class LocationBoundaries(Message):
     WEST_FIELD_NUMBER: int
     EAST_FIELD_NUMBER: int
     north: float
+    """Maximum Latitude, degrees, -90 to 90"""
     south: float
+    """Minimum Latitude, degrees, -90 to 90"""
     west: float
+    """Minimum Longitude, degrees, -180 to 180"""
     east: float
+    """Maximum Longitude, degrees, -180 to 180"""
     def __init__(
         self,
         *,
@@ -276,7 +280,7 @@ class LiveFeedRequest(Message):
     FIELD_MASK_FIELD_NUMBER: int
     SELECTED_FLIGHT_IDS_LIST_FIELD_NUMBER: int
     fleets_list: str
-    """requires auth"""
+    """requires authentication"""
     highlight_mode: bool
     stats: bool
     """Include statistics for the given area"""
@@ -363,7 +367,7 @@ class PlaybackRequest(Message):
     For 1x playback, it should be timestamp + 7 seconds.
     """
     hfreq: int
-    """High frequency mode, likely used to return granular data"""
+    """High frequency mode, likely used to return granular data (?)"""
     @property
     def live_feed_request(self) -> LiveFeedRequest: ...
     def __init__(

@@ -7,6 +7,7 @@ import logging
 import os
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Literal
 
 import httpx
@@ -22,7 +23,9 @@ from .utils import DEFAULT_HEADERS
 _log = logging.getLogger(__name__)
 
 
-def get_credentials() -> TokenSubscriptionKey | UsernamePassword | None:
+def get_credentials(
+    fp_config_file: Path = FP_CONFIG_FILE,
+) -> TokenSubscriptionKey | UsernamePassword | None:
     """
     Reads credentials from the environment variables, overriding it with
     the config file if it exists.
@@ -32,9 +35,9 @@ def get_credentials() -> TokenSubscriptionKey | UsernamePassword | None:
     subscription_key = os.environ.get("fr24_subscription_key", None)
     token = os.environ.get("fr24_token", None)
 
-    if FP_CONFIG_FILE.exists():
+    if fp_config_file.exists():
         config = configparser.ConfigParser()
-        config.read(FP_CONFIG_FILE.as_posix())
+        config.read(fp_config_file.as_posix())
 
         username = config.get("global", "username", fallback=None)
         password = config.get("global", "password", fallback=None)
@@ -55,6 +58,7 @@ async def login(
     creds: (
         TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
     ) = "from_env",
+    fp_config_file: Path = FP_CONFIG_FILE,
 ) -> None | Authentication:
     """
     Read credentials and logs into the API.
@@ -66,7 +70,7 @@ async def login(
     - `subscription_key` and `token` is set: returns immediately
     - otherwise, `None` is returned
     """
-    creds = get_credentials() if creds == "from_env" else creds
+    creds = get_credentials(fp_config_file) if creds == "from_env" else creds
 
     if creds is None:
         return None

@@ -4,10 +4,10 @@ import "fr24/proto/_common.proto";
 import "google/protobuf/field_mask.proto";
 
 message LocationBoundaries {
-    float north = 1;
-    float south = 2;
-    float west = 3;
-    float east = 4;
+    float north = 1; // Maximum Latitude, degrees, -90 to 90
+    float south = 2; // Minimum Latitude, degrees, -90 to 90
+    float west = 3;  // Minimum Longitude, degrees, -180 to 180
+    float east = 4;  // Maximum Longitude, degrees, -180 to 180
 }
 
 message VisibilitySettings {
@@ -35,8 +35,7 @@ message Interval {
 }
 
 message AirlineFilter {
-    // ICAO airline designator, e.g. `CPA`
-    string icao = 1;
+    string icao = 1; // ICAO airline designator, e.g. `CPA`
     AirlineFilterType type = 2;
 }
 
@@ -47,17 +46,14 @@ enum AirlineFilterType {
 
 message Filter {
     repeated Interval altitude_ranges_list = 1;
-    // Minimum and maximum ground speed, knots
-    repeated Interval speed_ranges_list = 2;
+    repeated Interval speed_ranges_list = 2; // Minimum and maximum ground speed, knots
     repeated AirlineFilter airlines_list = 3;
     repeated string callsigns_list = 4;
-    // List of receiver IDs, e.g. `["T-VHST000"]`
-    repeated string radars_list = 5;
+    repeated string radars_list = 5; // List of receiver IDs, e.g. `["T-VHST000"]`
     repeated string regs_list = 6;
     repeated AirportFilter airports_list = 7;
     repeated string flights_list = 8;
-    // List of aircraft types, e.g. `["B74*"]`
-    repeated string types_list = 9;
+    repeated string types_list = 9; // List of aircraft types, e.g. `["B74*"]`
     repeated Interval birth_year_ranges_list = 10;
     repeated uint32 squawks_list = 11;
     repeated AirportFilter origins_list = 12;
@@ -70,14 +66,11 @@ message LiveFeedRequest {
     LocationBoundaries bounds = 1;
     VisibilitySettings settings = 2;
     Filter filters_list = 3;
-    string fleets_list = 4; // requires auth
+    string fleets_list = 4; // requires authentication
     bool highlight_mode = 5;
-    // Include statistics for the given area
-    optional bool stats = 6;
-    // Maximum number of flights (default 1500 for unauthenticated users, 2000 for authenticated users)
-    optional int32 limit = 7;
-    // Maximum age since last update, seconds (default 14400)
-    optional int32 maxage = 8;
+    optional bool stats = 6; // Include statistics for the given area
+    optional int32 limit = 7; // Maximum number of flights (default 1500 for unauthenticated users, 2000 for authenticated users)
+    optional int32 maxage = 8; // Maximum age since last update, seconds (default 14400)
     optional _common.RestrictionVisibility restriction_mode = 9;
     google.protobuf.FieldMask field_mask = 10;
     repeated fixed32 selected_flight_ids_list = 11;
@@ -92,17 +85,14 @@ message LiveFeedResponse {
 
 message PlaybackRequest {
     LiveFeedRequest live_feed_request = 1;
-    // Start timestamp
-    int32 timestamp = 2;
+    int32 timestamp = 2; // Start timestamp
     // End timestamp, should be timestamp + floor(7.5*(multiplier)) seconds
     // 
     // For 1x playback, it should be timestamp + 7 seconds.
     int32 prefetch = 3;
-    // High frequency mode, likely used to return granular data
-    optional int32 hfreq = 4;
+    optional int32 hfreq = 4; // High frequency mode, likely used to return granular data (?)
 }
 
 message PlaybackResponse {
-    // NOTE: position buffer is not included in the response.
-    LiveFeedResponse live_feed_response = 1;
+    LiveFeedResponse live_feed_response = 1; // NOTE: position buffer is not included in the response.
 }

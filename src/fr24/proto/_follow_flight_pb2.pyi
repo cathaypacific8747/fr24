@@ -101,10 +101,15 @@ class ImageInfo(Message):
     LARGE_FIELD_NUMBER: int
     SIDEVIEW_FIELD_NUMBER: int
     url: str
+    """Image URL"""
     copyright: str
+    """Copyright information (e.g. `"R Skywalker"`)"""
     thumbnail: str
+    """URL for thumbnail image (e.g. `"https://cdn.jetphotos.com/200/5/459674_1738674373_tb.jpg"`)"""
     medium: str
+    """URL for medium-sized image (e.g. `"https://cdn.jetphotos.com/400/5/459674_1738674373.jpg"`)"""
     large: str
+    """URL for large-sized image (e.g. `"https://cdn.jetphotos.com/640/5/459674_1738674373.jpg"`)"""
     sideview: str
     def __init__(
         self,
@@ -139,19 +144,27 @@ class AircraftInfo(Message):
     REGISTERED_OWNERS_FIELD_NUMBER: int
     IS_COUNTRY_OF_REG_AVAILABLE_FIELD_NUMBER: int
     icao_address: int
+    """ICAO 24-bit address of the aircraft (e.g. `3789483`)"""
     reg: int
+    """Registration number (e.g. `7867035`)"""
     country_of_reg: int
+    """Country of registration code (e.g. `3`)"""
     type: str
+    """Aircraft type code (e.g. `"A359"`)"""
     icon: Icon.ValueType
     full_description: str
+    """Full aircraft description (e.g. `"Airbus A350-941"`)"""
     msn: str
     service: Service.ValueType
     ac_birth_date: str
+    """Aircraft birth date string (e.g. `"2017-06-28"`)"""
     ac_age_text: str
+    """Aircraft age (e.g. `"7 years old"`)"""
     is_test_flight: bool
     msn_available: bool
     age_available: bool
     registered_owners: str
+    """Aircraft owner name (e.g. `"Air France"`)"""
     is_country_of_reg_available: bool
     @property
     def images_list(self) -> RepeatedCompositeFieldContainer[ImageInfo]: ...
@@ -184,7 +197,9 @@ class Point(Message):
     LATITUDE_FIELD_NUMBER: int
     LONGITUDE_FIELD_NUMBER: int
     latitude: int
+    """Latitude, degrees, -90 to 90"""
     longitude: int
+    """Longitude, degrees, -180 to 180"""
     def __init__(
         self,
         *,
@@ -303,18 +318,31 @@ class ScheduleInfo(Message):
     ARR_GATE_FIELD_NUMBER: int
     BAGGAGE_BELT_FIELD_NUMBER: int
     flight_number: str
+    """Flight number with airline prefix (e.g. `"AF334"`)"""
     operated_by_id: int
+    """ID of the operating airline (e.g. `15`)"""
     painted_as_id: int
+    """ID of the airline the aircraft is painted as (e.g. `15`)"""
     origin_id: int
+    """Origin airport ID (e.g. `598`)"""
     destination_id: int
+    """Destination airport ID (e.g. `451`)"""
     diverted_to_id: int
+    """Diverted to airport ID"""
     scheduled_departure: int
+    """Scheduled Time of Departure, Unix timestamp in seconds"""
     scheduled_arrival: int
+    """Scheduled Time of Arrival, Unix timestamp in seconds"""
     actual_departure: int
+    """Actual Time of Departure, Unix timestamp in seconds"""
     actual_arrival: int
+    """Actual Time of Arrival, Unix timestamp in seconds"""
     arr_terminal: str
+    """Arrival terminal (e.g. `"E"`)"""
     arr_gate: str
+    """Arrival gate (e.g. `"E6"`)"""
     baggage_belt: str
+    """Baggage belt (e.g. `"4"`)"""
     def __init__(
         self,
         *,
@@ -349,15 +377,23 @@ class FlightProgress(Message):
     DELAY_STATUS_FIELD_NUMBER: int
     PROGRESS_PCT_FIELD_NUMBER: int
     traversed_distance: int
+    """Distance traversed in the flight, meters"""
     remaining_distance: int
+    """Remaining distance to destination, meters"""
     elapsed_time: int
+    """Elapsed flight time, seconds"""
     remaining_time: int
+    """Remaining flight time, seconds"""
     eta: int
+    """Estimated Time of Arrival, Unix timestamp in seconds"""
     great_circle_distance: int
+    """Great circle distance of the first, meters"""
     mean_flight_time: int
+    """Mean flight time for this route, seconds"""
     flight_stage: FlightStage.ValueType
     delay_status: DelayStatus.ValueType
     progress_pct: int
+    """Flight progress percentage (e.g. `82`)"""
     def __init__(
         self,
         *,
@@ -381,8 +417,8 @@ class FollowFlightRequest(Message):
     FLIGHT_ID_FIELD_NUMBER: int
     RESTRICTION_MODE_FIELD_NUMBER: int
     flight_id: int
+    """FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)"""
     restriction_mode: RestrictionVisibility.ValueType
-    """?"""
     def __init__(
         self,
         *,
@@ -417,26 +453,37 @@ class ExtendedFlightInfo(Message):
     AIRSPACE_ID_FIELD_NUMBER: int
     SERVER_TIME_MS_FIELD_NUMBER: int
     flightid: int
+    """Flight ID (e.g. `962788562` = `0x3962fcd2`)"""
     lat: float
+    """Latitude, degrees, -90 to 90"""
     lon: float
+    """Longitude, degrees, -180 to 180"""
     track: int
+    """True track angle, degrees clockwise from North"""
     alt: int
+    """Altitude, feet"""
     speed: int
+    """Ground Speed, knots"""
     status: Status.ValueType
-    """?"""
     timestamp_ms: int
+    """Unix timestamp of message, milliseconds (e.g. `1741377144019`)"""
     on_ground: bool
     callsign: str
+    """Callsign (e.g. `"AFR334"`)"""
     source: DataSource.ValueType
-    """?"""
     squawk_availability: bool
     squawk: int
+    """Squawk code, in base-10 (e.g. `3041` = 0o5741)"""
     vspeed_availability: bool
     vspeed: int
+    """Vertical speed (e.g. `3328`)"""
     airspace_availability: bool
     airspace: str
+    """Airspace, free-form text (e.g. `"Shannon UIR"`)"""
     airspace_id: str
+    """Airspace ID (e.g. `"FIR_EINN_U"`)"""
     server_time_ms: int
+    """Server timestamp, Unix timestamp in milliseconds (e.g. `1741377145974`)"""
     @property
     def ems_availability(self) -> EMSAvailability: ...
     @property
@@ -481,15 +528,21 @@ class TrailPoint(Message):
     HEADING_FIELD_NUMBER: int
     VSPD_FIELD_NUMBER: int
     snapshot_id: int
+    """Snapshot ID, likely Unix timestamp in seconds (e.g. `1741356300`)"""
     lat: float
+    """Latitude, degrees, -90 to 90"""
     lon: float
+    """Longitude, degrees, -180 to 180"""
     altitude: int
+    """Altitude, feet"""
     spd: int
+    """Ground speed, knots"""
     heading: int
     """True track angle, degrees clockwise from North.
     Note: despite the name, heading is not transmitted in ADS-B.
     """
     vspd: int
+    """Vertical Speed, feet per minute"""
     def __init__(
         self,
         *,

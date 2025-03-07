@@ -164,10 +164,11 @@ Format = Annotated[
 ]
 
 
+# FIXME: since pandas is now gone, we should only accept ISO8601 format
 @app.command()
 def feed(
     timestamp: Annotated[
-        Optional[str],
+        str,
         typer.Option(
             help=(
                 "Time of the snapshot (optional), "
@@ -175,7 +176,7 @@ def feed(
                 "Live data will be fetched if not provided."
             )
         ),
-    ] = None,
+    ] = "now",
     output: Output = None,
     format: Format = "parquet",
 ) -> None:
@@ -209,7 +210,7 @@ def flight_list(
         Optional[str], typer.Option(help="Flight number (e.g. CX8747)")
     ] = None,
     timestamp: Annotated[
-        Optional[str],
+        str,
         typer.Option(
             help=(
                 "Show flights with ATD before this time (optional), "
@@ -262,14 +263,14 @@ def playback(
         str, typer.Argument(help="Hex Flight ID (e.g. `2d81a27`, `0x2d81a27`)")
     ],
     timestamp: Annotated[
-        Optional[str],
+        str,
         typer.Option(
             help=(
                 "ATD (optional), "
                 "a pd.Timestamp-supported input (e.g. 2024-06-04T00:00:00)"
             )
         ),
-    ] = None,
+    ] = "now",
     output: Output = None,
     format: Format = "parquet",
 ) -> None:

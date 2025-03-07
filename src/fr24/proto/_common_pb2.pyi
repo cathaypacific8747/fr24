@@ -146,68 +146,128 @@ class _Icon:
 class _IconEnumTypeWrapper(_EnumTypeWrapper[_Icon.ValueType], type):
     DESCRIPTOR: EnumDescriptor
     B738: _Icon.ValueType  # 0
+    """Boeing 737-800"""
     FGTR: _Icon.ValueType  # 1
+    """Fighter jet"""
     ASW20: _Icon.ValueType  # 2
+    """Glider ASW 20"""
     C206: _Icon.ValueType  # 3
+    """Cessna 206"""
     C303: _Icon.ValueType  # 4
+    """Cessna 303"""
     LJ60: _Icon.ValueType  # 5
+    """Learjet 60"""
     Q300: _Icon.ValueType  # 6
+    """Bombardier Dash 8 Q300"""
     B736: _Icon.ValueType  # 7
+    """Boeing 737-600"""
     FOKKER100: _Icon.ValueType  # 8
+    """Fokker 100"""
     RJ85: _Icon.ValueType  # 9
+    """Avro RJ85"""
     A320: _Icon.ValueType  # 10
+    """Airbus A320"""
     B757: _Icon.ValueType  # 11
+    """Boeing 757"""
     B767: _Icon.ValueType  # 12
+    """Boeing 767"""
     A3ST: _Icon.ValueType  # 13
+    """Airbus A300-600ST Beluga"""
     MD11: _Icon.ValueType  # 14
+    """McDonnell Douglas MD-11"""
     A330: _Icon.ValueType  # 15
+    """Airbus A330"""
     A343: _Icon.ValueType  # 16
+    """Airbus A340-300"""
     A346: _Icon.ValueType  # 17
+    """Airbus A340-600"""
     B777: _Icon.ValueType  # 18
+    """Boeing 777"""
     B747: _Icon.ValueType  # 19
+    """Boeing 747"""
     A380: _Icon.ValueType  # 20
+    """Airbus A380"""
     A225: _Icon.ValueType  # 21
+    """Antonov An-225"""
     SI2: _Icon.ValueType  # 22
+    """Solar Impulse 2"""
     EC: _Icon.ValueType  # 23
+    """Eurocopter"""
     BALL: _Icon.ValueType  # 24
+    """Balloon"""
     GRND: _Icon.ValueType  # 25
+    """Ground vehicle"""
     SLEI: _Icon.ValueType  # 26
+    """Santa Sleigh"""
     DRON: _Icon.ValueType  # 27
+    """Drone"""
     SAT: _Icon.ValueType  # 28
+    """Satellite"""
     ISS: _Icon.ValueType  # 29
+    """International Space Station"""
 
 class Icon(_Icon, metaclass=_IconEnumTypeWrapper): ...
 
 B738: Icon.ValueType  # 0
+"""Boeing 737-800"""
 FGTR: Icon.ValueType  # 1
+"""Fighter jet"""
 ASW20: Icon.ValueType  # 2
+"""Glider ASW 20"""
 C206: Icon.ValueType  # 3
+"""Cessna 206"""
 C303: Icon.ValueType  # 4
+"""Cessna 303"""
 LJ60: Icon.ValueType  # 5
+"""Learjet 60"""
 Q300: Icon.ValueType  # 6
+"""Bombardier Dash 8 Q300"""
 B736: Icon.ValueType  # 7
+"""Boeing 737-600"""
 FOKKER100: Icon.ValueType  # 8
+"""Fokker 100"""
 RJ85: Icon.ValueType  # 9
+"""Avro RJ85"""
 A320: Icon.ValueType  # 10
+"""Airbus A320"""
 B757: Icon.ValueType  # 11
+"""Boeing 757"""
 B767: Icon.ValueType  # 12
+"""Boeing 767"""
 A3ST: Icon.ValueType  # 13
+"""Airbus A300-600ST Beluga"""
 MD11: Icon.ValueType  # 14
+"""McDonnell Douglas MD-11"""
 A330: Icon.ValueType  # 15
+"""Airbus A330"""
 A343: Icon.ValueType  # 16
+"""Airbus A340-300"""
 A346: Icon.ValueType  # 17
+"""Airbus A340-600"""
 B777: Icon.ValueType  # 18
+"""Boeing 777"""
 B747: Icon.ValueType  # 19
+"""Boeing 747"""
 A380: Icon.ValueType  # 20
+"""Airbus A380"""
 A225: Icon.ValueType  # 21
+"""Antonov An-225"""
 SI2: Icon.ValueType  # 22
+"""Solar Impulse 2"""
 EC: Icon.ValueType  # 23
+"""Eurocopter"""
 BALL: Icon.ValueType  # 24
+"""Balloon"""
 GRND: Icon.ValueType  # 25
+"""Ground vehicle"""
 SLEI: Icon.ValueType  # 26
+"""Santa Sleigh"""
 DRON: Icon.ValueType  # 27
+"""Drone"""
 SAT: Icon.ValueType  # 28
+"""Satellite"""
 ISS: Icon.ValueType  # 29
+"""International Space Station"""
 
 class _Status:
     ValueType = NewType("ValueType", int)
@@ -258,7 +318,7 @@ RESERVED: EmergencyStatus.ValueType  # 7
 
 @final
 class EMSInfo(Message):
-    """TODO: check units"""
+    """Enhanced Mode-S data (EMS)"""
 
     DESCRIPTOR: Descriptor
 
@@ -282,22 +342,23 @@ class EMSInfo(Message):
     afms: int
     """FMS selected altitude (BDS4,0)"""
     oat: int
-    """Outside air temperature"""
+    """Outside air temperature, [TODO: update units]"""
     ias: int
     """Indicated airspeed (BDS6,0), knots"""
     tas: int
     """True airspeed (BDS0,5), knots"""
     mach: int
-    """Mach number (BDS6,0), 1e3
-    `704` = M0.704
-    """
+    """Mach number (BDS6,0), 1e3, e.g., `704` = M0.704"""
     agps: int
+    """GPS altitude"""
     agpsdiff: int
-    """|amcp - agps|"""
+    """Difference between amcp and agps"""
     apflags: int
-    """often null"""
+    """Autopilot flags, often null"""
     wind_dir: int
+    """Wind direction, [TODO: update units]"""
     wind_speed: int
+    """Wind speed, [TODO: update units]"""
     rs: int
     def __init__(
         self,
@@ -379,12 +440,19 @@ class Schedule(Message):
     ATA_FIELD_NUMBER: int
     PROGRESS_PCT_FIELD_NUMBER: int
     std: int
+    """Scheduled Time of Departure, Unix timestamp in seconds"""
     etd: int
+    """Estimated Time of Departure, Unix timestamp in seconds"""
     atd: int
+    """Actual Time of Departure, Unix timestamp in seconds"""
     sta: int
+    """Scheduled Time of Arrival, Unix timestamp in seconds"""
     eta: int
+    """Estimated Time of Arrival, Unix timestamp in seconds"""
     ata: int
+    """Actual Time of Arrival, Unix timestamp in seconds"""
     progress_pct: int
+    """Progress percentage of the flight"""
     def __init__(
         self,
         *,
@@ -406,7 +474,9 @@ class Route(Message):
     TO_FIELD_NUMBER: int
     DIVERTED_TO_FIELD_NUMBER: int
     to: str
+    """Destination airport ICAO code, e.g., `SIN`"""
     diverted_to: str
+    """Diverted airport ICAO code, if applicable"""
     def __init__(
         self,
         *,
@@ -417,7 +487,11 @@ class Route(Message):
 
 @final
 class ExtraFlightInfo(Message):
-    """15, 16, 17, 18, 19 available only when flight is selected"""
+    """NOTE: Attributes `operated_by_id` (15), `squawk_availability` (16),
+    `vspeed_availability` (17), `airspace_availability` (18),
+    `airspace_id` (19), `server_time_ms` (21)
+    only available when the flight is selected.
+    """
 
     DESCRIPTOR: Descriptor
 
@@ -440,27 +514,36 @@ class ExtraFlightInfo(Message):
     VSPEED_AVAILABILITY_FIELD_NUMBER: int
     AIRSPACE_AVAILABILITY_FIELD_NUMBER: int
     AIRSPACE_ID_FIELD_NUMBER: int
+    SERVER_TIME_MS_FIELD_NUMBER: int
     flight: str
     """IATA Flight number, e.g. `CX8747`"""
     reg: str
     """Aircraft registration, e.g. `B-HUJ`"""
     type: str
+    """Aircraft type code, e.g. `B77W`"""
     squawk: int
-    """Squawk number, in base-10. 20852 -> 0x5174"""
+    """Squawk code, in base-10. e.g., `20852` (converted from octal)"""
     vspeed: int
+    """Vertical speed, feet per minute"""
     age: str
-    """Aircraft age, years."""
+    """Aircraft age, years in string format, e.g., `"17 years"`"""
     country_of_reg: int
+    """Country code of registration"""
     logo_id: int
-    """u32"""
+    """Airline logo ID"""
     airspace: int
-    """FIR"""
+    """FIR airspace ID"""
     icao_address: int
+    """ICAO 24-bit address of the aircraft (hex)"""
     operated_by_id: int
+    """Airline ID of the operator"""
     squawk_availability: bool
     vspeed_availability: bool
     airspace_availability: bool
     airspace_id: str
+    """Airspace ID"""
+    server_time_ms: int
+    """Server timestamp, milliseconds"""
     @property
     def route(self) -> Route: ...
     @property
@@ -491,9 +574,10 @@ class ExtraFlightInfo(Message):
         vspeed_availability: bool = ...,
         airspace_availability: bool = ...,
         airspace_id: str = ...,
+        server_time_ms: int = ...,
     ) -> None: ...
     def HasField(self, field_name: Literal["ems_availability", b"ems_availability", "ems_info", b"ems_info", "route", b"route", "schedule", b"schedule"]) -> bool: ...
-    def ClearField(self, field_name: Literal["age", b"age", "airspace", b"airspace", "airspace_availability", b"airspace_availability", "airspace_id", b"airspace_id", "country_of_reg", b"country_of_reg", "ems_availability", b"ems_availability", "ems_info", b"ems_info", "flight", b"flight", "icao_address", b"icao_address", "logo_id", b"logo_id", "operated_by_id", b"operated_by_id", "reg", b"reg", "route", b"route", "schedule", b"schedule", "squawk", b"squawk", "squawk_availability", b"squawk_availability", "type", b"type", "vspeed", b"vspeed", "vspeed_availability", b"vspeed_availability"]) -> None: ...
+    def ClearField(self, field_name: Literal["age", b"age", "airspace", b"airspace", "airspace_availability", b"airspace_availability", "airspace_id", b"airspace_id", "country_of_reg", b"country_of_reg", "ems_availability", b"ems_availability", "ems_info", b"ems_info", "flight", b"flight", "icao_address", b"icao_address", "logo_id", b"logo_id", "operated_by_id", b"operated_by_id", "reg", b"reg", "route", b"route", "schedule", b"schedule", "server_time_ms", b"server_time_ms", "squawk", b"squawk", "squawk_availability", b"squawk_availability", "type", b"type", "vspeed", b"vspeed", "vspeed_availability", b"vspeed_availability"]) -> None: ...
 
 @final
 class SourceStats(Message):
@@ -503,6 +587,7 @@ class SourceStats(Message):
     COUNT_FIELD_NUMBER: int
     source: DataSource.ValueType
     count: int
+    """Number of flights recorded with this source"""
     def __init__(
         self,
         *,
@@ -537,6 +622,7 @@ class RecentPosition(Message):
     delta_lon: int
     """Offset from the current longitude, 1e5 degrees"""
     delta_ms: int
+    """Delta time, milliseconds"""
     def __init__(
         self,
         *,
@@ -552,7 +638,9 @@ class PositionBuffer(Message):
 
     RECENT_POSITIONS_LIST_FIELD_NUMBER: int
     @property
-    def recent_positions_list(self) -> RepeatedCompositeFieldContainer[RecentPosition]: ...
+    def recent_positions_list(self) -> RepeatedCompositeFieldContainer[RecentPosition]:
+        """List of recent positions"""
+
     def __init__(
         self,
         *,
@@ -580,7 +668,7 @@ class Flight(Message):
     POSITION_BUFFER_FIELD_NUMBER: int
     TIMESTAMP_MS_FIELD_NUMBER: int
     flightid: int
-    """FR24 flight id, in base-10. Convert to hex for use in URLs."""
+    """FR24 flight id, in base-10 integer. Convert to hex for use in URLs."""
     lat: float
     """Latitude, degrees, -90 to 90"""
     lon: float
@@ -594,11 +682,13 @@ class Flight(Message):
     icon: Icon.ValueType
     status: Status.ValueType
     timestamp: int
+    """Last update timestamp, Unix timestamp in seconds"""
     on_ground: bool
     callsign: str
     """Callsign, e.g. `CPA8747`"""
     source: DataSource.ValueType
     timestamp_ms: int
+    """Last update timestamp, milliseconds"""
     @property
     def extra_info(self) -> ExtraFlightInfo: ...
     @property
@@ -627,7 +717,7 @@ class Flight(Message):
 
 @final
 class Duration(Message):
-    """used in CountDown"""
+    """used in CountDown service"""
 
     DESCRIPTOR: Descriptor
 
@@ -655,7 +745,7 @@ class Tick(Message):
 
 @final
 class RadarHistoryRecord(Message):
-    """used in *trail"""
+    """used in *trail services"""
 
     DESCRIPTOR: Descriptor
 
@@ -670,19 +760,25 @@ class RadarHistoryRecord(Message):
     SOURCE_FIELD_NUMBER: int
     CALLSIGN_FIELD_NUMBER: int
     timestamp: int
+    """Observation timestamp, Unix timestamp in seconds"""
     lat: float
+    """Latitude, degrees, -90 to 90"""
     lon: float
+    """Longitude, degrees, -180 to 180"""
     altitude: int
+    """Altitude, feet"""
     spd: int
+    """Ground Speed, knots"""
     heading: int
     """True track angle, degrees clockwise from North.
     Note: despite the name, heading is not transmitted in ADS-B.
     """
     vspd: int
+    """Vertical speed, feet per minute"""
     squawk: int
     source: DataSource.ValueType
-    """?"""
     callsign: str
+    """Callsign, e.g. `CPA959`"""
     def __init__(
         self,
         *,

@@ -44,17 +44,29 @@ class FollowedFlight(Message):
     TYPE_FIELD_NUMBER: int
     FULL_DESCRIPTION_FIELD_NUMBER: int
     flight_id: int
+    """FR24 Flight ID (e.g. `962709904` = `0x3961c990`)"""
     live_clicks: int
+    """Number of live clicks/views (e.g. `1212`)"""
     total_clicks: int
+    """Total number of clicks/views (e.g. `6128`)"""
     flight_number: str
+    """Flight number (e.g. `"EK261"`)"""
     callsign: str
+    """Callsign (e.g. `"UAE261"`)"""
     squawk: int
+    """Squawk code (e.g. `4032` = `0o7700`)"""
     from_iata: str
+    """IATA code of origin airport (e.g. `"DXB"`)"""
     from_city: str
+    """City name of origin airport (e.g. `"Dubai"`)"""
     to_iata: str
+    """IATA code of destination airport (e.g. `"GRU"`)"""
     to_city: str
+    """City name of destination airport (e.g. `"Sao Paulo"`)"""
     type: str
+    """Aircraft type code (e.g. `"A388"`)"""
     full_description: str
+    """Full aircraft description (e.g. `"Airbus A380-861"`)"""
     def __init__(
         self,
         *,

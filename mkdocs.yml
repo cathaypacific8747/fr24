@@ -14,10 +14,11 @@ nav:
   - API Reference:
       - Services: "api/service.md"
       - Cache: "api/cache.md"
-      - Lower-level Functions: "api/functions.md"
+      - Core Functions: "api/functions.md"
       - Types: "api/types.md"
       - Utilities: "api/utils.md"
       - Protobuf Definitions: "api/protobuf.md"
+  - Changelog (gRPC): "api/grpc_changelog.md"
 
 theme:
   name: material

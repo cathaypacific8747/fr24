@@ -1,18 +1,18 @@
 syntax = "proto3";
 
 message FollowedFlight {
-    uint32 flight_id = 1;
-    uint32 live_clicks = 2;
-    uint32 total_clicks = 3;
-    string flight_number = 4;
-    string callsign = 5;
-    uint32 squawk = 6;
-    string from_iata = 7;
-    string from_city = 8;
-    string to_iata = 9;
-    string to_city = 10;
-    string type = 11;
-    string full_description = 12;
+    uint32 flight_id = 1; // FR24 Flight ID (e.g. `962709904` = `0x3961c990`)
+    uint32 live_clicks = 2; // Number of live clicks/views (e.g. `1212`)
+    uint32 total_clicks = 3; // Total number of clicks/views (e.g. `6128`)
+    string flight_number = 4; // Flight number (e.g. `"EK261"`)
+    string callsign = 5; // Callsign (e.g. `"UAE261"`)
+    uint32 squawk = 6; // Squawk code (e.g. `4032` = `0o7700`)
+    string from_iata = 7; // IATA code of origin airport (e.g. `"DXB"`)
+    string from_city = 8; // City name of origin airport (e.g. `"Dubai"`)
+    string to_iata = 9; // IATA code of destination airport (e.g. `"GRU"`)
+    string to_city = 10; // City name of destination airport (e.g. `"Sao Paulo"`)
+    string type = 11; // Aircraft type code (e.g. `"A388"`)
+    string full_description = 12; // Full aircraft description (e.g. `"Airbus A380-861"`)
 }
 
 message TopFlightsRequest {

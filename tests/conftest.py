@@ -5,7 +5,8 @@ from typing import AsyncGenerator
 import httpx
 import pytest
 
-from fr24 import FR24, FR24Cache, intercept_logs_with_loguru
+from fr24 import FR24, FR24Cache
+from fr24.utils import intercept_logs_with_loguru
 
 
 def pytest_configure(config: pytest.Config) -> None:

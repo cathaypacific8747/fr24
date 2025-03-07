@@ -3,22 +3,19 @@ syntax = "proto3";
 import "fr24/proto/_common.proto";
 
 message Geolocation {
-    float lat = 1;
-    float lon = 2;
+    float lat = 1; // Latitude, degrees, -90 to 90
+    float lon = 2; // Longitude, degrees, -180 to 180
 }
 
 message NearestFlightsRequest {
     Geolocation location = 1;
-    // Radius, metres
-    uint32 radius = 2;
-    // Maximum number of aircraft to return
-    uint32 limit = 3;
+    uint32 radius = 2; // Radius, metres
+    uint32 limit = 3; // Maximum number of aircraft to return
 }
 
 message NearbyFlight {
     _common.Flight flight = 1;
-    // Distance from the location, metres
-    uint32 distance = 2;
+    uint32 distance = 2; // Distance from the location, metres
 }
 
 message NearestFlightsResponse {

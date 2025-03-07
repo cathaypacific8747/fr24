@@ -44,36 +44,36 @@ enum DataSource {
 }
 
 enum Icon {
-    B738 = 0;
-    FGTR = 1;
-    ASW20 = 2;
-    C206 = 3;
-    C303 = 4;
-    LJ60 = 5;
-    Q300 = 6;
-    B736 = 7;
-    FOKKER100 = 8;
-    RJ85 = 9;
-    A320 = 10;
-    B757 = 11;
-    B767 = 12;
-    A3ST = 13;
-    MD11 = 14;
-    A330 = 15;
-    A343 = 16;
-    A346 = 17;
-    B777 = 18;
-    B747 = 19;
-    A380 = 20;
-    A225 = 21;
-    SI2 = 22;
-    EC = 23;
-    BALL = 24;
-    GRND = 25;
-    SLEI = 26;
-    DRON = 27;
-    SAT = 28;
-    ISS = 29;
+    B738 = 0; // Boeing 737-800
+    FGTR = 1; // Fighter jet
+    ASW20 = 2; // Glider ASW 20
+    C206 = 3; // Cessna 206
+    C303 = 4; // Cessna 303
+    LJ60 = 5; // Learjet 60
+    Q300 = 6; // Bombardier Dash 8 Q300
+    B736 = 7; // Boeing 737-600
+    FOKKER100 = 8; // Fokker 100
+    RJ85 = 9;  // Avro RJ85
+    A320 = 10; // Airbus A320
+    B757 = 11; // Boeing 757
+    B767 = 12; // Boeing 767
+    A3ST = 13; // Airbus A300-600ST Beluga
+    MD11 = 14; // McDonnell Douglas MD-11
+    A330 = 15; // Airbus A330
+    A343 = 16; // Airbus A340-300
+    A346 = 17; // Airbus A340-600
+    B777 = 18; // Boeing 777
+    B747 = 19; // Boeing 747
+    A380 = 20; // Airbus A380
+    A225 = 21; // Antonov An-225
+    SI2 = 22;  // Solar Impulse 2
+    EC = 23;   // Eurocopter
+    BALL = 24; // Balloon
+    GRND = 25; // Ground vehicle
+    SLEI = 26; // Santa Sleigh
+    DRON = 27; // Drone
+    SAT = 28;  // Satellite
+    ISS = 29;  // International Space Station
 }
 
 enum Status {
@@ -84,28 +84,20 @@ enum Status {
     LIVE = 4;
 }
 
-// TODO: check units
+// Enhanced Mode-S data (EMS)
 message EMSInfo {
-    // Altimeter setting (QFE or QNH/QNE)
-    int32 qnh = 1;
-    // MCP/FCU selected altitude (BDS4,0)
-    int32 amcp = 2;
-    // FMS selected altitude (BDS4,0)
-    int32 afms = 3;
-    // Outside air temperature
-    int32 oat = 4;
-    // Indicated airspeed (BDS6,0), knots
-    int32 ias = 5;
-    // True airspeed (BDS0,5), knots
-    int32 tas = 6;
-    // Mach number (BDS6,0), 1e3
-    // `704` = M0.704
-    int32 mach = 7;
-    int32 agps = 8;
-    int32 agpsdiff = 9; // |amcp - agps|
-    int32 apflags = 10; // often null
-    int32 wind_dir = 11;
-    int32 wind_speed = 12;
+    int32 qnh = 1; // Altimeter setting (QFE or QNH/QNE)
+    int32 amcp = 2; // MCP/FCU selected altitude (BDS4,0)
+    int32 afms = 3; // FMS selected altitude (BDS4,0)
+    int32 oat = 4; // Outside air temperature, [TODO: update units]
+    int32 ias = 5; // Indicated airspeed (BDS6,0), knots
+    int32 tas = 6; // True airspeed (BDS0,5), knots
+    int32 mach = 7; // Mach number (BDS6,0), 1e3, e.g., `704` = M0.704
+    int32 agps = 8; // GPS altitude
+    int32 agpsdiff = 9; // Difference between amcp and agps
+    int32 apflags = 10; // Autopilot flags, often null
+    int32 wind_dir = 11; // Wind direction, [TODO: update units]
+    int32 wind_speed = 12; // Wind speed, [TODO: update units]
     int32 rs = 13;
 }
 
@@ -126,13 +118,13 @@ message EMSAvailability {
 }
 
 message Schedule {
-    int32 std = 1;
-    int32 etd = 2;
-    int32 atd = 3;
-    int32 sta = 4;
-    int32 eta = 5;
-    int32 ata = 6;
-    int32 progress_pct = 7;
+    int32 std = 1; // Scheduled Time of Departure, Unix timestamp in seconds
+    int32 etd = 2; // Estimated Time of Departure, Unix timestamp in seconds
+    int32 atd = 3; // Actual Time of Departure, Unix timestamp in seconds
+    int32 sta = 4; // Scheduled Time of Arrival, Unix timestamp in seconds
+    int32 eta = 5; // Estimated Time of Arrival, Unix timestamp in seconds
+    int32 ata = 6; // Actual Time of Arrival, Unix timestamp in seconds
+    int32 progress_pct = 7; // Progress percentage of the flight
 }
 
 message Route {
@@ -141,36 +133,35 @@ message Route {
     string diverted_to = 3;
 }
 
-// 15, 16, 17, 18, 19 available only when flight is selected
+// NOTE: Attributes `operated_by_id` (15), `squawk_availability` (16),
+// `vspeed_availability` (17), `airspace_availability` (18),
+// `airspace_id` (19), `server_time_ms` (21)
+// only available when the flight is selected.
 message ExtraFlightInfo {
-    // IATA Flight number, e.g. `CX8747`
-    string flight = 1;
-    // Aircraft registration, e.g. `B-HUJ`
-    string reg = 2;
+    string flight = 1; // IATA Flight number, e.g. `CX8747`
+    string reg = 2; // Aircraft registration, e.g. `B-HUJ`
     Route route = 3;
-    string type = 4;
-    // Squawk number, in base-10. 20852 -> 0x5174
-    int32 squawk = 5;
-    int32 vspeed = 6;
-    // Aircraft age, years.
-    string age = 7;
-    int32 country_of_reg = 8;
+    string type = 4; // Aircraft type code, e.g. `B744`
+    int32 squawk = 5; // Squawk code, in base-10. e.g., `20852` (converted from octal)
+    int32 vspeed = 6; // Vertical speed, feet per minute
+    string age = 7; // Aircraft age, years in string format, e.g., `"17 years"`
+    int32 country_of_reg = 8; // Country code of registration
     Schedule schedule = 9;
-    int32 logo_id = 10; // u32
-    int32 airspace = 11; // FIR
+    int32 logo_id = 10; // Airline logo ID
+    int32 airspace = 11; // FIR airspace ID
     EMSInfo ems_info = 12;
     EMSAvailability ems_availability = 13;
-    uint32 icao_address = 14;
-    uint32 operated_by_id = 15;
+    uint32 icao_address = 14; // ICAO 24-bit address of the aircraft (hex)
+    uint32 operated_by_id = 15; // Airline ID of the operator
     bool squawk_availability = 16;
     bool vspeed_availability = 17;
     bool airspace_availability = 18;
-    string airspace_id = 19;
+    string airspace_id = 19; // Airspace ID
 }
 
 message SourceStats {
     DataSource source = 1;
-    uint32 count = 2;
+    uint32 count = 2; // Number of flights recorded with this source
 }
 
 message Stats {
@@ -178,40 +169,31 @@ message Stats {
 }
 
 message RecentPosition {
-    // Offset from the current latitude, 1e5 degrees
-    int32 delta_lat = 1;
-    // Offset from the current longitude, 1e5 degrees
-    int32 delta_lon = 2;
-    uint32 delta_ms = 3;
+    int32 delta_lat = 1; // Offset from the current latitude, 1e5 degrees
+    int32 delta_lon = 2; // Offset from the current longitude, 1e5 degrees
+    uint32 delta_ms = 3; // Delta time, milliseconds
 }
 
 message PositionBuffer {
-    repeated RecentPosition recent_positions_list = 1;
+    repeated RecentPosition recent_positions_list = 1; // List of recent positions
 }
 
 message Flight {
-    // FR24 flight id, in base-10. Convert to hex for use in URLs.
-    int32 flightid = 1;
-    // Latitude, degrees, -90 to 90
-    float lat = 2;
-    // Longitude, degrees, -180 to 180
-    float lon = 3;
-    // True track angle, degrees clockwise from North
-    int32 track = 4;
-    // Barometric altitude, feet
-    int32 alt = 5;
-    // Ground speed, knots
-    int32 speed = 6;
+    int32 flightid = 1; // FR24 flight id, in base-10 integer. Convert to hex for use in URLs.
+    float lat = 2; // Latitude, degrees, -90 to 90
+    float lon = 3; // Longitude, degrees, -180 to 180
+    int32 track = 4; // True track angle, degrees clockwise from North
+    int32 alt = 5; // Barometric altitude, feet
+    int32 speed = 6; // Ground speed, knots
     Icon icon = 7;
     Status status = 8;
-    int32 timestamp = 9;
+    int32 timestamp = 9;  // Last update timestamp, Unix timestamp in seconds
     bool on_ground = 10;
-    // Callsign, e.g. `CPA8747`
-    string callsign = 11;
+    string callsign = 11; // Callsign, e.g. `CPA8747`
     DataSource source = 12;
     ExtraFlightInfo extra_info = 13;
     PositionBuffer position_buffer = 14;
-    uint64 timestamp_ms = 15;
+    uint64 timestamp_ms = 15; // Last update timestamp, milliseconds
 }
 
 // NOTE: unused anywhere
@@ -226,7 +208,7 @@ enum EmergencyStatus {
     RESERVED = 7;
 }
 
-// used in CountDown
+// used in CountDown service
 message Duration {
     uint32 count = 1;
 }
@@ -235,18 +217,18 @@ message Tick {
     uint32 count = 1;
 }
 
-// used in *trail
+// used in *trail services
 message RadarHistoryRecord {
-    uint64 timestamp = 1;
-    float lat = 2;
-    float lon = 3;
-    int32 altitude = 4;
-    uint32 spd = 5;
+    uint64 timestamp = 1; // Observation timestamp, Unix timestamp in seconds
+    float lat = 2;        // Latitude, degrees, -90 to 90
+    float lon = 3;        // Longitude, degrees, -180 to 180
+    int32 altitude = 4;   // Altitude, feet
+    uint32 spd = 5;       // Ground Speed, knots
     // True track angle, degrees clockwise from North.
     // Note: despite the name, heading is not transmitted in ADS-B.
     uint32 heading = 6;
-    int32 vspd = 7;
+    int32 vspd = 7;       // Vertical speed, feet per minute
     uint32 squawk = 8;
-    _common.DataSource source = 9; // ?
-    string callsign = 10;
+    _common.DataSource source = 9;
+    string callsign = 10; // Callsign, e.g. `CPA959`
 }
