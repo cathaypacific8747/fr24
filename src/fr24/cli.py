@@ -184,16 +184,19 @@ def feed(
 
     fp = resolve_path(output)
     console = get_console(fp)
+    timestamp_int_or_None = (
+        to_unix_timestamp(timestamp) if timestamp is not None else None
+    )
 
     async def feed_() -> None:
         async with FR24() as fr24:
             await fr24.login()
             result: LiveFeedResult | LiveFeedPlaybackResult
-            if timestamp is None:
+            if timestamp_int_or_None is None:
                 result = await fr24.live_feed.fetch()
             else:
                 result = await fr24.live_feed_playback.fetch(
-                    timestamp=to_unix_timestamp(timestamp)
+                    timestamp=timestamp_int_or_None
                 )
             result.write_table(fp, format=format)  # type: ignore[arg-type]
             console.print(get_success_message(result, fp))
@@ -231,6 +234,9 @@ def flight_list(
 
     fp = resolve_path(output)
     console = get_console(fp)
+    timestamp_int_or_None = (
+        to_unix_timestamp(timestamp) if timestamp is not None else None
+    )
 
     async def flight_list_() -> None:
         async with FR24() as fr24:
@@ -239,7 +245,7 @@ def flight_list(
                 page = 0
                 results = fr24.flight_list.new_result_collection()
                 async for result in fr24.flight_list.fetch_all(
-                    reg=reg, flight=flight, timestamp=timestamp
+                    reg=reg, flight=flight, timestamp=timestamp_int_or_None
                 ):
                     results.append(result)
                     results.write_table(fp, format=format)  # type: ignore[arg-type]
@@ -249,7 +255,7 @@ def flight_list(
                     page += 1
             else:
                 result = await fr24.flight_list.fetch(
-                    reg=reg, flight=flight, timestamp=timestamp
+                    reg=reg, flight=flight, timestamp=timestamp_int_or_None
                 )
                 result.write_table(fp, format=format)  # type: ignore[arg-type]
                 console.print(get_success_message(result, fp))
@@ -278,12 +284,15 @@ def playback(
 
     fp = resolve_path(output)
     console = get_console(fp)
+    timestamp_int_or_None = (
+        to_unix_timestamp(timestamp) if timestamp is not None else None
+    )
 
     async def playback_() -> None:
         async with FR24() as fr24:
             await fr24.login()
             result = await fr24.playback.fetch(
-                flight_id=flight_id, timestamp=timestamp
+                flight_id=flight_id, timestamp=timestamp_int_or_None
             )
             result.write_table(fp, format=format)  # type: ignore[arg-type]
             console.print(get_success_message(result, fp))

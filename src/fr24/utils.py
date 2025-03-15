@@ -16,6 +16,8 @@ from typing import (
 
 from typing_extensions import runtime_checkable
 
+import pandas as pd
+
 if TYPE_CHECKING:
     from typing import IO, Any, NoReturn
 
@@ -43,7 +45,7 @@ DEFAULT_HEADERS = {
 
 
 def to_unix_timestamp(
-    timestamp: int | datetime | Literal["now"] | None,
+    timestamp: int | datetime | str | None,
 ) -> int | Literal["now"] | None:
     """
     Casts timestamp-like object to a Unix timestamp in integer seconds,
@@ -51,6 +53,8 @@ def to_unix_timestamp(
     """
     if timestamp == "now":
         return "now"
+    if isinstance(timestamp, str):
+        timestamp = pd.Timestamp(timestamp)
     if isinstance(timestamp, datetime):
         return int(timestamp.timestamp())
     if isinstance(timestamp, int):
