@@ -2,7 +2,12 @@
 
 All known changes of the gRPC messages are documented here.
 
-Client versions are usually updated every 5 days, most frequently on Mon/Tue 10am. This list is not exhaustive.
+Client versions are usually updated every 5 days, most frequently on Mon/Tue 10am.
+This list is not exhaustive.
+
+## `25.135.1104` (2025-05-15)
+- add field: `Icon.CONC`
+- add message: `FlightProgress`, `FlightDetailsRequest`, `FlightDetailsResponse`, `PlaybackFlightRequest`, `PlaybackFlightResponse`
 
 ## `25.056.2130` (2025-02-25)
 - rename field: `ExtendedFlightInfo.timestamp`

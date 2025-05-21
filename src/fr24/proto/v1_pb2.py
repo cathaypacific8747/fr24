@@ -32,6 +32,8 @@ from fr24.proto import _follow_flight_pb2 as fr24_dot_proto_dot___follow__flight
 from fr24.proto import _top_flights_pb2 as fr24_dot_proto_dot___top__flights__pb2
 from fr24.proto import _live_trail_pb2 as fr24_dot_proto_dot___live__trail__pb2
 from fr24.proto import _historic_trail_pb2 as fr24_dot_proto_dot___historic__trail__pb2
+from fr24.proto import _flight_details_pb2 as fr24_dot_proto_dot___flight__details__pb2
+from fr24.proto import _playback_flight_pb2 as fr24_dot_proto_dot___playback__flight__pb2
 
 from fr24.proto._common_pb2 import *
 from fr24.proto._live_feed_pb2 import *
@@ -43,8 +45,10 @@ from fr24.proto._follow_flight_pb2 import *
 from fr24.proto._top_flights_pb2 import *
 from fr24.proto._live_trail_pb2 import *
 from fr24.proto._historic_trail_pb2 import *
+from fr24.proto._flight_details_pb2 import *
+from fr24.proto._playback_flight_pb2 import *
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x66r24/proto/v1.proto\x12\x10\x66r24.feed.api.v1\x1a\x18\x66r24/proto/_common.proto\x1a\x1b\x66r24/proto/_live_feed.proto\x1a\x18\x66r24/proto/_health.proto\x1a!fr24/proto/_nearest_flights.proto\x1a$fr24/proto/_live_flight_status.proto\x1a$fr24/proto/_fetch_search_index.proto\x1a\x1f\x66r24/proto/_follow_flight.proto\x1a\x1d\x66r24/proto/_top_flights.proto\x1a\x1c\x66r24/proto/_live_trail.proto\x1a fr24/proto/_historic_trail.proto2\xf1\x04\n\x04\x46\x65\x65\x64\x12\x14\n\x04\x45\x63ho\x12\x05.Ping\x1a\x05.Pong\x12/\n\tCountDown\x12\x11._common.Duration\x1a\r._common.Tick0\x01\x12/\n\x08LiveFeed\x12\x10.LiveFeedRequest\x1a\x11.LiveFeedResponse\x12/\n\x08Playback\x12\x10.PlaybackRequest\x1a\x11.PlaybackResponse\x12\x41\n\x0eNearestFlights\x12\x16.NearestFlightsRequest\x1a\x17.NearestFlightsResponse\x12J\n\x11LiveFlightsStatus\x12\x19.LiveFlightsStatusRequest\x1a\x1a.LiveFlightsStatusResponse\x12G\n\x10\x46\x65tchSearchIndex\x12\x18.FetchSearchIndexRequest\x1a\x19.FetchSearchIndexResponse\x12=\n\x0c\x46ollowFlight\x12\x14.FollowFlightRequest\x1a\x15.FollowFlightResponse0\x01\x12\x35\n\nTopFlights\x12\x12.TopFlightsRequest\x1a\x13.TopFlightsResponse\x12\x32\n\tLiveTrail\x12\x11.LiveTrailRequest\x1a\x12.LiveTrailResponse\x12>\n\rHistoricTrail\x12\x15.HistoricTrailRequest\x1a\x16.HistoricTrailResponseB\x02H\x01P\x00P\x01P\x02P\x03P\x04P\x05P\x06P\x07P\x08P\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x66r24/proto/v1.proto\x12\x10\x66r24.feed.api.v1\x1a\x18\x66r24/proto/_common.proto\x1a\x1b\x66r24/proto/_live_feed.proto\x1a\x18\x66r24/proto/_health.proto\x1a!fr24/proto/_nearest_flights.proto\x1a$fr24/proto/_live_flight_status.proto\x1a$fr24/proto/_fetch_search_index.proto\x1a\x1f\x66r24/proto/_follow_flight.proto\x1a\x1d\x66r24/proto/_top_flights.proto\x1a\x1c\x66r24/proto/_live_trail.proto\x1a fr24/proto/_historic_trail.proto\x1a fr24/proto/_flight_details.proto\x1a!fr24/proto/_playback_flight.proto2\xf4\x05\n\x04\x46\x65\x65\x64\x12\x14\n\x04\x45\x63ho\x12\x05.Ping\x1a\x05.Pong\x12/\n\tCountDown\x12\x11._common.Duration\x1a\r._common.Tick0\x01\x12/\n\x08LiveFeed\x12\x10.LiveFeedRequest\x1a\x11.LiveFeedResponse\x12/\n\x08Playback\x12\x10.PlaybackRequest\x1a\x11.PlaybackResponse\x12\x41\n\x0eNearestFlights\x12\x16.NearestFlightsRequest\x1a\x17.NearestFlightsResponse\x12J\n\x11LiveFlightsStatus\x12\x19.LiveFlightsStatusRequest\x1a\x1a.LiveFlightsStatusResponse\x12G\n\x10\x46\x65tchSearchIndex\x12\x18.FetchSearchIndexRequest\x1a\x19.FetchSearchIndexResponse\x12=\n\x0c\x46ollowFlight\x12\x14.FollowFlightRequest\x1a\x15.FollowFlightResponse0\x01\x12\x35\n\nTopFlights\x12\x12.TopFlightsRequest\x1a\x13.TopFlightsResponse\x12\x32\n\tLiveTrail\x12\x11.LiveTrailRequest\x1a\x12.LiveTrailResponse\x12>\n\rHistoricTrail\x12\x15.HistoricTrailRequest\x1a\x16.HistoricTrailResponse\x12>\n\rFlightDetails\x12\x15.FlightDetailsRequest\x1a\x16.FlightDetailsResponse\x12\x41\n\x0ePlaybackFlight\x12\x16.PlaybackFlightRequest\x1a\x17.PlaybackFlightResponseB\x02H\x01P\x00P\x01P\x02P\x03P\x04P\x05P\x06P\x07P\x08P\tP\nP\x0b\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -52,6 +56,6 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'fr24.proto.v1_pb2', _global
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'H\001'
-  _globals['_FEED']._serialized_start=362
-  _globals['_FEED']._serialized_end=987
+  _globals['_FEED']._serialized_start=431
+  _globals['_FEED']._serialized_end=1187
 # @@protoc_insertion_point(module_scope)

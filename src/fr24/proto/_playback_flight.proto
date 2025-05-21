@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "fr24/proto/_common.proto";
+
+message PlaybackFlightRequest {
+    fixed32 flight_id = 1; // FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)
+    uint64 timestamp = 2;
+    _common.RestrictionVisibility restriction_mode = 3;
+}
+
+message PlaybackFlightResponse {
+    _common.AircraftInfo aircraft_info = 1;
+    _common.ScheduleInfo schedule_info = 2;
+    _common.ExtendedFlightInfo flight_info = 3;
+    repeated _common.TrailPoint flight_trail_list = 4;
+}

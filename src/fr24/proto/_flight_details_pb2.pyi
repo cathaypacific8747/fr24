@@ -12,9 +12,11 @@ from collections.abc import (
 )
 from fr24.proto._common_pb2 import (
     AircraftInfo,
+    DelayStatus,
     ExtendedFlightInfo,
     FlightPlan,
     FlightProgress,
+    FlightStage,
     RestrictionVisibility,
     ScheduleInfo,
     TrailPoint,
@@ -37,36 +39,77 @@ from typing import (
 DESCRIPTOR: FileDescriptor
 
 @final
-class FollowFlightRequest(Message):
+class FlightProgress(Message):
+    DESCRIPTOR: Descriptor
+
+    TRAVERSED_DISTANCE_FIELD_NUMBER: int
+    REMAINING_DISTANCE_FIELD_NUMBER: int
+    ELAPSED_TIME_FIELD_NUMBER: int
+    REMAINING_TIME_FIELD_NUMBER: int
+    ETA_FIELD_NUMBER: int
+    GREAT_CIRCLE_DISTANCE_FIELD_NUMBER: int
+    MEAN_FLIGHT_TIME_FIELD_NUMBER: int
+    FLIGHT_STAGE_FIELD_NUMBER: int
+    DELAY_STATUS_FIELD_NUMBER: int
+    PROGRESS_PCT_FIELD_NUMBER: int
+    traversed_distance: int
+    remaining_distance: int
+    elapsed_time: int
+    remaining_time: int
+    eta: int
+    great_circle_distance: int
+    mean_flight_time: int
+    flight_stage: FlightStage.ValueType
+    delay_status: DelayStatus.ValueType
+    progress_pct: int
+    def __init__(
+        self,
+        *,
+        traversed_distance: int = ...,
+        remaining_distance: int = ...,
+        elapsed_time: int = ...,
+        remaining_time: int = ...,
+        eta: int = ...,
+        great_circle_distance: int = ...,
+        mean_flight_time: int = ...,
+        flight_stage: FlightStage.ValueType = ...,
+        delay_status: DelayStatus.ValueType = ...,
+        progress_pct: int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: Literal["delay_status", b"delay_status", "elapsed_time", b"elapsed_time", "eta", b"eta", "flight_stage", b"flight_stage", "great_circle_distance", b"great_circle_distance", "mean_flight_time", b"mean_flight_time", "progress_pct", b"progress_pct", "remaining_distance", b"remaining_distance", "remaining_time", b"remaining_time", "traversed_distance", b"traversed_distance"]) -> None: ...
+
+@final
+class FlightDetailsRequest(Message):
     DESCRIPTOR: Descriptor
 
     FLIGHT_ID_FIELD_NUMBER: int
     RESTRICTION_MODE_FIELD_NUMBER: int
+    VERBOSE_FIELD_NUMBER: int
     flight_id: int
     """FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)"""
     restriction_mode: RestrictionVisibility.ValueType
+    verbose: bool
     def __init__(
         self,
         *,
         flight_id: int = ...,
         restriction_mode: RestrictionVisibility.ValueType = ...,
+        verbose: bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: Literal["flight_id", b"flight_id", "restriction_mode", b"restriction_mode"]) -> None: ...
+    def ClearField(self, field_name: Literal["flight_id", b"flight_id", "restriction_mode", b"restriction_mode", "verbose", b"verbose"]) -> None: ...
 
 @final
-class FollowFlightResponse(Message):
+class FlightDetailsResponse(Message):
     DESCRIPTOR: Descriptor
 
     AIRCRAFT_INFO_FIELD_NUMBER: int
-    FLIGHT_PLAN_FIELD_NUMBER: int
     SCHEDULE_INFO_FIELD_NUMBER: int
     FLIGHT_PROGRESS_FIELD_NUMBER: int
     FLIGHT_INFO_FIELD_NUMBER: int
+    FLIGHT_PLAN_FIELD_NUMBER: int
     FLIGHT_TRAIL_LIST_FIELD_NUMBER: int
     @property
     def aircraft_info(self) -> AircraftInfo: ...
-    @property
-    def flight_plan(self) -> FlightPlan: ...
     @property
     def schedule_info(self) -> ScheduleInfo: ...
     @property
@@ -74,15 +117,17 @@ class FollowFlightResponse(Message):
     @property
     def flight_info(self) -> ExtendedFlightInfo: ...
     @property
+    def flight_plan(self) -> FlightPlan: ...
+    @property
     def flight_trail_list(self) -> RepeatedCompositeFieldContainer[TrailPoint]: ...
     def __init__(
         self,
         *,
         aircraft_info: AircraftInfo | None = ...,
-        flight_plan: FlightPlan | None = ...,
         schedule_info: ScheduleInfo | None = ...,
         flight_progress: FlightProgress | None = ...,
         flight_info: ExtendedFlightInfo | None = ...,
+        flight_plan: FlightPlan | None = ...,
         flight_trail_list: Iterable[TrailPoint] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: Literal["aircraft_info", b"aircraft_info", "flight_info", b"flight_info", "flight_plan", b"flight_plan", "flight_progress", b"flight_progress", "schedule_info", b"schedule_info"]) -> bool: ...

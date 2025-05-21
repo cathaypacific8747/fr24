@@ -221,7 +221,6 @@ class FlightListResult(
         write_table(self, file, format=format)
 
 
-@dataclass
 class FlightListResultCollection(
     list[FlightListResult],
     SupportsToDict[FlightList],
@@ -251,19 +250,22 @@ class FlightListResultCollection(
             ) is None:
                 continue
             for flight in flights:
-                # for flights scheduled to depart in the future, fr24 returns an
-                # empty flight id, so we identify a "duplicate" using the
-                # standard time of departure instead
+                # NOTE: for future scheduled flights:
+                # - the flight id is empty
+                # - the standard time of departure is most certainly known
+                # -> we use the STOD as the primary key for duplicates
                 flight_id = flight["identification"]["id"]
                 stod = flight["time"]["scheduled"]["departure"]
                 ident_hash = hash((flight_id, stod))
-                if (
-                    flight_id is not None and stod is not None
-                ) and ident_hash in ident_hashes:
-                    _log.info(
-                        f"found duplicate: {flight_id=} and {stod=}, skipping"
-                    )
-                    continue
+                if ident_hash in ident_hashes:
+                    if stod is not None:
+                        _log.info(
+                            f"skipping duplicate: {flight_id=} and {stod=}"
+                        )
+                        continue
+                    else:
+                        # changed from assert to avoid hard error
+                        _log.warning(f"unexpected empty STOD for {flight_id=}")
                 ident_hashes.add(ident_hash)
                 flights_all.append(flight)
 

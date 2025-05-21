@@ -2,156 +2,16 @@ syntax = "proto3";
 
 import "fr24/proto/_common.proto";
 
-message ImageInfo {
-    string url = 1; // Image URL
-    string copyright = 2; // Copyright information (e.g. `"R Skywalker"`)
-    string thumbnail = 3; // URL for thumbnail image (e.g. `"https://cdn.jetphotos.com/200/5/459674_1738674373_tb.jpg"`)
-    string medium = 4; // URL for medium-sized image (e.g. `"https://cdn.jetphotos.com/400/5/459674_1738674373.jpg"`)
-    string large = 5; // URL for large-sized image (e.g. `"https://cdn.jetphotos.com/640/5/459674_1738674373.jpg"`)
-    string sideview = 6;
-}
-
-message AircraftInfo {
-    int32 icao_address = 1; // ICAO 24-bit address of the aircraft (e.g. `3789483`)
-    int32 reg = 2; // Registration number (e.g. `7867035`)
-    int32 country_of_reg = 3; // Country of registration code (e.g. `3`)
-    string type = 4; // Aircraft type code (e.g. `"A359"`)
-    _common.Icon icon = 5;
-    string full_description = 6; // Full aircraft description (e.g. `"Airbus A350-941"`)
-    string msn = 7;
-    _common.Service service = 8;
-    string ac_birth_date = 9; // Aircraft birth date string (e.g. `"2017-06-28"`)
-    string ac_age_text = 10; // Aircraft age (e.g. `"7 years old"`)
-    repeated ImageInfo images_list = 11;
-    bool is_test_flight = 12;
-    bool msn_available = 13;
-    bool age_available = 14;
-    string registered_owners = 15; // Aircraft owner name (e.g. `"Air France"`)
-    bool is_country_of_reg_available = 16;
-}
-
-message Point {
-    int32 latitude = 1; // Latitude, degrees, -90 to 90
-    int32 longitude = 2; // Longitude, degrees, -180 to 180
-}
-
-message Coordinate {
-    string code = 1;
-    Point point = 2;
-}
-
-message Fix {
-    string airport = 1;
-    string area = 2;
-    Coordinate coordinate = 3;
-}
-
-message AltArrival {
-    Fix arrival = 1;
-    float length = 2;
-}
-
-message FlightPlan {
-    string departure = 1;
-    string destination = 2;
-    string flight_plan_icao = 3;
-    double length = 4;
-    AltArrival alt_arrival_1 = 5;
-    AltArrival alt_arrival_2 = 6;
-    repeated Point waypoints_list = 7;
-}
-
-message ScheduleInfo {
-    string flight_number = 1; // Flight number with airline prefix (e.g. `"AF334"`)
-    uint32 operated_by_id = 2; // ID of the operating airline (e.g. `15`)
-    uint32 painted_as_id = 3; // ID of the airline the aircraft is painted as (e.g. `15`)
-    uint32 origin_id = 4; // Origin airport ID (e.g. `598`)
-    uint32 destination_id = 5; // Destination airport ID (e.g. `451`)
-    uint32 diverted_to_id = 6; // Diverted to airport ID
-    uint32 scheduled_departure = 7; // Scheduled Time of Departure, Unix timestamp in seconds
-    uint32 scheduled_arrival = 8; // Scheduled Time of Arrival, Unix timestamp in seconds
-    uint32 actual_departure = 9; // Actual Time of Departure, Unix timestamp in seconds
-    uint32 actual_arrival = 10; // Actual Time of Arrival, Unix timestamp in seconds
-    string arr_terminal = 11; // Arrival terminal (e.g. `"E"`)
-    string arr_gate = 12; // Arrival gate (e.g. `"E6"`)
-    string baggage_belt = 13; // Baggage belt (e.g. `"4"`)
-}
-
-enum FlightStage {
-    UNKNOWN = 0;
-    ON_GROUND = 1;
-    ASCENDING = 2;
-    AIRBORNE = 3;
-    DESCENDING = 4;
-    DIVERSION = 5;
-}
-
-enum DelayStatus {
-    GRAY = 0;
-    GREEN = 1;
-    YELLOW = 2;
-    RED = 3;
-}
-
-message FlightProgress {
-    uint32 traversed_distance = 1; // Distance traversed in the flight, meters
-    uint32 remaining_distance = 2; // Remaining distance to destination, meters
-    uint32 elapsed_time = 3; // Elapsed flight time, seconds
-    uint32 remaining_time = 4; // Remaining flight time, seconds
-    uint32 eta = 5; // Estimated Time of Arrival, Unix timestamp in seconds
-    uint32 great_circle_distance = 6; // Great circle distance of the first, meters
-    uint32 mean_flight_time = 7; // Mean flight time for this route, seconds
-    FlightStage flight_stage = 8;
-    DelayStatus delay_status = 9;
-    uint32 progress_pct = 10; // Flight progress percentage (e.g. `82`)
-}
-
 message FollowFlightRequest {
     fixed32 flight_id = 1; // FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)
     _common.RestrictionVisibility restriction_mode = 2;
 }
 
-message ExtendedFlightInfo {
-    uint32 flightid = 1; // Flight ID (e.g. `962788562` = `0x3962fcd2`)
-    float lat = 2; // Latitude, degrees, -90 to 90
-    float lon = 3; // Longitude, degrees, -180 to 180
-    int32 track = 4; // True track angle, degrees clockwise from North
-    int32 alt = 5; // Altitude, feet
-    int32 speed = 6; // Ground Speed, knots
-    _common.Status status = 7;
-    uint64 timestamp_ms = 8; // Unix timestamp of message, milliseconds (e.g. `1741377144019`)
-    bool on_ground = 9;
-    string callsign = 10; // Callsign (e.g. `"AFR334"`)
-    _common.DataSource source = 11;
-    _common.EMSAvailability ems_availability = 12;
-    _common.EMSInfo ems_info = 13;
-    bool squawk_availability = 14;
-    int32 squawk = 15; // Squawk code, in base-10 (e.g. `3041` = 0o5741)
-    bool vspeed_availability = 16;
-    int32 vspeed = 17; // Vertical speed (e.g. `3328`)
-    bool airspace_availability = 18;
-    string airspace = 19; // Airspace, free-form text (e.g. `"Shannon UIR"`)
-    string airspace_id = 20; // Airspace ID (e.g. `"FIR_EINN_U"`)
-    uint64 server_time_ms = 21; // Server timestamp, Unix timestamp in milliseconds (e.g. `1741377145974`)
-}
-
-message TrailPoint {
-    uint64 snapshot_id = 1; // Snapshot ID, likely Unix timestamp in seconds (e.g. `1741356300`)
-    float lat = 2; // Latitude, degrees, -90 to 90
-    float lon = 3;  // Longitude, degrees, -180 to 180
-    int32 altitude = 4; // Altitude, feet
-    uint32 spd = 5; // Ground speed, knots
-    // True track angle, degrees clockwise from North.
-    // Note: despite the name, heading is not transmitted in ADS-B.
-    uint32 heading = 6;
-    int32 vspd = 7; // Vertical Speed, feet per minute
-}
-
 message FollowFlightResponse {
-    AircraftInfo aircraft_info = 1;
-    FlightPlan flight_plan = 2;
-    ScheduleInfo schedule_info = 3;
-    FlightProgress flight_progress = 4;
-    ExtendedFlightInfo flight_info = 5;
-    repeated TrailPoint flight_trail_list = 6;
+    _common.AircraftInfo aircraft_info = 1;
+    _common.FlightPlan flight_plan = 2;
+    _common.ScheduleInfo schedule_info = 3;
+    _common.FlightProgress flight_progress = 4;
+    _common.ExtendedFlightInfo flight_info = 5;
+    repeated _common.TrailPoint flight_trail_list = 6;
 }

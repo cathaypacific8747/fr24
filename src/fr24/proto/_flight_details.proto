@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "fr24/proto/_common.proto";
+
+message FlightProgress {
+    uint32 traversed_distance = 1;
+    uint32 remaining_distance = 2;
+    int32 elapsed_time = 3;
+    int32 remaining_time = 4;
+    uint32 eta = 5;
+    uint32 great_circle_distance = 6;
+    uint32 mean_flight_time = 7;
+    _common.FlightStage flight_stage = 8;
+    _common.DelayStatus delay_status = 9;
+    uint32 progress_pct = 10;
+}
+
+message FlightDetailsRequest {
+    fixed32 flight_id = 1; // FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)
+    _common.RestrictionVisibility restriction_mode = 2;
+    bool verbose = 3;
+}
+
+message FlightDetailsResponse {
+    _common.AircraftInfo aircraft_info = 1;
+    _common.ScheduleInfo schedule_info = 2;
+    _common.FlightProgress flight_progress = 3;
+    _common.ExtendedFlightInfo flight_info = 4;
+    _common.FlightPlan flight_plan = 5;
+    repeated _common.TrailPoint flight_trail_list = 6;
+}
