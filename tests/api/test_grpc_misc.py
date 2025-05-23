@@ -1,6 +1,8 @@
 import httpx
+import polars as pl
 import pytest
 
+from fr24 import FR24
 from fr24.grpc import (
     follow_flight_request_create,
     follow_flight_stream,
@@ -138,6 +140,51 @@ async def test_historic_trail(
     from fr24.proto.v1_pb2 import HistoricTrailResponse
 
     assert isinstance(data, HistoricTrailResponse)
+
+
+@pytest.mark.anyio
+async def test_flight_details(
+    nearest_flights_result: NearestFlightsResponse, client: httpx.AsyncClient
+) -> None:
+    from fr24.grpc import flight_details, flight_details_request_create
+    from fr24.proto.v1_pb2 import FlightDetailsRequest
+
+    flight_id = nearest_flights_result.flights_list[-1].flight.flightid
+    message = FlightDetailsRequest(flight_id=flight_id, verbose=True)
+    request = flight_details_request_create(message)
+    results = await flight_details(client, request)
+    assert results.is_ok()
+    data = results.unwrap()
+    from fr24.proto.v1_pb2 import FlightDetailsResponse
+
+    assert isinstance(data, FlightDetailsResponse)
+    assert len(data.flight_trail_list) > 10
+
+
+@pytest.mark.anyio
+async def test_playback_flight(fr24: FR24, client: httpx.AsyncClient) -> None:
+    result_fl = await fr24.flight_list.fetch(reg="B-LRA")
+    data_fl = result_fl.to_polars()
+    landed = data_fl.filter(pl.col("status").str.starts_with("Landed"))
+    assert landed.shape[0] > 0
+    i = -1  # NOTE: flights that are too recent may return empty DATA frame
+    flight_id = landed[i, "flight_id"]
+    stod = int(landed[i, "STOD"].timestamp())
+
+    from fr24.grpc import playback_flight, playback_flight_request_create
+    from fr24.proto.v1_pb2 import PlaybackFlightRequest
+
+    message = PlaybackFlightRequest(
+        flight_id=flight_id,
+        timestamp=stod,
+    )
+    request = playback_flight_request_create(message)
+    result = await playback_flight(client, request)
+    data = result.unwrap()
+    from fr24.proto.v1_pb2 import PlaybackFlightResponse
+
+    assert isinstance(data, PlaybackFlightResponse)
+    assert len(data.flight_trail_list) > 10
 
 
 def test_parse_data_grpc_status_error() -> None:

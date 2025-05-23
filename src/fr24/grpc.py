@@ -36,6 +36,8 @@ from .proto.v1_pb2 import (
     FetchSearchIndexRequest,
     FetchSearchIndexResponse,
     Flight,
+    FlightDetailsRequest,
+    FlightDetailsResponse,
     FollowFlightRequest,
     FollowFlightResponse,
     HistoricTrailRequest,
@@ -49,6 +51,8 @@ from .proto.v1_pb2 import (
     LocationBoundaries,
     NearestFlightsRequest,
     NearestFlightsResponse,
+    PlaybackFlightRequest,
+    PlaybackFlightResponse,
     PlaybackRequest,
     PlaybackResponse,
     PositionBuffer,
@@ -446,6 +450,7 @@ def live_trail_request_create(
     message: LiveTrailRequest,
     auth: None | Authentication = None,
 ) -> httpx.Request:
+    """contains empty `DATA` frame error if flight_id is not live"""
     return construct_request("LiveTrail", message, auth)
 
 
@@ -469,6 +474,34 @@ async def historic_trail(
     """WARN: Unstable API - does not return data reliably."""
     # empty DATA frame
     return await post_unary(client, request, HistoricTrailResponse)
+
+
+def flight_details_request_create(
+    message: FlightDetailsRequest,
+    auth: None | Authentication = None,
+) -> httpx.Request:
+    return construct_request("FlightDetails", message, auth)
+
+
+async def flight_details(
+    client: httpx.AsyncClient, request: httpx.Request
+) -> Result[FlightDetailsResponse, ProtoError]:
+    """contains empty `DATA` frame error if flight_id is not live"""
+    return await post_unary(client, request, FlightDetailsResponse)
+
+
+def playback_flight_request_create(
+    message: PlaybackFlightRequest,
+    auth: None | Authentication = None,
+) -> httpx.Request:
+    return construct_request("PlaybackFlight", message, auth)
+
+
+async def playback_flight(
+    client: httpx.AsyncClient, request: httpx.Request
+) -> Result[PlaybackFlightResponse, ProtoError]:
+    """contains empty `DATA` frame error if flight_id is live"""
+    return await post_unary(client, request, PlaybackFlightResponse)
 
 
 __all__ = [
