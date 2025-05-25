@@ -55,7 +55,7 @@ class RestrictionVisibility(_RestrictionVisibility, metaclass=_RestrictionVisibi
     """Information about high-profile, military or government aircraft like
     Air Force One are not displayed. Other restricted aircraft may be anonymised,
     appearing as `BLOCKED` or `NA`.
-    See [FAA's Limited Data Displayed](https://www.faa.gov/pilots/ladd) and 
+    See [FAA's Limited Data Displayed](https://www.faa.gov/pilots/ladd) and
     [PIA program](https://www.faa.gov/air_traffic/technology/equipadsb/privacy)
     for more details.
     """
@@ -855,7 +855,7 @@ class AircraftInfo(Message):
     MSN_FIELD_NUMBER: int
     SERVICE_FIELD_NUMBER: int
     AC_BIRTH_DATE_FIELD_NUMBER: int
-    AC_AGE_TEXT_FIELD_NUMBER: int
+    AC_AGE_FIELD_NUMBER: int
     IMAGES_LIST_FIELD_NUMBER: int
     IS_TEST_FLIGHT_FIELD_NUMBER: int
     MSN_AVAILABLE_FIELD_NUMBER: int
@@ -863,9 +863,9 @@ class AircraftInfo(Message):
     REGISTERED_OWNERS_FIELD_NUMBER: int
     IS_COUNTRY_OF_REG_AVAILABLE_FIELD_NUMBER: int
     icao_address: int
-    """ICAO 24-bit address of the aircraft (e.g. `3789483`)"""
-    reg: int
-    """Registration number (e.g. `7867035`)"""
+    """ICAO 24-bit address of the aircraft"""
+    reg: str
+    """Registration number"""
     country_of_reg: int
     """Country of registration code (e.g. `3`)"""
     type: str
@@ -877,8 +877,8 @@ class AircraftInfo(Message):
     service: Service.ValueType
     ac_birth_date: str
     """Aircraft birth date string (e.g. `"2017-06-28"`)"""
-    ac_age_text: str
-    """Aircraft age (e.g. `"7 years old"`)"""
+    ac_age: int
+    """Aircraft age"""
     is_test_flight: bool
     msn_available: bool
     age_available: bool
@@ -891,7 +891,7 @@ class AircraftInfo(Message):
         self,
         *,
         icao_address: int = ...,
-        reg: int = ...,
+        reg: str = ...,
         country_of_reg: int = ...,
         type: str = ...,
         icon: Icon.ValueType = ...,
@@ -899,7 +899,7 @@ class AircraftInfo(Message):
         msn: str = ...,
         service: Service.ValueType = ...,
         ac_birth_date: str = ...,
-        ac_age_text: str = ...,
+        ac_age: int = ...,
         images_list: Iterable[ImageInfo] | None = ...,
         is_test_flight: bool = ...,
         msn_available: bool = ...,
@@ -907,7 +907,7 @@ class AircraftInfo(Message):
         registered_owners: str = ...,
         is_country_of_reg_available: bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: Literal["ac_age_text", b"ac_age_text", "ac_birth_date", b"ac_birth_date", "age_available", b"age_available", "country_of_reg", b"country_of_reg", "full_description", b"full_description", "icao_address", b"icao_address", "icon", b"icon", "images_list", b"images_list", "is_country_of_reg_available", b"is_country_of_reg_available", "is_test_flight", b"is_test_flight", "msn", b"msn", "msn_available", b"msn_available", "reg", b"reg", "registered_owners", b"registered_owners", "service", b"service", "type", b"type"]) -> None: ...
+    def ClearField(self, field_name: Literal["ac_age", b"ac_age", "ac_birth_date", b"ac_birth_date", "age_available", b"age_available", "country_of_reg", b"country_of_reg", "full_description", b"full_description", "icao_address", b"icao_address", "icon", b"icon", "images_list", b"images_list", "is_country_of_reg_available", b"is_country_of_reg_available", "is_test_flight", b"is_test_flight", "msn", b"msn", "msn_available", b"msn_available", "reg", b"reg", "registered_owners", b"registered_owners", "service", b"service", "type", b"type"]) -> None: ...
 
 @final
 class Point(Message):

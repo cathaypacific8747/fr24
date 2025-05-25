@@ -5,7 +5,7 @@ package _common;
 // Information about high-profile, military or government aircraft like
 // Air Force One are not displayed. Other restricted aircraft may be anonymised,
 // appearing as `BLOCKED` or `NA`.
-// See [FAA's Limited Data Displayed](https://www.faa.gov/pilots/ladd) and 
+// See [FAA's Limited Data Displayed](https://www.faa.gov/pilots/ladd) and
 // [PIA program](https://www.faa.gov/air_traffic/technology/equipadsb/privacy)
 // for more details.
 enum RestrictionVisibility {
@@ -245,8 +245,8 @@ message ImageInfo {
 }
 
 message AircraftInfo {
-    int32 icao_address = 1; // ICAO 24-bit address of the aircraft (e.g. `3789483`)
-    int32 reg = 2; // Registration number (e.g. `7867035`)
+    uint32 icao_address = 1; // ICAO 24-bit address of the aircraft
+    string reg = 2; // Registration number
     int32 country_of_reg = 3; // Country of registration code (e.g. `3`)
     string type = 4; // Aircraft type code (e.g. `"A359"`)
     _common.Icon icon = 5;
@@ -254,7 +254,7 @@ message AircraftInfo {
     string msn = 7;
     _common.Service service = 8;
     string ac_birth_date = 9; // Aircraft birth date string (e.g. `"2017-06-28"`)
-    string ac_age_text = 10; // Aircraft age (e.g. `"7 years old"`)
+    uint32 ac_age = 10; // Aircraft age
     repeated ImageInfo images_list = 11;
     bool is_test_flight = 12;
     bool msn_available = 13;

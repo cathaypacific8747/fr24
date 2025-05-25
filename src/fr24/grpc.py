@@ -38,6 +38,7 @@ from .proto import (
 )
 from .proto.headers import get_headers
 from .proto.v1_pb2 import (
+    EMSInfo,
     FetchSearchIndexRequest,
     FetchSearchIndexResponse,
     Flight,
@@ -69,6 +70,7 @@ from .proto.v1_pb2 import (
     TopFlightsRequest,
     TopFlightsResponse,
     TrafficType,
+    TrailPoint,
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
@@ -88,11 +90,14 @@ if TYPE_CHECKING:
 
     from .types.authentication import Authentication
     from .types.cache import (
+        EMSRecord,
+        FlightDetailsRecord,
         FlightRecord,
         LiveFlightStatusRecord,
         NearbyFlightRecord,
         RecentPositionRecord,
         TopFlightRecord,
+        TrailPointRecord,
     )
     from .types.fr24 import LiveFeedField
     from .utils import IntoFlightId, IntoTimestamp
@@ -543,7 +548,7 @@ async def top_flights(
     return response
 
 
-def top_flights_followedflight_dict(ff: FollowedFlight) -> TopFlightRecord:
+def top_flights_dict(ff: FollowedFlight) -> TopFlightRecord:
     return {
         "flight_id": ff.flight_id,
         "live_clicks": ff.live_clicks,
@@ -566,7 +571,7 @@ def top_flights_df(data: TopFlightsResponse) -> pl.DataFrame:
     from .types.cache import top_flights_schema
 
     return pl.DataFrame(
-        (top_flights_followedflight_dict(ff) for ff in data.scoreboard_list),
+        (top_flights_dict(ff) for ff in data.scoreboard_list),
         schema=top_flights_schema,
     )
 
@@ -635,11 +640,119 @@ async def flight_details(
     client: httpx.AsyncClient,
     message: IntoFlightDetailsRequest,
     auth: None | Authentication = None,
-) -> Result[FlightDetailsResponse, ProtoError]:
+) -> Annotated[httpx.Response, FlightDetailsResponse]:
     """contains empty `DATA` frame error if flight_id is not live"""
     request = construct_request("FlightDetails", to_proto(message), auth)
     response = await client.send(request)
-    return parse_data(response.content, FlightDetailsResponse)
+    return response
+
+
+def flight_details_dict(
+    response: FlightDetailsResponse,
+) -> FlightDetailsRecord:
+    aircraft_info = response.aircraft_info
+    schedule_info = response.schedule_info
+    flight_progress = response.flight_progress
+    flight_info = response.flight_info
+
+    return {
+        "icao_address": aircraft_info.icao_address,
+        "reg": aircraft_info.reg,
+        "typecode": aircraft_info.type,
+        #
+        "flight_number": schedule_info.flight_number,
+        "origin_id": schedule_info.origin_id,
+        "destination_id": schedule_info.destination_id,
+        "diverted_id": schedule_info.diverted_to_id,
+        "scheduled_departure": schedule_info.scheduled_departure,
+        "scheduled_arrival": schedule_info.scheduled_arrival,
+        "actual_departure": schedule_info.actual_departure,
+        "actual_arrival": schedule_info.actual_arrival,
+        #
+        "traversed_distance": flight_progress.traversed_distance,
+        "remaining_distance": flight_progress.remaining_distance,
+        "elapsed_time": flight_progress.elapsed_time,
+        "remaining_time": flight_progress.remaining_time,
+        "eta": flight_progress.eta,
+        "great_circle_distance": flight_progress.great_circle_distance,
+        "mean_flight_time": flight_progress.mean_flight_time,
+        #
+        "timestamp_ms": flight_info.timestamp_ms,
+        "flightid": flight_info.flightid,
+        "latitude": flight_info.lat,
+        "longitude": flight_info.lon,
+        "track": flight_info.track,
+        "altitude": flight_info.alt,
+        "ground_speed": flight_info.speed,
+        "vertical_speed": flight_info.vspeed,
+        "on_ground": flight_info.on_ground,
+        "callsign": flight_info.callsign,
+        "squawk": flight_info.squawk,
+        "ems": ems_dict(flight_info.ems_info),
+        # TODO: add flight plan
+        "flight_trail_list": [
+            trail_point_dict(tp) for tp in response.flight_trail_list
+        ],
+    }
+
+
+def trail_point_dict(tp: TrailPoint) -> TrailPointRecord:
+    return {
+        "timestamp": tp.snapshot_id,
+        "latitude": tp.lat,
+        "longitude": tp.lon,
+        "altitude": tp.altitude,
+        "ground_speed": tp.spd,
+        "track": tp.heading,
+        "vertical_speed": tp.vspd,
+    }
+
+
+def ems_dict(ems: EMSInfo) -> EMSRecord:
+    """Transform Enhanced Mode-S data in the protobuf message into a dictionary.
+
+    This is similar to EMS data in the [JSON API response][fr24.json.playback],
+    specifically [fr24.json.playback_track_ems_dict][], which gets converted to
+    [fr24.types.cache.PlaybackTrackEMSRecord][]. However, several fields are
+    missing:
+
+    - `timestamp`
+    - `autopilot`
+    - `track`
+    - `roll`
+    - `precision`
+    - `emergency`
+    - `tcas_acas`
+    - `heading`
+    """
+    return {
+        "ias": ems.ias,
+        "tas": ems.tas,
+        "mach": ems.mach,
+        "mcp": ems.amcp,
+        "fms": ems.afms,
+        "oat": ems.oat,
+        "qnh": ems.qnh,
+        "wind_dir": ems.wind_dir,
+        "wind_speed": ems.wind_speed,
+        "altitude_gps": ems.agps,
+        "agpsdiff": ems.agpsdiff,
+        "apflags": ems.apflags,
+        "rs": ems.rs,
+    }
+
+
+def flight_details_df(
+    data: FlightDetailsResponse,
+) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import flight_details_schema
+
+    return pl.DataFrame(
+        [flight_details_dict(data)],
+        schema=flight_details_schema,
+    )
 
 
 IntoPlaybackFlightRequest: TypeAlias = Union[

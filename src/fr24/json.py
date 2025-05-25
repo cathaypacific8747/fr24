@@ -377,6 +377,7 @@ def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
         "vertical_speed": point["verticalSpeed"]["fpm"],
         "track": point["heading"],
         "squawk": int(point["squawk"], base=8),
+        "ems": playback_track_ems_dict(point),
     }
 
 
@@ -420,13 +421,7 @@ def playback_df(data: Playback) -> pl.DataFrame:
     if len(track := flight["track"]) == 0:
         _log.warning("no data in response, table will be empty")
     return pl.DataFrame(
-        [
-            {
-                **playback_track_dict(point),
-                "ems": playback_track_ems_dict(point),
-            }
-            for point in track
-        ],
+        [playback_track_dict(point) for point in track],
         schema=playback_track_schema,
     )
     # NOTE: original implementation returns pl.DateTime instead of timestamp

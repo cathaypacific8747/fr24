@@ -11,11 +11,14 @@ from typing_extensions import runtime_checkable
 
 from .cache import FR24Cache
 from .grpc import (
+    FlightDetailsParams,
     LiveFeedParams,
     LiveFeedPlaybackParams,
     LiveFlightsStatusParams,
     NearestFlightsParams,
     TopFlightsParams,
+    flight_details,
+    flight_details_df,
     live_feed,
     live_feed_df,
     live_feed_playback,
@@ -40,6 +43,7 @@ from .json import (
 )
 from .proto import SupportsToProto, parse_data
 from .proto.v1_pb2 import (
+    FlightDetailsResponse,
     LiveFeedResponse,
     LiveFlightsStatusResponse,
     NearestFlightsResponse,
@@ -54,6 +58,7 @@ from .utils import (
     SupportsToPolars,
     get_current_timestamp,
     parse_server_timestamp,
+    to_flight_id,
     write_table,
 )
 
@@ -97,6 +102,9 @@ class ServiceFactory:
 
     def build_live_flights_status(self) -> LiveFlightsStatusService:
         return LiveFlightsStatusService(self)
+
+    def build_flight_details(self) -> FlightDetailsService:
+        return FlightDetailsService(self)
 
     def build_top_flights(self) -> TopFlightsService:
         return TopFlightsService(self)
@@ -367,9 +375,8 @@ class PlaybackResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            file = file.playback.new_bare_path(
-                str(self.request.flight_id).upper()
-            )
+            flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
+            file = file.playback.new_bare_path(flight_id)
         write_table(self, file, format=format)
 
 
@@ -661,4 +668,62 @@ class TopFlightsResult(
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.top_flights.new_bare_path(f"{self.timestamp}")
+        write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
+    """Flight details service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(FlightDetailsParams)
+    async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightDetailsResult:
+        """Fetch flight details.
+        See [fr24.grpc.FlightDetailsParams][] for the detailed signature.
+        """
+        request = FlightDetailsParams(*args, **kwargs)
+        response = await flight_details(
+            self.__factory.http.client,
+            request.to_proto(),
+            self.__factory.http.auth,
+        )
+        timestamp = parse_server_timestamp(response) or get_current_timestamp()
+        return FlightDetailsResult(
+            request=request,
+            response=response,
+            timestamp=timestamp,
+        )
+
+
+@dataclass
+class FlightDetailsResult(
+    APIResult[FlightDetailsParams],
+    SupportsToProto[FlightDetailsResponse],
+    SupportsToDict[dict[str, Any]],
+    SupportsToPolars,
+    SupportsWriteTable,
+):
+    timestamp: int
+
+    def to_proto(self) -> FlightDetailsResponse:
+        return parse_data(self.response.content, FlightDetailsResponse).unwrap()
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
+
+    def to_polars(self) -> pl.DataFrame:
+        return flight_details_df(self.to_proto())
+
+    def write_table(
+        self,
+        file: WriteLocation,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, FR24Cache):
+            flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
+            file = file.flight_details.new_bare_path(
+                f"{flight_id}_{self.timestamp}"
+            )
         write_table(self, file, format=format)

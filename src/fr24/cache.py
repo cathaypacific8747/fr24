@@ -33,6 +33,7 @@ class FR24Cache:
     - `nearest_flights/{lon}_{lat}_{timestamp}`
     - `live_flights_status/{timestamp}`
     - `top_flights/{timestamp}`
+    - `flight_details/{flight_id}_{timestamp}`
     """
 
     @classmethod
@@ -55,6 +56,7 @@ class FR24Cache:
         self.nearest_flights = Collection(self.path / "nearest_flights")
         self.live_flights_status = Collection(self.path / "live_flights_status")
         self.top_flights = Collection(self.path / "top_flights")
+        self.flight_details = Collection(self.path / "flight_details")
 
         for collection in (
             self.flight_list.reg,
@@ -64,6 +66,7 @@ class FR24Cache:
             self.nearest_flights,
             self.live_flights_status,
             self.top_flights,
+            self.flight_details,
         ):
             collection.path.mkdir(parents=True, exist_ok=True)
 
@@ -113,7 +116,7 @@ class Collection:
             - `cache.flight_list.reg.scan_table`: Registration number, uppercase
             - `cache.flight_list.flight.scan_table`: Flight number, upper cased
             - `cache.playback.scan_table`: Flight id, hex representation,
-                lowercase
+                uppercase
             - `cache.feed.scan_table`: Unix timestamp, integer seconds since
                 epoch
             - `cache.nearest_flights.scan_table`:
@@ -124,6 +127,10 @@ class Collection:
                 integer seconds since epoch
             - `cache.top_flights.scan_table`: Unix timestamp,
                 integer seconds since epoch
+            - `cache.flight_details.scan_table`:
+                `f"{flight_id}_{timestamp}"`, where `flight_id` is the flight
+                ID, hex representation, uppercase,
+                and `timestamp` is the integer seconds since epoch
         """
         if isinstance(ident, (File, Path)):
             file = ident

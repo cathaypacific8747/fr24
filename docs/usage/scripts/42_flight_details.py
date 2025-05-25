@@ -9,13 +9,14 @@ from fr24.grpc import (
     flight_details,
 )
 from fr24.proto.v1_pb2 import FlightDetailsResponse
+from fr24.proto import parse_data
 
 
 async def flight_details_data() -> FlightDetailsResponse:
     async with httpx.AsyncClient() as client:
-        params = FlightDetailsParams(flight_id=0x3a71abce)
-        result = await flight_details(client, params)
-        return result.unwrap()
+        params = FlightDetailsParams(flight_id=0x3a7e02c1)
+        response = await flight_details(client, params)
+        return parse_data(response.content, FlightDetailsResponse).unwrap()
 
 data = await flight_details_data()
 data
@@ -24,30 +25,31 @@ data
 """
 # --8<-- [start:output0]
 aircraft_info {
-  icao_address: 7867035
+  icao_address: 7901761
+  reg: "B-LQD"
   type: "A359"
   icon: A330
   full_description: "Airbus A350-941"
   images_list {
-    url: "https://www.jetphotos.com/photo/11633658"
-    copyright: "lix1aolu"
-    thumbnail: "https://cdn.jetphotos.com/200/6/850117_1739185739_tb.jpg"
-    medium: "https://cdn.jetphotos.com/400/6/850117_1739185739.jpg"
-    large: "https://cdn.jetphotos.com/640/6/850117_1739185739.jpg"
+    url: "https://www.jetphotos.com/photo/11697954"
+    copyright: "David Li"
+    thumbnail: "https://cdn.jetphotos.com/200/5/675179_1744593599_tb.jpg"
+    medium: "https://cdn.jetphotos.com/400/5/675179_1744593599.jpg"
+    large: "https://cdn.jetphotos.com/640/5/675179_1744593599.jpg"
   }
   images_list {
-    url: "https://www.jetphotos.com/photo/11634217"
-    copyright: "Waibibabu"
-    thumbnail: "https://cdn.jetphotos.com/200/6/591483_1739217827_tb.jpg"
-    medium: "https://cdn.jetphotos.com/400/6/591483_1739217827.jpg"
-    large: "https://cdn.jetphotos.com/640/6/591483_1739217827.jpg"
+    url: "https://www.jetphotos.com/photo/11703546"
+    copyright: "Michael Eaton"
+    thumbnail: "https://cdn.jetphotos.com/200/6/528687_1745054061_tb.jpg"
+    medium: "https://cdn.jetphotos.com/400/6/528687_1745054061.jpg"
+    large: "https://cdn.jetphotos.com/640/6/528687_1745054061.jpg"
   }
   images_list {
-    url: "https://www.jetphotos.com/photo/11620028"
-    copyright: "ZBAA cao"
-    thumbnail: "https://cdn.jetphotos.com/200/6/723478_1737987561_tb.jpg"
-    medium: "https://cdn.jetphotos.com/400/6/723478_1737987561.jpg"
-    large: "https://cdn.jetphotos.com/640/6/723478_1737987561.jpg"
+    url: "https://www.jetphotos.com/photo/11682674"
+    copyright: "Dominic Oakes"
+    thumbnail: "https://cdn.jetphotos.com/200/6/649488_1743374705_tb.jpg"
+    medium: "https://cdn.jetphotos.com/400/6/649488_1743374705.jpg"
+    large: "https://cdn.jetphotos.com/640/6/649488_1743374705.jpg"
   }
   msn_available: true
   age_available: true
@@ -55,37 +57,37 @@ aircraft_info {
   is_country_of_reg_available: true
 }
 schedule_info {
-  flight_number: "CX100"
+  flight_number: "CX748"
   operated_by_id: 57
   painted_as_id: 57
-  origin_id: 3370
+  origin_id: 1627
   destination_id: 1366
-  scheduled_departure: 1747886700
-  scheduled_arrival: 1747920600
-  actual_departure: 1747887360
+  scheduled_departure: 1748164800
+  scheduled_arrival: 1748212200
+  actual_departure: 1748165560
   arr_terminal: "1"
 }
 flight_progress {
-  traversed_distance: 1445203
-  remaining_distance: 5940859
-  elapsed_time: 7239
-  remaining_time: 25529
-  eta: 1747920128
-  great_circle_distance: 7371723
-  mean_flight_time: 31849
+  traversed_distance: 8271718
+  remaining_distance: 2474032
+  elapsed_time: 33428
+  remaining_time: 11700
+  eta: 1748210688
+  great_circle_distance: 10671581
+  mean_flight_time: 44471
   flight_stage: AIRBORNE
   delay_status: GREEN
-  progress_pct: 22
+  progress_pct: 74
 }
 flight_info {
-  flightid: 980528078
-  lat: -22.474535
-  lon: 144.153641
-  track: 343
-  alt: 38000
-  speed: 427
-  timestamp_ms: 1747894597000
-  callsign: "CPA100"
+  flightid: 981336769
+  lat: 7.2621026
+  lon: 96.8550873
+  track: 60
+  alt: 41000
+  speed: 446
+  timestamp_ms: 1748198985330
+  callsign: "CPA748"
   ems_availability {
     qnh_availability: true
     amcp_availability: true
@@ -95,32 +97,30 @@ flight_info {
     mach_availability: true
     agps_availability: true
     agpsdiff_availability: true
+    wind_dir_availability: true
+    wind_speed_availability: true
   }
   squawk_availability: true
   vspeed_availability: true
   airspace_availability: true
-  server_time_ms: 1747894599299
+  server_time_ms: 1748198988037
 }
 flight_plan {
 }
 flight_trail_list {
-  snapshot_id: 1747886571
-  lat: -33.9357681
-  lon: 151.167923
-  heading: 239
+  snapshot_id: 1748164567
+  lat: -26.1300163
+  lon: 28.23349
+  heading: 320
 }
-flight_trail_list {
-  snapshot_id: 1747886659
-  lat: -33.9356575
-  lon: 151.168137
 ...
 flight_trail_list {
-  snapshot_id: 1747894543
-  lat: -22.5770912
-  lon: 144.187012
-  altitude: 38000
-  spd: 426
-  heading: 343
+  snapshot_id: 1748198963
+  lat: 7.23896599
+  lon: 96.814743
+  altitude: 41000
+  spd: 445
+  heading: 60
 }
 # --8<-- [end:output0]
 """

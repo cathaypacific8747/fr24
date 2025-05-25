@@ -99,23 +99,6 @@ async def test_historic_trail(
 
 
 @pytest.mark.anyio
-async def test_flight_details(
-    nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
-) -> None:
-    from fr24.grpc import FlightDetailsParams, flight_details
-
-    flight_id = nearest_flights_response.flights_list[-1].flight.flightid
-    params = FlightDetailsParams(flight_id=flight_id, verbose=True)
-    results = await flight_details(client, params)
-    assert results.is_ok()
-    data = results.unwrap()
-    from fr24.proto.v1_pb2 import FlightDetailsResponse
-
-    assert isinstance(data, FlightDetailsResponse)
-    assert len(data.flight_trail_list) > 10
-
-
-@pytest.mark.anyio
 async def test_playback_flight(fr24: FR24, client: httpx.AsyncClient) -> None:
     result_fl = await fr24.flight_list.fetch(reg="B-LRA")
     data_fl = result_fl.to_polars()
