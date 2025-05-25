@@ -22,7 +22,7 @@ Methods:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, NamedTuple, Union, cast, overload
+from typing import TYPE_CHECKING, NamedTuple, Sequence, Union, cast, overload
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -52,6 +52,7 @@ from .proto.v1_pb2 import (
     LiveFeedResponse,
     LiveFlightsStatusRequest,
     LiveFlightsStatusResponse,
+    LiveFlightStatus,
     LiveTrailRequest,
     LiveTrailResponse,
     LocationBoundaries,
@@ -87,6 +88,7 @@ if TYPE_CHECKING:
     from .types.authentication import Authentication
     from .types.cache import (
         FlightRecord,
+        LiveFlightStatusRecord,
         NearbyFlightRecord,
         RecentPositionRecord,
     )
@@ -434,13 +436,55 @@ def nearest_flights_df(
     )
 
 
+@dataclass
+class LiveFlightsStatusParams(SupportsToProto[LiveFlightsStatusRequest]):
+    flight_ids: Sequence[IntoFlightId]
+    """List of flight IDs to get status for"""
+
+    def to_proto(self) -> LiveFlightsStatusRequest:
+        return LiveFlightsStatusRequest(
+            flight_ids_list=tuple(to_flight_id(fid) for fid in self.flight_ids)
+        )
+
+
 async def live_flights_status(
     client: httpx.AsyncClient,
     message: IntoLiveFlightsStatusRequest,
     auth: None | Authentication = None,
-) -> Result[LiveFlightsStatusResponse, ProtoError]:
+) -> Annotated[httpx.Response, LiveFlightsStatusResponse]:
     request = construct_request("LiveFlightsStatus", to_proto(message), auth)
-    return await post_unary(client, request, LiveFlightsStatusResponse)
+    response = await client.send(request)
+    return response
+
+
+def live_flights_status_flightstatusdata_dict(
+    flight_status: LiveFlightStatus,
+) -> LiveFlightStatusRecord:
+    data = flight_status.data
+
+    return {
+        "flight_id": flight_status.flight_id,
+        "latitude": data.lat,
+        "longitude": data.lon,
+        "status": data.status,
+        "squawk": data.squawk,
+    }
+
+
+def live_flights_status_df(
+    data: LiveFlightsStatusResponse,
+) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import live_flights_status_schema
+
+    return pl.DataFrame(
+        (
+            live_flights_status_flightstatusdata_dict(fs)
+            for fs in data.flights_map
+        ),
+        schema=live_flights_status_schema,
+    )
 
 
 IntoFetchSearchIndexRequest: TypeAlias = Union[

@@ -174,3 +174,20 @@ nearest_flights_schema = {
 
 class NearbyFlightRecord(FlightRecord):
     distance: int
+
+
+live_flights_status_schema = {
+    "flight_id": pl.UInt32(),
+    "latitude": pl.Float32(),
+    "longitude": pl.Float32(),
+    "status": pl.UInt8(),
+    "squawk": pl.UInt16(),
+}
+
+
+class LiveFlightStatusRecord(TypedDict):
+    flight_id: int
+    latitude: float
+    longitude: float
+    status: int
+    squawk: int

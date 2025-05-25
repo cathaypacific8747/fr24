@@ -13,20 +13,19 @@ For a detailed quickstart, examples and references, please refer to the [documen
 
 `fr24` supports the following endpoints:
 
-| Endpoint                      | Description                                                    | Type   |
-| ------------------------------| -------------------------------------------------------------- | ------ |
-| **Live Feed**                 | Current real-time flight data within a bounding box.           | gRPC   |
-| **Live Feed Playback**        | Historical snapshot of live feed data for a specific time.     | gRPC   |
-| **Flight List**               | List of flights based on registration or flight number.        | JSON   |
-| **Playback**                  | Historical state vectors data for a flight.                    | JSON   |
-| **Airport Arrivals**          | Aircraft arrival information for a given airport.              | JSON   |
-| **Airport Search**            | Search for airports by keyword.                                | JSON   |
-| **Nearest Flights**           | Real-time flight data for aircraft within a given radius.      | gRPC   |
-| **Follow Flight** (streaming) | Historical track and real-time updates for a live flight.      | gRPC   |
-| **Top Flights**               | List of the most viewed flights.                               | gRPC   |
-
+| Endpoint                      | Description                                                | Type |
+| ----------------------------- | ---------------------------------------------------------- | ---- |
+| **Live Feed**                 | Current real-time flight data within a bounding box.       | gRPC |
+| **Live Feed Playback**        | Historical snapshot of live feed data for a specific time. | gRPC |
+| **Flight List**               | List of flights based on registration or flight number.    | JSON |
+| **Playback**                  | Historical state vectors data for a flight.                | JSON |
+| **Airport Arrivals**          | Aircraft arrival information for a given airport.          | JSON |
+| **Airport Search**            | Search for airports by keyword.                            | JSON |
+| **Nearest Flights**           | Real-time flight data for aircraft within a given radius.  | gRPC |
+| **Follow Flight** (streaming) | Historical track and real-time updates for a live flight.  | gRPC |
+| **Top Flights**               | List of the most viewed flights.                           | gRPC |
+| **Live Flight Status**        | Real-time status updates for live flights.                 | gRPC |
 <!--
-| **Live Flight Status**        | Real-time status updates for live flights.                     | gRPC   |
 | **Live Trail**                | Real-time trail data for a flight.                             | gRPC   |
 | **Historic Trail**            | Historical trail data for a flight.                            | gRPC   |
 -->

@@ -163,10 +163,10 @@ from fr24.proto._live_feed_pb2 import (
     VisibilitySettings as VisibilitySettings,
 )
 from fr24.proto._live_flight_status_pb2 import (
+    LiveFlightStatus as LiveFlightStatus,
     LiveFlightStatusData as LiveFlightStatusData,
     LiveFlightsStatusRequest as LiveFlightsStatusRequest,
     LiveFlightsStatusResponse as LiveFlightsStatusResponse,
-    _Unknown as _Unknown,
 )
 from fr24.proto._live_trail_pb2 import (
     LiveTrailRequest as LiveTrailRequest,

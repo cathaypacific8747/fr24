@@ -13,11 +13,14 @@ from .cache import FR24Cache
 from .grpc import (
     LiveFeedParams,
     LiveFeedPlaybackParams,
+    LiveFlightsStatusParams,
     NearestFlightsParams,
     live_feed,
     live_feed_df,
     live_feed_playback,
     live_feed_playback_df,
+    live_flights_status,
+    live_flights_status_df,
     nearest_flights,
     nearest_flights_df,
 )
@@ -35,6 +38,7 @@ from .json import (
 from .proto import SupportsToProto, parse_data
 from .proto.v1_pb2 import (
     LiveFeedResponse,
+    LiveFlightsStatusResponse,
     NearestFlightsResponse,
     PlaybackResponse,
 )
@@ -86,6 +90,9 @@ class ServiceFactory:
 
     def build_nearest_flights(self) -> NearestFlightsService:
         return NearestFlightsService(self)
+
+    def build_live_flights_status(self) -> LiveFlightsStatusService:
+        return LiveFlightsStatusService(self)
 
 
 RequestT = TypeVar("RequestT")
@@ -533,4 +540,63 @@ class NearestFlightsResult(
             file = file.nearest_flights.new_bare_path(
                 f"{lon6}_{lat6}_{self.timestamp}"
             )
+        write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
+    """Live flights status service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(LiveFlightsStatusParams)
+    async def fetch(
+        self, /, *args: Any, **kwargs: Any
+    ) -> LiveFlightsStatusResult:
+        """Fetch the live flights status.
+        See [fr24.grpc.LiveFlightsStatusParams][] for the detailed signature.
+        """
+        request = LiveFlightsStatusParams(*args, **kwargs)
+        response = await live_flights_status(
+            self.__factory.http.client,
+            request.to_proto(),
+            self.__factory.http.auth,
+        )
+        timestamp = parse_server_timestamp(response) or get_current_timestamp()
+        return LiveFlightsStatusResult(
+            request=request,
+            response=response,
+            timestamp=timestamp,
+        )
+
+
+@dataclass
+class LiveFlightsStatusResult(
+    APIResult[LiveFlightsStatusParams],
+    SupportsToProto[LiveFlightsStatusResponse],
+    SupportsToDict[dict[str, Any]],
+    SupportsToPolars,
+    SupportsWriteTable,
+):
+    timestamp: int
+
+    def to_proto(self) -> LiveFlightsStatusResponse:
+        return parse_data(
+            self.response.content, LiveFlightsStatusResponse
+        ).unwrap()
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
+
+    def to_polars(self) -> pl.DataFrame:
+        return live_flights_status_df(self.to_proto())
+
+    def write_table(
+        self,
+        file: WriteLocation,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, FR24Cache):
+            file = file.live_flights_status.new_bare_path(f"{self.timestamp}")
         write_table(self, file, format=format)

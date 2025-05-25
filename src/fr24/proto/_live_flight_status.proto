@@ -1,3 +1,13 @@
+// NOTE: the definition in the web client is:
+// ```
+// message LiveFlightsStatusResponse {
+//     repeated LiveFlightStatusData flights_map = 1;
+// }
+// ```
+// but in reality it returns a wrapped `LiveFlightStatusData`.
+// the names `LiveFlightStatus`, `flight_id` and `data`
+// are non-official. 
+
 syntax = "proto3";
 
 import "fr24/proto/_common.proto";
@@ -13,11 +23,11 @@ message LiveFlightsStatusRequest {
     repeated fixed32 flight_ids_list = 1;
 }
 
-message _Unknown {
-    uint32 flight_id = 1; // unknown field name
-    LiveFlightStatusData data = 2; // unknown field name
+message LiveFlightStatus {
+    uint32 flight_id = 1;
+    LiveFlightStatusData data = 2;
 }
 
 message LiveFlightsStatusResponse {
-    repeated _Unknown flights_map = 1; // this should just be LiveFlightStatusData
-} // NOTE: differs from web version
+    repeated LiveFlightStatus flights_map = 1;
+}

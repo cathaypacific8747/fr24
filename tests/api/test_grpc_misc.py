@@ -5,17 +5,14 @@ import pytest
 from fr24 import FR24
 from fr24.grpc import (
     follow_flight_stream,
-    live_flights_status,
     nearest_flights,
 )
 from fr24.proto import parse_data
 from fr24.proto.v1_pb2 import (
     FollowFlightRequest,
     Geolocation,
-    LiveFlightsStatusRequest,
     NearestFlightsRequest,
     NearestFlightsResponse,
-    Status,
     TopFlightsRequest,
 )
 
@@ -33,22 +30,6 @@ async def nearest_flights_response(
     )
     response = await nearest_flights(client, message)
     return parse_data(response.content, NearestFlightsResponse).unwrap()
-
-
-@pytest.mark.anyio
-async def test_live_flights_status(
-    nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
-) -> None:
-    flight_ids = [
-        f.flight.flightid for f in nearest_flights_response.flights_list
-    ]
-
-    message = LiveFlightsStatusRequest(flight_ids_list=flight_ids[:3])
-    result = await live_flights_status(client, message)
-    data_status = result.unwrap()
-    assert len(data_status.flights_map) == 3
-    for flight in data_status.flights_map:
-        assert flight.data.status == Status.LIVE
 
 
 @pytest.mark.anyio

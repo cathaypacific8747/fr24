@@ -5,20 +5,24 @@
 # --8<-- [start:script0]
 import httpx
 from fr24.grpc import live_flights_status
-from fr24.proto.v1_pb2 import LiveFlightsStatusRequest, LiveFlightsStatusResponse
-
+from fr24.proto.v1_pb2 import (
+    LiveFlightsStatusRequest,
+    LiveFlightsStatusResponse,
+)
+from fr24.proto import parse_data
 
 async def live_flights_status_data() -> LiveFlightsStatusResponse:
     async with httpx.AsyncClient() as client:
-        message = LiveFlightsStatusRequest(flight_ids_list=[0x35fbc363, 0x35fbf180])
-        result = await live_flights_status(client, message)
-        return result.unwrap()
-
+        message = LiveFlightsStatusRequest(
+            flight_ids_list=[0x35FBC363, 0x35FBF180]
+        )
+        response = await live_flights_status(client, message)
+        return parse_data(response.content, LiveFlightsStatusResponse).unwrap()
 
 data = await live_flights_status_data()
 data
 # --8<-- [end:script0]
-#%%
+# %%
 """
 # --8<-- [start:output0]
 flights_map {

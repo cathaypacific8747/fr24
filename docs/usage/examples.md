@@ -8,8 +8,8 @@
 | [Live Feed](#live-feed)<br><span class="chip chip-grpc">gRPC</span>                   | [`live_feed`][fr24.grpc.live_feed]<br>[`live_feed_df`][fr24.grpc.live_feed_df]         | [`LiveFeedService`][fr24.service.LiveFeedService]<br><br>Cache Location:<br>`feed/`<br>`└── {timestamp_s}.parquet`                                                                                                     |
 | [Airport Arrivals](#airport-arrivals)<br><span class="chip chip-json">JSON</span>     | [`airport_list`][fr24.json.airport_list]                                               | -                                                                                                                                                                                                                      |
 | [Airport Search](#airport-search)<br><span class="chip chip-json">JSON</span>         | [`find`][fr24.json.find]                                                               | -                                                                                                                                                                                                                      |
-| [Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>       | [`nearest_flights`][fr24.grpc.nearest_flights]                                         | -                                                                                                                                                                                                                      |
-| [Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span> | [`live_flights_status`][fr24.grpc.live_flights_status]                                 | -                                                                                                                                                                                                                      |
+| [Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>       | [`nearest_flights`][fr24.grpc.nearest_flights]                                         | [`NearestFlightsService`][fr24.service.NearestFlightsService]<br><br>Cache Location:<br>`nearest_flights/`<br>`└── {lon_x1e6}_{lat_x1e6}_{timestamp_s}.parquet`                                                        |
+| [Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span> | [`live_flights_status`][fr24.grpc.live_flights_status]                                 | [`LiveFlightsStatusService`][fr24.service.LiveFlightsStatusService]<br><br>Cache Location:<br>`live_flights_status/`<br>`└── {timestamp_s}.parquet`                                                                    |
 | [Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>           | [`follow_flight_stream`][fr24.grpc.follow_flight_stream]                               | -                                                                                                                                                                                                                      |
 | [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                 | -                                                                                                                                                                                                                      |
 | [Live Trail](#live-trail)<br><span class="chip chip-grpc">gRPC</span>                 | [`live_trail`][fr24.grpc.live_trail]                                                   | -                                                                                                                                                                                                                      |
@@ -175,6 +175,34 @@ Fetches the live feed three days ago.
     
     ```
     --8<-- "docs/usage/scripts/13_nearest_flights.py:polars"
+    ```
+
+### Live Flights Status
+
+Retrieve the flight status for the closest flights from a location
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/14_live_flights_status.py:script"
+    ```
+
+=== "`result`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/14_live_flights_status.py:result"
+    ```
+
+=== "`result.to_dict()`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/14_live_flights_status.py:dict"
+    ```
+
+=== "`result.to_polars()`"
+    
+    ```
+    --8<-- "docs/usage/scripts/14_live_flights_status.py:polars"
     ```
 
 ## Core functions
