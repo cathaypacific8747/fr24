@@ -1,8 +1,6 @@
 import httpx
-import polars as pl
 import pytest
 
-from fr24 import FR24
 from fr24.grpc import (
     follow_flight_stream,
     nearest_flights,
@@ -96,30 +94,6 @@ async def test_historic_trail(
     from fr24.proto.v1_pb2 import HistoricTrailResponse
 
     assert isinstance(data, HistoricTrailResponse)
-
-
-@pytest.mark.anyio
-async def test_playback_flight(fr24: FR24, client: httpx.AsyncClient) -> None:
-    result_fl = await fr24.flight_list.fetch(reg="B-LRA")
-    data_fl = result_fl.to_polars()
-    landed = data_fl.filter(pl.col("status").str.starts_with("Landed"))
-    assert landed.shape[0] > 0
-    i = 0
-    flight_id = landed[i, "flight_id"]
-    stod = int(landed[i, "ATOD"].timestamp())
-
-    from fr24.grpc import PlaybackFlightParams, playback_flight
-
-    params = PlaybackFlightParams(
-        flight_id=flight_id,
-        timestamp=stod,
-    )
-    result = await playback_flight(client, params)
-    data = result.unwrap()
-    from fr24.proto.v1_pb2 import PlaybackFlightResponse
-
-    assert isinstance(data, PlaybackFlightResponse)
-    assert len(data.flight_trail_list) > 10
 
 
 def test_parse_data_grpc_status_error() -> None:

@@ -34,6 +34,7 @@ class FR24Cache:
     - `live_flights_status/{timestamp}`
     - `top_flights/{timestamp}`
     - `flight_details/{flight_id}_{timestamp}`
+    - `playback_flight/{flight_id}_{timestamp}`
     """
 
     @classmethod
@@ -57,6 +58,7 @@ class FR24Cache:
         self.live_flights_status = Collection(self.path / "live_flights_status")
         self.top_flights = Collection(self.path / "top_flights")
         self.flight_details = Collection(self.path / "flight_details")
+        self.playback_flight = Collection(self.path / "playback_flight")
 
         for collection in (
             self.flight_list.reg,
@@ -67,6 +69,7 @@ class FR24Cache:
             self.live_flights_status,
             self.top_flights,
             self.flight_details,
+            self.playback_flight,
         ):
             collection.path.mkdir(parents=True, exist_ok=True)
 
@@ -129,8 +132,12 @@ class Collection:
                 integer seconds since epoch
             - `cache.flight_details.scan_table`:
                 `f"{flight_id}_{timestamp}"`, where `flight_id` is the flight
-                ID, hex representation, uppercase,
-                and `timestamp` is the integer seconds since epoch
+                ID (hex representation, uppercase) and `timestamp` is the
+                integer seconds since epoch
+            - `cache.playback_flight.scan_table`:
+                `f"{flight_id}_{timestamp}"`, where `flight_id` is the flight
+                ID (hex representation, uppercase) and `timestamp` is
+                actual time of departure, in integer seconds since epoch
         """
         if isinstance(ident, (File, Path)):
             file = ident

@@ -15,7 +15,7 @@
 | [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                 | [`TopFlightsService`][fr24.service.TopFlightsService]<br><br>Cache Location:<br>`top_flights/`<br>`└── {timestamp_s}.parquet`                                                                                          |
 | [Live Trail](#live-trail)<br><span class="chip chip-grpc">gRPC</span>                 | [`live_trail`][fr24.grpc.live_trail]                                                   | -                                                                                                                                                                                                                      |
 | [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | -                                                                                                                                                                                                                      |
-| [Playback Flight](#playback-flight)<br><span class="chip chip-grpc">gRPC</span>       | [`playback_flight`][fr24.grpc.playback_flight]                                         | -                                                                                                                                                                                                                      |
+| [Playback Flight](#playback-flight)<br><span class="chip chip-grpc">gRPC</span>       | [`playback_flight`][fr24.grpc.playback_flight]                                         | [`PlaybackFlightService`][fr24.service.PlaybackFlightService]<br><br>Cache Location:<br>`playback_flight/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                  |
 
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
 
@@ -258,6 +258,34 @@ Retrieve detailed information about a flight
     
     ```
     --8<-- "docs/usage/scripts/15_flight_details.py:polars"
+    ```
+
+### Playback Flight
+
+Retrieve detailed historical flight information including complete trail
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/16_playback_flight.py:script"
+    ```
+
+=== "`result`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/16_playback_flight.py:result"
+    ```
+
+=== "`result.to_dict()`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/16_playback_flight.py:dict"
+    ```
+
+=== "`result.to_polars()`"
+    
+    ```
+    --8<-- "docs/usage/scripts/16_playback_flight.py:polars"
     ```
 
 ## Core functions

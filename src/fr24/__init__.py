@@ -59,6 +59,8 @@ class FR24:
         """Top flights service."""
         self.flight_details = factory.build_flight_details()
         """Flight details service."""
+        self.playback_flight = factory.build_playback_flight()
+        """Playback flight service."""
 
     async def login(
         self,

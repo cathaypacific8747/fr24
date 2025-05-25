@@ -16,6 +16,7 @@ from .grpc import (
     LiveFeedPlaybackParams,
     LiveFlightsStatusParams,
     NearestFlightsParams,
+    PlaybackFlightParams,
     TopFlightsParams,
     flight_details,
     flight_details_df,
@@ -27,6 +28,8 @@ from .grpc import (
     live_flights_status_df,
     nearest_flights,
     nearest_flights_df,
+    playback_flight,
+    playback_flight_df,
     top_flights,
     top_flights_df,
 )
@@ -47,6 +50,7 @@ from .proto.v1_pb2 import (
     LiveFeedResponse,
     LiveFlightsStatusResponse,
     NearestFlightsResponse,
+    PlaybackFlightResponse,
     PlaybackResponse,
     TopFlightsResponse,
 )
@@ -108,6 +112,9 @@ class ServiceFactory:
 
     def build_top_flights(self) -> TopFlightsService:
         return TopFlightsService(self)
+
+    def build_playback_flight(self) -> PlaybackFlightService:
+        return PlaybackFlightService(self)
 
 
 RequestT = TypeVar("RequestT")
@@ -725,5 +732,61 @@ class FlightDetailsResult(
             flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
             file = file.flight_details.new_bare_path(
                 f"{flight_id}_{self.timestamp}"
+            )
+        write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
+    """Playback flight service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(PlaybackFlightParams)
+    async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackFlightResult:
+        """Fetch playback flight details.
+        See [fr24.grpc.PlaybackFlightParams][] for the detailed signature.
+        """
+        request = PlaybackFlightParams(*args, **kwargs)
+        response = await playback_flight(
+            self.__factory.http.client,
+            request.to_proto(),
+            self.__factory.http.auth,
+        )
+        return PlaybackFlightResult(
+            request=request,
+            response=response,
+        )
+
+
+@dataclass
+class PlaybackFlightResult(
+    APIResult[PlaybackFlightParams],
+    SupportsToProto[PlaybackFlightResponse],
+    SupportsToDict[dict[str, Any]],
+    SupportsToPolars,
+    SupportsWriteTable,
+):
+    def to_proto(self) -> PlaybackFlightResponse:
+        return parse_data(
+            self.response.content, PlaybackFlightResponse
+        ).unwrap()
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
+
+    def to_polars(self) -> pl.DataFrame:
+        return playback_flight_df(self.to_proto())
+
+    def write_table(
+        self,
+        file: WriteLocation,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, FR24Cache):
+            flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
+            file = file.playback_flight.new_bare_path(
+                f"{flight_id}_{self.request.timestamp}"
             )
         write_table(self, file, format=format)

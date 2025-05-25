@@ -95,6 +95,7 @@ if TYPE_CHECKING:
         FlightRecord,
         LiveFlightStatusRecord,
         NearbyFlightRecord,
+        PlaybackFlightRecord,
         RecentPositionRecord,
         TopFlightRecord,
         TrailPointRecord,
@@ -656,10 +657,11 @@ def flight_details_dict(
     flight_info = response.flight_info
 
     return {
+        # aircraft info
         "icao_address": aircraft_info.icao_address,
         "reg": aircraft_info.reg,
         "typecode": aircraft_info.type,
-        #
+        # schedule info
         "flight_number": schedule_info.flight_number,
         "origin_id": schedule_info.origin_id,
         "destination_id": schedule_info.destination_id,
@@ -668,7 +670,7 @@ def flight_details_dict(
         "scheduled_arrival": schedule_info.scheduled_arrival,
         "actual_departure": schedule_info.actual_departure,
         "actual_arrival": schedule_info.actual_arrival,
-        #
+        # flight progress
         "traversed_distance": flight_progress.traversed_distance,
         "remaining_distance": flight_progress.remaining_distance,
         "elapsed_time": flight_progress.elapsed_time,
@@ -676,7 +678,7 @@ def flight_details_dict(
         "eta": flight_progress.eta,
         "great_circle_distance": flight_progress.great_circle_distance,
         "mean_flight_time": flight_progress.mean_flight_time,
-        #
+        # flight info
         "timestamp_ms": flight_info.timestamp_ms,
         "flightid": flight_info.flightid,
         "latitude": flight_info.lat,
@@ -781,11 +783,65 @@ async def playback_flight(
     client: httpx.AsyncClient,
     message: IntoPlaybackFlightRequest,
     auth: None | Authentication = None,
-) -> Result[PlaybackFlightResponse, ProtoError]:
+) -> Annotated[httpx.Response, PlaybackFlightResponse]:
     """contains empty `DATA` frame error if flight_id is live"""
     request = construct_request("PlaybackFlight", to_proto(message), auth)
     response = await client.send(request)
-    return parse_data(response.content, PlaybackFlightResponse)
+    return response
+
+
+def playback_flight_dict(
+    response: PlaybackFlightResponse,
+) -> PlaybackFlightRecord:
+    aircraft_info = response.aircraft_info
+    schedule_info = response.schedule_info
+    flight_info = response.flight_info
+
+    return {
+        # aircraft info
+        "icao_address": aircraft_info.icao_address,
+        "reg": aircraft_info.reg,
+        "typecode": aircraft_info.type,
+        # schedule info
+        "flight_number": schedule_info.flight_number,
+        "origin_id": schedule_info.origin_id,
+        "destination_id": schedule_info.destination_id,
+        "diverted_id": schedule_info.diverted_to_id,
+        "scheduled_departure": schedule_info.scheduled_departure,
+        "scheduled_arrival": schedule_info.scheduled_arrival,
+        "actual_departure": schedule_info.actual_departure,
+        "actual_arrival": schedule_info.actual_arrival,
+        # flight info
+        "timestamp_ms": flight_info.timestamp_ms,
+        "flightid": flight_info.flightid,
+        "latitude": flight_info.lat,
+        "longitude": flight_info.lon,
+        "track": flight_info.track,
+        "altitude": flight_info.alt,
+        "ground_speed": flight_info.speed,
+        "vertical_speed": flight_info.vspeed,
+        "on_ground": flight_info.on_ground,
+        "callsign": flight_info.callsign,
+        "squawk": flight_info.squawk,
+        "ems": ems_dict(flight_info.ems_info),
+        # flight trail
+        "flight_trail_list": [
+            trail_point_dict(tp) for tp in response.flight_trail_list
+        ],
+    }
+
+
+def playback_flight_df(
+    data: PlaybackFlightResponse,
+) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import playback_flight_schema
+
+    return pl.DataFrame(
+        [playback_flight_dict(data)],
+        schema=playback_flight_schema,
+    )
 
 
 __all__ = ["BoundingBox"]

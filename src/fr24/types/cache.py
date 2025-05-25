@@ -358,3 +358,62 @@ class FlightDetailsRecord(TypedDict):
     ems: None | EMSRecord
     # flight trail (available if verbose)
     flight_trail_list: None | list[TrailPointRecord]
+
+
+playback_flight_schema = {
+    "icao_address": pl.UInt32(),
+    "reg": pl.String(),
+    "typecode": pl.String(),
+    "flight_number": pl.String(),
+    "origin_id": pl.UInt32(),
+    "destination_id": pl.UInt32(),
+    "diverted_id": pl.UInt32(),
+    "scheduled_departure": pl.UInt32(),
+    "scheduled_arrival": pl.UInt32(),
+    "actual_departure": pl.UInt32(),
+    "actual_arrival": pl.UInt32(),
+    "timestamp_ms": pl.UInt64(),
+    "flightid": pl.UInt32(),
+    "latitude": pl.Float32(),
+    "longitude": pl.Float32(),
+    "track": pl.UInt16(),
+    "altitude": pl.Int32(),
+    "ground_speed": pl.Int16(),
+    "vertical_speed": pl.Int16(),
+    "on_ground": pl.Boolean(),
+    "callsign": pl.String(),
+    "squawk": pl.UInt16(),
+    "ems": ems_struct,
+    "flight_trail_list": pl.List(flight_trail_struct),
+}
+
+
+class PlaybackFlightRecord(TypedDict):
+    # aircraft
+    icao_address: int
+    reg: str
+    typecode: str
+    # schedule
+    flight_number: str
+    origin_id: int
+    destination_id: int
+    diverted_id: int
+    scheduled_departure: int
+    scheduled_arrival: int
+    actual_departure: int | None
+    actual_arrival: int | None
+    # flight info
+    timestamp_ms: int
+    flightid: int
+    latitude: float
+    longitude: float
+    track: int | None
+    altitude: int
+    ground_speed: int
+    vertical_speed: int | None
+    on_ground: bool
+    callsign: str
+    squawk: int
+    ems: None | EMSRecord
+    # flight trail
+    flight_trail_list: None | list[TrailPointRecord]

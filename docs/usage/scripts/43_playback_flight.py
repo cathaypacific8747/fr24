@@ -9,13 +9,14 @@ from fr24.grpc import (
     playback_flight,
 )
 from fr24.proto.v1_pb2 import PlaybackFlightResponse
+from fr24.proto import parse_data
 
 
 async def playback_flight_data() -> PlaybackFlightResponse:
     async with httpx.AsyncClient() as client:
         message = PlaybackFlightParams(flight_id=0x3a6d881a, timestamp=1747794900)
-        result = await playback_flight(client, message)
-        return result.unwrap()
+        response = await playback_flight(client, message)
+        return parse_data(response.content, PlaybackFlightResponse).unwrap()
 
 data = await playback_flight_data()
 data
