@@ -51,6 +51,8 @@ class FR24:
         """Live feed service."""
         self.live_feed_playback = factory.build_live_feed_playback()
         """Live feed playback service."""
+        self.nearest_flights = factory.build_nearest_flights()
+        """Nearest flights service."""
 
     async def login(
         self,

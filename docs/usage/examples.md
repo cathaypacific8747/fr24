@@ -121,13 +121,19 @@ This example is covered in detail in the [quickstart](./quickstart.md).
 === "`result`"
     
     ```py
-    --8<-- "docs/usage/scripts/12_live_feed.py:response"
+    --8<-- "docs/usage/scripts/12_live_feed.py:result"
+    ```
+
+=== "`result.to_dict()`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/12_live_feed.py:dict"
     ```
 
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/12_live_feed.py:df"
+    --8<-- "docs/usage/scripts/12_live_feed.py:polars"
     ```
 
 #### Playback
@@ -142,7 +148,33 @@ Fetches the live feed three days ago.
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/12_live_feed.py:df2"
+    --8<-- "docs/usage/scripts/12_live_feed.py:polars2"
+    ```
+
+### Nearest Flights
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/13_nearest_flights.py:script"
+    ```
+
+=== "`result`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/13_nearest_flights.py:result"
+    ```
+
+=== "`result.to_dict()`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/13_nearest_flights.py:dict"
+    ```
+
+=== "`result.to_polars()`"
+    
+    ```
+    --8<-- "docs/usage/scripts/13_nearest_flights.py:polars"
     ```
 
 ## Core functions

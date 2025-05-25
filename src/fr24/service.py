@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import email.utils
 import logging
-import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Generic, Protocol, TypeVar, Union
@@ -15,11 +13,13 @@ from .cache import FR24Cache
 from .grpc import (
     LiveFeedParams,
     LiveFeedPlaybackParams,
+    NearestFlightsParams,
     live_feed,
     live_feed_df,
     live_feed_playback,
     live_feed_playback_df,
-    parse_data,
+    nearest_flights,
+    nearest_flights_df,
 )
 from .json import (
     FlightListParams,
@@ -32,12 +32,22 @@ from .json import (
     playback_metadata_dict,
     playback_parse,
 )
-from .proto import SupportsToProto
-from .proto.v1_pb2 import LiveFeedResponse, PlaybackResponse
+from .proto import SupportsToProto, parse_data
+from .proto.v1_pb2 import (
+    LiveFeedResponse,
+    NearestFlightsResponse,
+    PlaybackResponse,
+)
 from .types import overwrite_args_signature_from
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
-from .utils import SupportsToDict, SupportsToPolars, write_table
+from .utils import (
+    SupportsToDict,
+    SupportsToPolars,
+    get_current_timestamp,
+    parse_server_timestamp,
+    write_table,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -73,6 +83,9 @@ class ServiceFactory:
 
     def build_live_feed_playback(self) -> LiveFeedPlaybackService:
         return LiveFeedPlaybackService(self)
+
+    def build_nearest_flights(self) -> NearestFlightsService:
+        return NearestFlightsService(self)
 
 
 RequestT = TypeVar("RequestT")
@@ -370,12 +383,7 @@ class LiveFeedService(SupportsFetch[LiveFeedParams]):
             self.__factory.http.auth,
         )
         # NOTE: serverTimeMs in the protobuf response would be more accurate
-        server_date: str = response.headers.get("date")
-        timestamp = int(
-            email.utils.parsedate_to_datetime(server_date).timestamp()
-            if server_date is not None
-            else time.time()
-        )
+        timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return LiveFeedResult(
             request=LiveFeedParams(*args, **kwargs),
             response=response,
@@ -397,7 +405,7 @@ class LiveFeedResult(
         return parse_data(self.response.content, LiveFeedResponse).unwrap()
 
     def to_dict(self) -> dict[str, Any]:
-        return MessageToDict(self.to_proto())
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
 
     def to_polars(self) -> pl.DataFrame:
         return live_feed_df(self.to_proto())
@@ -451,7 +459,7 @@ class LiveFeedPlaybackResult(
         return parse_data(self.response.content, PlaybackResponse).unwrap()
 
     def to_dict(self) -> dict[str, Any]:
-        return MessageToDict(self.to_proto())
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
 
     def to_polars(self) -> pl.DataFrame:
         return live_feed_playback_df(self.to_proto())
@@ -464,4 +472,65 @@ class LiveFeedPlaybackResult(
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.live_feed.new_bare_path(str(self.request.timestamp))
+        write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
+    """Nearest flights service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(NearestFlightsParams)
+    async def fetch(self, /, *args: Any, **kwargs: Any) -> NearestFlightsResult:
+        """Fetch the nearest flights.
+        See [fr24.grpc.NearestFlightsParams][] for the detailed signature.
+        """
+        request = NearestFlightsParams(*args, **kwargs)
+        response = await nearest_flights(
+            self.__factory.http.client,
+            request.to_proto(),
+            self.__factory.http.auth,
+        )
+        timestamp = parse_server_timestamp(response) or get_current_timestamp()
+        return NearestFlightsResult(
+            request=request,
+            response=response,
+            timestamp=timestamp,
+        )
+
+
+@dataclass
+class NearestFlightsResult(
+    APIResult[NearestFlightsParams],
+    SupportsToProto[NearestFlightsResponse],
+    SupportsToDict[dict[str, Any]],
+    SupportsToPolars,
+    SupportsWriteTable,
+):
+    timestamp: int
+
+    def to_proto(self) -> NearestFlightsResponse:
+        return parse_data(
+            self.response.content, NearestFlightsResponse
+        ).unwrap()
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
+
+    def to_polars(self) -> pl.DataFrame:
+        return nearest_flights_df(self.to_proto())
+
+    def write_table(
+        self,
+        file: WriteLocation,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, FR24Cache):
+            lon6 = int(self.request.lon * 1e6)
+            lat6 = int(self.request.lat * 1e6)
+            file = file.nearest_flights.new_bare_path(
+                f"{lon6}_{lat6}_{self.timestamp}"
+            )
         write_table(self, file, format=format)

@@ -14,8 +14,8 @@ from fr24.grpc import (
     LiveFeedPlaybackParams,
     live_feed,
     live_feed_playback,
-    parse_data,
 )
+from fr24.proto import parse_data
 from fr24.proto.v1_pb2 import Flight, LiveFeedResponse, PlaybackResponse
 
 
@@ -26,9 +26,7 @@ async def test_ll_live_feed_simple(client: httpx.AsyncClient) -> None:
     result = parse_data(response.content, LiveFeedResponse)
 
     json_output = MessageToDict(
-        result.unwrap(),
-        use_integers_for_enums=False,
-        preserving_proto_field_name=True,
+        result.unwrap(), preserving_proto_field_name=True
     )
     assert len(json_output["flights_list"]) > 10
 

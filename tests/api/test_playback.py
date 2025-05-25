@@ -36,7 +36,7 @@ async def test_playback_file_ops(fr24: FR24, cache: FR24Cache) -> None:
     fp = cache.path / "playback" / f"{ident}.parquet"
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)
-    result.write_table(fp)
+    result.write_table(cache)
     assert fp.exists()
 
     df_local = cache.playback.scan_table(ident).collect()

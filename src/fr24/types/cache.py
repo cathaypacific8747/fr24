@@ -139,13 +139,13 @@ live_feed_schema = {
 }
 
 
-class RecentPosition(TypedDict):
+class RecentPositionRecord(TypedDict):
     delta_lat: int
     delta_lon: int
     delta_ms: int
 
 
-class LiveFeed(TypedDict):
+class FlightRecord(TypedDict):
     timestamp: int
     flightid: int
     latitude: float
@@ -163,4 +163,14 @@ class LiveFeed(TypedDict):
     typecode: str
     eta: int
     squawk: int
-    position_buffer: list[RecentPosition]
+    position_buffer: list[RecentPositionRecord]
+
+
+nearest_flights_schema = {
+    **live_feed_schema,
+    "distance": pl.UInt32(),
+}
+
+
+class NearbyFlightRecord(FlightRecord):
+    distance: int

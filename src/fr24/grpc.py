@@ -45,6 +45,7 @@ from .proto.v1_pb2 import (
     FlightDetailsResponse,
     FollowFlightRequest,
     FollowFlightResponse,
+    Geolocation,
     HistoricTrailRequest,
     HistoricTrailResponse,
     LiveFeedRequest,
@@ -54,6 +55,7 @@ from .proto.v1_pb2 import (
     LiveTrailRequest,
     LiveTrailResponse,
     LocationBoundaries,
+    NearbyFlight,
     NearestFlightsRequest,
     NearestFlightsResponse,
     PlaybackFlightRequest,
@@ -83,7 +85,11 @@ if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
     from .types.authentication import Authentication
-    from .types.cache import LiveFeed, RecentPosition
+    from .types.cache import (
+        FlightRecord,
+        NearbyFlightRecord,
+        RecentPositionRecord,
+    )
     from .types.fr24 import LiveFeedField
     from .utils import IntoFlightId, IntoTimestamp
 
@@ -255,7 +261,7 @@ async def live_feed(
 
 def live_feed_position_buffer_dict(
     position_buffer: PositionBuffer,
-) -> list[RecentPosition]:
+) -> list[RecentPositionRecord]:
     return [
         {
             "delta_lat": pb.delta_lat,
@@ -266,7 +272,7 @@ def live_feed_position_buffer_dict(
     ]
 
 
-def live_feed_flightdata_dict(lfr: Flight) -> LiveFeed:
+def live_feed_flightdata_dict(lfr: Flight) -> FlightRecord:
     """Convert the protobuf message to a dictionary."""
     return {
         "timestamp": lfr.timestamp,
@@ -374,18 +380,58 @@ IntoNearestFlightsRequest: TypeAlias = Union[
 ]
 
 
+@dataclass
+class NearestFlightsParams(SupportsToProto[NearestFlightsRequest]):
+    lat: float
+    """Latitude, degrees, -90 to 90"""
+    lon: float
+    """Longitude, degrees, -180 to 180"""
+    radius: int = 10000
+    """Radius, metres"""
+    limit: int = 1500
+    """Maximum number of aircraft to return"""
+
+    def to_proto(self) -> NearestFlightsRequest:
+        return NearestFlightsRequest(
+            location=Geolocation(lat=self.lat, lon=self.lon),
+            radius=self.radius,
+            limit=self.limit,
+        )
+
+
 async def nearest_flights(
     client: httpx.AsyncClient,
     message: IntoNearestFlightsRequest,
     auth: None | Authentication = None,
-) -> Result[NearestFlightsResponse, ProtoError]:
+) -> Annotated[httpx.Response, NearestFlightsResponse]:
     request = construct_request("NearestFlights", to_proto(message), auth)
-    return await post_unary(client, request, NearestFlightsResponse)
+    response = await client.send(request)
+    return response
 
 
 IntoLiveFlightsStatusRequest: TypeAlias = Union[
     SupportsToProto[LiveFlightsStatusRequest], LiveFlightsStatusRequest
 ]
+
+
+def nearest_flights_nearbyflight_dict(nf: NearbyFlight) -> NearbyFlightRecord:
+    return {
+        **live_feed_flightdata_dict(nf.flight),
+        "distance": nf.distance,
+    }
+
+
+def nearest_flights_df(
+    data: NearestFlightsResponse,
+) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import nearest_flights_schema
+
+    return pl.DataFrame(
+        (nearest_flights_nearbyflight_dict(nf) for nf in data.flights_list),
+        schema=nearest_flights_schema,
+    )
 
 
 async def live_flights_status(
@@ -545,4 +591,4 @@ async def playback_flight(
     return parse_data(response.content, PlaybackFlightResponse)
 
 
-__all__ = ["BoundingBox", "parse_data"]
+__all__ = ["BoundingBox"]

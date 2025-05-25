@@ -8,10 +8,9 @@ from fr24.grpc import (
     LiveFeedParams,
     BoundingBox,
     live_feed,
-    parse_data
 )
 from fr24.proto.v1_pb2 import LiveFeedResponse
-
+from fr24.proto import parse_data
 
 async def france_data() -> LiveFeedResponse:
     async with httpx.AsyncClient() as client:

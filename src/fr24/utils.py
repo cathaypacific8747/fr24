@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import email.utils
 import logging
 import time
 from dataclasses import dataclass
@@ -19,6 +20,7 @@ from typing_extensions import runtime_checkable
 if TYPE_CHECKING:
     from typing import IO, Any, NoReturn
 
+    import httpx
     import polars as pl
     from typing_extensions import TypeAlias
 
@@ -73,6 +75,15 @@ def to_unix_timestamp(
 def get_current_timestamp() -> int:
     """Returns the current Unix timestamp in seconds."""
     return int(time.time())
+
+
+def parse_server_timestamp(
+    response: httpx.Response,
+) -> int | None:
+    server_date: str = response.headers.get("date")
+    if server_date is not None:
+        return int(email.utils.parsedate_to_datetime(server_date).timestamp())
+    return None
 
 
 IntoFlightId: TypeAlias = Union[int, str, bytes]

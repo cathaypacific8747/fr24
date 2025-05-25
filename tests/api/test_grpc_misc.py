@@ -8,6 +8,7 @@ from fr24.grpc import (
     live_flights_status,
     nearest_flights,
 )
+from fr24.proto import parse_data
 from fr24.proto.v1_pb2 import (
     FollowFlightRequest,
     Geolocation,
@@ -19,8 +20,10 @@ from fr24.proto.v1_pb2 import (
 )
 
 
+# NOTE: this fixture already exists in `tests/api/conftest.py`
+# TODO: remove once services are implemented
 @pytest.fixture
-async def nearest_flights_result(
+async def nearest_flights_response(
     client: httpx.AsyncClient,
 ) -> NearestFlightsResponse:
     message = NearestFlightsRequest(
@@ -28,23 +31,16 @@ async def nearest_flights_result(
         radius=10000,
         limit=1500,
     )
-    data = await nearest_flights(client, message)
-    return data.unwrap()
-
-
-@pytest.mark.anyio
-async def test_nearest_flights(
-    nearest_flights_result: NearestFlightsResponse,
-) -> None:
-    assert len(nearest_flights_result.flights_list) > 2
+    response = await nearest_flights(client, message)
+    return parse_data(response.content, NearestFlightsResponse).unwrap()
 
 
 @pytest.mark.anyio
 async def test_live_flights_status(
-    nearest_flights_result: NearestFlightsResponse, client: httpx.AsyncClient
+    nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
     flight_ids = [
-        f.flight.flightid for f in nearest_flights_result.flights_list
+        f.flight.flightid for f in nearest_flights_response.flights_list
     ]
 
     message = LiveFlightsStatusRequest(flight_ids_list=flight_ids[:3])
@@ -57,9 +53,9 @@ async def test_live_flights_status(
 
 @pytest.mark.anyio
 async def test_follow_flight(
-    nearest_flights_result: NearestFlightsResponse,
+    nearest_flights_response: NearestFlightsResponse,
 ) -> None:
-    flight_id = nearest_flights_result.flights_list[0].flight.flightid
+    flight_id = nearest_flights_response.flights_list[0].flight.flightid
     timeout = httpx.Timeout(5, read=120)
     async with httpx.AsyncClient(timeout=timeout) as client:
         message = FollowFlightRequest(flight_id=flight_id)
@@ -88,12 +84,12 @@ async def test_top_flights(client: httpx.AsyncClient) -> None:
 )
 @pytest.mark.anyio
 async def test_live_trail(
-    nearest_flights_result: NearestFlightsResponse, client: httpx.AsyncClient
+    nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
     from fr24.grpc import live_trail
     from fr24.proto.v1_pb2 import LiveTrailRequest
 
-    flight_id = nearest_flights_result.flights_list[0].flight.flightid
+    flight_id = nearest_flights_response.flights_list[0].flight.flightid
     message = LiveTrailRequest(flight_id=flight_id)
     results = await live_trail(client, message)
     data = results.unwrap()
@@ -116,12 +112,12 @@ async def test_search_index(client: httpx.AsyncClient) -> None:
 @pytest.mark.skip(reason="Private API, does not return data.")
 @pytest.mark.anyio
 async def test_historic_trail(
-    nearest_flights_result: NearestFlightsResponse, client: httpx.AsyncClient
+    nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
     from fr24.grpc import historic_trail
     from fr24.proto.v1_pb2 import HistoricTrailRequest
 
-    flight_id = nearest_flights_result.flights_list[0].flight.flightid
+    flight_id = nearest_flights_response.flights_list[0].flight.flightid
     message = HistoricTrailRequest(flight_id=flight_id)
     results = await historic_trail(client, message)
 
@@ -134,11 +130,11 @@ async def test_historic_trail(
 
 @pytest.mark.anyio
 async def test_flight_details(
-    nearest_flights_result: NearestFlightsResponse, client: httpx.AsyncClient
+    nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
     from fr24.grpc import FlightDetailsParams, flight_details
 
-    flight_id = nearest_flights_result.flights_list[-1].flight.flightid
+    flight_id = nearest_flights_response.flights_list[-1].flight.flightid
     params = FlightDetailsParams(flight_id=flight_id, verbose=True)
     results = await flight_details(client, params)
     assert results.is_ok()

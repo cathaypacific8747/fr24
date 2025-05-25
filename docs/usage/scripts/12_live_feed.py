@@ -9,6 +9,7 @@ async def my_feed() -> None:
     async with FR24() as fr24:
         result = await fr24.live_feed.fetch()
         print(result)
+        print(result.to_dict())
         print(result.to_polars())
         result.write_table(FR24Cache.default())
 
@@ -16,7 +17,7 @@ await my_feed()
 # --8<-- [end:script]
 # %%
 """
-# --8<-- [start:response]
+# --8<-- [start:result]
 LiveFeedResult(
     request=LiveFeedParams(
         bounding_box=BoundingBox(south=42, north=52, west=-8, east=10),
@@ -30,7 +31,7 @@ LiveFeedResult(
     timestamp=1737360998
 )
 # --8<-- [end:result]
-# --8<-- [start:data]
+# --8<-- [start:dict]
 {
     'flightsList': [
         {
@@ -42,14 +43,14 @@ LiveFeedResult(
             'speed': 437,
             'timestamp': 1737360996,
             'callsign': 'TVF96CL',
-            'extraInfo': {
+            'extra_info': {
                 'flight': 'TO3080',
                 'reg': 'F-HTVR',
                 'route': {'from': 'ORY', 'to': 'VIL'},
                 'type': 'B738'
             },
-            'positionBuffer': {
-                'recentPositionsList': [
+            'position_buffer': {
+                'recent_positions_list': [
                     {'deltaLat': -306, 'deltaLon': -241, 'deltaMs': 2100},
                     {'deltaLat': -566, 'deltaLon': -445, 'deltaMs': 3110},
                     {'deltaLat': -732, 'deltaLon': -574, 'deltaMs': 4260},
@@ -71,14 +72,14 @@ LiveFeedResult(
             'icon': 'LJ60',
             'timestamp': 1737360995,
             'callsign': 'QQE210',
-            'extraInfo': {
+            'extra_info': {
                 'flight': 'QE210',
                 'reg': 'A7-CGC',
                 'route': {'from': 'BCN', 'to': 'IAD'},
                 'type': 'GLF6'
             },
-            'positionBuffer': {
-                'recentPositionsList': [
+            'position_buffer': {
+                'recent_positions_list': [
                     {'deltaLat': 22, 'deltaLon': -276, 'deltaMs': 1106},
                     {'deltaLat': 46, 'deltaLon': -562, 'deltaMs': 2187},
                     {'deltaLat': 67, 'deltaLon': -838, 'deltaMs': 3189},
@@ -91,13 +92,13 @@ LiveFeedResult(
             }
         },
     ]
-    'serverTimeMs': '1737360998825'
+    'server_time_ms': '1737360998825'
 }
-# --8<-- [end:response]
+# --8<-- [end:dict]
 """
 #%%
 """
-# --8<-- [start:df]
+# --8<-- [start:polars]
 shape: (899, 18)
 ┌────────────┬───────────┬───────────┬───────────┬───┬─────┬───────────────┬────────┬──────────────┐
 │ timestamp  ┆ flightid  ┆ latitude  ┆ longitude ┆ … ┆ eta ┆ vertical_spee ┆ squawk ┆ position_buf │
@@ -138,7 +139,7 @@ shape: (899, 18)
 │            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ 009}, {-409, │
 │            ┆           ┆           ┆           ┆   ┆     ┆               ┆        ┆ -78,20…      │
 └────────────┴───────────┴───────────┴───────────┴───┴─────┴───────────────┴────────┴──────────────┘
-# --8<-- [end:df]
+# --8<-- [end:polars]
 """
 # %%
 # --8<-- [start:script2]
@@ -157,7 +158,7 @@ await my_feed()
 
 # %%
 """
-# --8<-- [start:df2]
+# --8<-- [start:polars2]
 shape: (940, 18)
 ┌────────────┬───────────┬───────────┬───────────┬───┬─────┬───────────────┬────────┬──────────────┐
 │ timestamp  ┆ flightid  ┆ latitude  ┆ longitude ┆ … ┆ eta ┆ vertical_spee ┆ squawk ┆ position_buf │
@@ -178,5 +179,5 @@ shape: (940, 18)
 │ 1737104838 ┆ 952271643 ┆ 43.356052 ┆ 9.972774  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ []           │
 │ 1737104839 ┆ 952265180 ┆ 42.819351 ┆ 9.988424  ┆ … ┆ 0   ┆ 0             ┆ 0      ┆ []           │
 └────────────┴───────────┴───────────┴───────────┴───┴─────┴───────────────┴────────┴──────────────┘
-# --8<-- [end:df2]
+# --8<-- [end:polars2]
 """
