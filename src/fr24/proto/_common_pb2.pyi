@@ -51,7 +51,14 @@ class _RestrictionVisibilityEnumTypeWrapper(_EnumTypeWrapper[_RestrictionVisibil
     PARTIALLY_VISIBLE: _RestrictionVisibility.ValueType  # 1
     FULLY_VISIBLE: _RestrictionVisibility.ValueType  # 2
 
-class RestrictionVisibility(_RestrictionVisibility, metaclass=_RestrictionVisibilityEnumTypeWrapper): ...
+class RestrictionVisibility(_RestrictionVisibility, metaclass=_RestrictionVisibilityEnumTypeWrapper):
+    """Information about high-profile, military or government aircraft like
+    Air Force One are not displayed. Other restricted aircraft may be anonymised,
+    appearing as `BLOCKED` or `NA`.
+    See [FAA's Limited Data Displayed](https://www.faa.gov/pilots/ladd) and 
+    [PIA program](https://www.faa.gov/air_traffic/technology/equipadsb/privacy)
+    for more details.
+    """
 
 NOT_VISIBLE: RestrictionVisibility.ValueType  # 0
 PARTIALLY_VISIBLE: RestrictionVisibility.ValueType  # 1
@@ -307,7 +314,7 @@ class _FlightStageEnumTypeWrapper(_EnumTypeWrapper[_FlightStage.ValueType], type
     DIVERSION: _FlightStage.ValueType  # 5
 
 class FlightStage(_FlightStage, metaclass=_FlightStageEnumTypeWrapper):
-    """FollowFlight, FlightProgress"""
+    """used in FollowFlight, FlightDetails, PlaybackFlight"""
 
 UNKNOWN: FlightStage.ValueType  # 0
 ON_GROUND: FlightStage.ValueType  # 1

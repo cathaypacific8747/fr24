@@ -301,10 +301,7 @@ class PlaybackService(SupportsFetch[PlaybackParams]):
 
     @overwrite_args_signature_from(PlaybackParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackResult:
-        """
-        FIXME - add docs
-        See [fr24.json.PlaybackRequest][] for the detailed signature.
-        """
+        """See [fr24.json.PlaybackParams][] for the detailed signature."""
         params = PlaybackParams(*args, **kwargs)
         response = await playback(
             self.__factory.http.client,

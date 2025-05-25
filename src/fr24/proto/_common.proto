@@ -2,6 +2,12 @@ syntax = "proto3";
 
 package _common;
 
+// Information about high-profile, military or government aircraft like
+// Air Force One are not displayed. Other restricted aircraft may be anonymised,
+// appearing as `BLOCKED` or `NA`.
+// See [FAA's Limited Data Displayed](https://www.faa.gov/pilots/ladd) and 
+// [PIA program](https://www.faa.gov/air_traffic/technology/equipadsb/privacy)
+// for more details.
 enum RestrictionVisibility {
     NOT_VISIBLE = 0;
     PARTIALLY_VISIBLE = 1;

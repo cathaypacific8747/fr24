@@ -44,6 +44,9 @@ class PlaybackFlightRequest(Message):
     flight_id: int
     """FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)"""
     timestamp: int
+    """Actual time of departure (ATD) of the historic flight,
+    Unix timestamp in seconds.
+    """
     restriction_mode: RestrictionVisibility.ValueType
     def __init__(
         self,

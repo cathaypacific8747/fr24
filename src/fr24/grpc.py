@@ -12,6 +12,11 @@ Methods:
 - `FollowFlight`
 - `TopFlights`
 - `LiveTrail`
+- ~~`HistoricTrail`~~
+- ~~`FetchSearchIndex`~~
+- `FlightDetails`
+- `PlaybackFlight`
+
 """
 
 from __future__ import annotations
@@ -63,18 +68,28 @@ from .proto.v1_pb2 import (
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
-from .utils import Result, get_current_timestamp, to_unix_timestamp
+from .utils import (
+    Result,
+    get_current_timestamp,
+    to_flight_id,
+    to_unix_timestamp,
+)
 
 if TYPE_CHECKING:
-    from datetime import datetime
     from typing import Annotated, AsyncGenerator, Literal, Type
 
     import polars as pl
+    from google.protobuf.internal.enum_type_wrapper import _V, _EnumTypeWrapper
     from typing_extensions import TypeAlias
 
     from .types.authentication import Authentication
     from .types.cache import LiveFeed, RecentPosition
     from .types.fr24 import LiveFeedField
+    from .utils import IntoFlightId, IntoTimestamp
+
+#
+# helpers
+#
 
 
 def construct_request(
@@ -143,6 +158,15 @@ async def post_stream(
         await response.aclose()
 
 
+def enum_like_to_enum(
+    enum_like: _V | str | bytes,
+    enum_type_wrapper: _EnumTypeWrapper[_V],
+) -> _V:
+    if isinstance(enum_like, (str, bytes)):
+        return enum_type_wrapper.Value(enum_like)
+    return enum_like
+
+
 #
 # live feed
 #
@@ -187,8 +211,7 @@ class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
     stats: bool = False
     """Whether to include stats in the given area."""
     limit: int = 1500
-    """
-    Maximum number of flights (should be set to 1500 for unauthorized users,
+    """Maximum number of flights (should be set to 1500 for unauthorized users,
     2000 for authorized users).
     """
     maxage: int = 14400
@@ -196,8 +219,7 @@ class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
     fields: set[LiveFeedField] = field(
         default_factory=lambda: {"flight", "reg", "route", "type"}
     )
-    """
-    Fields to include.
+    """Fields to include.
 
     For unauthenticated users, a maximum of 4 fields can be included.
     When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
@@ -237,6 +259,7 @@ async def live_feed(
     return response
 
 
+# TODO(abrah): remove this
 def live_feed_parse(
     response: Annotated[httpx.Response, LiveFeedResponse],
 ) -> Result[LiveFeedResponse, ProtoError]:
@@ -303,11 +326,10 @@ def live_feed_df(
 # but we want a flat structure in the service API and avoid rewriting __init__
 @dataclass
 class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
-    timestamp: int | datetime | Literal["now"] = "now"
+    timestamp: IntoTimestamp | Literal["now"] = "now"
     """Start timestamp"""
     duration: int = 7
-    """
-    Duration of prefetch, `floor(7.5*(multiplier))` seconds
+    """Duration of prefetch, `floor(7.5*(multiplier))` seconds
 
     For 1x playback, this should be 7 seconds.
     """
@@ -476,32 +498,93 @@ async def historic_trail(
     return await post_unary(client, request, HistoricTrailResponse)
 
 
+FlightDetailsRequestLike: TypeAlias = Union[
+    SupportsToProto[FlightDetailsRequest], FlightDetailsRequest
+]
+
+
 def flight_details_request_create(
-    message: FlightDetailsRequest,
+    message_like: FlightDetailsRequestLike,
     auth: None | Authentication = None,
 ) -> httpx.Request:
-    return construct_request("FlightDetails", message, auth)
+    return construct_request("FlightDetails", to_proto(message_like), auth)
+
+
+@dataclass
+class FlightDetailsParams(SupportsToProto[FlightDetailsRequest]):
+    flight_id: IntoFlightId
+    """Flight ID to fetch details for.
+    Must be live, or the response will contain an empty `DATA` frame error."""
+    restriction_mode: RestrictionVisibility.ValueType | str | bytes = (
+        RestrictionVisibility.NOT_VISIBLE
+    )
+    """[FAA LADD](https://www.faa.gov/pilots/ladd) visibility mode."""
+    verbose: bool = True
+    """Whether to include [fr24.proto.v1_pb2.FlightDetailsResponse.flight_plan]
+    and [fr24.proto.v1_pb2.FlightDetailsResponse.aircraft_details] in the
+    response."""
+
+    def to_proto(self) -> FlightDetailsRequest:
+        return FlightDetailsRequest(
+            flight_id=to_flight_id(self.flight_id),
+            restriction_mode=enum_like_to_enum(
+                self.restriction_mode, RestrictionVisibility
+            ),
+            verbose=self.verbose,
+        )
 
 
 async def flight_details(
-    client: httpx.AsyncClient, request: httpx.Request
+    client: httpx.AsyncClient,
+    message_like: FlightDetailsRequestLike,
+    auth: None | Authentication = None,
 ) -> Result[FlightDetailsResponse, ProtoError]:
     """contains empty `DATA` frame error if flight_id is not live"""
-    return await post_unary(client, request, FlightDetailsResponse)
+    response = await client.send(
+        flight_details_request_create(message_like, auth)
+    )
+    return parse_data(response.content, FlightDetailsResponse)
+
+
+PlaybackFlightRequestLike: TypeAlias = Union[
+    SupportsToProto[PlaybackFlightRequest], PlaybackFlightRequest
+]
 
 
 def playback_flight_request_create(
-    message: PlaybackFlightRequest,
+    message_like: PlaybackFlightRequestLike,
     auth: None | Authentication = None,
 ) -> httpx.Request:
-    return construct_request("PlaybackFlight", message, auth)
+    return construct_request("PlaybackFlight", to_proto(message_like), auth)
+
+
+@dataclass
+class PlaybackFlightParams(SupportsToProto[PlaybackFlightRequest]):
+    flight_id: IntoFlightId
+    """Flight ID to fetch details for.
+    Must not be live, or the response will contain an empty `DATA` frame error.
+    """
+    timestamp: IntoTimestamp
+    """Actual time of departure (ATD) of the historic flight,
+    Unix timestamp in seconds."""
+
+    def to_proto(self) -> PlaybackFlightRequest:
+        return PlaybackFlightRequest(
+            flight_id=to_flight_id(self.flight_id),
+            timestamp=to_unix_timestamp(self.timestamp),  # type: ignore
+        )
 
 
 async def playback_flight(
-    client: httpx.AsyncClient, request: httpx.Request
+    client: httpx.AsyncClient,
+    message_like: PlaybackFlightRequestLike,
+    auth: None | Authentication = None,
 ) -> Result[PlaybackFlightResponse, ProtoError]:
     """contains empty `DATA` frame error if flight_id is live"""
-    return await post_unary(client, request, PlaybackFlightResponse)
+    response = await client.send(
+        playback_flight_request_create(message_like, auth)
+    )
+    return parse_data(response.content, PlaybackFlightResponse)
 
 
 __all__ = [

@@ -41,12 +41,14 @@ DEFAULT_HEADERS = {
     "TE": "trailers",
 }
 
+IntoTimestamp: TypeAlias = Union[int, datetime]
+"""Unix timestamp in seconds or a datetime object."""
+
 
 def to_unix_timestamp(
-    timestamp: int | datetime | str | Literal["now"] | None,
+    timestamp: IntoTimestamp | str | Literal["now"] | None,
 ) -> int | Literal["now"] | None:
-    """
-    Casts timestamp-like object to a Unix timestamp in integer seconds,
+    """Casts timestamp-like object to a Unix timestamp in integer seconds,
     returning `None` if `timestamp` is `None`.
     """
     if isinstance(timestamp, str):
@@ -69,10 +71,17 @@ def to_unix_timestamp(
 
 
 def get_current_timestamp() -> int:
-    """
-    Returns the current Unix timestamp in seconds.
-    """
+    """Returns the current Unix timestamp in seconds."""
     return int(time.time())
+
+
+IntoFlightId: TypeAlias = Union[int, str, bytes]
+
+
+def to_flight_id(flight_id: IntoFlightId) -> int:
+    if isinstance(flight_id, (str, bytes)):
+        return int(flight_id, 16)
+    return flight_id
 
 
 class BarePath(Path):
@@ -99,8 +108,7 @@ def write_table(
     format: SupportedFormats = "parquet",
     **kwargs: Any,
 ) -> None:
-    """
-    Writes the table as the specified format via polars.
+    """Writes the table as the specified format via polars.
 
     :param file: File path or writable file-like object. The path will be given
         an appropriate suffix if it is a [BarePath][fr24.utils.BarePath].
@@ -244,8 +252,7 @@ Result: TypeAlias = Union[Ok[T], Err[E]]
 def intercept_logs_with_loguru(
     level: logging._Level = logging.INFO, modules: tuple[str, ...] = ()
 ) -> None:
-    """
-    Intercepts stdlib logging to stderr with loguru.
+    """Intercepts stdlib logging to stderr with loguru.
 
     :param level: The stdlib logging level to intercept.
     :param modules: The modules to intercept.

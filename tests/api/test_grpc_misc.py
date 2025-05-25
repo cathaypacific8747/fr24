@@ -146,13 +146,11 @@ async def test_historic_trail(
 async def test_flight_details(
     nearest_flights_result: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
-    from fr24.grpc import flight_details, flight_details_request_create
-    from fr24.proto.v1_pb2 import FlightDetailsRequest
+    from fr24.grpc import FlightDetailsParams, flight_details
 
     flight_id = nearest_flights_result.flights_list[-1].flight.flightid
-    message = FlightDetailsRequest(flight_id=flight_id, verbose=True)
-    request = flight_details_request_create(message)
-    results = await flight_details(client, request)
+    params = FlightDetailsParams(flight_id=flight_id, verbose=True)
+    results = await flight_details(client, params)
     assert results.is_ok()
     data = results.unwrap()
     from fr24.proto.v1_pb2 import FlightDetailsResponse
@@ -167,19 +165,17 @@ async def test_playback_flight(fr24: FR24, client: httpx.AsyncClient) -> None:
     data_fl = result_fl.to_polars()
     landed = data_fl.filter(pl.col("status").str.starts_with("Landed"))
     assert landed.shape[0] > 0
-    i = -1  # NOTE: flights that are too recent may return empty DATA frame
+    i = 0
     flight_id = landed[i, "flight_id"]
-    stod = int(landed[i, "STOD"].timestamp())
+    stod = int(landed[i, "ATOD"].timestamp())
 
-    from fr24.grpc import playback_flight, playback_flight_request_create
-    from fr24.proto.v1_pb2 import PlaybackFlightRequest
+    from fr24.grpc import PlaybackFlightParams, playback_flight
 
-    message = PlaybackFlightRequest(
+    params = PlaybackFlightParams(
         flight_id=flight_id,
         timestamp=stod,
     )
-    request = playback_flight_request_create(message)
-    result = await playback_flight(client, request)
+    result = await playback_flight(client, params)
     data = result.unwrap()
     from fr24.proto.v1_pb2 import PlaybackFlightResponse
 

@@ -5,17 +5,16 @@
 # --8<-- [start:script0]
 import httpx
 from fr24.grpc import (
-    flight_details_request_create,
+    FlightDetailsParams,
     flight_details,
 )
-from fr24.proto.v1_pb2 import FlightDetailsRequest, FlightDetailsResponse
+from fr24.proto.v1_pb2 import FlightDetailsResponse
 
 
 async def flight_details_data() -> FlightDetailsResponse:
     async with httpx.AsyncClient() as client:
-        message = FlightDetailsRequest(flight_id=0x980572095, verbose=True)
-        request = flight_details_request_create(message)
-        result = await flight_details(client, request)
+        params = FlightDetailsParams(flight_id=0x3a71abce)
+        result = await flight_details(client, params)
         return result.unwrap()
 
 data = await flight_details_data()

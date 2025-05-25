@@ -4,6 +4,8 @@ import "fr24/proto/_common.proto";
 
 message PlaybackFlightRequest {
     fixed32 flight_id = 1; // FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)
+    // Actual time of departure (ATD) of the historic flight,
+    // Unix timestamp in seconds.
     uint64 timestamp = 2;
     _common.RestrictionVisibility restriction_mode = 3;
 }

@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import secrets
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 import httpx
@@ -32,6 +31,7 @@ if TYPE_CHECKING:
         PlaybackRequest,
         TrackData,
     )
+    from .utils import IntoTimestamp
 
 _log = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class FlightListParams:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | Literal["now"] | None = "now"
+    timestamp: IntoTimestamp | Literal["now"] | None = "now"
     """Show flights with ATD before this Unix timestamp"""
 
     def __post_init__(self) -> None:
@@ -146,7 +146,7 @@ class AirportListParams:
     """Page number"""
     limit: int = 10
     """Number of results per page - use `100` if authenticated."""
-    timestamp: int | datetime | Literal["now"] | None = "now"
+    timestamp: IntoTimestamp | Literal["now"] | None = "now"
     """Show flights with STA before this timestamp"""
 
 
@@ -209,10 +209,9 @@ class PlaybackParams:
 
     flight_id: int | str
     """fr24 flight id, represented in hex"""
-    timestamp: int | Literal["now"] | datetime | None = None
-    """
-    Unix timestamp (seconds) of ATD - optional, but it is recommended to
-    include it
+    timestamp: IntoTimestamp | None = None
+    """Actual time of departure (ATD) of the historic flight,
+    Unix timestamp in seconds. Optional, but it is recommended to include it.
     """
 
 

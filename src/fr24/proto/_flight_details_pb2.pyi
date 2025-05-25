@@ -53,15 +53,23 @@ class FlightProgress(Message):
     DELAY_STATUS_FIELD_NUMBER: int
     PROGRESS_PCT_FIELD_NUMBER: int
     traversed_distance: int
+    """Distance traversed, meters"""
     remaining_distance: int
+    """Distance remaining, meters"""
     elapsed_time: int
+    """Elapsed time since departure, seconds"""
     remaining_time: int
+    """Remaining time until arrival, seconds"""
     eta: int
+    """Estimated time of arrival, Unix timestamp in seconds"""
     great_circle_distance: int
+    """Great circle distance, meters"""
     mean_flight_time: int
+    """Mean flight time, seconds"""
     flight_stage: FlightStage.ValueType
     delay_status: DelayStatus.ValueType
     progress_pct: int
+    """Progress percentage of the flight (0-100)"""
     def __init__(
         self,
         *,
@@ -89,6 +97,7 @@ class FlightDetailsRequest(Message):
     """FR24 Flight ID (e.g. `962788562` = `0x3962fcd2`)"""
     restriction_mode: RestrictionVisibility.ValueType
     verbose: bool
+    """Whether to include `flight_plan` and `flight_trail_list` in the response"""
     def __init__(
         self,
         *,
