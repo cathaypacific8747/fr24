@@ -23,6 +23,7 @@ import pandas as pd
 from fr24.authentication import login
 from fr24.json import (
     AirportListParams,
+    FindParams,
     FlightListParams,
     PlaybackParams,
     airport_list,
@@ -214,7 +215,9 @@ class FR24(App[None]):
     async def lookup_city_pair(
         self, departure: str, arrival: str, ts: pd.Timestamp
     ) -> None:
-        results = find_parse(await find(self.client, f"{departure}-{arrival}"))
+        results = find_parse(
+            await find(self.client, FindParams(query=f"{departure}-{arrival}"))
+        )
         if results is None or results["stats"]["count"]["schedule"] == 0:
             return
         flight_numbers = list(

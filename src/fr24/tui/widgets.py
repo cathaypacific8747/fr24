@@ -8,10 +8,7 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import Input, Label, Static
 
-from fr24.json import (
-    find,
-    find_parse,
-)
+from fr24.json import FindParams, find, find_parse
 from fr24.types.find import is_aircraft, is_airport, is_schedule
 
 
@@ -63,7 +60,8 @@ class AirportWidget(Static):
             self.airport_id = info["iata"]
 
     async def update_airport(self, value: str) -> None:
-        find_results = find_parse(await find(self.app.client, value))  # type: ignore[attr-defined]
+        params = FindParams(query=value)
+        find_results = find_parse(await find(self.app.client, params))  # type: ignore[attr-defined]
         if find_results is None:
             return self.update_info()
         candidate = next(
@@ -133,7 +131,8 @@ class AircraftWidget(Static):
             self.aircraft_id = reg
 
     async def update_aircraft(self, value: str) -> None:
-        res = find_parse(await find(self.app.client, value))  # type: ignore[attr-defined]
+        params = FindParams(query=value)
+        res = find_parse(await find(self.app.client, params))  # type: ignore[attr-defined]
         if res is None:
             return self.update_info()
         candidates = (elt for elt in res["results"] if is_aircraft(elt))
@@ -196,7 +195,8 @@ class FlightWidget(Static):
             self.number = number
 
     async def update_number(self, value: str) -> None:
-        find_results = find_parse(await find(self.app.client, value))  # type: ignore[attr-defined]
+        params = FindParams(query=value)
+        find_results = find_parse(await find(self.app.client, params))  # type: ignore[attr-defined]
         if find_results is None:
             return self.update_info()
         candidate = next(

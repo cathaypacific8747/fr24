@@ -1,23 +1,23 @@
 # Overview
 
 
-| Name                                                                                  | Core functions                                                                         | Service and Cache Location                                                                                                                                                                                             |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Flight List](#flight-list)<br><span class="chip chip-json">JSON</span>               | [`flight_list`][fr24.json.flight_list]<br>[`flight_list_df`][fr24.json.flight_list_df] | [`FlightListService`][fr24.service.FlightListService]<br><br>Cache Location:<br>`flight_list/`<br>`└── reg/`<br>`​    └── {reg.upper()}.parquet`<br>`└── flight_list/`<br>`​    └── {iata_flight_num.upper()}.parquet` |
-| [Playback](#playback)<br><span class="chip chip-json">JSON</span>                     | [`playback`][fr24.json.playback]<br>[`playback_df`][fr24.json.playback_df]             | [`PlaybackService`][fr24.service.PlaybackService]<br><br>Cache Location:<br>`playback/`<br>`└── {fr24_hex_id.lower()}.parquet`                                                                                         |
-| [Live Feed](#live-feed)<br><span class="chip chip-grpc">gRPC</span>                   | [`live_feed`][fr24.grpc.live_feed]<br>[`live_feed_df`][fr24.grpc.live_feed_df]         | [`LiveFeedService`][fr24.service.LiveFeedService]<br><br>Cache Location:<br>`feed/`<br>`└── {timestamp_s}.parquet`                                                                                                     |
-| [Airport Arrivals](#airport-arrivals)<br><span class="chip chip-json">JSON</span>     | [`airport_list`][fr24.json.airport_list]                                               | -                                                                                                                                                                                                                      |
-| [Airport Search](#airport-search)<br><span class="chip chip-json">JSON</span>         | [`find`][fr24.json.find]                                                               | -                                                                                                                                                                                                                      |
-| [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | [`FlightDetailsService`][fr24.service.FlightDetailsService]<br><br>Cache Location:<br>`flight_details/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                     |
-| [Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>       | [`nearest_flights`][fr24.grpc.nearest_flights]                                         | [`NearestFlightsService`][fr24.service.NearestFlightsService]<br><br>Cache Location:<br>`nearest_flights/`<br>`└── {lon_x1e6}_{lat_x1e6}_{timestamp_s}.parquet`                                                        |
-| [Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span> | [`live_flights_status`][fr24.grpc.live_flights_status]                                 | [`LiveFlightsStatusService`][fr24.service.LiveFlightsStatusService]<br><br>Cache Location:<br>`live_flights_status/`<br>`└── {timestamp_s}.parquet`                                                                    |
-| [~~Search Index~~](#search-index)<br><span class="chip chip-grpc">gRPC</span>         | [~~`search_index`~~][fr24.grpc.search_index]                                           | -                                                                                                                                                                                                                      |
-| [Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>           | [`follow_flight_stream`][fr24.grpc.follow_flight_stream]                               | [`FollowFlightService`][fr24.service.FollowFlightService]                                                                                                                                                              |
-| [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                 | [`TopFlightsService`][fr24.service.TopFlightsService]<br><br>Cache Location:<br>`top_flights/`<br>`└── {timestamp_s}.parquet`                                                                                          |
-| [~~Live Trail~~](#live-trail)<br><span class="chip chip-grpc">gRPC</span>             | [~~`live_trail`~~][fr24.grpc.live_trail]                                               | -                                                                                                                                                                                                                      |
-| [~~Historic Trail~~](#historic-trail)<br><span class="chip chip-grpc">gRPC</span>     | [~~`historic_trail`~~][fr24.grpc.historic_trail]                                       | -                                                                                                                                                                                                                      |
-| [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | [`FlightDetailsService`][fr24.service.FlightDetailsService]<br><br>Cache Location:<br>`flight_details/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                     |
-| [Playback Flight](#playback-flight)<br><span class="chip chip-grpc">gRPC</span>       | [`playback_flight`][fr24.grpc.playback_flight]                                         | [`PlaybackFlightService`][fr24.service.PlaybackFlightService]<br><br>Cache Location:<br>`playback_flight/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                  |
+| Name                                                                                  | Core functions                                                                          | Service and Cache Location                                                                                                                                                                                             |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Flight List](#flight-list)<br><span class="chip chip-json">JSON</span>               | [`flight_list`][fr24.json.flight_list]<br>[`flight_list_df`][fr24.json.flight_list_df]  | [`FlightListService`][fr24.service.FlightListService]<br><br>Cache Location:<br>`flight_list/`<br>`└── reg/`<br>`​    └── {reg.upper()}.parquet`<br>`└── flight_list/`<br>`​    └── {iata_flight_num.upper()}.parquet` |
+| [Playback](#playback)<br><span class="chip chip-json">JSON</span>                     | [`playback`][fr24.json.playback]<br>[`playback_df`][fr24.json.playback_df]              | [`PlaybackService`][fr24.service.PlaybackService]<br><br>Cache Location:<br>`playback/`<br>`└── {fr24_hex_id.lower()}.parquet`                                                                                         |
+| [Live Feed](#live-feed)<br><span class="chip chip-grpc">gRPC</span>                   | [`live_feed`][fr24.grpc.live_feed]<br>[`live_feed_df`][fr24.grpc.live_feed_df]          | [`LiveFeedService`][fr24.service.LiveFeedService]<br><br>Cache Location:<br>`feed/`<br>`└── {timestamp_s}.parquet`                                                                                                     |
+| [Live Feed Playback](#playback-1)<br><span class="chip chip-grpc">gRPC</span>         | [`live_feed_playback`][fr24.grpc.live_feed]<br>[`live_feed_df`][fr24.grpc.live_feed_df] | [`LiveFeedPlaybackService`][fr24.service.LiveFeedPlaybackService]<br><br>Cache Location:<br>`feed/`<br>`└── {timestamp_s}.parquet`                                                                                     |
+| [Airport List](#airport-list)<br><span class="chip chip-json">JSON</span>             | [`airport_list`][fr24.json.airport_list]                                                | [`AirportListService`][fr24.service.AirportListService]                                                                                                                                                                |
+| [Airport Search](#airport-search)<br><span class="chip chip-json">JSON</span>         | [`find`][fr24.json.find]                                                                | [`FindService`][fr24.service.FindService]                                                                                                                                                                              |
+| [Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>       | [`nearest_flights`][fr24.grpc.nearest_flights]                                          | [`NearestFlightsService`][fr24.service.NearestFlightsService]<br><br>Cache Location:<br>`nearest_flights/`<br>`└── {lon_x1e6}_{lat_x1e6}_{timestamp_s}.parquet`                                                        |
+| [Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span> | [`live_flights_status`][fr24.grpc.live_flights_status]                                  | [`LiveFlightsStatusService`][fr24.service.LiveFlightsStatusService]<br><br>Cache Location:<br>`live_flights_status/`<br>`└── {timestamp_s}.parquet`                                                                    |
+| [~~Search Index~~](#search-index)<br><span class="chip chip-grpc">gRPC</span>         | [~~`search_index`~~][fr24.grpc.search_index]                                            | -                                                                                                                                                                                                                      |
+| [Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>           | [`follow_flight_stream`][fr24.grpc.follow_flight_stream]                                | [`FollowFlightService`][fr24.service.FollowFlightService]                                                                                                                                                              |
+| [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                  | [`TopFlightsService`][fr24.service.TopFlightsService]<br><br>Cache Location:<br>`top_flights/`<br>`└── {timestamp_s}.parquet`                                                                                          |
+| [~~Live Trail~~](#live-trail)<br><span class="chip chip-grpc">gRPC</span>             | [~~`live_trail`~~][fr24.grpc.live_trail]                                                | -                                                                                                                                                                                                                      |
+| [~~Historic Trail~~](#historic-trail)<br><span class="chip chip-grpc">gRPC</span>     | [~~`historic_trail`~~][fr24.grpc.historic_trail]                                        | -                                                                                                                                                                                                                      |
+| [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                            | [`FlightDetailsService`][fr24.service.FlightDetailsService]<br><br>Cache Location:<br>`flight_details/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                     |
+| [Playback Flight](#playback-flight)<br><span class="chip chip-grpc">gRPC</span>       | [`playback_flight`][fr24.grpc.playback_flight]                                          | [`PlaybackFlightService`][fr24.service.PlaybackFlightService]<br><br>Cache Location:<br>`playback_flight/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                  |
 
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
 
@@ -110,6 +110,35 @@ Saves trajectory data to disk, reads the track and metadata from it.
     ```py
     --8<-- "docs/usage/scripts/11_playback.py:metadata0"
     ```
+
+### Airport List
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/32_arrivals.py:script0"
+    ```
+
+=== "`df`"
+    
+    ```
+    --8<-- "docs/usage/scripts/32_arrivals.py:df0"
+    ```
+
+### Airport Search
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/33_find.py:script0"
+    ```
+
+=== "`df`"
+    
+    ```
+    --8<-- "docs/usage/scripts/33_find.py:df0"
+    ```
+
 ### Live Feed
 
 #### Live
@@ -275,25 +304,25 @@ Retrieve detailed information about a flight
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/15_flight_details.py:script"
+    --8<-- "docs/usage/scripts/22_flight_details.py:script"
     ```
 
 === "`result`"
     
     ```py
-    --8<-- "docs/usage/scripts/15_flight_details.py:result"
+    --8<-- "docs/usage/scripts/22_flight_details.py:result"
     ```
 
 === "`result.to_dict()`"
     
     ```py
-    --8<-- "docs/usage/scripts/15_flight_details.py:dict"
+    --8<-- "docs/usage/scripts/22_flight_details.py:dict"
     ```
 
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/15_flight_details.py:polars"
+    --8<-- "docs/usage/scripts/22_flight_details.py:polars"
     ```
 
 ### Playback Flight
@@ -355,12 +384,12 @@ Retrieve detailed historical flight information including complete trail
     --8<-- "docs/usage/scripts/31_playback.py:df0"
     ```
 
-### Airport Arrivals
+### Airport List
 
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/32_arrivals.py:script0"
+    --8<-- "docs/usage/scripts/32_arrivals.py:script1"
     ```
 
 === "`df`"
@@ -374,7 +403,7 @@ Retrieve detailed historical flight information including complete trail
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/33_find.py:script0"
+    --8<-- "docs/usage/scripts/33_find.py:script1"
     ```
 
 === "`df`"

@@ -259,21 +259,36 @@ async def playback(
     return response
 
 
-# NOTE: not using dataclasses for now.
+@dataclass
+class FindParams:
+    query: str
+    """Airport, schedule (HKG-CDG), or aircraft."""
+    limit: int = 50
 
 
 async def find(
-    client: httpx.AsyncClient, query: str
+    client: httpx.AsyncClient,
+    params: FindParams,
+    auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, Find]:
-    """
-    General search.
+    """General search."""
+    request_data = {
+        "query": params.query,
+        "limit": params.limit,
+    }
+    device = f"web-{secrets.token_urlsafe(32)}"
+    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
+        request_data["token"] = auth["userData"]["subscriptionKey"]
+    else:
+        request_data["device"] = device
 
-    :param query: Airport, schedule (HKG-CDG), or aircraft.
-    """
+    headers = DEFAULT_HEADERS.copy()
+    headers["fr24-device-id"] = device
     request = httpx.Request(
         "GET",
         url="https://www.flightradar24.com/v1/search/web/find",
-        params={"query": query, "limit": 50},
+        headers=headers,
+        params=request_data,  # type: ignore
     )
     response = await client.send(request)
     return response

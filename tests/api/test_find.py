@@ -1,9 +1,8 @@
-import httpx
 import pytest
 from pydantic import BaseModel, ConfigDict, Discriminator
 from typing_extensions import Annotated
 
-from fr24.json import find, find_parse
+from fr24 import FR24
 from fr24.types.find import (
     Entry,
     Stats,
@@ -13,6 +12,7 @@ from fr24.types.find import (
     is_operator,
     is_schedule,
 )
+from fr24.utils import get_current_timestamp
 
 
 # overwriting the original FindResult for now
@@ -25,8 +25,8 @@ class FindResult(BaseModel):
 
 
 @pytest.mark.anyio
-async def test_find_airport(client: httpx.AsyncClient) -> None:
-    list_ = find_parse(await find(client, "tou"))
+async def test_find_airport(fr24: FR24) -> None:
+    list_ = (await fr24.find.fetch("tou")).to_dict()
     assert list_ is not None
     assert list_["stats"]["count"]["airport"] >= 2
 
@@ -41,8 +41,8 @@ async def test_find_airport(client: httpx.AsyncClient) -> None:
 
 
 @pytest.mark.anyio
-async def test_find_aircraft(client: httpx.AsyncClient) -> None:
-    list_ = find_parse(await find(client, "b-hp"))
+async def test_find_aircraft(fr24: FR24) -> None:
+    list_ = (await fr24.find.fetch("b-hp")).to_dict()
     assert list_ is not None
 
     found_bhpb = False
@@ -56,8 +56,8 @@ async def test_find_aircraft(client: httpx.AsyncClient) -> None:
 
 
 @pytest.mark.anyio
-async def test_find_operator(client: httpx.AsyncClient) -> None:
-    list_ = find_parse(await find(client, "cat"))
+async def test_find_operator(fr24: FR24) -> None:
+    list_ = (await fr24.find.fetch("cat")).to_dict()
     assert list_ is not None
 
     found_cathay = False
@@ -70,8 +70,11 @@ async def test_find_operator(client: httpx.AsyncClient) -> None:
 
 
 @pytest.mark.anyio
-async def test_find_schedule_and_live(client: httpx.AsyncClient) -> None:
-    list_ = find_parse(await find(client, "hkg-tpe"))
+async def test_find_schedule_and_live(fr24: FR24) -> None:
+    # avoid deadzone in the middle of the night
+    utc_h = get_current_timestamp() % 86400 // 3600
+    route = "cju-gmp" if utc_h < 8 else "bcn-pmi" if utc_h < 16 else "lax-sfo"
+    list_ = (await fr24.find.fetch(route)).to_dict()
     assert list_ is not None
 
     schedule_count = 0

@@ -4,14 +4,32 @@
 # %%
 # --8<-- [start:script0]
 from fr24.types.find import Find
-from fr24.json import find
+from fr24 import FR24
+
+import polars as pl
+
+
+async def my_find() -> Find:
+    async with FR24() as fr24:
+        result = await fr24.find.fetch(query="paris")
+        return result.to_dict()
+
+
+results = await my_find()
+df = pl.json_normalize(results["results"])
+print(df)
+# --8<-- [end:script0]
+#%%
+# --8<-- [start:script1]
+from fr24.types.find import Find
+from fr24.json import find, FindParams
 
 import polars as pl
 import httpx
 
 async def my_find() -> Find:
     async with httpx.AsyncClient() as client:
-        response = await find(client, "paris")
+        response = await find(client, FindParams(query="paris"))
         response.raise_for_status()
         results = response.json()
         return results  # type: ignore
@@ -20,7 +38,7 @@ async def my_find() -> Find:
 results = await my_find()
 df = pl.json_normalize(results["results"])
 print(df)
-# --8<-- [end:script0]
+# --8<-- [end:script1]
 # %%
 """
 # --8<-- [start:df0]

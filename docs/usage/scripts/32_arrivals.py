@@ -2,13 +2,37 @@
 # fmt: off
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
-# --8<-- [start:script0]
+from fr24 import FR24
+from fr24.types.airport_list import AirportList
+
+import polars as pl
+
+
+async def my_arrivals() -> AirportList:
+    async with FR24() as fr24:
+        result = await fr24.airport_list.fetch(
+            airport="tls",
+            mode="arrivals",
+        )
+        return result.to_dict()
+
+
+airports = await my_arrivals()
+arrivals = airports["result"]["response"]["airport"]["pluginData"]["schedule"][
+    "arrivals"
+]["data"]
+assert arrivals is not None
+df = pl.json_normalize(arrivals)
+print(df)
+# %%
+# --8<-- [start:script1]
 import httpx
 
 from fr24.types.airport_list import AirportList
 from fr24.json import airport_list, AirportListParams
 
 import polars as pl
+
 
 async def my_arrivals() -> AirportList:
     async with httpx.AsyncClient() as client:
@@ -18,17 +42,17 @@ async def my_arrivals() -> AirportList:
         )
         response.raise_for_status()
         list_ = response.json()
-        return list_ # type: ignore
+        return list_  # type: ignore
 
 
 airports = await my_arrivals()
-arrivals = (
-    airports["result"]["response"]["airport"]["pluginData"]["schedule"]["arrivals"]["data"]
-)
+arrivals = airports["result"]["response"]["airport"]["pluginData"]["schedule"][
+    "arrivals"
+]["data"]
 assert arrivals is not None
 df = pl.json_normalize(arrivals)
 print(df)
-# --8<-- [end:script0]
+# --8<-- [end:script1]
 # %%
 """
 # --8<-- [start:df0]

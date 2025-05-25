@@ -46,11 +46,14 @@ class FR24:
         """Flight list service."""
         self.playback = factory.build_playback()
         """Playback service."""
-        # gRPC
         self.live_feed = factory.build_live_feed()
         """Live feed service."""
         self.live_feed_playback = factory.build_live_feed_playback()
         """Live feed playback service."""
+        self.airport_list = factory.build_airport_list()
+        """Airport list service."""
+        self.find = factory.build_find()
+        """Find service."""
         self.nearest_flights = factory.build_nearest_flights()
         """Nearest flights service."""
         self.live_flights_status = factory.build_live_flights_status()

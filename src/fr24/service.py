@@ -45,8 +45,14 @@ from .grpc import (
     top_flights_df,
 )
 from .json import (
+    AirportListParams,
+    FindParams,
     FlightListParams,
     PlaybackParams,
+    airport_list,
+    airport_list_parse,
+    find,
+    find_parse,
     flight_list,
     flight_list_df,
     flight_list_parse,
@@ -67,6 +73,8 @@ from .proto.v1_pb2 import (
     TopFlightsResponse,
 )
 from .types import overwrite_args_signature_from
+from .types.airport_list import AirportList
+from .types.find import Find
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
 from .types.playback import Playback
 from .utils import (
@@ -112,6 +120,12 @@ class ServiceFactory:
 
     def build_live_feed_playback(self) -> LiveFeedPlaybackService:
         return LiveFeedPlaybackService(self)
+
+    def build_airport_list(self) -> AirportListService:
+        return AirportListService(self)
+
+    def build_find(self) -> FindService:
+        return FindService(self)
 
     def build_nearest_flights(self) -> NearestFlightsService:
         return NearestFlightsService(self)
@@ -182,14 +196,14 @@ class FlightListService(SupportsFetch[FlightListParams]):
         Fetch the flight list.
         See [fr24.json.FlightListParams][] for the detailed signature.
         """
-        request = FlightListParams(*args, **kwargs)
+        params = FlightListParams(*args, **kwargs)
         response = await flight_list(
             self.__factory.http.client,
-            request,
+            params,
             self.__factory.http.auth,
         )
         return FlightListResult(
-            request=request,
+            request=params,
             response=response,
         )
 
@@ -365,7 +379,7 @@ class PlaybackService(SupportsFetch[PlaybackParams]):
             self.__factory.http.auth,
         )
         return PlaybackResult(
-            request=PlaybackParams(*args, **kwargs),
+            request=params,
             response=response,
         )
 
@@ -400,11 +414,6 @@ class PlaybackResult(
             flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
             file = file.playback.new_bare_path(flight_id)
         write_table(self, file, format=format)
-
-
-#
-# gRPC
-#
 
 
 @dataclass(frozen=True)
@@ -516,6 +525,74 @@ class LiveFeedPlaybackResult(
         if isinstance(file, FR24Cache):
             file = file.live_feed.new_bare_path(str(self.request.timestamp))
         write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class AirportListService(SupportsFetch[AirportListParams]):
+    """Airport list service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(AirportListParams)
+    async def fetch(self, /, *args: Any, **kwargs: Any) -> AirportListResult:
+        """Fetch the airport list.
+        See [fr24.json.AirportListParams][] for the detailed signature.
+        """
+        params = AirportListParams(*args, **kwargs)
+        response = await airport_list(
+            self.__factory.http.client,
+            params,
+            self.__factory.http.auth,
+        )
+        return AirportListResult(
+            request=params,
+            response=response,
+        )
+
+
+@dataclass
+class AirportListResult(
+    APIResult[AirportListParams],
+    SupportsToDict[AirportList],
+):
+    def to_dict(self) -> AirportList:
+        """Parse the response into a dictionary."""
+        return airport_list_parse(self.response)
+
+
+@dataclass(frozen=True)
+class FindService(SupportsFetch[FindParams]):
+    """Find service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(FindParams)
+    async def fetch(self, /, *args: Any, **kwargs: Any) -> FindResult:
+        """Fetch the find results.
+        See [fr24.json.FindParams][] for the detailed signature.
+        """
+        params = FindParams(*args, **kwargs)
+        response = await find(
+            self.__factory.http.client,
+            params,
+            self.__factory.http.auth,
+        )
+        return FindResult(
+            request=params,
+            response=response,
+        )
+
+
+@dataclass
+class FindResult(
+    APIResult[FindParams],
+    SupportsToDict[Find],
+):
+    """A single result from the find API."""
+
+    def to_dict(self) -> Find:
+        """Parse the response into a dictionary."""
+        return find_parse(self.response)
 
 
 @dataclass(frozen=True)
