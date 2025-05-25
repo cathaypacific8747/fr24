@@ -17,10 +17,9 @@ from .grpc import (
     LiveFeedPlaybackParams,
     live_feed,
     live_feed_df,
-    live_feed_parse,
     live_feed_playback,
     live_feed_playback_df,
-    live_feed_playback_parse,
+    parse_data,
 )
 from .json import (
     FlightListParams,
@@ -395,7 +394,7 @@ class LiveFeedResult(
     timestamp: int
 
     def to_proto(self) -> LiveFeedResponse:
-        return live_feed_parse(self.response).unwrap()
+        return parse_data(self.response.content, LiveFeedResponse).unwrap()
 
     def to_dict(self) -> dict[str, Any]:
         return MessageToDict(self.to_proto())
@@ -449,7 +448,7 @@ class LiveFeedPlaybackResult(
     SupportsWriteTable,
 ):
     def to_proto(self) -> PlaybackResponse:
-        return live_feed_playback_parse(self.response).unwrap()
+        return parse_data(self.response.content, PlaybackResponse).unwrap()
 
     def to_dict(self) -> dict[str, Any]:
         return MessageToDict(self.to_proto())

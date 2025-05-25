@@ -13,18 +13,17 @@ from fr24.grpc import (
     LiveFeedParams,
     LiveFeedPlaybackParams,
     live_feed,
-    live_feed_parse,
     live_feed_playback,
-    live_feed_playback_parse,
+    parse_data,
 )
-from fr24.proto.v1_pb2 import Flight
+from fr24.proto.v1_pb2 import Flight, LiveFeedResponse, PlaybackResponse
 
 
 @pytest.mark.anyio
 async def test_ll_live_feed_simple(client: httpx.AsyncClient) -> None:
     params = LiveFeedParams(bounding_box=BBOX_FRANCE_UIR)
     response = await live_feed(client, params)
-    result = live_feed_parse(response)
+    result = parse_data(response.content, LiveFeedResponse)
 
     json_output = MessageToDict(
         result.unwrap(),
@@ -39,7 +38,7 @@ async def test_ll_live_feed_world(client: httpx.AsyncClient) -> None:
     async def get_data(bbox: BoundingBox) -> list[Flight]:
         params = LiveFeedParams(bounding_box=bbox)
         response = await live_feed(client, params)
-        result = live_feed_parse(response)
+        result = parse_data(response.content, LiveFeedResponse)
         return list(result.unwrap().flights_list)
 
     tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]
@@ -55,7 +54,7 @@ async def test_ll_live_feed_playback_world(client: httpx.AsyncClient) -> None:
     async def get_data(bbox: BoundingBox) -> list[Flight]:
         params = LiveFeedPlaybackParams(bounding_box=bbox, timestamp=timestamp)
         response = await live_feed_playback(client, params)
-        result = live_feed_playback_parse(response)
+        result = parse_data(response.content, PlaybackResponse)
         return list(result.unwrap().live_feed_response.flights_list)
 
     tasks = [get_data(bbox) for bbox in BBOXES_WORLD_STATIC]

@@ -4,10 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.grpc import (
-    follow_flight_request_create,
-    follow_flight_stream,
-)
+from fr24.grpc import follow_flight_stream
 from fr24.proto.v1_pb2 import FollowFlightRequest
 
 async def follow_flight_data() -> None:
@@ -17,9 +14,8 @@ async def follow_flight_data() -> None:
     timeout = httpx.Timeout(5, read=120)
     async with httpx.AsyncClient(timeout=timeout) as client:
         message = FollowFlightRequest(flight_id=0x395c43cf)
-        request = follow_flight_request_create(message)
         i = 0
-        async for response in follow_flight_stream(client, request):
+        async for response in follow_flight_stream(client, message):
             print(f"##### {i} #####")
             print(response)
             i += 1

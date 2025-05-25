@@ -8,7 +8,7 @@ from fr24.grpc import (
     LiveFeedParams,
     BoundingBox,
     live_feed,
-    live_feed_parse,
+    parse_data
 )
 from fr24.proto.v1_pb2 import LiveFeedResponse
 
@@ -17,7 +17,7 @@ async def france_data() -> LiveFeedResponse:
     async with httpx.AsyncClient() as client:
         params = LiveFeedParams(bounding_box=BoundingBox(north=50, west=-7, south=40, east=10))
         response = await live_feed(client, params)
-        result = live_feed_parse(response)
+        result = parse_data(response.content, LiveFeedResponse)
         return result.unwrap() # (1)!
 
 

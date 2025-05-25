@@ -4,18 +4,14 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.grpc import (
-    historic_trail_request_create,
-    historic_trail,
-)
+from fr24.grpc import historic_trail
 from fr24.proto.v1_pb2 import HistoricTrailRequest, HistoricTrailResponse
 
 
 async def historic_trail_data() -> HistoricTrailResponse:
     async with httpx.AsyncClient() as client:
         message = HistoricTrailRequest(flight_id=0x395c43cf)
-        request = historic_trail_request_create(message)
-        result = await historic_trail(client, request)
+        result = await historic_trail(client, message)
         return result.unwrap()
 
 data = await historic_trail_data()

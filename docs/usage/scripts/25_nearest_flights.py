@@ -4,10 +4,7 @@
 # %%
 # --8<-- [start:script0]
 import httpx
-from fr24.grpc import (
-    nearest_flights_request_create,
-    nearest_flights,
-)
+from fr24.grpc import nearest_flights
 from fr24.proto.v1_pb2 import NearestFlightsResponse, NearestFlightsRequest, Geolocation
 
 
@@ -18,8 +15,7 @@ async def nearest_flights_data() -> NearestFlightsResponse:
             radius=1000,
             limit=1500
         )
-        request = nearest_flights_request_create(message)
-        result = await nearest_flights(client, request)
+        result = await nearest_flights(client, message)
         return result.unwrap()
 
 
