@@ -15,6 +15,7 @@ from .grpc import (
     LiveFeedPlaybackParams,
     LiveFlightsStatusParams,
     NearestFlightsParams,
+    TopFlightsParams,
     live_feed,
     live_feed_df,
     live_feed_playback,
@@ -23,6 +24,8 @@ from .grpc import (
     live_flights_status_df,
     nearest_flights,
     nearest_flights_df,
+    top_flights,
+    top_flights_df,
 )
 from .json import (
     FlightListParams,
@@ -41,6 +44,7 @@ from .proto.v1_pb2 import (
     LiveFlightsStatusResponse,
     NearestFlightsResponse,
     PlaybackResponse,
+    TopFlightsResponse,
 )
 from .types import overwrite_args_signature_from
 from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
@@ -93,6 +97,9 @@ class ServiceFactory:
 
     def build_live_flights_status(self) -> LiveFlightsStatusService:
         return LiveFlightsStatusService(self)
+
+    def build_top_flights(self) -> TopFlightsService:
+        return TopFlightsService(self)
 
 
 RequestT = TypeVar("RequestT")
@@ -599,4 +606,59 @@ class LiveFlightsStatusResult(
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.live_flights_status.new_bare_path(f"{self.timestamp}")
+        write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class TopFlightsService(SupportsFetch[TopFlightsParams]):
+    """Top flights service."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(TopFlightsParams)
+    async def fetch(self, /, *args: Any, **kwargs: Any) -> TopFlightsResult:
+        """Fetch the top flights.
+        See [fr24.grpc.TopFlightsParams][] for the detailed signature.
+        """
+        request = TopFlightsParams(*args, **kwargs)
+        response = await top_flights(
+            self.__factory.http.client,
+            request.to_proto(),
+            self.__factory.http.auth,
+        )
+        timestamp = parse_server_timestamp(response) or get_current_timestamp()
+        return TopFlightsResult(
+            request=request,
+            response=response,
+            timestamp=timestamp,
+        )
+
+
+@dataclass
+class TopFlightsResult(
+    APIResult[TopFlightsParams],
+    SupportsToProto[TopFlightsResponse],
+    SupportsToDict[dict[str, Any]],
+    SupportsToPolars,
+    SupportsWriteTable,
+):
+    timestamp: int
+
+    def to_proto(self) -> TopFlightsResponse:
+        return parse_data(self.response.content, TopFlightsResponse).unwrap()
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
+
+    def to_polars(self) -> pl.DataFrame:
+        return top_flights_df(self.to_proto())
+
+    def write_table(
+        self,
+        file: WriteLocation,
+        *,
+        format: SupportedFormats = "parquet",
+    ) -> None:
+        if isinstance(file, FR24Cache):
+            file = file.top_flights.new_bare_path(f"{self.timestamp}")
         write_table(self, file, format=format)

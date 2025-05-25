@@ -6,19 +6,20 @@
 import httpx
 from fr24.grpc import top_flights
 from fr24.proto.v1_pb2 import TopFlightsRequest, TopFlightsResponse
+from fr24.proto import parse_data
 
 
 async def top_flights_data() -> TopFlightsResponse:
     async with httpx.AsyncClient() as client:
         message = TopFlightsRequest(limit=10)
-        result = await top_flights(client, message)
-        return result.unwrap()
+        response = await top_flights(client, message)
+        return parse_data(response.content, TopFlightsResponse).unwrap()
 
 
 data = await top_flights_data()
 data
 # --8<-- [end:script0]
-#%%
+# %%
 """
 # --8<-- [start:output0]
 scoreboard_list {

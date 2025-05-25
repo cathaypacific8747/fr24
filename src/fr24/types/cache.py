@@ -191,3 +191,34 @@ class LiveFlightStatusRecord(TypedDict):
     longitude: float
     status: int
     squawk: int
+
+
+top_flights_schema = {
+    "flight_id": pl.UInt32(),
+    "live_clicks": pl.UInt32(),
+    "total_clicks": pl.UInt32(),
+    "flight_number": pl.String(),
+    "callsign": pl.String(),
+    "squawk": pl.UInt32(),
+    "from_iata": pl.String(),
+    "from_city": pl.String(),
+    "to_iata": pl.String(),
+    "to_city": pl.String(),
+    "type": pl.String(),
+    "full_description": pl.String(),
+}
+
+
+class TopFlightRecord(TypedDict):
+    flight_id: int
+    live_clicks: int
+    total_clicks: int
+    flight_number: str
+    callsign: str
+    squawk: int
+    from_iata: str
+    from_city: str
+    to_iata: str
+    to_city: str
+    type: str
+    full_description: str

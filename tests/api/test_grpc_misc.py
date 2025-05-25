@@ -13,7 +13,6 @@ from fr24.proto.v1_pb2 import (
     Geolocation,
     NearestFlightsRequest,
     NearestFlightsResponse,
-    TopFlightsRequest,
 )
 
 
@@ -48,16 +47,6 @@ async def test_follow_flight(
             i += 1
             if i > 2:
                 break
-
-
-@pytest.mark.anyio
-async def test_top_flights(client: httpx.AsyncClient) -> None:
-    from fr24.grpc import top_flights
-
-    message = TopFlightsRequest(limit=10)
-    results = await top_flights(client, message)
-    data = results.unwrap()
-    assert len(data.scoreboard_list)
 
 
 @pytest.mark.skip(

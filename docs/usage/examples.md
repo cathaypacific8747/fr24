@@ -11,7 +11,7 @@
 | [Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>       | [`nearest_flights`][fr24.grpc.nearest_flights]                                         | [`NearestFlightsService`][fr24.service.NearestFlightsService]<br><br>Cache Location:<br>`nearest_flights/`<br>`└── {lon_x1e6}_{lat_x1e6}_{timestamp_s}.parquet`                                                        |
 | [Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span> | [`live_flights_status`][fr24.grpc.live_flights_status]                                 | [`LiveFlightsStatusService`][fr24.service.LiveFlightsStatusService]<br><br>Cache Location:<br>`live_flights_status/`<br>`└── {timestamp_s}.parquet`                                                                    |
 | [Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>           | [`follow_flight_stream`][fr24.grpc.follow_flight_stream]                               | -                                                                                                                                                                                                                      |
-| [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                 | -                                                                                                                                                                                                                      |
+| [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                 | [`TopFlightsService`][fr24.service.TopFlightsService]<br><br>Cache Location:<br>`top_flights/`<br>`└── {timestamp_s}.parquet`                                                                                          |
 | [Live Trail](#live-trail)<br><span class="chip chip-grpc">gRPC</span>                 | [`live_trail`][fr24.grpc.live_trail]                                                   | -                                                                                                                                                                                                                      |
 | [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | -                                                                                                                                                                                                                      |
 | [Playback Flight](#playback-flight)<br><span class="chip chip-grpc">gRPC</span>       | [`playback_flight`][fr24.grpc.playback_flight]                                         | -                                                                                                                                                                                                                      |
@@ -115,25 +115,25 @@ This example is covered in detail in the [quickstart](./quickstart.md).
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/12_live_feed.py:script"
+    --8<-- "docs/usage/scripts/14_live_feed.py:script"
     ```
 
 === "`result`"
     
     ```py
-    --8<-- "docs/usage/scripts/12_live_feed.py:result"
+    --8<-- "docs/usage/scripts/14_live_feed.py:result"
     ```
 
 === "`result.to_dict()`"
     
     ```py
-    --8<-- "docs/usage/scripts/12_live_feed.py:dict"
+    --8<-- "docs/usage/scripts/14_live_feed.py:dict"
     ```
 
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/12_live_feed.py:polars"
+    --8<-- "docs/usage/scripts/14_live_feed.py:polars"
     ```
 
 #### Playback
@@ -142,13 +142,13 @@ Fetches the live feed three days ago.
 === "Jupyter cell"
 
     ```py hl_lines="4"
-    --8<-- "docs/usage/scripts/12_live_feed.py:script2"
+    --8<-- "docs/usage/scripts/14_live_feed.py:script2"
     ```
 
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/12_live_feed.py:polars2"
+    --8<-- "docs/usage/scripts/14_live_feed.py:polars2"
     ```
 
 ### Nearest Flights
@@ -156,25 +156,25 @@ Fetches the live feed three days ago.
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/13_nearest_flights.py:script"
+    --8<-- "docs/usage/scripts/15_nearest_flights.py:script"
     ```
 
 === "`result`"
     
     ```py
-    --8<-- "docs/usage/scripts/13_nearest_flights.py:result"
+    --8<-- "docs/usage/scripts/15_nearest_flights.py:result"
     ```
 
 === "`result.to_dict()`"
     
     ```py
-    --8<-- "docs/usage/scripts/13_nearest_flights.py:dict"
+    --8<-- "docs/usage/scripts/15_nearest_flights.py:dict"
     ```
 
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/13_nearest_flights.py:polars"
+    --8<-- "docs/usage/scripts/15_nearest_flights.py:polars"
     ```
 
 ### Live Flights Status
@@ -184,25 +184,51 @@ Retrieve the flight status for the closest flights from a location
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/14_live_flights_status.py:script"
+    --8<-- "docs/usage/scripts/16_live_flights_status.py:script"
     ```
 
 === "`result`"
     
     ```py
-    --8<-- "docs/usage/scripts/14_live_flights_status.py:result"
+    --8<-- "docs/usage/scripts/16_live_flights_status.py:result"
     ```
 
 === "`result.to_dict()`"
     
     ```py
-    --8<-- "docs/usage/scripts/14_live_flights_status.py:dict"
+    --8<-- "docs/usage/scripts/16_live_flights_status.py:dict"
     ```
 
 === "`result.to_polars()`"
     
     ```
-    --8<-- "docs/usage/scripts/14_live_flights_status.py:polars"
+    --8<-- "docs/usage/scripts/16_live_flights_status.py:polars"
+    ```
+
+### Top Flights
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/19_top_flights.py:script"
+    ```
+
+=== "`result`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/19_top_flights.py:result"
+    ```
+
+=== "`result.to_dict()`"
+    
+    ```py
+    --8<-- "docs/usage/scripts/19_top_flights.py:dict"
+    ```
+
+=== "`result.to_polars()`"
+    
+    ```
+    --8<-- "docs/usage/scripts/19_top_flights.py:polars"
     ```
 
 ## Core functions
@@ -211,7 +237,7 @@ Retrieve the flight status for the closest flights from a location
 === "Jupyter cell"
 
     ```py hl_lines="17"
-    --8<-- "docs/usage/scripts/20_flight_list.py:script0"
+    --8<-- "docs/usage/scripts/30_flight_list.py:script0"
     ```
 
     1. Replace it with the current time.
@@ -219,7 +245,7 @@ Retrieve the flight status for the closest flights from a location
 === "`df`"
     
     ```
-    --8<-- "docs/usage/scripts/20_flight_list.py:df0"
+    --8<-- "docs/usage/scripts/30_flight_list.py:df0"
     ```
 
 ### Playback
@@ -227,13 +253,13 @@ Retrieve the flight status for the closest flights from a location
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/21_playback.py:script0"
+    --8<-- "docs/usage/scripts/31_playback.py:script0"
     ```
 
 === "`df`"
     
     ```
-    --8<-- "docs/usage/scripts/21_playback.py:df0"
+    --8<-- "docs/usage/scripts/31_playback.py:df0"
     ```
 
 ### Airport Arrivals
@@ -241,13 +267,13 @@ Retrieve the flight status for the closest flights from a location
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/22_arrivals.py:script0"
+    --8<-- "docs/usage/scripts/32_arrivals.py:script0"
     ```
 
 === "`df`"
     
     ```
-    --8<-- "docs/usage/scripts/22_arrivals.py:df0"
+    --8<-- "docs/usage/scripts/32_arrivals.py:df0"
     ```
 
 ### Airport Search
@@ -255,13 +281,13 @@ Retrieve the flight status for the closest flights from a location
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/23_find.py:script0"
+    --8<-- "docs/usage/scripts/33_find.py:script0"
     ```
 
 === "`df`"
     
     ```
-    --8<-- "docs/usage/scripts/23_find.py:df0"
+    --8<-- "docs/usage/scripts/33_find.py:df0"
     ```
 
 ### Live feed
@@ -271,7 +297,7 @@ Demonstrates custom bounding boxes.
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/24_live_feed.py:script0"
+    --8<-- "docs/usage/scripts/34_live_feed.py:script0"
     ```
 
     1. The type is a `Result[LiveFeedResponse, ProtoError]`, calling the `.unwrap()` method raises an exception if there is an error.
@@ -279,7 +305,7 @@ Demonstrates custom bounding boxes.
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/24_live_feed.py:output0"
+    --8<-- "docs/usage/scripts/34_live_feed.py:output0"
     ```
 
 In JSON format:
@@ -287,13 +313,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/24_live_feed.py:script1"
+    --8<-- "docs/usage/scripts/34_live_feed.py:script1"
     ```
 
 === "Output"
     
     ```py
-    --8<-- "docs/usage/scripts/24_live_feed.py:output1"
+    --8<-- "docs/usage/scripts/34_live_feed.py:output1"
     ```
 
 ### Nearest Flights
@@ -301,13 +327,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/25_nearest_flights.py:script0"
+    --8<-- "docs/usage/scripts/35_nearest_flights.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/25_nearest_flights.py:output0"
+    --8<-- "docs/usage/scripts/35_nearest_flights.py:output0"
     ```
 
 ### Live Flight Status
@@ -315,13 +341,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/26_live_flights_status.py:script0"
+    --8<-- "docs/usage/scripts/36_live_flights_status.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/26_live_flights_status.py:output0"
+    --8<-- "docs/usage/scripts/36_live_flights_status.py:output0"
     ```
 
 ### Follow Flight
@@ -335,13 +361,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/28_follow_flight.py:script0"
+    --8<-- "docs/usage/scripts/38_follow_flight.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/28_follow_flight.py:output0"
+    --8<-- "docs/usage/scripts/38_follow_flight.py:output0"
     ```
 
 ### Top Flights
@@ -349,13 +375,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/29_top_flights.py:script0"
+    --8<-- "docs/usage/scripts/39_top_flights.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/29_top_flights.py:output0"
+    --8<-- "docs/usage/scripts/39_top_flights.py:output0"
     ```
 
 ### Live Trail
@@ -366,13 +392,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/30_live_trail.py:script0"
+    --8<-- "docs/usage/scripts/40_live_trail.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/30_live_trail.py:output0"
+    --8<-- "docs/usage/scripts/40_live_trail.py:output0"
     ```
 
 ### Flight Details
@@ -380,13 +406,13 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/32_flight_details.py:script0"
+    --8<-- "docs/usage/scripts/42_flight_details.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/32_flight_details.py:output0"
+    --8<-- "docs/usage/scripts/42_flight_details.py:output0"
     ```
 
 
@@ -395,11 +421,11 @@ In JSON format:
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/33_playback_flight.py:script0"
+    --8<-- "docs/usage/scripts/43_playback_flight.py:script0"
     ```
 
 === "Protobuf Output"
     
     ```proto
-    --8<-- "docs/usage/scripts/33_playback_flight.py:output0"
+    --8<-- "docs/usage/scripts/43_playback_flight.py:output0"
     ```

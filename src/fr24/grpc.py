@@ -43,6 +43,7 @@ from .proto.v1_pb2 import (
     Flight,
     FlightDetailsRequest,
     FlightDetailsResponse,
+    FollowedFlight,
     FollowFlightRequest,
     FollowFlightResponse,
     Geolocation,
@@ -91,6 +92,7 @@ if TYPE_CHECKING:
         LiveFlightStatusRecord,
         NearbyFlightRecord,
         RecentPositionRecord,
+        TopFlightRecord,
     )
     from .types.fr24 import LiveFeedField
     from .utils import IntoFlightId, IntoTimestamp
@@ -517,6 +519,15 @@ async def follow_flight_stream(
         yield msg
 
 
+@dataclass
+class TopFlightsParams(SupportsToProto[TopFlightsRequest]):
+    limit: int = 10
+    """Maximum number of top flights to return (1-10)"""
+
+    def to_proto(self) -> TopFlightsRequest:
+        return TopFlightsRequest(limit=self.limit)
+
+
 IntoTopFlightsRequest: TypeAlias = Union[
     SupportsToProto[TopFlightsRequest], TopFlightsRequest
 ]
@@ -526,9 +537,38 @@ async def top_flights(
     client: httpx.AsyncClient,
     message: IntoTopFlightsRequest,
     auth: None | Authentication = None,
-) -> Result[TopFlightsResponse, ProtoError]:
+) -> Annotated[httpx.Response, TopFlightsResponse]:
     request = construct_request("TopFlights", to_proto(message), auth)
-    return await post_unary(client, request, TopFlightsResponse)
+    response = await client.send(request)
+    return response
+
+
+def top_flights_followedflight_dict(ff: FollowedFlight) -> TopFlightRecord:
+    return {
+        "flight_id": ff.flight_id,
+        "live_clicks": ff.live_clicks,
+        "total_clicks": ff.total_clicks,
+        "flight_number": ff.flight_number,
+        "callsign": ff.callsign,
+        "squawk": ff.squawk,
+        "from_iata": ff.from_iata,
+        "from_city": ff.from_city,
+        "to_iata": ff.to_iata,
+        "to_city": ff.to_city,
+        "type": ff.type,
+        "full_description": ff.full_description,
+    }
+
+
+def top_flights_df(data: TopFlightsResponse) -> pl.DataFrame:
+    import polars as pl
+
+    from .types.cache import top_flights_schema
+
+    return pl.DataFrame(
+        (top_flights_followedflight_dict(ff) for ff in data.scoreboard_list),
+        schema=top_flights_schema,
+    )
 
 
 IntoLiveTrailRequest: TypeAlias = Union[

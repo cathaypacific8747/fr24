@@ -32,6 +32,7 @@ class FR24Cache:
     - `feed/{timestamp}`
     - `nearest_flights/{lon}_{lat}_{timestamp}`
     - `live_flights_status/{timestamp}`
+    - `top_flights/{timestamp}`
     """
 
     @classmethod
@@ -53,6 +54,7 @@ class FR24Cache:
         self.live_feed = Collection(self.path / "feed")
         self.nearest_flights = Collection(self.path / "nearest_flights")
         self.live_flights_status = Collection(self.path / "live_flights_status")
+        self.top_flights = Collection(self.path / "top_flights")
 
         for collection in (
             self.flight_list.reg,
@@ -61,6 +63,7 @@ class FR24Cache:
             self.live_feed,
             self.nearest_flights,
             self.live_flights_status,
+            self.top_flights,
         ):
             collection.path.mkdir(parents=True, exist_ok=True)
 
@@ -118,6 +121,8 @@ class Collection:
                 where `longitude` and `latitude` are the coordinates in
                 degrees, and `timestamp` is the integer seconds since epoch
             - `cache.live_flights_status.scan_table`: Unix timestamp,
+                integer seconds since epoch
+            - `cache.top_flights.scan_table`: Unix timestamp,
                 integer seconds since epoch
         """
         if isinstance(ident, (File, Path)):
