@@ -6,13 +6,14 @@
 import httpx
 from fr24.grpc import live_trail
 from fr24.proto.v1_pb2 import LiveTrailRequest, LiveTrailResponse
+from fr24.proto import parse_data
 
 
 async def live_trail_data() -> LiveTrailResponse:
     async with httpx.AsyncClient() as client:
         message = LiveTrailRequest(flight_id=0x395c43cf)
-        result = await live_trail(client, message)
-        return result.unwrap()
+        response = await live_trail(client, message)
+        return parse_data(response.content, LiveTrailResponse).unwrap()
 
 
 data = await live_trail_data()

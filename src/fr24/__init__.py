@@ -55,6 +55,8 @@ class FR24:
         """Nearest flights service."""
         self.live_flights_status = factory.build_live_flights_status()
         """Live flights status service."""
+        self.follow_flight = factory.build_follow_flight()
+        """Follow flight service."""
         self.top_flights = factory.build_top_flights()
         """Top flights service."""
         self.flight_details = factory.build_flight_details()

@@ -11,10 +11,12 @@
 | [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | [`FlightDetailsService`][fr24.service.FlightDetailsService]<br><br>Cache Location:<br>`flight_details/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                     |
 | [Nearest Flights](#nearest-flights)<br><span class="chip chip-grpc">gRPC</span>       | [`nearest_flights`][fr24.grpc.nearest_flights]                                         | [`NearestFlightsService`][fr24.service.NearestFlightsService]<br><br>Cache Location:<br>`nearest_flights/`<br>`└── {lon_x1e6}_{lat_x1e6}_{timestamp_s}.parquet`                                                        |
 | [Live Flight Status](#live-flight-status)<br><span class="chip chip-grpc">gRPC</span> | [`live_flights_status`][fr24.grpc.live_flights_status]                                 | [`LiveFlightsStatusService`][fr24.service.LiveFlightsStatusService]<br><br>Cache Location:<br>`live_flights_status/`<br>`└── {timestamp_s}.parquet`                                                                    |
-| [Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>           | [`follow_flight_stream`][fr24.grpc.follow_flight_stream]                               | -                                                                                                                                                                                                                      |
+| [~~Search Index~~](#search-index)<br><span class="chip chip-grpc">gRPC</span>         | [~~`search_index`~~][fr24.grpc.search_index]                                           | -                                                                                                                                                                                                                      |
+| [Follow Flight](#follow-flight)<br><span class="chip chip-grpc">gRPC</span>           | [`follow_flight_stream`][fr24.grpc.follow_flight_stream]                               | [`FollowFlightService`][fr24.service.FollowFlightService]                                                                                                                                                              |
 | [Top Flights](#top-flights)<br><span class="chip chip-grpc">gRPC</span>               | [`top_flights`][fr24.grpc.top_flights]                                                 | [`TopFlightsService`][fr24.service.TopFlightsService]<br><br>Cache Location:<br>`top_flights/`<br>`└── {timestamp_s}.parquet`                                                                                          |
-| [Live Trail](#live-trail)<br><span class="chip chip-grpc">gRPC</span>                 | [`live_trail`][fr24.grpc.live_trail]                                                   | -                                                                                                                                                                                                                      |
-| [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | -                                                                                                                                                                                                                      |
+| [~~Live Trail~~](#live-trail)<br><span class="chip chip-grpc">gRPC</span>             | [~~`live_trail`~~][fr24.grpc.live_trail]                                               | -                                                                                                                                                                                                                      |
+| [~~Historic Trail~~](#historic-trail)<br><span class="chip chip-grpc">gRPC</span>     | [~~`historic_trail`~~][fr24.grpc.historic_trail]                                       | -                                                                                                                                                                                                                      |
+| [Flight Details](#flight-details)<br><span class="chip chip-grpc">gRPC</span>         | [`flight_details`][fr24.grpc.flight_details]                                           | [`FlightDetailsService`][fr24.service.FlightDetailsService]<br><br>Cache Location:<br>`flight_details/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                     |
 | [Playback Flight](#playback-flight)<br><span class="chip chip-grpc">gRPC</span>       | [`playback_flight`][fr24.grpc.playback_flight]                                         | [`PlaybackFlightService`][fr24.service.PlaybackFlightService]<br><br>Cache Location:<br>`playback_flight/`<br>`└── {flight_id}_{timestamp_s}.parquet`                                                                  |
 
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
@@ -204,6 +206,40 @@ Retrieve the flight status for the closest flights from a location
     
     ```
     --8<-- "docs/usage/scripts/16_live_flights_status.py:polars"
+    ```
+
+### Follow Flight
+
+Stream real-time updates to the state vector of an aircraft.
+
+!!! note
+
+    This is a streaming service which endlessly yields the latest updates.
+
+    Unlike other services, it does not offer a default serialisation strategy
+    (i.e. `result.write_parquet` does not exist). For a local setup, consider
+    inserting the updates to a SQLite database manually.
+
+    The first packet of data contains useful initial metadata (`aircraft_info`,
+    `flight_plan` and `flight_trail_list`), which will **not** be re-transmitted
+    in the subsequent updates.
+    
+!!! tip
+
+    The server often sends state vector packets every 1-60 seconds, but `httpx`
+    by default closes the stream after 5 seconds. We increase the timeout to 120
+    seconds to avoid premature closure.
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/18_follow_flight.py:script"
+    ```
+
+=== "`result.to_proto()`"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/18_follow_flight.py:proto"
     ```
 
 ### Top Flights
@@ -407,13 +443,25 @@ In JSON format:
     --8<-- "docs/usage/scripts/36_live_flights_status.py:output0"
     ```
 
+### Search Index
+
+!!! warning "Unstable API: returns empty `DATA` frame"
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/37_search_index.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```
+    --8<-- "docs/usage/scripts/37_search_index.py:output0"
+    ```
+
 ### Follow Flight
 
-!!! tip
-    This is a streaming API that repeatedly updates the aircraft state vectors.
-
-    Initial metadata (`aircraft_info`, `flight_plan` and `flight_trail_list`)
-    is only sent in the first packet of data.
+See [above](#follow-flight) for more information.
 
 === "Jupyter cell"
 
@@ -443,8 +491,8 @@ In JSON format:
 
 ### Live Trail
 
-!!! warning
-    Unstable API - does not return data reliably.
+!!! warning "Unstable API: returns empty `DATA` frame as of Sep 2024"
+
 
 === "Jupyter cell"
 
@@ -456,6 +504,22 @@ In JSON format:
     
     ```proto
     --8<-- "docs/usage/scripts/40_live_trail.py:output0"
+    ```
+
+### Historic Trail
+
+!!! warning "Unstable API: gateway timeout"
+
+=== "Jupyter cell"
+
+    ```py
+    --8<-- "docs/usage/scripts/41_historic_trail.py:script0"
+    ```
+
+=== "Protobuf Output"
+    
+    ```proto
+    --8<-- "docs/usage/scripts/41_historic_trail.py:output0"
     ```
 
 ### Flight Details

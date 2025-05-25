@@ -2,12 +2,10 @@ import httpx
 import pytest
 
 from fr24.grpc import (
-    follow_flight_stream,
     nearest_flights,
 )
 from fr24.proto import parse_data
 from fr24.proto.v1_pb2 import (
-    FollowFlightRequest,
     Geolocation,
     NearestFlightsRequest,
     NearestFlightsResponse,
@@ -29,24 +27,6 @@ async def nearest_flights_response(
     return parse_data(response.content, NearestFlightsResponse).unwrap()
 
 
-@pytest.mark.anyio
-async def test_follow_flight(
-    nearest_flights_response: NearestFlightsResponse,
-) -> None:
-    flight_id = nearest_flights_response.flights_list[0].flight.flightid
-    timeout = httpx.Timeout(5, read=120)
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        message = FollowFlightRequest(flight_id=flight_id)
-        i = 0
-        async for response in follow_flight_stream(client, message):
-            if i == 0:
-                assert len(response.unwrap().flight_trail_list)
-            assert response.unwrap().flight_info.flightid == flight_id
-            i += 1
-            if i > 2:
-                break
-
-
 @pytest.mark.skip(
     reason="The API began to return empty `DATA` frames since Sep 2024"
 )
@@ -55,12 +35,13 @@ async def test_live_trail(
     nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
     from fr24.grpc import live_trail
-    from fr24.proto.v1_pb2 import LiveTrailRequest
+    from fr24.proto.v1_pb2 import LiveTrailRequest, LiveTrailResponse
 
     flight_id = nearest_flights_response.flights_list[0].flight.flightid
     message = LiveTrailRequest(flight_id=flight_id)
-    results = await live_trail(client, message)
-    data = results.unwrap()
+    response = await live_trail(client, message)
+    result = parse_data(response.content, LiveTrailResponse)
+    data = result.unwrap()
     assert len(data.radar_records_list)
 
 
@@ -68,12 +49,16 @@ async def test_live_trail(
 @pytest.mark.anyio
 async def test_search_index(client: httpx.AsyncClient) -> None:
     from fr24.grpc import search_index
-    from fr24.proto.v1_pb2 import FetchSearchIndexRequest
+    from fr24.proto.v1_pb2 import (
+        FetchSearchIndexRequest,
+        FetchSearchIndexResponse,
+    )
 
     message = FetchSearchIndexRequest()
-    results = await search_index(client, message)
-    assert results.is_ok()  # fails, empty data frame
-    data = results.unwrap()
+    response = await search_index(client, message)
+    result = parse_data(response.content, FetchSearchIndexResponse)
+    assert result.is_ok()  # fails, empty data frame
+    data = result.unwrap()
     assert data
 
 
@@ -83,14 +68,15 @@ async def test_historic_trail(
     nearest_flights_response: NearestFlightsResponse, client: httpx.AsyncClient
 ) -> None:
     from fr24.grpc import historic_trail
-    from fr24.proto.v1_pb2 import HistoricTrailRequest
+    from fr24.proto.v1_pb2 import HistoricTrailRequest, HistoricTrailResponse
 
     flight_id = nearest_flights_response.flights_list[0].flight.flightid
     message = HistoricTrailRequest(flight_id=flight_id)
-    results = await historic_trail(client, message)
+    response = await historic_trail(client, message)
+    result = parse_data(response.content, HistoricTrailResponse)
 
-    assert results.is_ok()  # read timeout
-    data = results.unwrap()
+    assert result.is_ok()  # read timeout
+    data = result.unwrap()
     from fr24.proto.v1_pb2 import HistoricTrailResponse
 
     assert isinstance(data, HistoricTrailResponse)

@@ -4,7 +4,16 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any, Generic, Protocol, TypeVar, Union
+from typing import (
+    IO,
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Generic,
+    Protocol,
+    TypeVar,
+    Union,
+)
 
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import runtime_checkable
@@ -12,6 +21,7 @@ from typing_extensions import runtime_checkable
 from .cache import FR24Cache
 from .grpc import (
     FlightDetailsParams,
+    FollowFlightParams,
     LiveFeedParams,
     LiveFeedPlaybackParams,
     LiveFlightsStatusParams,
@@ -20,6 +30,7 @@ from .grpc import (
     TopFlightsParams,
     flight_details,
     flight_details_df,
+    follow_flight_stream,
     live_feed,
     live_feed_df,
     live_feed_playback,
@@ -47,6 +58,7 @@ from .json import (
 from .proto import SupportsToProto, parse_data
 from .proto.v1_pb2 import (
     FlightDetailsResponse,
+    FollowFlightResponse,
     LiveFeedResponse,
     LiveFlightsStatusResponse,
     NearestFlightsResponse,
@@ -112,6 +124,9 @@ class ServiceFactory:
 
     def build_top_flights(self) -> TopFlightsService:
         return TopFlightsService(self)
+
+    def build_follow_flight(self) -> FollowFlightService:
+        return FollowFlightService(self)
 
     def build_playback_flight(self) -> PlaybackFlightService:
         return PlaybackFlightService(self)
@@ -621,6 +636,46 @@ class LiveFlightsStatusResult(
         if isinstance(file, FR24Cache):
             file = file.live_flights_status.new_bare_path(f"{self.timestamp}")
         write_table(self, file, format=format)
+
+
+@dataclass(frozen=True)
+class FollowFlightService:
+    """Follow flight service for real-time streaming."""
+
+    __factory: ServiceFactory
+
+    @overwrite_args_signature_from(FollowFlightParams)
+    async def stream(
+        self, /, *args: Any, **kwargs: Any
+    ) -> AsyncGenerator[FollowFlightResult, None]:
+        """Stream real-time updates for a flight.
+        See [fr24.grpc.FollowFlightParams][] for the detailed signature.
+        """
+        request = FollowFlightParams(*args, **kwargs)
+        async for response in follow_flight_stream(
+            self.__factory.http.client,
+            request.to_proto(),
+            self.__factory.http.auth,
+        ):
+            yield FollowFlightResult(
+                request=request,
+                response=response,
+            )
+
+
+@dataclass
+class FollowFlightResult(
+    SupportsToProto[FollowFlightResponse],
+    SupportsToDict[dict[str, Any]],
+):
+    request: FollowFlightParams
+    response: bytes
+
+    def to_proto(self) -> FollowFlightResponse:
+        return parse_data(self.response, FollowFlightResponse).unwrap()
+
+    def to_dict(self) -> dict[str, Any]:
+        return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
 
 
 @dataclass(frozen=True)

@@ -22,7 +22,7 @@ Methods:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, NamedTuple, Sequence, Union, cast, overload
+from typing import TYPE_CHECKING, NamedTuple, Sequence, Union, cast
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -33,7 +33,6 @@ from .proto import (
     SupportsToProto,
     T,
     encode_message,
-    parse_data,
     to_proto,
 )
 from .proto.headers import get_headers
@@ -46,7 +45,6 @@ from .proto.v1_pb2 import (
     FlightDetailsResponse,
     FollowedFlight,
     FollowFlightRequest,
-    FollowFlightResponse,
     Geolocation,
     HistoricTrailRequest,
     HistoricTrailResponse,
@@ -75,14 +73,13 @@ from .proto.v1_pb2 import (
 )
 from .static.bbox import LNGS_WORLD_STATIC
 from .utils import (
-    Result,
     get_current_timestamp,
     to_flight_id,
     to_unix_timestamp,
 )
 
 if TYPE_CHECKING:
-    from typing import Annotated, AsyncGenerator, Literal, Type
+    from typing import Annotated, AsyncGenerator, Literal
 
     import polars as pl
     from google.protobuf.internal.enum_type_wrapper import _V, _EnumTypeWrapper
@@ -120,58 +117,6 @@ def construct_request(
         headers=get_headers(auth),
         content=encode_message(message),
     )
-
-
-# NOTE: overload not used for now.
-@overload
-async def post_unary(
-    client: httpx.AsyncClient,
-    request: httpx.Request,
-    msg_type: Type[T],
-) -> Result[T, ProtoError]: ...
-
-
-@overload
-async def post_unary(
-    client: httpx.AsyncClient,
-    request: httpx.Request,
-    msg_type: None = None,
-) -> httpx.Response: ...
-
-
-async def post_unary(
-    client: httpx.AsyncClient,
-    request: httpx.Request,
-    msg_type: Type[T] | None = None,
-) -> Result[T, ProtoError] | httpx.Response:
-    """
-    Execute the unary-unary call.
-
-    :param msg_type: The protobuf message type to parse the response into.
-    If `None`, the raw httpx response is returned.
-    """
-    response = await client.send(request)
-    if msg_type is None:
-        return response
-    data = response.content
-    return parse_data(data, msg_type)
-
-
-# TODO: make parsing optional.
-async def post_stream(
-    client: httpx.AsyncClient,
-    request: httpx.Request,
-    msg_type: Type[T],
-) -> AsyncGenerator[Result[T, ProtoError]]:
-    """
-    Execute the unary-stream call, yielding each parsed response.
-    """
-    response = await client.send(request, stream=True)
-    try:
-        async for chunk in response.aiter_bytes():
-            yield parse_data(chunk, msg_type)
-    finally:
-        await response.aclose()
 
 
 def to_protobuf_enum(
@@ -258,15 +203,13 @@ class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
         )
 
 
-# TODO: add typing.overload for return type
 async def live_feed(
     client: httpx.AsyncClient,
     message: IntoLiveFeedRequest,
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, LiveFeedResponse]:
     request = construct_request("LiveFeed", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 def live_feed_position_buffer_dict(
@@ -365,8 +308,7 @@ async def live_feed_playback(
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, LiveFeedResponse]:
     request = construct_request("Playback", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 def live_feed_playback_df(
@@ -415,8 +357,7 @@ async def nearest_flights(
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, NearestFlightsResponse]:
     request = construct_request("NearestFlights", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 IntoLiveFlightsStatusRequest: TypeAlias = Union[
@@ -461,8 +402,7 @@ async def live_flights_status(
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, LiveFlightsStatusResponse]:
     request = construct_request("LiveFlightsStatus", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 def live_flights_status_flightstatusdata_dict(
@@ -504,10 +444,29 @@ async def search_index(
     client: httpx.AsyncClient,
     message: IntoFetchSearchIndexRequest,
     auth: None | Authentication = None,
-) -> Result[FetchSearchIndexResponse, ProtoError]:
-    """WARN: Unstable API - does not return data reliably."""
+) -> Annotated[httpx.Response, FetchSearchIndexResponse]:
+    """!!! warning "Unstable API: gateway timeout." """
     request = construct_request("FetchSearchIndex", to_proto(message), auth)
-    return await post_unary(client, request, FetchSearchIndexResponse)
+    return await client.send(request)
+
+
+@dataclass
+class FollowFlightParams(SupportsToProto[FollowFlightRequest]):
+    flight_id: IntoFlightId
+    """Flight ID to fetch details for.
+    Must be live, or the response will contain an empty `DATA` frame error."""
+    restriction_mode: RestrictionVisibility.ValueType | str | bytes = (
+        RestrictionVisibility.NOT_VISIBLE
+    )
+    """[FAA LADD](https://www.faa.gov/pilots/ladd) visibility mode."""
+
+    def to_proto(self) -> FollowFlightRequest:
+        return FollowFlightRequest(
+            flight_id=to_flight_id(self.flight_id),
+            restriction_mode=to_protobuf_enum(
+                self.restriction_mode, RestrictionVisibility
+            ),
+        )
 
 
 IntoFollowFlightRequest: TypeAlias = Union[
@@ -519,10 +478,14 @@ async def follow_flight_stream(
     client: httpx.AsyncClient,
     message: IntoFollowFlightRequest,
     auth: None | Authentication = None,
-) -> AsyncGenerator[Result[FollowFlightResponse, ProtoError]]:
+) -> AsyncGenerator[Annotated[bytes, ProtoError]]:
     request = construct_request("FollowFlight", to_proto(message), auth)
-    async for msg in post_stream(client, request, FollowFlightResponse):
-        yield msg
+    response = await client.send(request, stream=True)
+    try:
+        async for chunk in response.aiter_bytes():
+            yield chunk
+    finally:
+        await response.aclose()
 
 
 @dataclass
@@ -545,8 +508,7 @@ async def top_flights(
     auth: None | Authentication = None,
 ) -> Annotated[httpx.Response, TopFlightsResponse]:
     request = construct_request("TopFlights", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 def top_flights_dict(ff: FollowedFlight) -> TopFlightRecord:
@@ -586,11 +548,12 @@ async def live_trail(
     client: httpx.AsyncClient,
     message: IntoLiveTrailRequest,
     auth: None | Authentication = None,
-) -> Result[LiveTrailResponse, ProtoError]:
-    """WARN: Unstable API - does not return data reliably.
-    contains empty `DATA` frame error if flight_id is not live"""
+) -> Annotated[httpx.Response, LiveTrailResponse]:
+    """!!! warning "Unstable API: returns empty `DATA` frame as of Sep 2024"
+
+    Contains empty `DATA` frame error if flight_id is not live"""
     request = construct_request("LiveTrail", to_proto(message), auth)
-    return await post_unary(client, request, LiveTrailResponse)
+    return await client.send(request)
 
 
 IntoHistoricTrailRequest: TypeAlias = Union[
@@ -602,10 +565,10 @@ async def historic_trail(
     client: httpx.AsyncClient,
     message: IntoHistoricTrailRequest,
     auth: None | Authentication = None,
-) -> Result[HistoricTrailResponse, ProtoError]:
-    """WARN: Unstable API - returns empty `DATA` frame."""
+) -> Annotated[httpx.Response, HistoricTrailResponse]:
+    """!!! warning "Unstable API: returns empty `DATA` frame" """
     request = construct_request("HistoricTrail", to_proto(message), auth)
-    return await post_unary(client, request, HistoricTrailResponse)
+    return await client.send(request)
 
 
 IntoFlightDetailsRequest: TypeAlias = Union[
@@ -644,8 +607,7 @@ async def flight_details(
 ) -> Annotated[httpx.Response, FlightDetailsResponse]:
     """contains empty `DATA` frame error if flight_id is not live"""
     request = construct_request("FlightDetails", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 def flight_details_dict(
@@ -786,8 +748,7 @@ async def playback_flight(
 ) -> Annotated[httpx.Response, PlaybackFlightResponse]:
     """contains empty `DATA` frame error if flight_id is live"""
     request = construct_request("PlaybackFlight", to_proto(message), auth)
-    response = await client.send(request)
-    return response
+    return await client.send(request)
 
 
 def playback_flight_dict(

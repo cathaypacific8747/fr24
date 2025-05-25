@@ -2,31 +2,37 @@
 # fmt: off
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
-# --8<-- [start:script0]
+# --8<-- [start:script]
 import httpx
-from fr24.grpc import follow_flight_stream
-from fr24.proto.v1_pb2 import FollowFlightRequest, FollowFlightResponse
-from fr24.proto import parse_data
 
+from fr24 import FR24
+from fr24.proto.v1_pb2 import NearestFlightsResponse
 
-async def follow_flight_data() -> None:
+async def get_nearest_flights(fr24: FR24) -> NearestFlightsResponse:
+    nearest_result = await fr24.nearest_flights.fetch(
+        lat=22.31257, lon=113.92708, radius=10000, limit=1500
+    )
+    return nearest_result.to_proto()
+
+async def my_follow_flight() -> None:
     timeout = httpx.Timeout(5, read=120)
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        message = FollowFlightRequest(flight_id=0x395C43CF)
+    async with FR24(client=httpx.AsyncClient(timeout=timeout)) as fr24:
+        nearest_flights_result = await get_nearest_flights(fr24)
+        flight_id = nearest_flights_result.flights_list[0].flight.flightid
         i = 0
-        async for response in follow_flight_stream(client, message):
+        async for result in fr24.follow_flight.stream(flight_id=flight_id):
             print(f"##### {i} #####")
-            print(parse_data(response, FollowFlightResponse))
+            print(result.to_proto())
             i += 1
-            if i > 3:
+            if i > 2:
                 break
 
-
-await follow_flight_data()
-# --8<-- [end:script0]
+await my_follow_flight()
+# --8<-- [end:script]
+# fmt: off
 # %%
 """
-# --8<-- [start:output0]
+# --8<-- [start:proto]
 ##### 0 #####
 aircraft_info {
   icao_address: 5031041
@@ -201,5 +207,5 @@ flight_info {
   timestamp: 1720075641
   callsign: "ABD4400"
 ...
-# --8<-- [end:output0]
+# --8<-- [end:proto]
 """

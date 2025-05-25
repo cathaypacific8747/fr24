@@ -5,7 +5,7 @@
 # --8<-- [start:script]
 from fr24 import FR24, FR24Cache
 
-async def get_nearest_flight_id(fr24: FR24) -> int:
+async def get_farthest_flight_id(fr24: FR24) -> int:
     nearest_result = await fr24.nearest_flights.fetch(
         lat=22.31257, lon=113.92708, radius=10000, limit=1500
     )
@@ -13,7 +13,7 @@ async def get_nearest_flight_id(fr24: FR24) -> int:
 
 async def my_flight_details() -> None:
     async with FR24() as fr24:
-        flight_id = await get_nearest_flight_id(fr24)
+        flight_id = await get_farthest_flight_id(fr24)
         result = await fr24.flight_details.fetch(flight_id=flight_id)
         print(result)
         print(result.to_dict())

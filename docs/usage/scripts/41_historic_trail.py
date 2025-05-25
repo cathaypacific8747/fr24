@@ -6,13 +6,13 @@
 import httpx
 from fr24.grpc import historic_trail
 from fr24.proto.v1_pb2 import HistoricTrailRequest, HistoricTrailResponse
-
+from fr24.proto import parse_data
 
 async def historic_trail_data() -> HistoricTrailResponse:
     async with httpx.AsyncClient() as client:
         message = HistoricTrailRequest(flight_id=0x395c43cf)
-        result = await historic_trail(client, message)
-        return result.unwrap()
+        response = await historic_trail(client, message)
+        return parse_data(response.content, HistoricTrailResponse).unwrap()
 
 data = await historic_trail_data()
 data
