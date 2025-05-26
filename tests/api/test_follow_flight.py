@@ -10,9 +10,9 @@ async def test_follow_flight(
     nearest_flights_result: NearestFlightsResult,
 ) -> None:
     flight_id = (
-        nearest_flights_result.to_proto().flights_list[0].flight.flightid
+        nearest_flights_result.to_proto().flights_list[-1].flight.flightid
     )
-    timeout = httpx.Timeout(5, read=120)
+    timeout = httpx.Timeout(5, read=360)
     async with FR24(client=httpx.AsyncClient(timeout=timeout)) as fr24:
         i = 0
         async for result in fr24.follow_flight.stream(flight_id=flight_id):

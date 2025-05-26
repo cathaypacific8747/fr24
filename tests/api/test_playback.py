@@ -32,7 +32,7 @@ async def test_playback_file_ops(fr24: FR24, cache: FR24Cache) -> None:
 
     result = await fr24.playback.fetch(flight_id=FLIGHT_ID)
 
-    ident = f"{FLIGHT_ID:0x}".lower()
+    ident = f"{FLIGHT_ID:0x}".upper()
     fp = cache.path / "playback" / f"{ident}.parquet"
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)

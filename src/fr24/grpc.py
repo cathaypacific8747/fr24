@@ -235,7 +235,6 @@ def live_feed_flightdata_dict(lfr: Flight) -> FlightRecord:
         "track": lfr.track,
         "altitude": lfr.alt,
         "ground_speed": lfr.speed,
-        "vertical_speed": lfr.extra_info.vspeed,
         "on_ground": lfr.on_ground,
         "callsign": lfr.callsign,
         "source": lfr.source,
@@ -245,6 +244,7 @@ def live_feed_flightdata_dict(lfr: Flight) -> FlightRecord:
         "typecode": lfr.extra_info.type,
         "eta": lfr.extra_info.schedule.eta,
         "squawk": lfr.extra_info.squawk,
+        "vertical_speed": lfr.extra_info.vspeed,
         "position_buffer": live_feed_position_buffer_dict(lfr.position_buffer),
     }
 
