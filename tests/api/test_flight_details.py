@@ -36,15 +36,18 @@ async def test_flight_details_file_ops(
 ) -> None:
     flight_id = f"{to_flight_id(flight_details_result.request.flight_id):0x}"
     timestamp = flight_details_result.timestamp
-    ident = f"{flight_id.upper()}_{timestamp}"
-    fp = cache.path / "flight_details" / f"{ident}.parquet"
+    fp = (
+        cache.path
+        / "flight_details"
+        / f"{flight_id.upper()}_{timestamp}.parquet"
+    )
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)
 
     flight_details_result.write_table(cache)
     assert fp.exists()
 
-    df_local = cache.flight_details.scan_table(ident).collect()
+    df_local = cache.flight_details.scan_table(flight_id, timestamp).collect()
     assert df_local.equals(flight_details_result.to_polars())
 
     fp.unlink()

@@ -13,6 +13,7 @@ from typing import (
     Protocol,
     TypeVar,
     Union,
+    overload,
 )
 
 from typing_extensions import runtime_checkable
@@ -47,12 +48,20 @@ IntoTimestamp: TypeAlias = Union[int, datetime]
 """Unix timestamp in seconds or a datetime object."""
 
 
+@overload
+def to_unix_timestamp(
+    timestamp: IntoTimestamp | Literal["now"] | str,
+) -> int | Literal["now"]: ...
+
+
+@overload
+def to_unix_timestamp(timestamp: None) -> None: ...
+
+
 def to_unix_timestamp(
     timestamp: IntoTimestamp | str | Literal["now"] | None,
 ) -> int | Literal["now"] | None:
-    """Casts timestamp-like object to a Unix timestamp in integer seconds,
-    returning `None` if `timestamp` is `None`.
-    """
+    """Casts timestamp-like object to a Unix timestamp in integer seconds."""
     if isinstance(timestamp, str):
         # TODO(abrah): should we eagerly return the current timestamp just like
         # `pd.Timestamp("now")`? we might want to defer this to the caller.

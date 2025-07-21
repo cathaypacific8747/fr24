@@ -85,7 +85,6 @@ from .utils import (
     SupportsToPolars,
     get_current_timestamp,
     parse_server_timestamp,
-    to_flight_id,
     write_table,
 )
 
@@ -288,8 +287,8 @@ class FlightListResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            file = file.flight_list(self.request.kind).new_bare_path(
-                self.request.ident.upper()
+            file = file.flight_list(self.request.kind).get_path(
+                self.request.ident
             )
         write_table(self, file, format=format)
 
@@ -360,8 +359,8 @@ class FlightListResultCollection(
                 "must contain at least one valid flight list response"
             )
         if isinstance(file, FR24Cache):
-            file = file.flight_list(self[0].request.kind).new_bare_path(
-                self[0].request.ident.upper()
+            file = file.flight_list(self[0].request.kind).get_path(
+                self[0].request.ident
             )
         write_table(self, file, format=format)
 
@@ -414,8 +413,7 @@ class PlaybackResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
-            file = file.playback.new_bare_path(flight_id)
+            file = file.playback.get_path(self.request.flight_id)
         write_table(self, file, format=format)
 
 
@@ -472,7 +470,7 @@ class LiveFeedResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            file = file.live_feed.new_bare_path(str(self.timestamp))
+            file = file.live_feed.get_path(self.timestamp)
         write_table(self, file, format=format)
 
 
@@ -526,7 +524,7 @@ class LiveFeedPlaybackResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            file = file.live_feed.new_bare_path(str(self.request.timestamp))
+            file = file.live_feed.get_path(self.request.timestamp)
         write_table(self, file, format=format)
 
 
@@ -651,10 +649,8 @@ class NearestFlightsResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            lon6 = int(self.request.lon * 1e6)
-            lat6 = int(self.request.lat * 1e6)
-            file = file.nearest_flights.new_bare_path(
-                f"{lon6}_{lat6}_{self.timestamp}"
+            file = file.nearest_flights.get_path(
+                self.request.lat, self.request.lon, self.timestamp
             )
         write_table(self, file, format=format)
 
@@ -714,7 +710,7 @@ class LiveFlightsStatusResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            file = file.live_flights_status.new_bare_path(f"{self.timestamp}")
+            file = file.live_flights_status.get_path(self.timestamp)
         write_table(self, file, format=format)
 
 
@@ -809,7 +805,7 @@ class TopFlightsResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            file = file.top_flights.new_bare_path(f"{self.timestamp}")
+            file = file.top_flights.get_path(self.timestamp)
         write_table(self, file, format=format)
 
 
@@ -864,9 +860,8 @@ class FlightDetailsResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
-            file = file.flight_details.new_bare_path(
-                f"{flight_id}_{self.timestamp}"
+            file = file.flight_details.get_path(
+                self.request.flight_id, self.timestamp
             )
         write_table(self, file, format=format)
 
@@ -920,8 +915,7 @@ class PlaybackFlightResult(
         format: SupportedFormats = "parquet",
     ) -> None:
         if isinstance(file, FR24Cache):
-            flight_id = f"{to_flight_id(self.request.flight_id):0x}".upper()
-            file = file.playback_flight.new_bare_path(
-                f"{flight_id}_{self.request.timestamp}"
+            file = file.playback_flight.get_path(
+                self.request.flight_id, self.request.timestamp
             )
         write_table(self, file, format=format)

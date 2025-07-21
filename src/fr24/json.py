@@ -212,6 +212,13 @@ class PlaybackParams:
     Unix timestamp in seconds. Optional, but it is recommended to include it.
     """
 
+    @property
+    def flight_id_hex(self) -> str:
+        """The flight ID as a hex string."""
+        if isinstance(self.flight_id, str):
+            return self.flight_id.lower().removeprefix("0x")
+        return f"{self.flight_id:x}"
+
 
 async def playback(
     client: httpx.AsyncClient,
@@ -227,17 +234,12 @@ async def playback(
     timestamp = to_unix_timestamp(params.timestamp)
     if timestamp == "now":
         timestamp = get_current_timestamp()
-    flight_id = (
-        f"{params.flight_id:x}"
-        if not isinstance(params.flight_id, str)
-        else params.flight_id
-    )  # TODO: move this up
 
     device = f"web-{secrets.token_urlsafe(32)}"
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
     request_data: PlaybackRequest = {
-        "flightId": flight_id,
+        "flightId": params.flight_id_hex,
     }
     if timestamp is not None:
         request_data["timestamp"] = timestamp

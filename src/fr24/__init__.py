@@ -41,7 +41,6 @@ class FR24:
         """The HTTP client for use in requests"""
 
         factory = ServiceFactory(self.http)
-        # json
         self.flight_list = factory.build_flight_list()
         """Flight list service."""
         self.playback = factory.build_playback()

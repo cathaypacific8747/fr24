@@ -20,7 +20,6 @@ from .service import (
     LiveFeedResult,
     PlaybackResult,
 )
-from .tui.tui import main as tui_main
 from .utils import to_unix_timestamp
 
 app = typer.Typer(no_args_is_help=True)
@@ -40,6 +39,7 @@ def dirs() -> None:
 @app.command()
 def tui() -> None:
     """Starts the TUI"""
+    from .tui.tui import main as tui_main
 
     tui_main()
 
@@ -164,7 +164,7 @@ Format = Annotated[
 ]
 
 
-# FIXME: since pandas is now gone, we should only accept ISO8601 format
+# TODO: separate it: live feed should be separate from live feed playback
 @app.command()
 def feed(
     timestamp: Annotated[
@@ -172,7 +172,7 @@ def feed(
         typer.Option(
             help=(
                 "Time of the snapshot (optional), "
-                "a pd.Timestamp-supported input (e.g. 2024-06-04T00:00:00). "
+                "an ISO 8601 format input (e.g. 2024-06-04T00:00:00). "
                 "Live data will be fetched if not provided."
             )
         ),
@@ -217,7 +217,7 @@ def flight_list(
         typer.Option(
             help=(
                 "Show flights with ATD before this time (optional), "
-                "a pd.Timestamp-supported input (e.g. 2024-06-04T00:00:00)"
+                "an ISO 8601 format input (e.g. 2024-06-04T00:00:00)"
             )
         ),
     ] = "now",
@@ -269,14 +269,14 @@ def playback(
         str, typer.Argument(help="Hex Flight ID (e.g. `2d81a27`, `0x2d81a27`)")
     ],
     timestamp: Annotated[
-        str,
+        Optional[str],
         typer.Option(
             help=(
                 "ATD (optional), "
-                "a `chronos` supported input (e.g. 2024-06-04T00:00:00)"
+                "an ISO 8601 format input (e.g. 2024-06-04T00:00:00)"
             )
         ),
-    ] = "now",
+    ] = None,
     output: Output = None,
     format: Format = "parquet",
 ) -> None:
@@ -287,6 +287,7 @@ def playback(
     timestamp_int_or_None = (
         to_unix_timestamp(timestamp) if timestamp is not None else None
     )
+    assert timestamp_int_or_None != "now"  # doesn't make sense for playback
 
     async def playback_() -> None:
         async with FR24() as fr24:

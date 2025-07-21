@@ -287,8 +287,6 @@ class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
         timestamp = to_unix_timestamp(self.timestamp)
         if timestamp == "now":
             timestamp = get_current_timestamp() - self.duration
-        # timestamp should not be None, silence mypy
-        timestamp = cast(int, timestamp)
         return PlaybackRequest(
             live_feed_request=super().to_proto(),
             timestamp=timestamp,

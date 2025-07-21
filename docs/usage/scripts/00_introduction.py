@@ -258,11 +258,11 @@ cache = FR24Cache.default()
 
 for fp in cache.live_feed.glob("*"):
     print(fp)
-    lf = cache.live_feed.scan_table(fp)
+    lf = fp.scan_table()
     print(lf.collect())
 
 # alternatively, scan one file:
-lf = cache.live_feed.scan_table("1733036597")
+lf = cache.live_feed.scan_table(timestamp=1733036597)
 # --8<-- [end:script-7]
 #%%
 """

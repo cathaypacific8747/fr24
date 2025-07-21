@@ -290,26 +290,6 @@ Dump the historical track playback data for the given flight
     ├──────────────┴─────────────┴─────────┴─────────┴─────────┴─────────┤
     │ 18 rows                                                  6 columns │
     └────────────────────────────────────────────────────────────────────┘
-
-    $ duckdb -c "copy (select value from parquet_kv_metadata('playback.parquet') where key='_flight') to '/dev/stdout' (format json)" | jq -r '.value | gsub("\\\\x22"; "\"") | fromjson'
-    {
-        "flight_id": 47716903,
-        "callsign": "MAS370",
-        "flight_number": "MH370",
-        "status_type": "departure",
-        "status_text": null,
-        "status_diverted": null,
-        "status_time": null,
-        "model_code": "B772",
-        "icao24": 7667855,
-        "registration": "9M-MRO",
-        "owner": null,
-        "airline": null,
-        "origin": "WMKK",
-        "destination": "ZBAA",
-        "median_delay": null,
-        "median_time": null
-    }
     ```
 
 TUI:

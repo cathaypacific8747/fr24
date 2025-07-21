@@ -53,15 +53,14 @@ async def test_playback_flight_file_ops(
 ) -> None:
     flight_id = f"{to_flight_id(playback_flight_result.request.flight_id):0x}"
     timestamp = playback_flight_result.request.timestamp
-    ident = f"{flight_id.upper()}_{timestamp}"
-    fp = cache.path / "playback_flight" / f"{ident}.parquet"
+    fp = cache.path / "playback_flight" / f"{flight_id.upper()}_{timestamp}"
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)
 
     playback_flight_result.write_table(cache)
     assert fp.exists()
 
-    df_local = cache.playback_flight.scan_table(ident).collect()
+    df_local = cache.playback_flight.scan_table(flight_id, timestamp).collect()
     assert df_local.equals(playback_flight_result.to_polars())
 
     fp.unlink()
