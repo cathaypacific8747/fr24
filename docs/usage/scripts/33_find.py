@@ -3,7 +3,7 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
 # --8<-- [start:script0]
-from fr24.types.find import Find
+from fr24.types.json import Find
 from fr24 import FR24
 
 import polars as pl
@@ -21,7 +21,7 @@ print(df)
 # --8<-- [end:script0]
 #%%
 # --8<-- [start:script1]
-from fr24.types.find import Find
+from fr24.types.json import Find
 from fr24.json import find, FindParams
 
 import polars as pl

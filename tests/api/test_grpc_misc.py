@@ -28,7 +28,7 @@ async def nearest_flights_response(
 
 
 @pytest.mark.skip(
-    reason="The API began to return empty `DATA` frames since Sep 2024"
+    reason="Server began to return empty `DATA` frames since Sep 2024"
 )
 @pytest.mark.anyio
 async def test_live_trail(

@@ -85,7 +85,6 @@ if TYPE_CHECKING:
     from google.protobuf.internal.enum_type_wrapper import _V, _EnumTypeWrapper
     from typing_extensions import TypeAlias
 
-    from .types.authentication import Authentication
     from .types.cache import (
         EMSRecord,
         FlightDetailsRecord,
@@ -97,7 +96,8 @@ if TYPE_CHECKING:
         TopFlightRecord,
         TrailPointRecord,
     )
-    from .types.fr24 import LiveFeedField
+    from .types.grpc import LiveFeedField
+    from .types.json import Authentication
     from .utils import IntoFlightId, IntoTimestamp
 
 #

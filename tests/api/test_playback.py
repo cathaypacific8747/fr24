@@ -15,7 +15,7 @@ async def test_playback_simple(fr24: FR24) -> None:
     assert df.height == 62
     assert df.width == 9
 
-    from fr24.types.playback import Playback
+    from fr24.types.json import Playback
 
     class Playback_(Playback):
         __pydantic_config__ = ConfigDict(extra="forbid")  # type: ignore

@@ -3,7 +3,7 @@
 # mypy: disable-error-code="top-level-await, no-redef"
 # %%
 from fr24 import FR24
-from fr24.types.airport_list import AirportList
+from fr24.types.json import AirportList
 
 import polars as pl
 
@@ -28,7 +28,7 @@ print(df)
 # --8<-- [start:script1]
 import httpx
 
-from fr24.types.airport_list import AirportList
+from fr24.types.json import AirportList
 from fr24.json import airport_list, AirportListParams
 
 import polars as pl

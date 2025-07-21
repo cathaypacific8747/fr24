@@ -5,19 +5,19 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any
 
 from appdirs import user_cache_dir
 
-from .utils import BarePath, scan_table
+from .utils import BarePath, scan_table, to_flight_id, to_unix_timestamp
 
 if TYPE_CHECKING:
-    from typing import Generator
+    from typing import Callable, Generator
 
     import polars as pl
     from typing_extensions import Literal, TypeAlias
 
-    from .utils import SupportedFormats
+    from .utils import IntoFlightId, IntoTimestamp, SupportedFormats
 
 
 PATH_CACHE = Path(user_cache_dir("fr24"))
@@ -85,7 +85,10 @@ class FlightListBy:
         return getattr(self, kind)  # type: ignore
 
 
-Ident: TypeAlias = Union[str, int]
+IntoIdent: TypeAlias = Any
+"""An object that can be converted into an identifier for the cached file."""
+
+Ident: TypeAlias = str
 """The identifier for the cached file."""
 
 
@@ -94,6 +97,7 @@ class Collection:
     """A directory containing scannable files."""
 
     path: Path
+    into_ident: Callable[[IntoIdent], Ident] = str
 
     def glob(self, pattern: str) -> Generator[File, None, None]:
         """
@@ -106,7 +110,7 @@ class Collection:
 
     def scan_table(
         self,
-        ident: File | Path | Ident,
+        ident: File | Path | IntoIdent,
         *,
         format: SupportedFormats = "parquet",
     ) -> pl.LazyFrame:
@@ -142,7 +146,7 @@ class Collection:
         if isinstance(ident, (File, Path)):
             file = ident
         else:
-            file = self.new_bare_path(str(ident))
+            file = self.new_bare_path(self.into_ident(ident))
         return scan_table(file, format=format)
 
     def new_bare_path(self, ident: str) -> BarePath:
@@ -162,3 +166,19 @@ class File(Path):
     def scan(self) -> pl.LazyFrame:
         """Lazily load this file."""
         return scan_table(self, format=self.format)
+
+
+def registration_number_to_ident(registration: str) -> Ident:
+    return registration.upper()
+
+
+def flight_number_to_ident(flight_number: str) -> Ident:
+    return flight_number.upper()
+
+
+def flight_id_to_ident(flight_id: IntoFlightId) -> Ident:
+    return f"{to_flight_id(flight_id):0x}".upper()
+
+
+def timestamp_to_ident(timestamp: IntoTimestamp) -> Ident:
+    return str(to_unix_timestamp(timestamp))

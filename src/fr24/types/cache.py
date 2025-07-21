@@ -268,7 +268,6 @@ class _FlightTrailRecord(TypedDict):
 
 
 class FlightDetailsRecord(
-    TypedDict,
     _AircraftRecord,
     _ScheduleRecord,
     _FlightProgressRecord,
@@ -282,7 +281,6 @@ flight_details_schema = to_schema(FlightDetailsRecord)
 
 
 class PlaybackFlightRecord(
-    TypedDict,
     _AircraftRecord,
     _ScheduleRecord,
     _FlightInfoRecord,

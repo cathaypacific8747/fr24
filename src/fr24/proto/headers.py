@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 from ..utils import DEFAULT_HEADERS
 
-from ..types.authentication import Authentication
+from ..types.json import Authentication
 
 PLATFORM_VERSION = "25.062.1136"
 # see ./README.md.

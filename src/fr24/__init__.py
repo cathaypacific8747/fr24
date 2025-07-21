@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from .types.authentication import (
+    from .types.json import (
         Authentication,
         TokenSubscriptionKey,
         UsernamePassword,

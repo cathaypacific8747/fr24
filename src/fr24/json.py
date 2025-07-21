@@ -8,26 +8,24 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast
 import httpx
 import polars as pl
 
-from .types.airport_list import AirportList
 from .types.cache import flight_list_schema, playback_track_schema
-from .types.find import Find
-from .types.flight_list import FlightList
-from .types.playback import Playback
+from .types.json import AirportList, Find, FlightList, Playback
 from .utils import DEFAULT_HEADERS, get_current_timestamp, to_unix_timestamp
 
 if TYPE_CHECKING:
     from typing import Annotated, Any, Literal
 
-    from .types.airport_list import AirportRequest
-    from .types.authentication import Authentication
     from .types.cache import (
         FlightListRecord,
         PlaybackTrackEMSRecord,
         PlaybackTrackRecord,
     )
-    from .types.flight_list import FlightListItem, FlightListRequest
-    from .types.playback import (
+    from .types.json import (
+        AirportRequest,
+        Authentication,
         FlightData,
+        FlightListItem,
+        FlightListRequest,
         PlaybackRequest,
         TrackData,
     )
@@ -88,10 +86,10 @@ async def flight_list(
     Query flight list data.
 
     To determine if there are more pages to query, check the response
-    [.result.response.page.more][fr24.types.flight_list.Page.more].
+    [.result.response.page.more][fr24.types.json.Page.more].
 
     Includes basic information such as status, O/D, scheduled/estimated/real
-    times: see [fr24.types.flight_list.FlightList][] for more details.
+    times: see [fr24.types.json.FlightList][] for more details.
 
     :param client: HTTPX async client
     :param auth: Authentication data
@@ -159,12 +157,12 @@ async def airport_list(
     Fetch aircraft arriving, departing or on ground at a given airport.
 
     Returns on ground/scheduled/estimated/real times: see
-    [fr24.types.flight_list.FlightListItem][] for more details.
+    [fr24.types.json.FlightListItem][] for more details.
 
     :param client: HTTPX async client
     :param auth: Authentication data
     :returns: the raw binary response, representing a JSON-encoded
-        [fr24.types.flight_list.FlightList][].
+        [fr24.types.json.FlightList][].
     """
     timestamp = to_unix_timestamp(params.timestamp)
     if timestamp == "now":
@@ -379,7 +377,7 @@ def playback_track_dict(point: TrackData) -> PlaybackTrackRecord:
         The JSON response claims that `heading` is available, but ADS-B only
         transmits the [ground track](https://mode-s.org/decode/content/ads-b/4-surface-position.html#ground-track).
         [Heading](https://mode-s.org/decode/content/mode-s/7-ehs.html#heading-and-speed-report-bds-60)
-        is only available in [EMS][fr24.types.playback.EMS] data.
+        is only available in [EMS][fr24.types.json.EMS] data.
 
         We rename it to `track` to avoid confusion.
     """
@@ -427,7 +425,7 @@ def playback_track_ems_dict(point: TrackData) -> PlaybackTrackEMSRecord | None:
 
 def playback_df(data: Playback) -> pl.DataFrame:
     """
-    Parse each [fr24.types.playback.TrackData][] in the API response into a
+    Parse each [fr24.types.json.TrackData][] in the API response into a
     dataframe.
 
     If the response is empty, a warning is logged and an empty table is returned
@@ -477,7 +475,7 @@ def flight_list_dict(entry: FlightListItem) -> FlightListRecord:
 
 def flight_list_df(data: FlightList) -> pl.DataFrame:
     """
-    Parse each [fr24.types.flight_list.FlightListItem][] in the API response
+    Parse each [fr24.types.json.FlightListItem][] in the API response
     into a polars dataframe.
 
     If the response is empty, a warning is logged and an empty table is returned

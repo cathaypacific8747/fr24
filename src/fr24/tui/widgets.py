@@ -9,7 +9,7 @@ from textual.containers import Horizontal
 from textual.widgets import Input, Label, Static
 
 from fr24.json import FindParams, find, find_parse
-from fr24.types.find import is_aircraft, is_airport, is_schedule
+from fr24.types.json import is_aircraft, is_airport, is_schedule
 
 
 class AirportWidget(Static):

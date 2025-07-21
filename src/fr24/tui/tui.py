@@ -37,9 +37,12 @@ from fr24.json import (
 )
 from fr24.tui.formatters import Aircraft, Airport, Time
 from fr24.tui.widgets import AircraftWidget, AirportWidget, FlightWidget
-from fr24.types.authentication import Authentication
-from fr24.types.find import is_schedule
-from fr24.types.flight_list import FlightList, FlightListItem
+from fr24.types.json import (
+    Authentication,
+    FlightList,
+    FlightListItem,
+    is_schedule,
+)
 
 T = TypeVar("T")
 

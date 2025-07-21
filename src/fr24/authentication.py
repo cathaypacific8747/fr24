@@ -13,7 +13,7 @@ from typing import Literal
 import httpx
 
 from .configuration import FP_CONFIG_FILE
-from .types.authentication import (
+from .types.json import (
     Authentication,
     TokenSubscriptionKey,
     UsernamePassword,

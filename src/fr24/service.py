@@ -73,10 +73,13 @@ from .proto.v1_pb2 import (
     TopFlightsResponse,
 )
 from .types import overwrite_args_signature_from
-from .types.airport_list import AirportList
-from .types.find import Find
-from .types.flight_list import FLIGHT_LIST_EMPTY, FlightList
-from .types.playback import Playback
+from .types.json import (
+    FLIGHT_LIST_EMPTY,
+    AirportList,
+    Find,
+    FlightList,
+    Playback,
+)
 from .utils import (
     SupportsToDict,
     SupportsToPolars,

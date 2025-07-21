@@ -18,7 +18,7 @@ from fr24.json import (
     flight_list_parse,
     playback,
 )
-from fr24.types.flight_list import FlightList
+from fr24.types.json import FlightList
 
 REG = "F-HEPK"
 FLIGHT = "AF7463"

@@ -8,7 +8,7 @@ from datetime import datetime
 
 from fr24.authentication import login
 from fr24.json import flight_list, flight_list_df, FlightListParams
-from fr24.types.flight_list import FlightList
+from fr24.types.json import FlightList
 
 async def my_list() -> FlightList:
     async with httpx.AsyncClient() as client:

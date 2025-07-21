@@ -7,7 +7,7 @@ import httpx
 
 from fr24.authentication import login
 from fr24.json import playback, playback_df, PlaybackParams
-from fr24.types.playback import Playback
+from fr24.types.json import Playback
 
 async def my_playback() -> Playback:
     async with httpx.AsyncClient() as client:
