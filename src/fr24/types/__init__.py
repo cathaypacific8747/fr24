@@ -5,10 +5,10 @@ from typing_extensions import Concatenate, ParamSpec, TypeAlias
 
 #
 # In this library, we have a clear separation between
-# core functions (e.g. `fr24.json.flight_list`) and
+# the low level api (e.g. `fr24.json.flight_list`) and
 # higher-level OOP wrappers (e.g. `fr24.flight_list.fetch()`).
 #
-# Core functions accept a `dataclass` as request params
+# Low level APIs accept a `dataclass` as request params
 # (e.g. `FlightListParams`) which has extensive documentation for each member.
 # To avoid having to rewrite same documentation for its higher level counterpart
 # , the following decorator copies the signature from a target `dataclass`.

@@ -21,7 +21,7 @@ DEFAULT_HEADERS_GRPC = {
     "DNT": "1",
 }
 
-def get_headers(auth: Authentication | None, *, device_id: None | str = None) -> dict[str, str]:
+def get_grpc_headers(*, auth: Authentication | None, device_id: None | str = None) -> dict[str, str]:
     headers = DEFAULT_HEADERS_GRPC.copy()
     if device_id is None:
         device_id = f"web-{secrets.token_urlsafe(32)}"

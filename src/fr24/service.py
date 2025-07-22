@@ -159,6 +159,7 @@ RequestT = TypeVar("RequestT")
 class SupportsFetch(Protocol[RequestT]):
     async def fetch(self, *args: Any, **kwargs: Any) -> APIResult[RequestT]:
         """Fetches data from the API."""
+        ...
 
 
 @dataclass_frozen
@@ -204,6 +205,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
         response = await flight_list(
             self._factory.http.client,
             params,
+            self._factory.http.json_headers,
             self._factory.http.auth,
         )
         return FlightListResult(
@@ -275,7 +277,7 @@ class FlightListResult(
     """A single result from the flight list API."""
 
     def to_dict(self) -> FlightList:
-        return flight_list_parse(self.response)
+        return flight_list_parse(self.response).unwrap()
 
     def to_polars(self) -> pl.DataFrame:
         return flight_list_df(self.to_dict())
@@ -378,6 +380,7 @@ class PlaybackService(SupportsFetch[PlaybackParams]):
         response = await playback(
             self._factory.http.client,
             params,
+            self._factory.http.json_headers,
             self._factory.http.auth,
         )
         return PlaybackResult(
@@ -401,7 +404,7 @@ class PlaybackResult(
     SupportsWriteTable,
 ):
     def to_dict(self) -> Playback:
-        return playback_parse(self.response)
+        return playback_parse(self.response).unwrap()
 
     def to_polars(self) -> pl.DataFrame:
         return playback_df(self.to_dict())
@@ -432,7 +435,7 @@ class LiveFeedService(SupportsFetch[LiveFeedParams]):
         response = await live_feed(
             self._factory.http.client,
             params.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         # NOTE: serverTimeMs in the protobuf response would be more accurate
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
@@ -490,7 +493,7 @@ class LiveFeedPlaybackService(SupportsFetch[LiveFeedPlaybackParams]):
         response = await live_feed_playback(
             self._factory.http.client,
             params.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         return LiveFeedPlaybackResult(
             request=LiveFeedPlaybackParams(*args, **kwargs),
@@ -541,6 +544,7 @@ class AirportListService(SupportsFetch[AirportListParams]):
         response = await airport_list(
             self._factory.http.client,
             params,
+            self._factory.http.json_headers,
             self._factory.http.auth,
         )
         return AirportListResult(
@@ -556,7 +560,7 @@ class AirportListResult(
 ):
     def to_dict(self) -> AirportList:
         """Parse the response into a dictionary."""
-        return airport_list_parse(self.response)
+        return airport_list_parse(self.response).unwrap()
 
 
 @dataclass_frozen
@@ -574,6 +578,7 @@ class FindService(SupportsFetch[FindParams]):
         response = await find(
             self._factory.http.client,
             params,
+            self._factory.http.json_headers,
             self._factory.http.auth,
         )
         return FindResult(
@@ -591,7 +596,7 @@ class FindResult(
 
     def to_dict(self) -> Find:
         """Parse the response into a dictionary."""
-        return find_parse(self.response)
+        return find_parse(self.response).unwrap()
 
 
 @dataclass_frozen
@@ -609,7 +614,7 @@ class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
         response = await nearest_flights(
             self._factory.http.client,
             request.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return NearestFlightsResult(
@@ -670,7 +675,7 @@ class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
         response = await live_flights_status(
             self._factory.http.client,
             request.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return LiveFlightsStatusResult(
@@ -729,7 +734,7 @@ class FollowFlightService:
         async for response in follow_flight_stream(
             self._factory.http.client,
             request.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         ):
             yield FollowFlightResult(
                 request=request,
@@ -767,7 +772,7 @@ class TopFlightsService(SupportsFetch[TopFlightsParams]):
         response = await top_flights(
             self._factory.http.client,
             request.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return TopFlightsResult(
@@ -822,7 +827,7 @@ class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
         response = await flight_details(
             self._factory.http.client,
             request.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return FlightDetailsResult(
@@ -879,7 +884,7 @@ class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
         response = await playback_flight(
             self._factory.http.client,
             request.to_proto(),
-            self._factory.http.auth,
+            self._factory.http.grpc_headers,
         )
         return PlaybackFlightResult(
             request=request,

@@ -32,6 +32,7 @@ from fr24.json import (
     find_parse,
     flight_list,
     flight_list_parse,
+    get_json_headers,
     playback,
     playback_parse,
 )
@@ -81,8 +82,9 @@ class FR24(App[None]):
     line_info: dict[str, str] = {}  # noqa: RUF012
 
     def compose(self) -> ComposeResult:
-        self.auth: Authentication | None = None
         self.client = httpx.AsyncClient(http1=False, http2=True)
+        self.auth: Authentication | None = None
+        self.json_headers = httpx.Headers(get_json_headers())
         self.search_visible = True
         yield Header()
         yield Footer()
@@ -155,9 +157,10 @@ class FR24(App[None]):
                     flight_id=self.line_info["flightid"],
                     timestamp=timestamp,
                 ),
+                self.json_headers,
                 auth=self.auth,
             )
-        )
+        ).unwrap()
         filename = f"{self.line_info['flightid']}.json"
         self.notify(f"Saving to {filename}")
         Path(filename).write_text(json.dumps(result, indent=2))
@@ -196,9 +199,10 @@ class FR24(App[None]):
                     limit=100,
                     timestamp=int(pd.Timestamp(ts).timestamp()),
                 ),
+                self.json_headers,
                 auth=self.auth,
             )
-        )
+        ).unwrap()
         self.update_table(results["result"]["response"].get("data", None))
 
     async def lookup_number(self, value: str, ts: str) -> None:
@@ -210,17 +214,23 @@ class FR24(App[None]):
                     limit=100,
                     timestamp=int(pd.Timestamp(ts).timestamp()),
                 ),
+                self.json_headers,
                 auth=self.auth,
             )
-        )
+        ).unwrap()
         self.update_table(results["result"]["response"].get("data", None))
 
     async def lookup_city_pair(
         self, departure: str, arrival: str, ts: pd.Timestamp
     ) -> None:
         results = find_parse(
-            await find(self.client, FindParams(query=f"{departure}-{arrival}"))
-        )
+            await find(
+                self.client,
+                FindParams(query=f"{departure}-{arrival}"),
+                self.json_headers,
+                auth=self.auth,
+            )
+        ).unwrap()
         if results is None or results["stats"]["count"]["schedule"] == 0:
             return
         flight_numbers = list(
@@ -238,9 +248,10 @@ class FR24(App[None]):
                     await flight_list(
                         self.client,
                         flight_list_request,
+                        self.json_headers,
                         auth=self.auth,
                     )
-                )
+                ).unwrap()
             except httpx.HTTPStatusError as exc:
                 if exc.response.status_code == 402:  # payment required
                     await asyncio.sleep(10)
@@ -248,9 +259,10 @@ class FR24(App[None]):
                         await flight_list(
                             self.client,
                             flight_list_request,
+                            self.json_headers,
                             auth=self.auth,
                         )
-                    )
+                    ).unwrap()
                 else:
                     raise exc
 
@@ -297,9 +309,10 @@ class FR24(App[None]):
                     limit=100,
                     timestamp=int(pd.Timestamp(ts).timestamp()),
                 ),
+                self.json_headers,
                 auth=self.auth,
             )
-        )
+        ).unwrap()
         s = results["result"]["response"]["airport"]["pluginData"]["schedule"]
         data = s["arrivals"].get("data", None)
         if data is not None:
@@ -320,9 +333,10 @@ class FR24(App[None]):
                     limit=100,
                     timestamp=int(pd.Timestamp(ts).timestamp()),
                 ),
+                self.json_headers,
                 auth=self.auth,
             )
-        )
+        ).unwrap()
         s = results["result"]["response"]["airport"]["pluginData"]["schedule"]
         data = s["departures"].get("data", None)
         if data is not None:

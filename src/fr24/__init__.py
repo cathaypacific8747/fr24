@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 import httpx
 
 from .authentication import login
-from .cache import FR24Cache
+from .cache import PATH_CACHE, FR24Cache
 from .configuration import FP_CONFIG_FILE, PATH_CONFIG
+from .grpc import BoundingBox
+from .json import get_json_headers
+from .proto.headers import get_grpc_headers
 from .service import ServiceFactory
+from .static.bbox import LNGS_WORLD_STATIC
+from .types.json import Authentication
+from .utils import dataclass_frozen
 
 if TYPE_CHECKING:
     from typing import Any, Literal
@@ -15,7 +22,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from .types.json import (
-        Authentication,
         TokenSubscriptionKey,
         UsernamePassword,
     )
@@ -34,12 +40,18 @@ class FR24:
             [464 errors](https://github.com/cathaypacific8747/fr24/issues/23#issuecomment-2125624974)
             and to be consistent with the browser.
         """
+        auth = None
         self.http = HTTPClient(
-            httpx.AsyncClient(http2=True) if client is None else client
+            httpx.AsyncClient(http2=True) if client is None else client,
+            auth=auth,
+            grpc_headers=httpx.Headers(get_grpc_headers(auth=auth)),
+            json_headers=httpx.Headers(get_json_headers()),
         )
         """The HTTP client for use in requests"""
+        self._build_factory(self.http)
 
-        factory = ServiceFactory(self.http)
+    def _build_factory(self, http: HTTPClient) -> None:
+        factory = ServiceFactory(http)
         self.flight_list = factory.build_flight_list()
         """Flight list service."""
         self.playback = factory.build_playback()
@@ -75,7 +87,8 @@ class FR24:
         config file if `creds` is set to `"from_env"` (default). Otherwise,
         provide the credentials directly.
         """
-        await self.http._login(creds)
+        self.http = await self.http.with_login(creds)
+        self._build_factory(self.http)
 
     async def __aenter__(self) -> Self:
         await self.http.__aenter__()
@@ -85,22 +98,28 @@ class FR24:
         await self.http.__aexit__(*args)
 
 
+@dataclass_frozen
 class HTTPClient:
     """An HTTPX client for making requests to the API."""
 
-    def __init__(
-        self, client: httpx.AsyncClient, auth: Authentication | None = None
-    ):
-        self.client = client
-        self.auth = auth
+    client: httpx.AsyncClient
+    auth: Authentication | None
+    grpc_headers: httpx.Headers
+    json_headers: httpx.Headers
 
-    async def _login(
+    async def with_login(
         self,
         creds: (
             TokenSubscriptionKey | UsernamePassword | Literal["from_env"] | None
         ) = "from_env",
-    ) -> None:
-        self.auth = await login(self.client, creds)
+    ) -> HTTPClient:
+        auth = await login(self.client, creds)
+        return replace(
+            self,
+            auth=auth,
+            grpc_headers=httpx.Headers(get_grpc_headers(auth=auth)),
+            json_headers=httpx.Headers(get_json_headers()),
+        )
 
     async def __aenter__(self) -> HTTPClient:
         return self
@@ -110,11 +129,23 @@ class HTTPClient:
             await self.client.aclose()
 
 
+BBOX_FRANCE_UIR = BoundingBox(42.0, 52.0, -8.0, 10.0)
+"""Bounding box for france UIR"""
+
+BBOXES_WORLD_STATIC = [
+    BoundingBox(-90, 90, LNGS_WORLD_STATIC[i], LNGS_WORLD_STATIC[i + 1])
+    for i in range(len(LNGS_WORLD_STATIC) - 1)
+]
+"""Default static bounding boxes covering the entire world"""
+
 __all__ = [
+    "BBOXES_WORLD_STATIC",
+    "BBOX_FRANCE_UIR",
     "FP_CONFIG_FILE",
     "FR24",
     "PATH_CACHE",
     "PATH_CONFIG",
+    "BoundingBox",
     "FR24Cache",
     "HTTPClient",
 ]

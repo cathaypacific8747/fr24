@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
-from appdirs import user_cache_dir
+from platformdirs import user_cache_dir
 
 from .types.cache import (
     flight_details_schema,
@@ -35,22 +34,9 @@ if TYPE_CHECKING:
 
 
 PATH_CACHE = Path(user_cache_dir("fr24"))
-if cache_path := os.environ.get("XDG_CACHE_HOME"):
-    PATH_CACHE = Path(cache_path) / "fr24"
 
 
 class FR24Cache:
-    """
-    - `flight_list/{kind}/{ident}`
-    - `playback/{flight_id}`
-    - `feed/{timestamp}`
-    - `nearest_flights/{lon}_{lat}_{timestamp}`
-    - `live_flights_status/{timestamp}`
-    - `top_flights/{timestamp}`
-    - `flight_details/{flight_id}_{timestamp}`
-    - `playback_flight/{flight_id}_{timestamp}`
-    """
-
     @classmethod
     def default(cls) -> FR24Cache:
         """Create a cache in the

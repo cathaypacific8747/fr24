@@ -16,19 +16,21 @@ from fr24.json import (
     flight_list,
     flight_list_df,
     flight_list_parse,
+    get_json_headers,
     playback,
 )
 from fr24.types.json import FlightList
 
 REG = "F-HEPK"
 FLIGHT = "AF7463"
+HEADERS = httpx.Headers(get_json_headers())
 
 
 @pytest.mark.anyio
 async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
     list_ = flight_list_parse(
-        await flight_list(client, FlightListParams(reg=REG))
-    )
+        await flight_list(client, FlightListParams(reg=REG), HEADERS, auth=None)
+    ).unwrap()
     df = flight_list_df(list_)
     assert df.shape[0] > 0
     landed = df.filter(pl.col("status").str.starts_with("Landed"))
@@ -42,6 +44,8 @@ async def test_ll_flight_list(client: httpx.AsyncClient) -> None:
                     flight_id=flight_id,
                     timestamp=entry["time"]["scheduled"]["arrival"],
                 ),
+                HEADERS,
+                auth=None,
             )
             # the entry below is not None because of `if df is None:`
             for entry in list_["result"]["response"]["data"]  # type: ignore

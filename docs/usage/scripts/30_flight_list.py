@@ -9,18 +9,21 @@ from datetime import datetime
 from fr24.authentication import login
 from fr24.json import flight_list, flight_list_df, FlightListParams
 from fr24.types.json import FlightList
+from fr24.proto.headers import get_grpc_headers
 
 async def my_list() -> FlightList:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         auth = await login(client)
         if auth is not None:
-            print(auth["message"])
+            print(auth.get("message"))
         response = await flight_list(
             client,
             FlightListParams(
                 flight="AF291",
                 timestamp=datetime.strptime("2025-01-16", "%Y-%m-%d"),  # (1)!
             ),
+            headers=headers,
             auth=auth,
         )
         response.raise_for_status()

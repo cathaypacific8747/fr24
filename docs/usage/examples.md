@@ -1,7 +1,7 @@
 # Overview
 
 
-| Name                                                                                  | Core functions                                                                          | Service and Cache Location                                                                                                                                                                                             |
+| Name                                                                                  | Low-level API                                                                           | Service and Cache Location                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Flight List](#flight-list)<br><span class="chip chip-json">JSON</span>               | [`flight_list`][fr24.json.flight_list]<br>[`flight_list_df`][fr24.json.flight_list_df]  | [`FlightListService`][fr24.service.FlightListService]<br><br>Cache Location:<br>`flight_list/`<br>`└── reg/`<br>`​    └── {reg.upper()}.parquet`<br>`└── flight_list/`<br>`​    └── {iata_flight_num.upper()}.parquet` |
 | [Playback](#playback)<br><span class="chip chip-json">JSON</span>                     | [`playback`][fr24.json.playback]<br>[`playback_df`][fr24.json.playback_df]              | [`PlaybackService`][fr24.service.PlaybackService]<br><br>Cache Location:<br>`playback/`<br>`└── {fr24_hex_id.upper()}.parquet`                                                                                         |
@@ -21,7 +21,7 @@
 
 You can find even more usage examples under [`tests/`](https://github.com/cathaypacific8747/fr24/tree/master/tests).
 
-[Skip to core functions](#core-functions)
+[Skip to Low Level API](#low-level-api)
 
 ## `FR24` services
 
@@ -353,7 +353,10 @@ Retrieve detailed historical flight information including complete trail
     --8<-- "docs/usage/scripts/16_playback_flight.py:polars"
     ```
 
-## Core functions
+## Low Level API
+
+For maximum control, you can also use `fr24` in a procedural style. You will have to manage the headers, authentication yourself. It is highly recommended to use [services](#fr24-services) instead.
+
 ### Flight list
 
 === "Jupyter cell"

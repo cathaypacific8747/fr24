@@ -7,12 +7,14 @@ import httpx
 from fr24.grpc import top_flights
 from fr24.proto.v1_pb2 import TopFlightsRequest, TopFlightsResponse
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 
 
 async def top_flights_data() -> TopFlightsResponse:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         message = TopFlightsRequest(limit=10)
-        response = await top_flights(client, message)
+        response = await top_flights(client, message, headers)
         return parse_data(response.content, TopFlightsResponse).unwrap()
 
 

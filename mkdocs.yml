@@ -14,7 +14,7 @@ nav:
   - API Reference:
       - Services: "api/service.md"
       - Cache: "api/cache.md"
-      - Core Functions: "api/functions.md"
+      - Low Level API: "api/functions.md"
       - Types: "api/types.md"
       - Utilities: "api/utils.md"
       - Protobuf Definitions: "api/protobuf.md"

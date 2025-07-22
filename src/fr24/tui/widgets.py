@@ -61,7 +61,14 @@ class AirportWidget(Static):
 
     async def update_airport(self, value: str) -> None:
         params = FindParams(query=value)
-        find_results = find_parse(await find(self.app.client, params))  # type: ignore[attr-defined]
+        find_results = find_parse(
+            await find(
+                self.app.client,  # type: ignore
+                params,
+                self.app.json_headers,  # type: ignore
+                auth=self.app.auth,  # type: ignore
+            )
+        ).unwrap()
         if find_results is None:
             return self.update_info()
         candidate = next(
@@ -132,7 +139,14 @@ class AircraftWidget(Static):
 
     async def update_aircraft(self, value: str) -> None:
         params = FindParams(query=value)
-        res = find_parse(await find(self.app.client, params))  # type: ignore[attr-defined]
+        res = find_parse(
+            await find(
+                self.app.client,  # type: ignore
+                params,
+                self.app.json_headers,  # type: ignore
+                auth=self.app.auth,  # type: ignore
+            )
+        ).unwrap()
         if res is None:
             return self.update_info()
         candidates = (elt for elt in res["results"] if is_aircraft(elt))
@@ -196,7 +210,14 @@ class FlightWidget(Static):
 
     async def update_number(self, value: str) -> None:
         params = FindParams(query=value)
-        find_results = find_parse(await find(self.app.client, params))  # type: ignore[attr-defined]
+        find_results = find_parse(
+            await find(
+                self.app.client,  # type: ignore
+                params,
+                self.app.json_headers,  # type: ignore
+                auth=self.app.auth,  # type: ignore
+            )
+        ).unwrap()
         if find_results is None:
             return self.update_info()
         candidate = next(
@@ -206,5 +227,5 @@ class FlightWidget(Static):
         if candidate is None:
             return self.update_info()
         return self.update_info(
-            candidate["detail"]["flight"], candidate["detail"]["callsign"]
+            candidate["detail"]["flight"], candidate["detail"].get("callsign")
         )

@@ -10,12 +10,14 @@ from fr24.grpc import (
 )
 from fr24.proto.v1_pb2 import FlightDetailsResponse
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 
 
 async def flight_details_data() -> FlightDetailsResponse:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         params = FlightDetailsParams(flight_id=0x3a7e02c1)
-        response = await flight_details(client, params)
+        response = await flight_details(client, params, headers)
         return parse_data(response.content, FlightDetailsResponse).unwrap()
 
 data = await flight_details_data()

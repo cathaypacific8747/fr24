@@ -7,15 +7,17 @@ import httpx
 from fr24.grpc import nearest_flights
 from fr24.proto.v1_pb2 import NearestFlightsResponse, NearestFlightsRequest, Geolocation
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 
 async def nearest_flights_data() -> NearestFlightsResponse:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         message = NearestFlightsRequest(
             location=Geolocation(lat=22.31257, lon=113.92708),
             radius=1000,
             limit=1500
         )
-        response = await nearest_flights(client, message)
+        response = await nearest_flights(client, message, headers)
         return parse_data(response.content, NearestFlightsResponse).unwrap()
 
 

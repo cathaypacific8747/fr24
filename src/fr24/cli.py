@@ -10,7 +10,7 @@ import click
 import typer
 from rich.console import Console
 
-from . import FR24
+from . import BBOX_FRANCE_UIR, FR24, BoundingBox
 from .cache import PATH_CACHE
 from .configuration import FP_CONFIG_FILE, PATH_CONFIG
 from .service import (
@@ -163,9 +163,22 @@ Format = Annotated[
 ]
 
 
+# NOTE: `Optional` because typer doesn't support it `|`
 # TODO: separate it: live feed should be separate from live feed playback
 @app.command()
 def feed(
+    south: Annotated[
+        float, typer.Option(help="Latitude, minimum, degrees")
+    ] = BBOX_FRANCE_UIR.south,
+    north: Annotated[
+        float, typer.Option(help="Latitude, maximum, degrees")
+    ] = BBOX_FRANCE_UIR.north,
+    west: Annotated[
+        float, typer.Option(help="Longitude, minimum, degrees")
+    ] = BBOX_FRANCE_UIR.west,
+    east: Annotated[
+        float, typer.Option(help="Longitude, maximum, degrees")
+    ] = BBOX_FRANCE_UIR.east,
     timestamp: Annotated[
         str,
         typer.Option(
@@ -182,27 +195,23 @@ def feed(
     """Fetches current (or playback of) live feed at a given time"""
 
     fp = resolve_path(output)
-    timestamp_int_or_None = (
-        to_unix_timestamp(timestamp) if timestamp is not None else None
-    )
+    bbox = BoundingBox(south=south, north=north, west=west, east=east)
+    ts = to_unix_timestamp(timestamp) if timestamp is not None else None
 
     async def feed_() -> None:
         async with FR24() as fr24:
             await fr24.login()
             result: LiveFeedResult | LiveFeedPlaybackResult
-            if timestamp_int_or_None is None or timestamp_int_or_None == "now":
-                result = await fr24.live_feed.fetch()
+            if ts is None or ts == "now":
+                result = await fr24.live_feed.fetch(bbox)
             else:
-                result = await fr24.live_feed_playback.fetch(
-                    timestamp=timestamp_int_or_None
-                )
+                result = await fr24.live_feed_playback.fetch(bbox, timestamp=ts)
             result.write_table(fp, format=format)  # type: ignore[arg-type]
             stderr.print(get_success_message(result, fp))
 
     asyncio.run(feed_())
 
 
-# NOTE: `Optional` because typer doesn't support it `|`
 @app.command()
 def flight_list(
     reg: Annotated[

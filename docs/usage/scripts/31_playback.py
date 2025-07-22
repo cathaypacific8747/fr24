@@ -8,15 +8,18 @@ import httpx
 from fr24.authentication import login
 from fr24.json import playback, playback_df, PlaybackParams
 from fr24.types.json import Playback
+from fr24.proto.headers import get_grpc_headers
 
 async def my_playback() -> Playback:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         auth = await login(client)
         if auth is not None:
-            print(auth["message"])
+            print(auth.get("message"))
         response = await playback(
             client,
             PlaybackParams(flight_id="38c59db3"),
+            headers=headers,
             auth=auth,
         )
         response.raise_for_status()

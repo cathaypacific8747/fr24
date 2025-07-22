@@ -26,8 +26,7 @@ _log = logging.getLogger(__name__)
 def get_credentials(
     fp_config_file: Path = FP_CONFIG_FILE,
 ) -> TokenSubscriptionKey | UsernamePassword | None:
-    """
-    Reads credentials from the environment variables, overriding it with
+    """Reads credentials from the environment variables, overriding it with
     the config file if it exists.
     """
     username = os.environ.get("fr24_username", None)
@@ -60,8 +59,7 @@ async def login(
     ) = "from_env",
     fp_config_file: Path = FP_CONFIG_FILE,
 ) -> None | Authentication:
-    """
-    Read credentials and logs into the API.
+    """Read credentials and returns the credentials needed to access the API.
 
     By default, credentials are read from the environment variables or the
     config file if `creds_override` is not set. Then, if the credentials:
@@ -92,19 +90,18 @@ async def login_with_username_password(
     username: str,
     password: str,
 ) -> Authentication:
-    """
-    Retrieve bearer token and subscription key from the API.
+    """Retrieve bearer token and subscription key from the API.
 
     Bearer: `json['userData']['accessToken']`
     `token=` query param: `json['userData']['subscriptionKey']`
     """
-    res = await client.post(
+    response = await client.post(
         "https://www.flightradar24.com/user/login",
         data={"email": username, "password": password},
         headers=DEFAULT_HEADERS,
     )
-    res.raise_for_status()
-    return res.json()  # type: ignore
+    response.raise_for_status()
+    return response.json()  # type: ignore
 
 
 async def login_with_token_subscription_key(
@@ -112,8 +109,7 @@ async def login_with_token_subscription_key(
     subscription_key: str,
     token: str | None,
 ) -> Authentication | None:
-    """
-    Login with subscription key and/or token.
+    """Login with subscription key and/or token.
     Falls back to anonymous access if token is expired or invalid.
     """
     if token is None:

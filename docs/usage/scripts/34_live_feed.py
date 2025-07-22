@@ -11,11 +11,13 @@ from fr24.grpc import (
 )
 from fr24.proto.v1_pb2 import LiveFeedResponse
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 
 async def france_data() -> LiveFeedResponse:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         params = LiveFeedParams(bounding_box=BoundingBox(north=50, west=-7, south=40, east=10))
-        response = await live_feed(client, params)
+        response = await live_feed(client, params, headers)
         result = parse_data(response.content, LiveFeedResponse)
         return result.unwrap() # (1)!
 

@@ -5,11 +5,14 @@ from fr24.grpc import (
     nearest_flights,
 )
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 from fr24.proto.v1_pb2 import (
     Geolocation,
     NearestFlightsRequest,
     NearestFlightsResponse,
 )
+
+HEADERS = httpx.Headers(get_grpc_headers(auth=None))
 
 
 # NOTE: this fixture already exists in `tests/api/conftest.py`
@@ -23,7 +26,7 @@ async def nearest_flights_response(
         radius=10000,
         limit=1500,
     )
-    response = await nearest_flights(client, message)
+    response = await nearest_flights(client, message, HEADERS)
     return parse_data(response.content, NearestFlightsResponse).unwrap()
 
 
@@ -39,7 +42,7 @@ async def test_live_trail(
 
     flight_id = nearest_flights_response.flights_list[0].flight.flightid
     message = LiveTrailRequest(flight_id=flight_id)
-    response = await live_trail(client, message)
+    response = await live_trail(client, message, HEADERS)
     result = parse_data(response.content, LiveTrailResponse)
     data = result.unwrap()
     assert len(data.radar_records_list)
@@ -55,7 +58,7 @@ async def test_search_index(client: httpx.AsyncClient) -> None:
     )
 
     message = FetchSearchIndexRequest()
-    response = await search_index(client, message)
+    response = await search_index(client, message, HEADERS)
     result = parse_data(response.content, FetchSearchIndexResponse)
     assert result.is_ok()  # fails, empty data frame
     data = result.unwrap()
@@ -72,7 +75,7 @@ async def test_historic_trail(
 
     flight_id = nearest_flights_response.flights_list[0].flight.flightid
     message = HistoricTrailRequest(flight_id=flight_id)
-    response = await historic_trail(client, message)
+    response = await historic_trail(client, message, HEADERS)
     result = parse_data(response.content, HistoricTrailResponse)
 
     assert result.is_ok()  # read timeout

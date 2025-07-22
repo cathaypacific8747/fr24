@@ -239,11 +239,11 @@ class SupportsToPolars(Protocol):
         ...
 
 
-# In the json api, the httpx.Response class stores the response body AND any
-# errors in the same object. For example, `response.json()` effectively tries to
-# parse the response body as JSON, and if it fails, raises an error.
-# We want to mirror this behaviour in the gRPC api, so we define a Result type
-# that can be *either* a successful parsed protocol buffer or a gRPC error.
+# instead of raising exceptions:
+# - in `fr24.json`: return a result type that stores the response body or any
+#   errors
+# - in `fr24.grpc`: return a result type that stores the parsed protocol buffer
+#   or any gRPC errors
 
 T = TypeVar("T")
 E = TypeVar("E")

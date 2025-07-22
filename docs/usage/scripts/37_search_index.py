@@ -7,11 +7,13 @@ import httpx
 from fr24.grpc import search_index
 from fr24.proto.v1_pb2 import FetchSearchIndexRequest, FetchSearchIndexResponse
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 
 async def search_index_data() -> FetchSearchIndexResponse:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         message = FetchSearchIndexRequest()
-        response = await search_index(client, message)
+        response = await search_index(client, message, headers)
         return parse_data(response.content, FetchSearchIndexResponse).unwrap()
 
 

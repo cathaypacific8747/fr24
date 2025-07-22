@@ -27,7 +27,6 @@ from typing import TYPE_CHECKING, NamedTuple, Sequence, Union
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
 from google.protobuf.message import Message
-from typing_extensions import override
 
 from .proto import (
     ProtoError,
@@ -35,7 +34,6 @@ from .proto import (
     encode_message,
     to_proto,
 )
-from .proto.headers import get_headers
 from .proto.v1_pb2 import (
     EMSInfo,
     FetchSearchIndexRequest,
@@ -71,7 +69,6 @@ from .proto.v1_pb2 import (
     TrailPoint,
     VisibilitySettings,
 )
-from .static.bbox import LNGS_WORLD_STATIC
 from .utils import SLOTS, get_current_timestamp, to_flight_id, to_unix_timestamp
 
 if TYPE_CHECKING:
@@ -94,7 +91,6 @@ if TYPE_CHECKING:
         TrailPointRecord,
     )
     from .types.grpc import LiveFeedField
-    from .types.json import Authentication
 
 #
 # helpers
@@ -104,13 +100,13 @@ if TYPE_CHECKING:
 def construct_request(
     method_name: str,
     message: Message,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> httpx.Request:
     """Construct the gRPC request with encoded gRPC body."""
     return httpx.Request(
         "POST",
         f"https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/{method_name}",
-        headers=get_headers(auth),
+        headers=headers,
         content=encode_message(message),
     )
 
@@ -145,19 +141,9 @@ class BoundingBox(NamedTuple):
     """Longitude, maximum, degrees"""
 
 
-BBOXES_WORLD_STATIC = [
-    BoundingBox(-90, 90, LNGS_WORLD_STATIC[i], LNGS_WORLD_STATIC[i + 1])
-    for i in range(len(LNGS_WORLD_STATIC) - 1)
-]
-"""Default static bounding boxes covering the entire world"""
-
-BBOX_FRANCE_UIR = BoundingBox(42, 52, -8, 10)
-"""Bounding box for france UIR"""
-
-
 @dataclass(**SLOTS)
 class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
-    bounding_box: BoundingBox = BBOX_FRANCE_UIR
+    bounding_box: BoundingBox
     stats: bool = False
     """Whether to include stats in the given area."""
     limit: int = 1500
@@ -202,9 +188,9 @@ class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
 async def live_feed(
     client: httpx.AsyncClient,
     message: IntoLiveFeedRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, LiveFeedResponse]:
-    request = construct_request("LiveFeed", to_proto(message), auth)
+    request = construct_request("LiveFeed", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -265,7 +251,7 @@ def live_feed_df(
 
 @dataclass(**SLOTS)
 class LiveFeedPlaybackParams(SupportsToProto[PlaybackRequest]):
-    bounding_box: BoundingBox = BBOX_FRANCE_UIR
+    bounding_box: BoundingBox
     stats: bool = False
     """Whether to include stats in the given area."""
     limit: int = 1500
@@ -293,8 +279,7 @@ class LiveFeedPlaybackParams(SupportsToProto[PlaybackRequest]):
     hfreq: int | None = None
     """High frequency mode"""
 
-    @override
-    def to_proto(self) -> PlaybackRequest:  # type: ignore
+    def to_proto(self) -> PlaybackRequest:
         timestamp = to_unix_timestamp(self.timestamp)
         if timestamp == "now":
             timestamp = get_current_timestamp() - self.duration
@@ -320,9 +305,9 @@ IntoPlaybackRequest: TypeAlias = Union[
 async def live_feed_playback(
     client: httpx.AsyncClient,
     message: IntoPlaybackRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, LiveFeedResponse]:
-    request = construct_request("Playback", to_proto(message), auth)
+    request = construct_request("Playback", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -369,9 +354,9 @@ class NearestFlightsParams(SupportsToProto[NearestFlightsRequest]):
 async def nearest_flights(
     client: httpx.AsyncClient,
     message: IntoNearestFlightsRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, NearestFlightsResponse]:
-    request = construct_request("NearestFlights", to_proto(message), auth)
+    request = construct_request("NearestFlights", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -414,9 +399,9 @@ class LiveFlightsStatusParams(SupportsToProto[LiveFlightsStatusRequest]):
 async def live_flights_status(
     client: httpx.AsyncClient,
     message: IntoLiveFlightsStatusRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, LiveFlightsStatusResponse]:
-    request = construct_request("LiveFlightsStatus", to_proto(message), auth)
+    request = construct_request("LiveFlightsStatus", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -458,10 +443,10 @@ IntoFetchSearchIndexRequest: TypeAlias = Union[
 async def search_index(
     client: httpx.AsyncClient,
     message: IntoFetchSearchIndexRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, FetchSearchIndexResponse]:
     """!!! warning "Unstable API: gateway timeout." """
-    request = construct_request("FetchSearchIndex", to_proto(message), auth)
+    request = construct_request("FetchSearchIndex", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -492,9 +477,9 @@ IntoFollowFlightRequest: TypeAlias = Union[
 async def follow_flight_stream(
     client: httpx.AsyncClient,
     message: IntoFollowFlightRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> AsyncGenerator[Annotated[bytes, ProtoError]]:
-    request = construct_request("FollowFlight", to_proto(message), auth)
+    request = construct_request("FollowFlight", to_proto(message), headers)
     response = await client.send(request, stream=True)
     try:
         async for chunk in response.aiter_bytes():
@@ -520,9 +505,9 @@ IntoTopFlightsRequest: TypeAlias = Union[
 async def top_flights(
     client: httpx.AsyncClient,
     message: IntoTopFlightsRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, TopFlightsResponse]:
-    request = construct_request("TopFlights", to_proto(message), auth)
+    request = construct_request("TopFlights", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -562,12 +547,12 @@ IntoLiveTrailRequest: TypeAlias = Union[
 async def live_trail(
     client: httpx.AsyncClient,
     message: IntoLiveTrailRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, LiveTrailResponse]:
     """!!! warning "Unstable API: returns empty `DATA` frame as of Sep 2024"
 
     Contains empty `DATA` frame error if flight_id is not live"""
-    request = construct_request("LiveTrail", to_proto(message), auth)
+    request = construct_request("LiveTrail", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -579,10 +564,10 @@ IntoHistoricTrailRequest: TypeAlias = Union[
 async def historic_trail(
     client: httpx.AsyncClient,
     message: IntoHistoricTrailRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, HistoricTrailResponse]:
     """!!! warning "Unstable API: returns empty `DATA` frame" """
-    request = construct_request("HistoricTrail", to_proto(message), auth)
+    request = construct_request("HistoricTrail", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -618,10 +603,10 @@ class FlightDetailsParams(SupportsToProto[FlightDetailsRequest]):
 async def flight_details(
     client: httpx.AsyncClient,
     message: IntoFlightDetailsRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, FlightDetailsResponse]:
     """contains empty `DATA` frame error if flight_id is not live"""
-    request = construct_request("FlightDetails", to_proto(message), auth)
+    request = construct_request("FlightDetails", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -760,10 +745,10 @@ class PlaybackFlightParams(SupportsToProto[PlaybackFlightRequest]):
 async def playback_flight(
     client: httpx.AsyncClient,
     message: IntoPlaybackFlightRequest,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
 ) -> Annotated[httpx.Response, PlaybackFlightResponse]:
     """contains empty `DATA` frame error if flight_id is live"""
-    request = construct_request("PlaybackFlight", to_proto(message), auth)
+    request = construct_request("PlaybackFlight", to_proto(message), headers)
     return await client.send(request)
 
 
@@ -819,6 +804,3 @@ def playback_flight_df(
         [playback_flight_dict(data)],
         schema=playback_flight_schema,
     )
-
-
-__all__ = ["BoundingBox"]

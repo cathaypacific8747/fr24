@@ -23,13 +23,20 @@ print(df)
 # --8<-- [start:script1]
 from fr24.types.json import Find
 from fr24.json import find, FindParams
+from fr24.proto.headers import get_grpc_headers
 
 import polars as pl
 import httpx
 
 async def my_find() -> Find:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
-        response = await find(client, FindParams(query="paris"))
+        response = await find(
+            client,
+            FindParams(query="paris"),
+            headers=headers,
+            auth=None
+        )
         response.raise_for_status()
         results = response.json()
         return results  # type: ignore

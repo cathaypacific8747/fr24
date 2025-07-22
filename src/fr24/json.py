@@ -14,6 +14,9 @@ from .types.json import AirportList, Find, FlightList, Playback
 from .utils import (
     DEFAULT_HEADERS,
     SLOTS,
+    Err,
+    Ok,
+    Result,
     get_current_timestamp,
     to_flight_id_hex,
     to_unix_timestamp,
@@ -42,6 +45,33 @@ if TYPE_CHECKING:
     )
 
 _log = logging.getLogger(__name__)
+
+
+def get_json_headers(*, device: str | None = None) -> dict[str, str]:
+    headers = DEFAULT_HEADERS.copy()
+    headers["fr24-device-id"] = device or f"web-{secrets.token_urlsafe(32)}"
+    return headers
+
+
+def with_auth(
+    mut_request_data: dict[str, Any],
+    auth: Authentication | None,
+    headers: httpx.Headers,
+) -> dict[str, Any]:
+    """Adds authentication details to a request data dictionary."""
+    if (
+        auth is not None
+        and (sub_key := auth.get("userData", {}).get("subscriptionKey"))
+        is not None
+    ):
+        mut_request_data["token"] = sub_key
+    else:
+        mut_request_data["device"] = headers.get(
+            "fr24-device-id", f"web-{secrets.token_urlsafe(32)}"
+        )
+
+    return mut_request_data
+
 
 # NOTE: we intentionally use dataclass to store request data so we can
 # serialise it to disk easily.
@@ -90,7 +120,8 @@ class FlightListParams:
 async def flight_list(
     client: httpx.AsyncClient,
     params: FlightListParams,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
+    auth: None | Authentication,
 ) -> Annotated[httpx.Response, FlightList]:
     """
     Query flight list data.
@@ -110,10 +141,6 @@ async def flight_list(
 
     key, value = params.kind, params.ident
 
-    # TODO: remove duplication
-    device = f"web-{secrets.token_urlsafe(32)}"
-    headers = DEFAULT_HEADERS.copy()
-    headers["fr24-device-id"] = device
     request_data: FlightListRequest = {
         "query": value,
         "fetchBy": key,
@@ -124,16 +151,11 @@ async def flight_list(
     if timestamp is not None:
         request_data["timestamp"] = timestamp
 
-    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        request_data["token"] = auth["userData"]["subscriptionKey"]
-    else:
-        request_data["device"] = device
-
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/flight/list.json",
         headers=headers,
-        params=request_data,  # type: ignore
+        params=with_auth(request_data, auth, headers),  # type: ignore
     )
 
     response = await client.send(request)
@@ -161,7 +183,8 @@ class AirportListParams:
 async def airport_list(
     client: httpx.AsyncClient,
     params: AirportListParams,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
+    auth: None | Authentication,
 ) -> Annotated[httpx.Response, AirportList]:
     """
     Fetch aircraft arriving, departing or on ground at a given airport.
@@ -178,10 +201,6 @@ async def airport_list(
     if timestamp == "now":
         timestamp = get_current_timestamp()
 
-    device = f"web-{secrets.token_urlsafe(32)}"
-    headers = DEFAULT_HEADERS.copy()
-    headers["fr24-device-id"] = device
-
     request_data: AirportRequest = {
         "code": params.airport,
         "plugin[]": ["schedule"],
@@ -193,16 +212,11 @@ async def airport_list(
     if timestamp is not None:
         request_data["plugin-setting[schedule][timestamp]"] = timestamp
 
-    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        request_data["token"] = auth["userData"]["subscriptionKey"]
-    else:
-        request_data["device"] = device
-
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/airport.json",
         headers=headers,
-        params=request_data,  # type: ignore
+        params=with_auth(request_data, auth, headers),  # type: ignore
     )
 
     response = await client.send(request)
@@ -226,7 +240,8 @@ class PlaybackParams:
 async def playback(
     client: httpx.AsyncClient,
     params: PlaybackParams,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
+    auth: None | Authentication,
 ) -> Annotated[httpx.Response, Playback]:
     """
     Fetch historical track playback data for a given flight.
@@ -238,24 +253,17 @@ async def playback(
     if timestamp == "now":
         timestamp = get_current_timestamp()
 
-    device = f"web-{secrets.token_urlsafe(32)}"
-    headers = DEFAULT_HEADERS.copy()
-    headers["fr24-device-id"] = device
     request_data: PlaybackRequest = {
         "flightId": to_flight_id_hex(params.flight_id),
     }
     if timestamp is not None:
         request_data["timestamp"] = timestamp
-    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        request_data["token"] = auth["userData"]["subscriptionKey"]
-    else:
-        request_data["device"] = device
 
     request = httpx.Request(
         "GET",
         "https://api.flightradar24.com/common/v1/flight-playback.json",
         headers=headers,
-        params=request_data,  # type: ignore
+        params=with_auth(request_data, auth, headers),  # type: ignore
     )
 
     response = await client.send(request)
@@ -272,26 +280,19 @@ class FindParams:
 async def find(
     client: httpx.AsyncClient,
     params: FindParams,
-    auth: None | Authentication = None,
+    headers: httpx.Headers,
+    auth: None | Authentication,
 ) -> Annotated[httpx.Response, Find]:
     """General search."""
     request_data = {
         "query": params.query,
         "limit": params.limit,
     }
-    device = f"web-{secrets.token_urlsafe(32)}"
-    if auth is not None and auth["userData"]["subscriptionKey"] is not None:
-        request_data["token"] = auth["userData"]["subscriptionKey"]
-    else:
-        request_data["device"] = device
-
-    headers = DEFAULT_HEADERS.copy()
-    headers["fr24-device-id"] = device
     request = httpx.Request(
         "GET",
         url="https://www.flightradar24.com/v1/search/web/find",
         headers=headers,
-        params=request_data,  # type: ignore
+        params=with_auth(request_data, auth, headers),
     )
     response = await client.send(request)
     return response
@@ -310,14 +311,18 @@ class _Parser(Generic[_TypedDictT]):
     @staticmethod
     def parse_json(
         response: Annotated[httpx.Response, _TypedDictT],
-    ) -> _TypedDictT:
-        """Parses binary representation into a python object (typed dict).
-
-        :raises httpx.HTTPStatusError: if the response did not succeed
-        """
-
-        response.raise_for_status()
-        return cast(_TypedDictT, orjson.loads(response.content))
+    ) -> Result[_TypedDictT, httpx.HTTPStatusError]:
+        """Parses binary representation into a python object (typed dict)."""
+        if response.is_success:
+            return Ok(cast(_TypedDictT, orjson.loads(response.content)))
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            return Err(e)
+        else:
+            raise RuntimeError(
+                "unexpected code path: response did not raise an error!"
+            )
 
 
 flight_list_parse = _Parser[FlightList].parse_json

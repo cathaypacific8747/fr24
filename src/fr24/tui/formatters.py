@@ -4,25 +4,26 @@ import pandas as pd
 from fr24.types import IntTimestampS
 from fr24.types.json import AircraftInfo
 from fr24.types.json import CommonAirport as AirportJSON
+from fr24.utils import dataclass_frozen
 
 
+@dataclass_frozen
 class Time:
-    def __init__(self, timestamp: None | IntTimestampS | str | pd.Timestamp):
-        self.ts = timestamp
+    timestamp: None | IntTimestampS | str | pd.Timestamp
 
     def __format__(self, __format_spec: str) -> str:
-        if self.ts is None:
+        if self.timestamp is None:
             return ""
-        if isinstance(self.ts, int):
-            ts = pd.Timestamp(self.ts, unit="s", tz="utc")
+        if isinstance(self.timestamp, int):
+            ts = pd.Timestamp(self.timestamp, unit="s", tz="utc")
         else:
-            ts = pd.Timestamp(self.ts, tz="utc")
+            ts = pd.Timestamp(self.timestamp, tz="utc")
         return format(ts, __format_spec)
 
 
+@dataclass_frozen
 class Airport:
-    def __init__(self, airport: AirportJSON | None):
-        self.airport = airport
+    airport: AirportJSON | None
 
     def __format__(self, __format_spec: str) -> str:
         if self.airport is None:
@@ -44,9 +45,9 @@ class Airport:
         return output
 
 
+@dataclass_frozen
 class Aircraft:
-    def __init__(self, aircraft: AircraftInfo):
-        self.aircraft = aircraft
+    aircraft: AircraftInfo
 
     def __format__(self, __format_spec: str) -> str:
         if self.aircraft is None:

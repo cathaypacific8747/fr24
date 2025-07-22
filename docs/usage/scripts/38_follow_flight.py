@@ -7,14 +7,16 @@ import httpx
 from fr24.grpc import follow_flight_stream
 from fr24.proto.v1_pb2 import FollowFlightRequest, FollowFlightResponse
 from fr24.proto import parse_data
+from fr24.proto.headers import get_grpc_headers
 
 
 async def follow_flight_data() -> None:
     timeout = httpx.Timeout(5, read=120)
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient(timeout=timeout) as client:
         message = FollowFlightRequest(flight_id=0x395C43CF)
         i = 0
-        async for response in follow_flight_stream(client, message):
+        async for response in follow_flight_stream(client, message, headers):
             print(f"##### {i} #####")
             print(parse_data(response, FollowFlightResponse))
             i += 1

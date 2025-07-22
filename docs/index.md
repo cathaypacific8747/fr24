@@ -57,12 +57,13 @@ Fetch live feed data for a specific bounding box:
 ```py
 import asyncio
 
-from fr24 import FR24
+from fr24 import FR24, BoundingBox
 
+bbox = BoundingBox(south=42, north=52, west=-8, east=10)
 
 async def main() -> None:
     async with FR24() as client:
-        result = await client.live_feed.fetch()
+        result = await client.live_feed.fetch(bbox)
         print(result.response.content)  # access raw, undecoded bytes
         # convert to other formats:
         print(result.to_proto())  # protobuf object
@@ -82,13 +83,13 @@ To improve efficiency and reduce API calls, `fr24` provides a simple file-based 
 ```py
 import asyncio
 
-from fr24 import FR24, FR24Cache
+from fr24 import FR24, FR24Cache, BBOX_FRANCE_UIR
 
 cache = FR24Cache.default()
 
 async def main() -> None:
     async with FR24() as client:
-        result = await client.live_feed.fetch()
+        result = await client.live_feed.fetch(BBOX_FRANCE_UIR)
         # on Linux, this writes to ~/.cache/fr24/feed/{timestamp_s}.parquet
         result.write_table(cache)
 

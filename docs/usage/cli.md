@@ -53,6 +53,14 @@ Dump the current (or playback of) live feed:
                                                                                     
                                                                                     
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --south              FLOAT          Latitude, minimum, degrees               │
+    │                                     [default: 42.0]                          │
+    │ --north              FLOAT          Latitude, maximum, degrees               │
+    │                                     [default: 52.0]                          │
+    │ --west               FLOAT          Longitude, minimum, degrees              │
+    │                                     [default: -8.0]                          │
+    │ --east               FLOAT          Longitude, maximum, degrees              │
+    │                                     [default: 10.0]                          │
     │ --timestamp          TEXT           Time of the snapshot (optional), an ISO  │
     │                                     8601 format input (e.g.                  │
     │                                     2024-06-04T00:00:00). Live data will be  │

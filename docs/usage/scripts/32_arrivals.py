@@ -30,15 +30,18 @@ import httpx
 
 from fr24.types.json import AirportList
 from fr24.json import airport_list, AirportListParams
+from fr24.proto.headers import get_grpc_headers
 
 import polars as pl
 
-
 async def my_arrivals() -> AirportList:
+    headers = httpx.Headers(get_grpc_headers(auth=None))
     async with httpx.AsyncClient() as client:
         response = await airport_list(
             client,
             AirportListParams(airport="tls", mode="arrivals"),
+            headers=headers,
+            auth=None
         )
         response.raise_for_status()
         list_ = response.json()
