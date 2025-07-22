@@ -111,24 +111,24 @@ $ duckdb -c "describe select * from 'feed.parquet'";
 │   column_name   │                            column_type                            │  null   │   key   │ default │  extra  │
 │     varchar     │                              varchar                              │ varchar │ varchar │ varchar │ varchar │
 ├─────────────────┼───────────────────────────────────────────────────────────────────┼─────────┼─────────┼─────────┼─────────┤
-│ timestamp       │ UINTEGER                                                          │ YES     │         │         │         │
-│ flightid        │ UINTEGER                                                          │ YES     │         │         │         │
-│ latitude        │ FLOAT                                                             │ YES     │         │         │         │
-│ longitude       │ FLOAT                                                             │ YES     │         │         │         │
-│ track           │ USMALLINT                                                         │ YES     │         │         │         │
-│ altitude        │ INTEGER                                                           │ YES     │         │         │         │
-│ ground_speed    │ SMALLINT                                                          │ YES     │         │         │         │
-│ on_ground       │ BOOLEAN                                                           │ YES     │         │         │         │
-│ callsign        │ VARCHAR                                                           │ YES     │         │         │         │
-│ source          │ UTINYINT                                                          │ YES     │         │         │         │
-│ registration    │ VARCHAR                                                           │ YES     │         │         │         │
-│ origin          │ VARCHAR                                                           │ YES     │         │         │         │
-│ destination     │ VARCHAR                                                           │ YES     │         │         │         │
-│ typecode        │ VARCHAR                                                           │ YES     │         │         │         │
-│ eta             │ UINTEGER                                                          │ YES     │         │         │         │
-│ vertical_speed  │ SMALLINT                                                          │ YES     │         │         │         │
-│ squawk          │ USMALLINT                                                         │ YES     │         │         │         │
-│ position_buffer │ STRUCT(delta_lat INTEGER, delta_lon INTEGER, delta_ms UINTEGER)[] │ YES     │         │         │         │
+│ timestamp       │ TIMESTAMP WITH TIME ZONE                                          │ YES     │ NULL    │ NULL    │ NULL    │
+│ flightid        │ UINTEGER                                                          │ YES     │ NULL    │ NULL    │ NULL    │
+│ latitude        │ FLOAT                                                             │ YES     │ NULL    │ NULL    │ NULL    │
+│ longitude       │ FLOAT                                                             │ YES     │ NULL    │ NULL    │ NULL    │
+│ track           │ USMALLINT                                                         │ YES     │ NULL    │ NULL    │ NULL    │
+│ altitude        │ INTEGER                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ ground_speed    │ SMALLINT                                                          │ YES     │ NULL    │ NULL    │ NULL    │
+│ on_ground       │ BOOLEAN                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ callsign        │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ source          │ UTINYINT                                                          │ YES     │ NULL    │ NULL    │ NULL    │
+│ registration    │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ origin          │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ destination     │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ typecode        │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
+│ eta             │ UINTEGER                                                          │ YES     │ NULL    │ NULL    │ NULL    │
+│ squawk          │ USMALLINT                                                         │ YES     │ NULL    │ NULL    │ NULL    │
+│ vertical_speed  │ SMALLINT                                                          │ YES     │ NULL    │ NULL    │ NULL    │
+│ position_buffer │ STRUCT(delta_lat INTEGER, delta_lon INTEGER, delta_ms UINTEGER)[] │ YES     │ NULL    │ NULL    │ NULL    │
 ├─────────────────┴───────────────────────────────────────────────────────────────────┴─────────┴─────────┴─────────┴─────────┤
 │ 18 rows                                                                                                           6 columns │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

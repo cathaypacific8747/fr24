@@ -228,7 +228,7 @@ def live_feed_position_buffer_dict(
 def live_feed_flightdata_dict(lfr: Flight) -> FlightRecord:
     """Convert the protobuf message to a dictionary."""
     return {
-        "timestamp": lfr.timestamp,
+        "timestamp": lfr.timestamp_ms,
         "flightid": lfr.flightid,
         "latitude": lfr.lat,
         "longitude": lfr.lon,

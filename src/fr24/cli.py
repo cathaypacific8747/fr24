@@ -192,7 +192,7 @@ def feed(
         async with FR24() as fr24:
             await fr24.login()
             result: LiveFeedResult | LiveFeedPlaybackResult
-            if timestamp_int_or_None is None:
+            if timestamp_int_or_None is None or timestamp_int_or_None == "now":
                 result = await fr24.live_feed.fetch()
             else:
                 result = await fr24.live_feed_playback.fetch(

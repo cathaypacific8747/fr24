@@ -136,7 +136,9 @@ position_buffer_struct_schema = to_schema(RecentPositionRecord)
 
 
 class FlightRecord(TypedDict):
-    timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
+    timestamp: Annotated[
+        IntTimestampMs, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]  # prior to v0.2.0 this was u32 (seconds), now i64 (milliseconds)
     flightid: Annotated[IntFlightId, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
@@ -260,7 +262,9 @@ class _ScheduleRecord(TypedDict):
 
 
 class _FlightInfoRecord(TypedDict):
-    timestamp_ms: Annotated[IntTimestampMs, DType(pl.UInt64())]
+    timestamp_ms: Annotated[
+        IntTimestampMs, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]  # prior to v0.2.0 this was a bare u64
     flightid: Annotated[IntFlightId, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]

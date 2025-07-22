@@ -25,7 +25,7 @@ assert arrivals is not None
 df = pl.json_normalize(arrivals)
 print(df)
 # %%
-# --8<-- [start:script1]
+# --8<-- [start:script0]
 import httpx
 
 from fr24.types.json import AirportList
@@ -52,7 +52,7 @@ arrivals = airports["result"]["response"]["airport"]["pluginData"]["schedule"][
 assert arrivals is not None
 df = pl.json_normalize(arrivals)
 print(df)
-# --8<-- [end:script1]
+# --8<-- [end:script0]
 # %%
 """
 # --8<-- [start:df0]
