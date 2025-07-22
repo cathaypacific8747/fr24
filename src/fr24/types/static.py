@@ -4,6 +4,8 @@ from typing import Literal, Union
 
 from typing_extensions import TypedDict
 
+from . import IntTimestampS
+
 
 class Model(TypedDict):
     Name: str
@@ -86,7 +88,7 @@ class Country(TypedDict):
 
 
 class Metadata(TypedDict):
-    timestamp: int
+    timestamp: IntTimestampS
     count: int
 
 

@@ -151,7 +151,9 @@ async def test_flight_list_reg_file_ops(fr24: FR24, cache: FR24Cache) -> None:
         fp.parent.mkdir(parents=True, exist_ok=True)
         fp.unlink(missing_ok=True)
         save()
-        assert fp.exists()
+        assert fp.exists(), (
+            f"{fp} not in {list(f.name for f in fp.parent.glob('*'))}"
+        )
 
         df = pl.read_parquet(fp)
         assert df.height == curr_rows

@@ -10,8 +10,8 @@ List all commands and show help:
 === "Output"
     
     ```
-    
-        Usage: fr24 [OPTIONS] COMMAND [ARGS]...                                        
+                                                                                    
+    Usage: fr24 [OPTIONS] COMMAND [ARGS]...                                        
                                                                                     
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
     │ --install-completion          Install completion for the current shell.      │
@@ -20,13 +20,13 @@ List all commands and show help:
     │ --help                        Show this message and exit.                    │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-    │ auth          Commands for authentication                                    │
     │ dirs          Shows relevant directories                                     │
+    │ tui           Starts the TUI                                                 │
     │ feed          Fetches current (or playback of) live feed at a given time     │
     │ flight-list   Fetches flight list for the given registration or flight       │
     │               number                                                         │
     │ playback      Fetches historical track playback data for the given flight    │
-    │ tui           Starts the TUI                                                 │
+    │ auth          Commands for authentication                                    │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
@@ -46,68 +46,78 @@ Dump the current (or playback of) live feed:
 
     ```command
     $ fr24 feed --help
-    
-        Usage: fr24 feed [OPTIONS]                                                     
+                                                                                
+    Usage: fr24 feed [OPTIONS]                                                     
                                                                                     
-        Fetches current (or playback of) live feed at a given time           
+    Fetches current (or playback of) live feed at a given time                     
+                                                                                    
                                                                                     
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --timestamp          TEXT  Time of the snapshot (optional), a                │
-    │                            pd.Timestamp-supported input (e.g.                │
-    │                            2024-06-04T00:00:00). Live data will be fetched   │
-    │                            if not provided.                                  │
-    │                            [default: None]                                   │
-    │ --output     -o      FILE  Save results as parquet to a specific filepath.   │
-    │                            If `-`, results will be printed to stdout.        │
-    │                            [default: None]                                   │
-    │ --format     -f      TEXT  Output format, `parquet` or `csv`                 │
-    │                            [default: parquet]                                │
-    │ --help                     Show this message and exit.                       │
+    │ --timestamp          TEXT           Time of the snapshot (optional), an ISO  │
+    │                                     8601 format input (e.g.                  │
+    │                                     2024-06-04T00:00:00). Live data will be  │
+    │                                     fetched if not provided.                 │
+    │                                     [default: now]                           │
+    │ --output     -o      FILE           Save results as parquet to a specific    │
+    │                                     filepath. If `-`, results will be        │
+    │                                     printed to stdout.                       │
+    │                                     [default: None]                          │
+    │ --format     -f      [parquet|csv]  Output format, `parquet` or `csv`        │
+    │                                     [default: parquet]                       │
+    │ --help                              Show this message and exit.              │
     ╰──────────────────────────────────────────────────────────────────────────────╯
 
     $ fr24 feed -o feed.parquet
-    Success: wrote 13203 rows (977555 bytes) to /home/user/feed.parquet.
+    success: wrote 169 rows to /path/to/feed.parquet.
     Preview:
-            timestamp   flightid   latitude  ...  eta  vertical_speed  squawk
-    0      1719299644  903268975 -55.104115  ...    0               0       0
-    1      1719299640  903241011  12.738794  ...    0               0       0
-    2      1719299640  903274343  -8.169031  ...    0               0       0
-    3      1719299644  903291574 -25.104246  ...    0               0       0
-    4      1719299644  903256822 -10.495483  ...    0               0       0
-    ...           ...        ...        ...  ...  ...             ...     ...
-    13198  1719299644  903286908  54.931980  ...    0               0       0
-    13199  1719299643  903251738  64.749939  ...    0               0       0
-    13200  1719299636  903281352  56.771660  ...    0               0       0
-    13201  1719299644  903288803  56.406754  ...    0               0       0
-    13202  1719299636  903274725  59.058872  ...    0               0       0
-
-    [13203 rows x 17 columns]
+    shape: (5, 18)
+    ┌─────────┬─────────┬─────────┬─────────┬───┬─────┬────────┬─────────┬─────────┐
+    │ timesta ┆ flighti ┆ latitud ┆ longitu ┆ … ┆ eta ┆ squawk ┆ vertica ┆ positio │
+    │ mp      ┆ d       ┆ e       ┆ de      ┆   ┆ --- ┆ ---    ┆ l_speed ┆ n_buffe │
+    │ ---     ┆ ---     ┆ ---     ┆ ---     ┆   ┆ u32 ┆ u16    ┆ ---     ┆ r       │
+    │ u32     ┆ u32     ┆ f32     ┆ f32     ┆   ┆     ┆        ┆ i16     ┆ ---     │
+    │         ┆         ┆         ┆         ┆   ┆     ┆        ┆         ┆ list[st │
+    │         ┆         ┆         ┆         ┆   ┆     ┆        ┆         ┆ ruct[3] │
+    │         ┆         ┆         ┆         ┆   ┆     ┆        ┆         ┆ ]       │
+    ╞═════════╪═════════╪═════════╪═════════╪═══╪═════╪════════╪═════════╪═════════╡
+    │ 1753065 ┆ 9956686 ┆ 42.4480 ┆ -7.7179 ┆ … ┆ 0   ┆ 0      ┆ 0       ┆ []      │
+    │ 838     ┆ 70      ┆ 51      ┆ 59      ┆   ┆     ┆        ┆         ┆         │
+    │ 1753065 ┆ 9956860 ┆ 46.4179 ┆ -6.7554 ┆ … ┆ 0   ┆ 0      ┆ 0       ┆ []      │
+    │ 839     ┆ 01      ┆ 34      ┆ 24      ┆   ┆     ┆        ┆         ┆         │
+    │ 1753065 ┆ 9956640 ┆ 49.0269 ┆ -7.6350 ┆ … ┆ 0   ┆ 0      ┆ 0       ┆ []      │
+    │ 839     ┆ 39      ┆ 47      ┆ 76      ┆   ┆     ┆        ┆         ┆         │
+    │ 1753065 ┆ 9956738 ┆ 48.9634 ┆ -7.3344 ┆ … ┆ 0   ┆ 0      ┆ 0       ┆ []      │
+    │ 838     ┆ 07      ┆ 59      ┆ 58      ┆   ┆     ┆        ┆         ┆         │
+    │ 1753065 ┆ 9956756 ┆ 50.5121 ┆ -7.3776 ┆ … ┆ 0   ┆ 0      ┆ 0       ┆ []      │
+    │ 839     ┆ 85      ┆ 57      ┆ 16      ┆   ┆     ┆        ┆         ┆         │
+    └─────────┴─────────┴─────────┴─────────┴───┴─────┴────────┴─────────┴─────────┘
 
     $ duckdb -c "describe select * from 'feed.parquet';"
-    ┌────────────────┬─────────────┬─────────┬─────────┬─────────┬─────────┐
-    │  column_name   │ column_type │  null   │   key   │ default │  extra  │
-    │    varchar     │   varchar   │ varchar │ varchar │ varchar │ varchar │
-    ├────────────────┼─────────────┼─────────┼─────────┼─────────┼─────────┤
-    │ timestamp      │ UINTEGER    │ YES     │         │         │         │
-    │ flightid       │ UINTEGER    │ YES     │         │         │         │
-    │ latitude       │ FLOAT       │ YES     │         │         │         │
-    │ longitude      │ FLOAT       │ YES     │         │         │         │
-    │ track          │ USMALLINT   │ YES     │         │         │         │
-    │ altitude       │ INTEGER     │ YES     │         │         │         │
-    │ ground_speed   │ SMALLINT    │ YES     │         │         │         │
-    │ on_ground      │ BOOLEAN     │ YES     │         │         │         │
-    │ callsign       │ VARCHAR     │ YES     │         │         │         │
-    │ source         │ UTINYINT    │ YES     │         │         │         │
-    │ registration   │ VARCHAR     │ YES     │         │         │         │
-    │ origin         │ VARCHAR     │ YES     │         │         │         │
-    │ destination    │ VARCHAR     │ YES     │         │         │         │
-    │ typecode       │ VARCHAR     │ YES     │         │         │         │
-    │ eta            │ UINTEGER    │ YES     │         │         │         │
-    │ vertical_speed │ SMALLINT    │ YES     │         │         │         │
-    │ squawk         │ USMALLINT   │ YES     │         │         │         │
-    ├────────────────┴─────────────┴─────────┴─────────┴─────────┴─────────┤
-    │ 17 rows                                                    6 columns │
-    └──────────────────────────────────────────────────────────────────────┘
+    ┌─────────────────┬──────────────────────┬─────────┬───┬─────────┬─────────┐
+    │   column_name   │     column_type      │  null   │ … │ default │  extra  │
+    │     varchar     │       varchar        │ varchar │   │ varchar │ varchar │
+    ├─────────────────┼──────────────────────┼─────────┼───┼─────────┼─────────┤
+    │ timestamp       │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │
+    │ flightid        │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │
+    │ latitude        │ FLOAT                │ YES     │ … │ NULL    │ NULL    │
+    │ longitude       │ FLOAT                │ YES     │ … │ NULL    │ NULL    │
+    │ track           │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │
+    │ altitude        │ INTEGER              │ YES     │ … │ NULL    │ NULL    │
+    │ ground_speed    │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+    │ on_ground       │ BOOLEAN              │ YES     │ … │ NULL    │ NULL    │
+    │ callsign        │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+    │ source          │ UTINYINT             │ YES     │ … │ NULL    │ NULL    │
+    │ registration    │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+    │ origin          │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+    │ destination     │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+    │ typecode        │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+    │ eta             │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │
+    │ squawk          │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │
+    │ vertical_speed  │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+    │ position_buffer │ STRUCT(delta_lat I…  │ YES     │ … │ NULL    │ NULL    │
+    ├─────────────────┴──────────────────────┴─────────┴───┴─────────┴─────────┤
+    │ 18 rows                                              6 columns (5 shown) │
+    └──────────────────────────────────────────────────────────────────────────┘
     ```
 
 Dump the flight list for a given registration or flight number
@@ -132,63 +142,82 @@ Dump the flight list for a given registration or flight number
                                                                                     
     Fetches flight list for the given registration or flight number                
                                                                                     
+                                                                                    
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --reg                TEXT  Aircraft registration (e.g. B-HUJ)                │
-    │                            [default: None]                                   │
-    │ --flight             TEXT  Flight number (e.g. CX8747) [default: None]       │
-    │ --timestamp          TEXT  Show flights with ATD before this time            │
-    │                            (optional), a pd.Timestamp-supported input (e.g.  │
-    │                            2024-06-04T00:00:00)                              │
-    │                            [default: now]                                    │
-    │ --all                      Get all pages of flight list                      │
-    │ --output     -o      FILE  Save results as parquet to a specific filepath.   │
-    │                            If `-`, results will be printed to stdout.        │
-    │                            [default: None]                                   │
-    │ --format     -f      TEXT  Output format, `parquet` or `csv`                 │
-    │                            [default: parquet]                                │
-    │ --help                     Show this message and exit.                       │
+    │ --reg                TEXT           Aircraft registration (e.g. B-HUJ)       │
+    │                                     [default: None]                          │
+    │ --flight             TEXT           Flight number (e.g. CX8747)              │
+    │                                     [default: None]                          │
+    │ --timestamp          TEXT           Show flights with ATD before this time   │
+    │                                     (optional), an ISO 8601 format input     │
+    │                                     (e.g. 2024-06-04T00:00:00)               │
+    │                                     [default: now]                           │
+    │ --all                               Get all pages of flight list             │
+    │ --output     -o      FILE           Save results as parquet to a specific    │
+    │                                     filepath. If `-`, results will be        │
+    │                                     printed to stdout.                       │
+    │                                     [default: None]                          │
+    │ --format     -f      [parquet|csv]  Output format, `parquet` or `csv`        │
+    │                                     [default: parquet]                       │
+    │ --help                              Show this message and exit.              │
     ╰──────────────────────────────────────────────────────────────────────────────╯
 
     $ fr24 flight-list --reg B-HPB -o flight-list.parquet
-    Success: wrote 10 rows (1284 bytes) to /home/user/flight-list.parquet.
+    success: wrote 10 rows to /path/to/flight-list.parquet.
     Preview:
-    flight_id number callsign  ...                STOA ETOA                ATOA
-    0  903287789  CX740   CPA740  ... 2024-06-25 06:00:00  NaT 2024-06-25 06:03:45
-    1  903258455  CX741   CPA741  ... 2024-06-25 02:55:00  NaT 2024-06-25 03:03:05
-    2  903220233  CX976   CPA976  ... 2024-06-24 23:40:00  NaT 2024-06-24 23:23:07
-    3  903076265  CX913   CPA913  ... 2024-06-24 14:55:00  NaT 2024-06-24 14:43:22
-    4  902956726  CX976   CPA976  ... 2024-06-23 23:40:00  NaT 2024-06-23 23:41:52
-    5  902846134  CX913   CPA913  ... 2024-06-23 14:55:00  NaT 2024-06-23 15:11:38
-    6  902775946  CX439   CPA439  ... 2024-06-23 08:25:00  NaT 2024-06-23 08:18:22
-    7  902740251  CX434   CPA434  ... 2024-06-23 03:35:00  NaT 2024-06-23 03:25:48
-    8  902529354  CX385   CPA385  ... 2024-06-22 06:00:00  NaT 2024-06-22 06:01:42
-    9  902502853  CX384   CPA384  ... 2024-06-22 02:50:00  NaT 2024-06-22 03:18:45
-
-    [10 rows x 15 columns]
+    shape: (5, 15)
+    ┌─────────┬────────┬─────────┬─────────┬───┬────────┬────────┬────────┬────────┐
+    │ flight_ ┆ number ┆ callsig ┆ icao24  ┆ … ┆ ATOD   ┆ STOA   ┆ ETOA   ┆ ATOA   │
+    │ id      ┆ ---    ┆ n       ┆ ---     ┆   ┆ ---    ┆ ---    ┆ ---    ┆ ---    │
+    │ ---     ┆ str    ┆ ---     ┆ u32     ┆   ┆ dateti ┆ dateti ┆ dateti ┆ dateti │
+    │ u64     ┆        ┆ str     ┆         ┆   ┆ me[ms, ┆ me[ms, ┆ me[ms, ┆ me   ┆ 
+    UTC]   ┆ UTC]   ┆ UTC]   │
+    ╞═════════╪════════╪═════════╪═════════╪═══╪════════╪════════╪════════╪════════╡
+    │ 9957006 ┆ CX928  ┆ CPA928  ┆ 7901768 ┆ … ┆ 2025-0 ┆ 2025-0 ┆ null   ┆ 2025-0 │
+    │ 10      ┆        ┆         ┆         ┆   ┆ 7-21   ┆ 7-21   ┆        ┆ 7-21   │
+    │         ┆        ┆         ┆         ┆   ┆ 00:37: ┆ 03:00: ┆        ┆ 02:32: │
+    │         ┆        ┆         ┆         ┆   ┆ 42 UTC ┆ 00 UTC ┆        ┆ 57 UTC │
+    │ 9956018 ┆ CX963  ┆ null    ┆ 7901768 ┆ … ┆ 2025-0 ┆ 2025-0 ┆ null   ┆ 2025-0 │
+    │ 61      ┆        ┆         ┆         ┆   ┆ 7-20   ┆ 7-20   ┆        ┆ 7-20   │
+    │         ┆        ┆         ┆         ┆   ┆ 15:13: ┆ 14:20: ┆        ┆ 17:05: │
+    │         ┆        ┆         ┆         ┆   ┆ 19 UTC ┆ 00 UTC ┆        ┆ 43 UTC │
+    │ 9955613 ┆ CX962  ┆ CPA962  ┆ 7901768 ┆ … ┆ 2025-0 ┆ 2025-0 ┆ null   ┆ 2025-0 │
+    │ 60      ┆        ┆         ┆         ┆   ┆ 7-20   ┆ 7-20   ┆        ┆ 7-20   │
+    │         ┆        ┆         ┆         ┆   ┆ 11:53: ┆ 10:20: ┆        ┆ 13:40: │
+    │         ┆        ┆         ┆         ┆   ┆ 31 UTC ┆ 00 UTC ┆        ┆ 04 UTC │
+    │ 9953866 ┆ CX989  ┆ CPA989  ┆ 7901768 ┆ … ┆ 2025-0 ┆ 2025-0 ┆ null   ┆ 2025-0 │
+    │ 18      ┆        ┆         ┆         ┆   ┆ 7-19   ┆ 7-19   ┆        ┆ 7-19   │
+    │         ┆        ┆         ┆         ┆   ┆ 16:05: ┆ 15:40: ┆        ┆ 16:56: │
+    │         ┆        ┆         ┆         ┆   ┆ 28 UTC ┆ 00 UTC ┆        ┆ 36 UTC │
+    │ 9953446 ┆ CX988  ┆ CPA988  ┆ 7901768 ┆ … ┆ 2025-0 ┆ 2025-0 ┆ null   ┆ 2025-0 │
+    │ 82      ┆        ┆         ┆         ┆   ┆ 7-19   ┆ 7-19   ┆        ┆ 7-19   │
+    │         ┆        ┆         ┆         ┆   ┆ 13:47: ┆ 13:05: ┆        ┆ 14:24: │
+    │         ┆        ┆         ┆         ┆   ┆ 01 UTC ┆ 00 UTC ┆        ┆ 19 UTC │
+    └─────────┴────────┴─────────┴─────────┴───┴────────┴────────┴────────┴────────┘
 
     $ duckdb -c "describe select * from 'flight-list.parquet';"
-    ┌──────────────┬─────────────┬─────────┬─────────┬─────────┬─────────┐
-    │ column_name  │ column_type │  null   │   key   │ default │  extra  │
-    │   varchar    │   varchar   │ varchar │ varchar │ varchar │ varchar │
-    ├──────────────┼─────────────┼─────────┼─────────┼─────────┼─────────┤
-    │ flight_id    │ UBIGINT     │ YES     │         │         │         │
-    │ number       │ VARCHAR     │ YES     │         │         │         │
-    │ callsign     │ VARCHAR     │ YES     │         │         │         │
-    │ icao24       │ UINTEGER    │ YES     │         │         │         │
-    │ registration │ VARCHAR     │ YES     │         │         │         │
-    │ typecode     │ VARCHAR     │ YES     │         │         │         │
-    │ origin       │ VARCHAR     │ YES     │         │         │         │
-    │ destination  │ VARCHAR     │ YES     │         │         │         │
-    │ status       │ VARCHAR     │ YES     │         │         │         │
-    │ STOD         │ TIMESTAMP   │ YES     │         │         │         │
-    │ ETOD         │ TIMESTAMP   │ YES     │         │         │         │
-    │ ATOD         │ TIMESTAMP   │ YES     │         │         │         │
-    │ STOA         │ TIMESTAMP   │ YES     │         │         │         │
-    │ ETOA         │ TIMESTAMP   │ YES     │         │         │         │
-    │ ATOA         │ TIMESTAMP   │ YES     │         │         │         │
-    ├──────────────┴─────────────┴─────────┴─────────┴─────────┴─────────┤
-    │ 15 rows                                                  6 columns │
-    └────────────────────────────────────────────────────────────────────┘
+    ┌──────────────┬───────────────────────┬─────────┬─────────┬─────────┬─────────┐
+    │ column_name  │      column_type      │  null   │   key   │ default │  extra  │
+    │   varchar    │        varchar        │ varchar │ varchar │ varchar │ varchar │
+    ├──────────────┼───────────────────────┼─────────┼─────────┼─────────┼─────────┤
+    │ flight_id    │ UBIGINT               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ number       │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ callsign     │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ icao24       │ UINTEGER              │ YES     │ NULL    │ NULL    │ NULL    │
+    │ registration │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ typecode     │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ origin       │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ destination  │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ status       │ VARCHAR               │ YES     │ NULL    │ NULL    │ NULL    │
+    │ STOD         │ TIMESTAMP WITH TIME…  │ YES     │ NULL    │ NULL    │ NULL    │
+    │ ETOD         │ TIMESTAMP WITH TIME…  │ YES     │ NULL    │ NULL    │ NULL    │
+    │ ATOD         │ TIMESTAMP WITH TIME…  │ YES     │ NULL    │ NULL    │ NULL    │
+    │ STOA         │ TIMESTAMP WITH TIME…  │ YES     │ NULL    │ NULL    │ NULL    │
+    │ ETOA         │ TIMESTAMP WITH TIME…  │ YES     │ NULL    │ NULL    │ NULL    │
+    │ ATOA         │ TIMESTAMP WITH TIME…  │ YES     │ NULL    │ NULL    │ NULL    │
+    ├──────────────┴───────────────────────┴─────────┴─────────┴─────────┴─────────┤
+    │ 15 rows                                                            6 columns │
+    └──────────────────────────────────────────────────────────────────────────────┘
     ```
 
 Dump the historical track playback data for the given flight
@@ -217,49 +246,55 @@ Dump the historical track playback data for the given flight
     │                           [required]                                         │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --timestamp          TEXT  ATD (optional), a pd.Timestamp-supported input    │
-    │                            (e.g. 2024-06-04T00:00:00)                        │
-    │                            [default: None]                                   │
-    │ --output     -o      FILE  Save results as parquet to a specific filepath.   │
-    │                            If `-`, results will be printed to stdout.        │
-    │                            [default: None]                                   │
-    │ --format     -f      TEXT  Output format, `parquet` or `csv`                 │
-    │                            [default: parquet]                                │
-    │ --help                     Show this message and exit.                       │
+    │ --timestamp          TEXT           ATD (optional), an ISO 8601 format input │
+    │                                     (e.g. 2024-06-04T00:00:00)               │
+    │                                     [default: None]                          │
+    │ --output     -o      FILE           Save results as parquet to a specific    │
+    │                                     filepath. If `-`, results will be        │
+    │                                     printed to stdout.                       │
+    │                                     [default: None]                          │
+    │ --format     -f      [parquet|csv]  Output format, `parquet` or `csv`        │
+    │                                     [default: parquet]                       │
+    │ --help                              Show this message and exit.              │
     ╰──────────────────────────────────────────────────────────────────────────────╯
 
     $ fr24 playback 2d81a27 -o playback.parquet
-    Success: wrote 62 rows (4162 bytes) to /home/user/playback.parquet.
+    success: wrote 62 rows to /path/to/playback.parquet.
     Preview:
-        timestamp  latitude   longitude  ...  track  squawk   ems
-    0   1394210550   2.79830  101.689003  ...    328    1135  None
-    1   1394210557   2.80333  101.685997  ...    327    1135  None
-    2   1394210563   2.80838  101.682999  ...    327    1135  None
-    3   1394210570   2.81292  101.680000  ...    327    1135  None
-    4   1394210576   2.81841  101.676003  ...    327    1135  None
-    ..         ...       ...         ...  ...    ...     ...   ...
-    57  1394212757   6.78333  103.512001  ...     25    1135  None
-    58  1394212768   6.80000  103.519997  ...     25    1135  None
-    59  1394212818   6.90314  103.570000  ...     28    1135  None
-    60  1394212835   6.93000  103.589996  ...     40    1135  None
-    61  1394212863   6.97000  103.629997  ...     40    1135  None
-
-    [62 rows x 9 columns]
+    shape: (5, 9)
+    ┌─────────┬─────────┬─────────┬─────────┬───┬────────┬───────┬────────┬────────┐
+    │ timesta ┆ latitud ┆ longitu ┆ altitud ┆ … ┆ vertic ┆ track ┆ squawk ┆ ems    │
+    │ mp      ┆ e       ┆ de      ┆ e       ┆   ┆ al_spe ┆ ---   ┆ ---    ┆ ---    │
+    │ ---     ┆ ---     ┆ ---     ┆ ---     ┆   ┆ ed     ┆ i16   ┆ u16    ┆ struct │
+    │ u32     ┆ f32     ┆ f32     ┆ i32     ┆   ┆ ---    ┆       ┆        ┆ [18]   │
+    │         ┆         ┆         ┆         ┆   ┆ i16    ┆       ┆        ┆        │
+    ╞═════════╪═════════╪═════════╪═════════╪═══╪════════╪═══════╪════════╪════════╡
+    │ 1394210 ┆ 2.7983  ┆ 101.689 ┆ 1500    ┆ … ┆ null   ┆ 328   ┆ 1135   ┆ null   │
+    │ 550     ┆         ┆ 003     ┆         ┆   ┆        ┆       ┆        ┆        │
+    │ 1394210 ┆ 2.80333 ┆ 101.685 ┆ 1575    ┆ … ┆ null   ┆ 327   ┆ 1135   ┆ null   │
+    │ 557     ┆         ┆ 997     ┆         ┆   ┆        ┆       ┆        ┆        │
+    │ 1394210 ┆ 2.80838 ┆ 101.682 ┆ 1650    ┆ … ┆ null   ┆ 327   ┆ 1135   ┆ null   │
+    │ 563     ┆         ┆ 999     ┆         ┆   ┆        ┆       ┆        ┆        │
+    │ 1394210 ┆ 2.81292 ┆ 101.68  ┆ 1725    ┆ … ┆ null   ┆ 327   ┆ 1135   ┆ null   │
+    │ 570     ┆         ┆         ┆         ┆   ┆        ┆       ┆        ┆        │
+    │ 1394210 ┆ 2.81841 ┆ 101.676 ┆ 1825    ┆ … ┆ null   ┆ 327   ┆ 1135   ┆ null   │
+    │ 576     ┆         ┆ 003     ┆         ┆   ┆        ┆       ┆        ┆        │
+    └─────────┴─────────┴─────────┴─────────┴───┴────────┴───────┴────────┴────────┘
 
     $ duckdb -c "describe select * from 'playback.parquet';"
     ┌────────────────┬──────────────────────┬─────────┬───┬─────────┬─────────┐
     │  column_name   │     column_type      │  null   │ … │ default │  extra  │
     │    varchar     │       varchar        │ varchar │   │ varchar │ varchar │
     ├────────────────┼──────────────────────┼─────────┼───┼─────────┼─────────┤
-    │ timestamp      │ UINTEGER             │ YES     │ … │         │         │
-    │ latitude       │ FLOAT                │ YES     │ … │         │         │
-    │ longitude      │ FLOAT                │ YES     │ … │         │         │
-    │ altitude       │ INTEGER              │ YES     │ … │         │         │
-    │ ground_speed   │ SMALLINT             │ YES     │ … │         │         │
-    │ vertical_speed │ SMALLINT             │ YES     │ … │         │         │
-    │ track          │ SMALLINT             │ YES     │ … │         │         │
-    │ squawk         │ USMALLINT            │ YES     │ … │         │         │
-    │ ems            │ STRUCT("timestamp"…  │ YES     │ … │         │         │
+    │ timestamp      │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │
+    │ latitude       │ FLOAT                │ YES     │ … │ NULL    │ NULL    │
+    │ longitude      │ FLOAT                │ YES     │ … │ NULL    │ NULL    │
+    │ altitude       │ INTEGER              │ YES     │ … │ NULL    │ NULL    │
+    │ ground_speed   │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+    │ vertical_speed │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+    │ track          │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+    │ squawk         │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │
+    │ ems            │ STRUCT("timestamp"…  │ YES     │ … │ NULL    │ NULL    │
     ├────────────────┴──────────────────────┴─────────┴───┴─────────┴─────────┤
     │ 9 rows                                              6 columns (5 shown) │
     └─────────────────────────────────────────────────────────────────────────┘
@@ -269,24 +304,24 @@ Dump the historical track playback data for the given flight
     │ column_name  │ column_type │  null   │   key   │ default │  extra  │
     │   varchar    │   varchar   │ varchar │ varchar │ varchar │ varchar │
     ├──────────────┼─────────────┼─────────┼─────────┼─────────┼─────────┤
-    │ timestamp    │ UINTEGER    │ YES     │         │         │         │
-    │ ias          │ SMALLINT    │ YES     │         │         │         │
-    │ tas          │ SMALLINT    │ YES     │         │         │         │
-    │ mach         │ SMALLINT    │ YES     │         │         │         │
-    │ mcp          │ INTEGER     │ YES     │         │         │         │
-    │ fms          │ INTEGER     │ YES     │         │         │         │
-    │ autopilot    │ TINYINT     │ YES     │         │         │         │
-    │ oat          │ TINYINT     │ YES     │         │         │         │
-    │ track        │ FLOAT       │ YES     │         │         │         │
-    │ roll         │ FLOAT       │ YES     │         │         │         │
-    │ qnh          │ USMALLINT   │ YES     │         │         │         │
-    │ wind_dir     │ SMALLINT    │ YES     │         │         │         │
-    │ wind_speed   │ SMALLINT    │ YES     │         │         │         │
-    │ precision    │ UTINYINT    │ YES     │         │         │         │
-    │ altitude_gps │ INTEGER     │ YES     │         │         │         │
-    │ emergency    │ UTINYINT    │ YES     │         │         │         │
-    │ tcas_acas    │ UTINYINT    │ YES     │         │         │         │
-    │ heading      │ USMALLINT   │ YES     │         │         │         │
+    │ timestamp    │ UINTEGER    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ ias          │ SMALLINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ tas          │ SMALLINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ mach         │ SMALLINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ mcp          │ INTEGER     │ YES     │ NULL    │ NULL    │ NULL    │
+    │ fms          │ INTEGER     │ YES     │ NULL    │ NULL    │ NULL    │
+    │ autopilot    │ TINYINT     │ YES     │ NULL    │ NULL    │ NULL    │
+    │ oat          │ TINYINT     │ YES     │ NULL    │ NULL    │ NULL    │
+    │ track        │ FLOAT       │ YES     │ NULL    │ NULL    │ NULL    │
+    │ roll         │ FLOAT       │ YES     │ NULL    │ NULL    │ NULL    │
+    │ qnh          │ USMALLINT   │ YES     │ NULL    │ NULL    │ NULL    │
+    │ wind_dir     │ SMALLINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ wind_speed   │ SMALLINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ precision    │ UTINYINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ altitude_gps │ INTEGER     │ YES     │ NULL    │ NULL    │ NULL    │
+    │ emergency    │ UTINYINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ tcas_acas    │ UTINYINT    │ YES     │ NULL    │ NULL    │ NULL    │
+    │ heading      │ USMALLINT   │ YES     │ NULL    │ NULL    │ NULL    │
     ├──────────────┴─────────────┴─────────┴─────────┴─────────┴─────────┤
     │ 18 rows                                                  6 columns │
     └────────────────────────────────────────────────────────────────────┘

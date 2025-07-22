@@ -98,7 +98,8 @@ if TYPE_CHECKING:
 
     from . import HTTPClient
     from .cache import FR24Cache
-    from .utils import SupportedFormats
+    from .types import IntTimestampS
+    from .types.cache import SupportedFormats
 
 _log = logging.getLogger(__name__)
 
@@ -190,19 +191,18 @@ class SupportsWriteTable(Protocol):
 class FlightListService(SupportsFetch[FlightListParams]):
     """Flight list service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(FlightListParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightListResult:
-        """
-        Fetch the flight list.
+        """Fetch the flight list.
         See [fr24.json.FlightListParams][] for the detailed signature.
         """
         params = FlightListParams(*args, **kwargs)
         response = await flight_list(
-            self.__factory.http.client,
+            self._factory.http.client,
             params,
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         return FlightListResult(
             request=params,
@@ -219,8 +219,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
     async def fetch_all(
         self, /, *args: Any, **kwargs: Any
     ) -> AsyncIterator[FlightListResult]:
-        """
-        Fetch all pages of the flight list.
+        """Fetch all pages of the flight list.
 
         See [fr24.service.FlightListService.FetchAllArgs][] for the detailed
         signature.
@@ -256,8 +255,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
             await asyncio.sleep(delay)
 
     def new_result_collection(self) -> FlightListResultCollection:
-        """
-        Create an empty list of flight list API results.
+        """Create an empty list of flight list API results.
 
         Methods `to_dict` and `to_polars` can be used collect all unique rows in
         each flight list.
@@ -302,8 +300,7 @@ class FlightListResultCollection(
     """A list of results from the flight list API."""
 
     def to_dict(self) -> FlightList:
-        """
-        Collects the raw bytes in each response into a single result.
+        """Collects the raw bytes in each response into a single result.
         Duplicates are identified by their (flight id, time of departure),
         and are removed.
 
@@ -369,16 +366,16 @@ class FlightListResultCollection(
 class PlaybackService(SupportsFetch[PlaybackParams]):
     """Playback service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(PlaybackParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackResult:
         """See [fr24.json.PlaybackParams][] for the detailed signature."""
         params = PlaybackParams(*args, **kwargs)
         response = await playback(
-            self.__factory.http.client,
+            self._factory.http.client,
             params,
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         return PlaybackResult(
             request=params,
@@ -421,19 +418,18 @@ class PlaybackResult(
 class LiveFeedService(SupportsFetch[LiveFeedParams]):
     """Live feed service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(LiveFeedParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> LiveFeedResult:
-        """
-        Fetch the live feed.
+        """Fetch the live feed.
         See [fr24.grpc.LiveFeedParams][] for the detailed signature.
         """
         params = LiveFeedParams(*args, **kwargs)
         response = await live_feed(
-            self.__factory.http.client,
+            self._factory.http.client,
             params.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         # NOTE: serverTimeMs in the protobuf response would be more accurate
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
@@ -452,7 +448,7 @@ class LiveFeedResult(
     SupportsToPolars,
     SupportsWriteTable,
 ):
-    timestamp: int
+    timestamp: IntTimestampS
 
     def to_proto(self) -> LiveFeedResponse:
         return parse_data(self.response.content, LiveFeedResponse).unwrap()
@@ -478,21 +474,20 @@ class LiveFeedResult(
 class LiveFeedPlaybackService(SupportsFetch[LiveFeedPlaybackParams]):
     """Live feed service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(LiveFeedPlaybackParams)
     async def fetch(
         self, /, *args: Any, **kwargs: Any
     ) -> LiveFeedPlaybackResult:
-        """
-        Fetch a playback of the live feed.
+        """Fetch a playback of the live feed.
         See [fr24.grpc.LiveFeedPlaybackParams][] for the detailed signature.
         """
         params = LiveFeedPlaybackParams(*args, **kwargs)
         response = await live_feed_playback(
-            self.__factory.http.client,
+            self._factory.http.client,
             params.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         return LiveFeedPlaybackResult(
             request=LiveFeedPlaybackParams(*args, **kwargs),
@@ -532,7 +527,7 @@ class LiveFeedPlaybackResult(
 class AirportListService(SupportsFetch[AirportListParams]):
     """Airport list service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(AirportListParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> AirportListResult:
@@ -541,9 +536,9 @@ class AirportListService(SupportsFetch[AirportListParams]):
         """
         params = AirportListParams(*args, **kwargs)
         response = await airport_list(
-            self.__factory.http.client,
+            self._factory.http.client,
             params,
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         return AirportListResult(
             request=params,
@@ -565,7 +560,7 @@ class AirportListResult(
 class FindService(SupportsFetch[FindParams]):
     """Find service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(FindParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> FindResult:
@@ -574,9 +569,9 @@ class FindService(SupportsFetch[FindParams]):
         """
         params = FindParams(*args, **kwargs)
         response = await find(
-            self.__factory.http.client,
+            self._factory.http.client,
             params,
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         return FindResult(
             request=params,
@@ -600,7 +595,7 @@ class FindResult(
 class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
     """Nearest flights service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(NearestFlightsParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> NearestFlightsResult:
@@ -609,9 +604,9 @@ class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
         """
         request = NearestFlightsParams(*args, **kwargs)
         response = await nearest_flights(
-            self.__factory.http.client,
+            self._factory.http.client,
             request.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return NearestFlightsResult(
@@ -629,7 +624,7 @@ class NearestFlightsResult(
     SupportsToPolars,
     SupportsWriteTable,
 ):
-    timestamp: int
+    timestamp: IntTimestampS
 
     def to_proto(self) -> NearestFlightsResponse:
         return parse_data(
@@ -659,7 +654,7 @@ class NearestFlightsResult(
 class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
     """Live flights status service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(LiveFlightsStatusParams)
     async def fetch(
@@ -670,9 +665,9 @@ class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
         """
         request = LiveFlightsStatusParams(*args, **kwargs)
         response = await live_flights_status(
-            self.__factory.http.client,
+            self._factory.http.client,
             request.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return LiveFlightsStatusResult(
@@ -690,7 +685,7 @@ class LiveFlightsStatusResult(
     SupportsToPolars,
     SupportsWriteTable,
 ):
-    timestamp: int
+    timestamp: IntTimestampS
 
     def to_proto(self) -> LiveFlightsStatusResponse:
         return parse_data(
@@ -718,7 +713,7 @@ class LiveFlightsStatusResult(
 class FollowFlightService:
     """Follow flight service for real-time streaming."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(FollowFlightParams)
     async def stream(
@@ -729,9 +724,9 @@ class FollowFlightService:
         """
         request = FollowFlightParams(*args, **kwargs)
         async for response in follow_flight_stream(
-            self.__factory.http.client,
+            self._factory.http.client,
             request.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         ):
             yield FollowFlightResult(
                 request=request,
@@ -758,7 +753,7 @@ class FollowFlightResult(
 class TopFlightsService(SupportsFetch[TopFlightsParams]):
     """Top flights service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(TopFlightsParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> TopFlightsResult:
@@ -767,9 +762,9 @@ class TopFlightsService(SupportsFetch[TopFlightsParams]):
         """
         request = TopFlightsParams(*args, **kwargs)
         response = await top_flights(
-            self.__factory.http.client,
+            self._factory.http.client,
             request.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return TopFlightsResult(
@@ -787,7 +782,7 @@ class TopFlightsResult(
     SupportsToPolars,
     SupportsWriteTable,
 ):
-    timestamp: int
+    timestamp: IntTimestampS
 
     def to_proto(self) -> TopFlightsResponse:
         return parse_data(self.response.content, TopFlightsResponse).unwrap()
@@ -813,7 +808,7 @@ class TopFlightsResult(
 class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
     """Flight details service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(FlightDetailsParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightDetailsResult:
@@ -822,9 +817,9 @@ class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
         """
         request = FlightDetailsParams(*args, **kwargs)
         response = await flight_details(
-            self.__factory.http.client,
+            self._factory.http.client,
             request.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return FlightDetailsResult(
@@ -842,7 +837,7 @@ class FlightDetailsResult(
     SupportsToPolars,
     SupportsWriteTable,
 ):
-    timestamp: int
+    timestamp: IntTimestampS
 
     def to_proto(self) -> FlightDetailsResponse:
         return parse_data(self.response.content, FlightDetailsResponse).unwrap()
@@ -870,7 +865,7 @@ class FlightDetailsResult(
 class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
     """Playback flight service."""
 
-    __factory: ServiceFactory
+    _factory: ServiceFactory
 
     @overwrite_args_signature_from(PlaybackFlightParams)
     async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackFlightResult:
@@ -879,9 +874,9 @@ class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
         """
         request = PlaybackFlightParams(*args, **kwargs)
         response = await playback_flight(
-            self.__factory.http.client,
+            self._factory.http.client,
             request.to_proto(),
-            self.__factory.http.auth,
+            self._factory.http.auth,
         )
         return PlaybackFlightResult(
             request=request,

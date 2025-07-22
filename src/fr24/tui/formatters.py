@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import pandas as pd
+from fr24.types import IntTimestampS
 from fr24.types.json import AircraftInfo
 from fr24.types.json import CommonAirport as AirportJSON
 
 
 class Time:
-    def __init__(self, timestamp: None | int | str | pd.Timestamp):
+    def __init__(self, timestamp: None | IntTimestampS | str | pd.Timestamp):
         self.ts = timestamp
 
     def __format__(self, __format_spec: str) -> str:

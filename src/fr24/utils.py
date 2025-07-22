@@ -25,6 +25,15 @@ if TYPE_CHECKING:
     import polars as pl
     from typing_extensions import TypeAlias
 
+    from .types import (
+        IntFlightId,
+        IntoFlightId,
+        IntoTimestamp,
+        IntTimestampS,
+        StrFlightIdHex,
+    )
+    from .types.cache import SupportedFormats
+
 
 DEFAULT_HEADERS = {
     "User-Agent": (
@@ -44,14 +53,11 @@ DEFAULT_HEADERS = {
     "TE": "trailers",
 }
 
-IntoTimestamp: TypeAlias = Union[int, datetime]
-"""Unix timestamp in seconds or a datetime object."""
-
 
 @overload
 def to_unix_timestamp(
     timestamp: IntoTimestamp | Literal["now"] | str,
-) -> int | Literal["now"]: ...
+) -> IntTimestampS | Literal["now"]: ...
 
 
 @overload
@@ -60,55 +66,71 @@ def to_unix_timestamp(timestamp: None) -> None: ...
 
 def to_unix_timestamp(
     timestamp: IntoTimestamp | str | Literal["now"] | None,
-) -> int | Literal["now"] | None:
+) -> IntTimestampS | Literal["now"] | None:
     """Casts timestamp-like object to a Unix timestamp in integer seconds."""
     if isinstance(timestamp, str):
         # TODO(abrah): should we eagerly return the current timestamp just like
         # `pd.Timestamp("now")`? we might want to defer this to the caller.
         if timestamp == "now":
             return "now"
+        # try to interpret string as integer timestamp in seconds first
+        try:
+            return to_unix_timestamp(int(timestamp))
+        except ValueError:
+            pass
+        # otherwise assume it's a format that `chronos` understands
         import polars as pl
 
-        dt: datetime = pl.Series(values=(timestamp,)).str.to_datetime().item(0)
+        try:
+            dt = pl.Series(values=(timestamp,)).str.to_datetime().item(0)
+        except pl.exceptions.ComputeError:
+            raise ValueError(
+                f"invalid ISO8601/chronos timestamp: {timestamp!r}"
+            )
         return int(dt.timestamp())
     if isinstance(timestamp, datetime):
         return int(timestamp.timestamp())
     if isinstance(timestamp, int):
-        assert timestamp < 4102462800, (
-            "timestamp should be in seconds, not milliseconds"
-        )  # 2100-01-01
+        if timestamp > 4102462800:  # 2100-01-01
+            raise ValueError(
+                f"timestamp {timestamp} is too large, "
+                "should be in seconds, not milliseconds"
+            )
         return timestamp
     return None
 
 
-def get_current_timestamp() -> int:
+def get_current_timestamp() -> IntTimestampS:
     """Returns the current Unix timestamp in seconds."""
     return int(time.time())
 
 
 def parse_server_timestamp(
     response: httpx.Response,
-) -> int | None:
+) -> IntTimestampS | None:
     server_date: str = response.headers.get("date")
     if server_date is not None:
         return int(email.utils.parsedate_to_datetime(server_date).timestamp())
     return None
 
 
-IntoFlightId: TypeAlias = Union[int, str, bytes]
-
-
-def to_flight_id(flight_id: IntoFlightId) -> int:
+def to_flight_id(flight_id: IntoFlightId) -> IntFlightId:
     if isinstance(flight_id, (str, bytes)):
         return int(flight_id, 16)
     return flight_id
 
 
+def to_flight_id_hex(flight_id: IntoFlightId) -> StrFlightIdHex:
+    """Converts flight ID to a hex string."""
+    if isinstance(flight_id, str):
+        return flight_id.lower().removeprefix("0x")
+    if isinstance(flight_id, bytes):
+        flight_id = flight_id.decode()
+    return f"{flight_id:x}"
+
+
 class BarePath(Path):
     """A path to a file without an extension."""
-
-
-SupportedFormats: TypeAlias = Literal["parquet", "csv"]  # TODO: support ndjson
 
 
 def format_bare_path(path: BarePath, format: SupportedFormats) -> BarePath:
@@ -158,12 +180,15 @@ def scan_table(
     file: Path | IO[bytes] | BarePath,
     *,
     format: SupportedFormats = "parquet",
+    schema: dict[str, pl.DataType] | None = None,
 ) -> pl.LazyFrame:
     """
     Reads the table as the specified format via polars.
 
     :param file: File path or readable file-like object. The path will be given
         an appropriate suffix if it is a [BarePath][fr24.utils.BarePath].
+    :param schema: The schema to enforce when reading the table. For CSV files,
+        this should be specified to properly parse datetimes from strings.
     """
     import polars as pl
 
@@ -171,9 +196,9 @@ def scan_table(
         file = format_bare_path(file, format)
 
     if format == "parquet":
-        return pl.scan_parquet(file)
+        return pl.scan_parquet(file, schema=schema)
     elif format == "csv":
-        return pl.scan_csv(file)
+        return pl.scan_csv(file, schema=schema)
     else:
         raise ValueError(f"unsupported format: `{format}`")
 
@@ -192,12 +217,14 @@ DictT_co = TypeVar("DictT_co", covariant=True)
 class SupportsToDict(Protocol[DictT_co]):
     def to_dict(self) -> DictT_co:
         """Converts the object into a dictionary."""
+        ...
 
 
 @runtime_checkable
 class SupportsToPolars(Protocol):
     def to_polars(self) -> pl.DataFrame:
         """Converts the object into a polars dataframe."""
+        ...
 
 
 # In the json api, the httpx.Response class stores the response body AND any

@@ -8,4 +8,4 @@ See the [library quickstart](../usage/quickstart.md) to learn more.
     options:
         show_if_no_docstring: true
         filters:
-            - "!__factory"
+            - "!_factory"

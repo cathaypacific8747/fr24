@@ -1,6 +1,7 @@
-from typing import Callable, TypeVar, cast
+from datetime import datetime
+from typing import Callable, TypeVar, Union, cast
 
-from typing_extensions import Concatenate, ParamSpec
+from typing_extensions import Concatenate, ParamSpec, TypeAlias
 
 #
 # In this library, we have a clear separation between
@@ -58,3 +59,19 @@ def overwrite_args_signature_from(
         return cast(Callable[Concatenate[S, P], R], target)
 
     return decorator
+
+
+IntTimestampS: TypeAlias = int
+"""Unix timestamp in integer seconds."""
+IntTimestampMs: TypeAlias = int
+"""Unix timestamp in integer milliseconds."""
+IntoTimestamp: TypeAlias = Union[IntTimestampS, datetime]
+"""A type that can be converted to a timestamp (in seconds)."""
+
+
+IntFlightId: TypeAlias = int
+"""Flight ID as an integer."""
+StrFlightIdHex: TypeAlias = str
+"""Flight ID as a hexadecimal string."""
+IntoFlightId: TypeAlias = Union[IntFlightId, StrFlightIdHex, bytes]
+"""A type that can be converted to a flight ID."""

@@ -10,11 +10,20 @@ import polars as pl
 
 from .types.cache import flight_list_schema, playback_track_schema
 from .types.json import AirportList, Find, FlightList, Playback
-from .utils import DEFAULT_HEADERS, get_current_timestamp, to_unix_timestamp
+from .utils import (
+    DEFAULT_HEADERS,
+    get_current_timestamp,
+    to_flight_id_hex,
+    to_unix_timestamp,
+)
 
 if TYPE_CHECKING:
     from typing import Annotated, Any, Literal
 
+    from .types import (
+        IntoFlightId,
+        IntoTimestamp,
+    )
     from .types.cache import (
         FlightListRecord,
         PlaybackTrackEMSRecord,
@@ -29,7 +38,6 @@ if TYPE_CHECKING:
         PlaybackRequest,
         TrackData,
     )
-    from .utils import IntoTimestamp
 
 _log = logging.getLogger(__name__)
 
@@ -205,19 +213,12 @@ class PlaybackParams:
     Request data to fetch historical track playback data for a given flight.
     """
 
-    flight_id: int | str
+    flight_id: IntoFlightId
     """fr24 flight id, represented in hex"""
     timestamp: IntoTimestamp | None = None
     """Actual time of departure (ATD) of the historic flight,
     Unix timestamp in seconds. Optional, but it is recommended to include it.
     """
-
-    @property
-    def flight_id_hex(self) -> str:
-        """The flight ID as a hex string."""
-        if isinstance(self.flight_id, str):
-            return self.flight_id.lower().removeprefix("0x")
-        return f"{self.flight_id:x}"
 
 
 async def playback(
@@ -239,7 +240,7 @@ async def playback(
     headers = DEFAULT_HEADERS.copy()
     headers["fr24-device-id"] = device
     request_data: PlaybackRequest = {
-        "flightId": params.flight_id_hex,
+        "flightId": to_flight_id_hex(params.flight_id),
     }
     if timestamp is not None:
         request_data["timestamp"] = timestamp
@@ -308,8 +309,7 @@ class _Parser(Generic[_TypedDictT]):
     def parse_json(
         response: Annotated[httpx.Response, _TypedDictT],
     ) -> _TypedDictT:
-        """
-        Parses binary representation into a python object (typed dict).
+        """Parses binary representation into a python object (typed dict).
 
         :raises httpx.HTTPStatusError: if the response did not succeed
         """

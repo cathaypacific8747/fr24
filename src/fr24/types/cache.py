@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Annotated, Any, get_type_hints
+from typing import Annotated, Any, Literal, get_type_hints
 
 import polars as pl
 from typing_extensions import TypedDict
+
+from . import IntFlightId, IntTimestampMs, IntTimestampS
 
 # NOTE: Parquet does not support timestamp in seconds:
 # https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp
@@ -50,7 +52,7 @@ def to_schema(obj: type[Any]) -> dict[str, pl.DataType]:
 
 
 class FlightListRecord(TypedDict):
-    flight_id: Annotated[int | None, DType(pl.UInt64())]
+    flight_id: Annotated[IntFlightId | None, DType(pl.UInt64())]
     number: Annotated[str | None, DType(pl.String())]
     callsign: Annotated[str | None, DType(pl.String())]
     icao24: Annotated[int | None, DType(pl.UInt32())]
@@ -59,19 +61,31 @@ class FlightListRecord(TypedDict):
     origin: Annotated[str | None, DType(pl.String())]
     destination: Annotated[str | None, DType(pl.String())]
     status: Annotated[str | None, DType(pl.String())]
-    STOD: Annotated[int | None, DType(pl.Datetime("ms", time_zone="UTC"))]
-    ETOD: Annotated[int | None, DType(pl.Datetime("ms", time_zone="UTC"))]
-    ATOD: Annotated[int | None, DType(pl.Datetime("ms", time_zone="UTC"))]
-    STOA: Annotated[int | None, DType(pl.Datetime("ms", time_zone="UTC"))]
-    ETOA: Annotated[int | None, DType(pl.Datetime("ms", time_zone="UTC"))]
-    ATOA: Annotated[int | None, DType(pl.Datetime("ms", time_zone="UTC"))]
+    STOD: Annotated[
+        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]
+    ETOD: Annotated[
+        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]
+    ATOD: Annotated[
+        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]
+    STOA: Annotated[
+        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]
+    ETOA: Annotated[
+        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]
+    ATOA: Annotated[
+        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+    ]
 
 
 flight_list_schema = to_schema(FlightListRecord)
 
 
 class PlaybackTrackEMSRecord(TypedDict):
-    timestamp: Annotated[int, DType(pl.UInt32())]
+    timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
     ias: Annotated[int | None, DType(pl.Int16())]
     tas: Annotated[int | None, DType(pl.Int16())]
     mach: Annotated[int | None, DType(pl.Int16())]
@@ -95,7 +109,7 @@ playback_track_ems_schema = to_schema(PlaybackTrackEMSRecord)
 
 
 class PlaybackTrackRecord(TypedDict):
-    timestamp: Annotated[int, DType(pl.UInt32())]
+    timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
     altitude: Annotated[int, DType(pl.Int32())]
@@ -122,8 +136,8 @@ position_buffer_struct_schema = to_schema(RecentPositionRecord)
 
 
 class FlightRecord(TypedDict):
-    timestamp: Annotated[int, DType(pl.UInt32())]
-    flightid: Annotated[int, DType(pl.UInt32())]
+    timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
+    flightid: Annotated[IntFlightId, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
     track: Annotated[int, DType(pl.UInt16())]
@@ -158,7 +172,7 @@ nearest_flights_schema = to_schema(NearbyFlightRecord)
 
 
 class LiveFlightStatusRecord(TypedDict):
-    flight_id: Annotated[int, DType(pl.UInt32())]
+    flight_id: Annotated[IntFlightId, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
     status: Annotated[int, DType(pl.UInt8())]
@@ -169,7 +183,7 @@ live_flights_status_schema = to_schema(LiveFlightStatusRecord)
 
 
 class TopFlightRecord(TypedDict):
-    flight_id: Annotated[int, DType(pl.UInt32())]
+    flight_id: Annotated[IntFlightId, DType(pl.UInt32())]
     live_clicks: Annotated[int, DType(pl.UInt32())]
     total_clicks: Annotated[int, DType(pl.UInt32())]
     flight_number: Annotated[str, DType(pl.String())]
@@ -206,7 +220,7 @@ ems_struct_schema = to_schema(EMSRecord)
 
 
 class TrailPointRecord(TypedDict):
-    timestamp: Annotated[int, DType(pl.UInt32())]
+    timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
     altitude: Annotated[int | None, DType(pl.Int32())]
@@ -239,15 +253,15 @@ class _ScheduleRecord(TypedDict):
     origin_id: Annotated[int, DType(pl.UInt32())]
     destination_id: Annotated[int, DType(pl.UInt32())]
     diverted_id: Annotated[int, DType(pl.UInt32())]
-    scheduled_departure: Annotated[int, DType(pl.UInt32())]
-    scheduled_arrival: Annotated[int, DType(pl.UInt32())]
-    actual_departure: Annotated[int | None, DType(pl.UInt32())]
-    actual_arrival: Annotated[int | None, DType(pl.UInt32())]
+    scheduled_departure: Annotated[IntTimestampS, DType(pl.UInt32())]
+    scheduled_arrival: Annotated[IntTimestampS, DType(pl.UInt32())]
+    actual_departure: Annotated[IntTimestampS | None, DType(pl.UInt32())]
+    actual_arrival: Annotated[IntTimestampS | None, DType(pl.UInt32())]
 
 
 class _FlightInfoRecord(TypedDict):
-    timestamp_ms: Annotated[int, DType(pl.UInt64())]
-    flightid: Annotated[int, DType(pl.UInt32())]
+    timestamp_ms: Annotated[IntTimestampMs, DType(pl.UInt64())]
+    flightid: Annotated[IntFlightId, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
     track: Annotated[int | None, DType(pl.UInt16())]
@@ -290,3 +304,4 @@ class PlaybackFlightRecord(
 
 
 playback_flight_schema = to_schema(PlaybackFlightRecord)
+SupportedFormats = Literal["parquet", "csv"]  # TODO: support ndjson

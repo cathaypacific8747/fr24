@@ -10,6 +10,8 @@ from typing_extensions import (
     TypeGuard,
 )
 
+from . import IntTimestampS, StrFlightIdHex
+
 #
 # authentication
 #
@@ -28,7 +30,7 @@ class UserData(TypedDict, total=False):
     accessToken: None | str
     accountType: str
     countryCode: None | str
-    dateExpires: int
+    dateExpires: IntTimestampS
     dateLastLogin: str
     features: Features
     hasConsented: bool
@@ -172,6 +174,7 @@ class _Timezone(TypedDict):
     abbrName: str | None
     isDst: bool
 
+
 # prior to v0.2.0 this was `common.Airport`
 class CommonAirport(TypedDict):
     name: str
@@ -218,7 +221,7 @@ class FlightListRequest(TypedDict, total=False):
     page: int
     pk: None
     query: Required[str]
-    timestamp: int
+    timestamp: IntTimestampS
     token: None | str
 
 
@@ -265,13 +268,13 @@ class AircraftInfo(TypedDict):
 
 
 class Interval(TypedDict):
-    departure: None | int
-    arrival: None | int
+    departure: None | IntTimestampS
+    arrival: None | IntTimestampS
 
 
 class TimeOther(TypedDict):
-    eta: None | int
-    updated: None | int
+    eta: None | IntTimestampS
+    updated: None | IntTimestampS
     duration: None | int
 
 
@@ -300,7 +303,7 @@ class AircraftImage(TypedDict):
 class FlightListResponse(TypedDict):
     item: Item
     page: Page
-    timestamp: int
+    timestamp: IntTimestampS
     data: list[FlightListItem] | None
     # TODO: depending on whether the flight list was queried by reg or flight
     # this may change - check this again
@@ -358,15 +361,15 @@ FLIGHT_LIST_EMPTY: FlightList = {
 class PlaybackRequest(TypedDict, total=False):
     callback: None
     device: None | str
-    flightId: Required[str]
+    flightId: Required[StrFlightIdHex]
     format: Literal["json"]
     pk: None
-    timestamp: int | None
+    timestamp: IntTimestampS | None
     token: None | str
 
 
 class FlightIdentification(TypedDict):
-    id: str | int
+    id: StrFlightIdHex | int
     number: FlightNumber
     callsign: str
 
@@ -388,7 +391,7 @@ class AircraftData(TypedDict):
 class Median(TypedDict):
     time: int | None
     delay: int | None
-    timestamp: int | None
+    timestamp: IntTimestampS | None
 
 
 class Altitude(TypedDict):
@@ -408,7 +411,7 @@ class VerticalSpeed(TypedDict):
 
 
 class EMS(TypedDict):
-    ts: int
+    ts: IntTimestampS
     ias: int | None
     tas: int | None
     mach: int | None
@@ -446,7 +449,7 @@ class TrackData(TypedDict):
         [fr24.json.playback_track_dict][].
     """
     squawk: str
-    timestamp: int
+    timestamp: IntTimestampS
     ems: None | EMS
 
 
@@ -472,7 +475,7 @@ class PlaybackData(TypedDict):
 
 
 class PlaybackResponse(TypedDict):
-    timestamp: int
+    timestamp: IntTimestampS
     altitudeFiltered: bool
     data: PlaybackData
 
@@ -491,10 +494,11 @@ class Playback(TypedDict):
 # airport list
 #
 
+
 # prior to v0.2.0 this was `airport_list.Schedule`
 class AirportListScheduleSetting(TypedDict):
     mode: Literal["departures", "arrivals"] | None
-    timestamp: int
+    timestamp: IntTimestampS
 
 
 Plugin = Literal[
@@ -527,7 +531,7 @@ AirportRequest = TypedDict(
         "plugin[]": list[Plugin],
         "plugin-setting": PluginSetting,
         "plugin-setting[schedule][mode]": str,
-        "plugin-setting[schedule][timestamp]": int,
+        "plugin-setting[schedule][timestamp]": IntTimestampS,
         "token": Union[str, None],
     },
     total=False,
@@ -639,6 +643,7 @@ class LiveEntry(EntryBase):
     detail: Live
     type: Literal["live"]
     match: Literal["route", "begins"]
+
 
 # prior to v0.2.0 this was `find.Schedule`
 class ScheduleEntry(EntryBase):

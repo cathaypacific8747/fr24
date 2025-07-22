@@ -22,7 +22,7 @@ Methods:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, NamedTuple, Sequence, Union, cast
+from typing import TYPE_CHECKING, NamedTuple, Sequence, Union
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -85,6 +85,7 @@ if TYPE_CHECKING:
     from google.protobuf.internal.enum_type_wrapper import _V, _EnumTypeWrapper
     from typing_extensions import TypeAlias
 
+    from .types import IntoFlightId, IntoTimestamp
     from .types.cache import (
         EMSRecord,
         FlightDetailsRecord,
@@ -98,7 +99,6 @@ if TYPE_CHECKING:
     )
     from .types.grpc import LiveFeedField
     from .types.json import Authentication
-    from .utils import IntoFlightId, IntoTimestamp
 
 #
 # helpers
@@ -729,13 +729,14 @@ class PlaybackFlightParams(SupportsToProto[PlaybackFlightRequest]):
     Must not be live, or the response will contain an empty `DATA` frame error.
     """
     timestamp: IntoTimestamp
-    """Actual time of departure (ATD) of the historic flight,
-    Unix timestamp in seconds."""
+    """Actual time of departure (ATD) of the historic flight"""
 
     def to_proto(self) -> PlaybackFlightRequest:
+        ts = to_unix_timestamp(self.timestamp)
+        assert not isinstance(ts, str)
         return PlaybackFlightRequest(
             flight_id=to_flight_id(self.flight_id),
-            timestamp=to_unix_timestamp(self.timestamp),  # type: ignore
+            timestamp=ts,
         )
 
 

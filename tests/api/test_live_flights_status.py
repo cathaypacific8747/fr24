@@ -42,7 +42,9 @@ async def test_live_flights_status_file_ops(
     fp.unlink(missing_ok=True)
 
     live_flights_status_result.write_table(cache)
-    assert fp.exists()
+    assert fp.exists(), (
+        f"{fp} not in {list(f.name for f in fp.parent.glob('*'))}"
+    )
 
     df_local = cache.live_flights_status.scan_table(ident).collect()
     assert df_local.equals(live_flights_status_result.to_polars())

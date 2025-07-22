@@ -26,13 +26,15 @@ async def test_nearest_flights_file_ops(
     fp = (
         cache.path
         / "nearest_flights"
-        / f"{int(lon * 1e6)}_{int(lat * 1e6)}_{timestamp}"
+        / f"{int(lon * 1e6)}_{int(lat * 1e6)}_{timestamp}.parquet"
     )
     fp.parent.mkdir(parents=True, exist_ok=True)
     fp.unlink(missing_ok=True)
 
     nearest_flights_result.write_table(cache)
-    assert fp.exists()
+    assert fp.exists(), (
+        f"{fp} not in {list(f.name for f in fp.parent.glob('*'))}"
+    )
 
     df_local = cache.nearest_flights.scan_table(lon, lat, timestamp).collect()
     assert df_local.equals(nearest_flights_result.to_polars())

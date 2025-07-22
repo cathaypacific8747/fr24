@@ -26,8 +26,7 @@ class FR24:
         self,
         client: httpx.AsyncClient | None = None,
     ) -> None:
-        """
-        See docs [quickstart](../usage/quickstart.md#initialisation).
+        """See docs [quickstart](../usage/quickstart.md#initialisation).
 
         :param client: The `httpx` client to use. If not provided, a
             new one will be created with HTTP/2 enabled by default. It is
@@ -72,10 +71,9 @@ class FR24:
             TokenSubscriptionKey | UsernamePassword | None | Literal["from_env"]
         ) = "from_env",
     ) -> None:
-        """
-        :param creds: Reads credentials from the environment variables or the
-            config file if `creds` is set to `"from_env"` (default). Otherwise,
-            provide the credentials directly.
+        """:param creds: Reads credentials from the environment variables or the
+        config file if `creds` is set to `"from_env"` (default). Otherwise,
+        provide the credentials directly.
         """
         await self.http._login(creds)
 
