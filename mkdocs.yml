@@ -14,7 +14,7 @@ nav:
   - API Reference:
       - Services: "api/service.md"
       - Cache: "api/cache.md"
-      - Low Level API: "api/functions.md"
+      - Low Level API: "api/low_level.md"
       - Types: "api/types.md"
       - Utilities: "api/utils.md"
       - Protobuf Definitions: "api/protobuf.md"
@@ -67,6 +67,8 @@ plugins:
             summary: true
             show_submodules: true
             docstring_style: sphinx
+            extensions:
+              - scripts/check_signature.py:FR24CheckSignatureExtension
       enable_inventory: true
 markdown_extensions:
   - abbr

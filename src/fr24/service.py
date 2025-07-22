@@ -3,14 +3,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import (
-    IO,
     TYPE_CHECKING,
     Any,
     AsyncGenerator,
     Generic,
+    Literal,
     Protocol,
+    Sequence,
     TypeVar,
     Union,
 )
@@ -70,9 +70,10 @@ from .proto.v1_pb2 import (
     NearestFlightsResponse,
     PlaybackFlightResponse,
     PlaybackResponse,
+    RestrictionVisibility,
     TopFlightsResponse,
 )
-from .types import overwrite_args_signature_from
+from .types import static_check_signature
 from .types.json import (
     FLIGHT_LIST_EMPTY,
     AirportList,
@@ -81,17 +82,17 @@ from .types.json import (
     Playback,
 )
 from .utils import (
-    SLOTS,
+    FileLike,
     SupportsToDict,
     SupportsToPolars,
     dataclass_frozen,
+    dataclass_opts,
     get_current_timestamp,
     parse_server_timestamp,
     write_table,
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from typing import Any, AsyncIterator
 
     import httpx
@@ -100,8 +101,10 @@ if TYPE_CHECKING:
 
     from . import HTTPClient
     from .cache import FR24Cache
-    from .types import IntTimestampS
+    from .grpc import BoundingBox
+    from .types import IntoFlightId, IntoTimestamp, IntTimestampS
     from .types.cache import SupportedFormats
+    from .types.grpc import LiveFeedField
 
 logger = logging.getLogger(__name__)
 
@@ -164,8 +167,7 @@ class SupportsFetch(Protocol[RequestT]):
 
 @dataclass_frozen
 class APIResult(Generic[RequestT]):
-    """
-    Wraps the raw `Response` with request context.
+    """Wraps the raw `Response` with request context.
 
     Note that at this stage, the response holds the *raw* bytes, possibly
     encoded with a scheme. Retrieve the raw bytes with `response.content` or
@@ -176,7 +178,7 @@ class APIResult(Generic[RequestT]):
     response: httpx.Response
 
 
-WriteLocation: TypeAlias = Union[str, Path, IO[bytes], FR24Cache]
+WriteLocation: TypeAlias = Union[FileLike, FR24Cache]
 
 
 @runtime_checkable
@@ -196,12 +198,26 @@ class FlightListService(SupportsFetch[FlightListParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(FlightListParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightListResult:
+    @static_check_signature(FlightListParams)
+    async def fetch(
+        self,
+        reg: str | None = None,
+        flight: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+        timestamp: IntoTimestamp | Literal["now"] | None = "now",
+    ) -> FlightListResult:
         """Fetch the flight list.
-        See [fr24.json.FlightListParams][] for the detailed signature.
+
+        :param reg: Aircraft registration (e.g. `B-HUJ`)
+        :param flight: Flight number (e.g. `CX8747`)
+        :param page: Page number
+        :param limit: Number of results per page - use `100` if authenticated.
+        :param timestamp: Show flights with ATD before this Unix timestamp
         """
-        params = FlightListParams(*args, **kwargs)
+        params = FlightListParams(
+            reg=reg, flight=flight, page=page, limit=limit, timestamp=timestamp
+        )
         response = await flight_list(
             self._factory.http.client,
             params,
@@ -213,47 +229,60 @@ class FlightListService(SupportsFetch[FlightListParams]):
             response=response,
         )
 
-    @dataclass(**SLOTS)
+    @dataclass(**dataclass_opts)
     class FetchAllArgs(FlightListParams):
         """Arguments for fetching all pages of the flight list."""
 
         delay: int = field(default=5)
+        """Delay between requests in seconds."""
 
-    @overwrite_args_signature_from(FetchAllArgs)
+    @static_check_signature(FetchAllArgs)
     async def fetch_all(
-        self, /, *args: Any, **kwargs: Any
+        self,
+        reg: str | None = None,
+        flight: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+        timestamp: IntoTimestamp | Literal["now"] | None = "now",
+        delay: int = 5,
     ) -> AsyncIterator[FlightListResult]:
         """Fetch all pages of the flight list.
 
-        See [fr24.service.FlightListService.FetchAllArgs][] for the detailed
-        signature.
+        :param reg: Aircraft registration (e.g. `B-HUJ`)
+        :param flight: Flight number (e.g. `CX8747`)
+        :param page: Page number
+        :param limit: Number of results per page - use `100` if authenticated.
+        :param timestamp: Show flights with ATD before this Unix timestamp
+        :param delay: Delay between requests in seconds.
         """
         # TODO: something nasty with async generators is happening here
         # (httpx leak)
         more = True
-        page = kwargs.get("page", 1)
-        delay = kwargs.pop("delay", 5)
+        current_timestamp = timestamp
         while more:
-            kwargs["page"] = page
-            response = await self.fetch(*args, **kwargs)
-
-            response_dict = response.to_dict()
+            result = await self.fetch(
+                reg=reg,
+                flight=flight,
+                page=page,
+                limit=limit,
+                timestamp=current_timestamp,
+            )
+            response_dict = result.to_dict()
             # shouldn't happen, but stop in case we overshot
             if (data := response_dict["result"]["response"]["data"]) is None:
                 break
-            yield response
+            yield result
             page += 1
 
             # NOTE: for the next request, we have to both:
             # - update the timestamp to the earliest STD in the current batch
             # - increment the page
             # weird, but it's how the API works
-            timestamp = min(
+            current_timestamp = min(
                 t
                 for d in data
                 if (t := d["time"]["scheduled"]["departure"]) is not None
             )
-            kwargs["timestamp"] = timestamp
 
             more = response_dict["result"]["response"]["page"]["more"]
             await asyncio.sleep(delay)
@@ -373,10 +402,18 @@ class PlaybackService(SupportsFetch[PlaybackParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(PlaybackParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackResult:
-        """See [fr24.json.PlaybackParams][] for the detailed signature."""
-        params = PlaybackParams(*args, **kwargs)
+    @static_check_signature(PlaybackParams)
+    async def fetch(
+        self, flight_id: IntoFlightId, timestamp: IntoTimestamp | None = None
+    ) -> PlaybackResult:
+        """Fetch the playback data for a flight.
+
+        :param flight_id: fr24 flight id, represented in hex
+        :param timestamp: Actual time of departure (ATD) of the historic flight,
+            Unix timestamp in seconds.
+            Optional, but it is recommended to include it.
+        """
+        params = PlaybackParams(flight_id, timestamp)
         response = await playback(
             self._factory.http.client,
             params,
@@ -426,12 +463,35 @@ class LiveFeedService(SupportsFetch[LiveFeedParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(LiveFeedParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> LiveFeedResult:
+    @static_check_signature(LiveFeedParams)
+    async def fetch(
+        self,
+        bounding_box: BoundingBox,
+        stats: bool = False,
+        limit: int = 1500,
+        maxage: int = 14400,
+        fields: set[LiveFeedField] = (
+            lambda: {"flight", "reg", "route", "type"}
+        )(),  # type: ignore
+    ) -> LiveFeedResult:
         """Fetch the live feed.
-        See [fr24.grpc.LiveFeedParams][] for the detailed signature.
+
+        :param stats: Whether to include stats in the given area.
+        :param limit: Maximum number of flights (should be set to 1500 for
+            unauthorized users, 2000 for authorized users).
+        :param maxage: Maximum time since last message update, seconds.
+        :param fields: Fields to include. For unauthenticated users,
+        a maximum of 4 fields can be included.
+        When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
+        can be included.
         """
-        params = LiveFeedParams(*args, **kwargs)
+        params = LiveFeedParams(
+            bounding_box=bounding_box,
+            stats=stats,
+            limit=limit,
+            maxage=maxage,
+            fields=fields,
+        )
         response = await live_feed(
             self._factory.http.client,
             params.to_proto(),
@@ -440,7 +500,7 @@ class LiveFeedService(SupportsFetch[LiveFeedParams]):
         # NOTE: serverTimeMs in the protobuf response would be more accurate
         timestamp = parse_server_timestamp(response) or get_current_timestamp()
         return LiveFeedResult(
-            request=LiveFeedParams(*args, **kwargs),
+            request=params,
             response=response,
             timestamp=timestamp,
         )
@@ -482,21 +542,53 @@ class LiveFeedPlaybackService(SupportsFetch[LiveFeedPlaybackParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(LiveFeedPlaybackParams)
+    @static_check_signature(LiveFeedPlaybackParams)
     async def fetch(
-        self, /, *args: Any, **kwargs: Any
+        self,
+        bounding_box: BoundingBox,
+        stats: bool = False,
+        limit: int = 1500,
+        maxage: int = 14400,
+        fields: set[LiveFeedField] = (
+            lambda: {"flight", "reg", "route", "type"}
+        )(),  # type: ignore
+        timestamp: IntoTimestamp | Literal["now"] = "now",
+        duration: int = 7,
+        hfreq: int | None = None,
     ) -> LiveFeedPlaybackResult:
         """Fetch a playback of the live feed.
-        See [fr24.grpc.LiveFeedPlaybackParams][] for the detailed signature.
+
+        :param stats: Whether to include stats in the given area.
+        :param limit: Maximum number of flights (should be set to 1500 for
+            unauthorized users, 2000 for authorized users).
+        :param maxage: Maximum time since last message update, seconds.
+        :param fields: Fields to include. For unauthenticated users, a maximum
+        of 4 fields can be included.
+        When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
+        can be included.
+        :param timestamp: Start timestamp
+        :param duration: Duration of prefetch, `floor(7.5*(multiplier))` seconds
+
+        For 1x playback, this should be 7 seconds.
+        :param hfreq: High frequency mode
         """
-        params = LiveFeedPlaybackParams(*args, **kwargs)
+        params = LiveFeedPlaybackParams(
+            bounding_box=bounding_box,
+            stats=stats,
+            limit=limit,
+            maxage=maxage,
+            fields=fields,
+            timestamp=timestamp,
+            duration=duration,
+            hfreq=hfreq,
+        )
         response = await live_feed_playback(
             self._factory.http.client,
             params.to_proto(),
             self._factory.http.grpc_headers,
         )
         return LiveFeedPlaybackResult(
-            request=LiveFeedPlaybackParams(*args, **kwargs),
+            request=params,
             response=response,
         )
 
@@ -535,12 +627,30 @@ class AirportListService(SupportsFetch[AirportListParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(AirportListParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> AirportListResult:
+    @static_check_signature(AirportListParams)
+    async def fetch(
+        self,
+        airport: str,
+        mode: Literal["arrivals", "departures", "ground"],
+        page: int = 1,
+        limit: int = 10,
+        timestamp: IntoTimestamp | Literal["now"] | None = "now",
+    ) -> AirportListResult:
         """Fetch the airport list.
-        See [fr24.json.AirportListParams][] for the detailed signature.
+
+        :param airport: IATA airport code (e.g. `HKG`)
+        :param mode: arrivals, departures or on ground aircraft
+        :param page: Page number
+        :param limit: Number of results per page - use `100` if authenticated.
+        :param timestamp: Show flights with STA before this timestamp
         """
-        params = AirportListParams(*args, **kwargs)
+        params = AirportListParams(
+            airport=airport,
+            mode=mode,
+            page=page,
+            limit=limit,
+            timestamp=timestamp,
+        )
         response = await airport_list(
             self._factory.http.client,
             params,
@@ -569,12 +679,13 @@ class FindService(SupportsFetch[FindParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(FindParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> FindResult:
+    @static_check_signature(FindParams)
+    async def fetch(self, query: str, limit: int = 50) -> FindResult:
         """Fetch the find results.
-        See [fr24.json.FindParams][] for the detailed signature.
+
+        :param query: Airport, schedule (HKG-CDG), or aircraft.
         """
-        params = FindParams(*args, **kwargs)
+        params = FindParams(query=query, limit=limit)
         response = await find(
             self._factory.http.client,
             params,
@@ -605,12 +716,23 @@ class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(NearestFlightsParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> NearestFlightsResult:
+    @static_check_signature(NearestFlightsParams)
+    async def fetch(
+        self, lat: float, lon: float, radius: int = 10000, limit: int = 1500
+    ) -> NearestFlightsResult:
         """Fetch the nearest flights.
-        See [fr24.grpc.NearestFlightsParams][] for the detailed signature.
+
+        :param lat: Latitude, degrees, -90 to 90
+        :param lon: Longitude, degrees, -180 to 180
+        :param radius: Radius, metres
+        :param limit: Maximum number of aircraft to return
         """
-        request = NearestFlightsParams(*args, **kwargs)
+        request = NearestFlightsParams(
+            lat=lat,
+            lon=lon,
+            radius=radius,
+            limit=limit,
+        )
         response = await nearest_flights(
             self._factory.http.client,
             request.to_proto(),
@@ -664,14 +786,15 @@ class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(LiveFlightsStatusParams)
+    @static_check_signature(LiveFlightsStatusParams)
     async def fetch(
-        self, /, *args: Any, **kwargs: Any
+        self, flight_ids: Sequence[IntoFlightId]
     ) -> LiveFlightsStatusResult:
         """Fetch the live flights status.
-        See [fr24.grpc.LiveFlightsStatusParams][] for the detailed signature.
+
+        :param flight_ids: List of flight IDs to get status for
         """
-        request = LiveFlightsStatusParams(*args, **kwargs)
+        request = LiveFlightsStatusParams(flight_ids=flight_ids)
         response = await live_flights_status(
             self._factory.http.client,
             request.to_proto(),
@@ -723,14 +846,24 @@ class FollowFlightService:
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(FollowFlightParams)
+    @static_check_signature(FollowFlightParams)
     async def stream(
-        self, /, *args: Any, **kwargs: Any
+        self,
+        flight_id: IntoFlightId,
+        restriction_mode: (
+            RestrictionVisibility.ValueType | str | bytes
+        ) = RestrictionVisibility.NOT_VISIBLE,
     ) -> AsyncGenerator[FollowFlightResult, None]:
-        """Stream real-time updates for a flight.
-        See [fr24.grpc.FollowFlightParams][] for the detailed signature.
+        """Stream real-time flight updates.
+
+        :param flight_id: Flight ID to fetch details for.
+        Must be live, or the response will contain an empty `DATA` frame error.
+        :param restriction_mode: [FAA LADD](https://www.faa.gov/pilots/ladd)
+            visibility mode.
         """
-        request = FollowFlightParams(*args, **kwargs)
+        request = FollowFlightParams(
+            flight_id=flight_id, restriction_mode=restriction_mode
+        )
         async for response in follow_flight_stream(
             self._factory.http.client,
             request.to_proto(),
@@ -763,12 +896,13 @@ class TopFlightsService(SupportsFetch[TopFlightsParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(TopFlightsParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> TopFlightsResult:
+    @static_check_signature(TopFlightsParams)
+    async def fetch(self, limit: int = 10) -> TopFlightsResult:
         """Fetch the top flights.
-        See [fr24.grpc.TopFlightsParams][] for the detailed signature.
+
+        :param limit: Maximum number of top flights to return (1-10)
         """
-        request = TopFlightsParams(*args, **kwargs)
+        request = TopFlightsParams(limit=limit)
         response = await top_flights(
             self._factory.http.client,
             request.to_proto(),
@@ -818,12 +952,31 @@ class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(FlightDetailsParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> FlightDetailsResult:
+    @static_check_signature(FlightDetailsParams)
+    async def fetch(
+        self,
+        flight_id: IntoFlightId,
+        restriction_mode: RestrictionVisibility.ValueType
+        | str
+        | bytes = RestrictionVisibility.NOT_VISIBLE,
+        verbose: bool = True,
+    ) -> FlightDetailsResult:
         """Fetch flight details.
-        See [fr24.grpc.FlightDetailsParams][] for the detailed signature.
+
+        :param flight_id: Flight ID to fetch details for. Must be live, or the
+            response will contain an empty `DATA` frame error.
+        :param restriction_mode: [FAA LADD](https://www.faa.gov/pilots/ladd)
+            visibility mode.
+        :param verbose: Whether to include
+            [fr24.proto.v1_pb2.FlightDetailsResponse.flight_plan]
+            and [fr24.proto.v1_pb2.FlightDetailsResponse.aircraft_details] in
+            the response.
         """
-        request = FlightDetailsParams(*args, **kwargs)
+        request = FlightDetailsParams(
+            flight_id=flight_id,
+            restriction_mode=restriction_mode,
+            verbose=verbose,
+        )
         response = await flight_details(
             self._factory.http.client,
             request.to_proto(),
@@ -875,12 +1028,20 @@ class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
 
     _factory: ServiceFactory
 
-    @overwrite_args_signature_from(PlaybackFlightParams)
-    async def fetch(self, /, *args: Any, **kwargs: Any) -> PlaybackFlightResult:
+    @static_check_signature(PlaybackFlightParams)
+    async def fetch(
+        self, flight_id: IntoFlightId, timestamp: IntoTimestamp
+    ) -> PlaybackFlightResult:
         """Fetch playback flight details.
-        See [fr24.grpc.PlaybackFlightParams][] for the detailed signature.
+
+        :param flight_id: Flight ID to fetch details for. Must not be live, or
+            the response will contain an empty `DATA` frame error.
+        :param timestamp: Actual time of departure (ATD) of the historic flight
         """
-        request = PlaybackFlightParams(*args, **kwargs)
+        request = PlaybackFlightParams(
+            flight_id=flight_id,
+            timestamp=timestamp,
+        )
         response = await playback_flight(
             self._factory.http.client,
             request.to_proto(),

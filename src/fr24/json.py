@@ -13,10 +13,10 @@ from .types.cache import flight_list_schema, playback_track_schema
 from .types.json import AirportList, Find, FlightList, Playback
 from .utils import (
     DEFAULT_HEADERS,
-    SLOTS,
     Err,
     Ok,
     Result,
+    dataclass_opts,
     get_current_timestamp,
     to_flight_id_hex,
     to_unix_timestamp,
@@ -44,7 +44,7 @@ if TYPE_CHECKING:
         TrackData,
     )
 
-_log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_json_headers(*, device: str | None = None) -> dict[str, str]:
@@ -77,7 +77,7 @@ def with_auth(
 # serialise it to disk easily.
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class FlightListParams:
     """
     Parameters to fetch metadata/history of flights for
@@ -162,7 +162,7 @@ async def flight_list(
     return response
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class AirportListParams:
     """
     Request data to fetch metadata/history of flights
@@ -170,7 +170,7 @@ class AirportListParams:
 
     airport: str
     """IATA airport code (e.g. `HKG`)"""
-    mode: Literal["arrivals"] | Literal["departures"] | Literal["ground"]
+    mode: Literal["arrivals", "departures", "ground"]
     """arrivals, departures or on ground aircraft"""
     page: int = 1
     """Page number"""
@@ -223,7 +223,7 @@ async def airport_list(
     return response
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class PlaybackParams:
     """
     Request data to fetch historical track playback data for a given flight.
@@ -270,7 +270,7 @@ async def playback(
     return response
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class FindParams:
     query: str
     """Airport, schedule (HKG-CDG), or aircraft."""
@@ -440,7 +440,7 @@ def playback_df(data: Playback) -> pl.DataFrame:
     """
     flight = data["result"]["response"]["data"]["flight"]
     if len(track := flight["track"]) == 0:
-        _log.warning("no data in response, table will be empty")
+        logger.warning("no data in response, table will be empty")
     return pl.DataFrame(
         [playback_track_dict(point) for point in track],
         schema=playback_track_schema,
@@ -489,7 +489,7 @@ def flight_list_df(data: FlightList) -> pl.DataFrame:
     If the response is empty, a warning is logged and an empty table is returned
     """
     if (flights := data["result"]["response"]["data"]) is None:
-        _log.warning("no data in response, table will be empty")
+        logger.warning("no data in response, table will be empty")
         return pl.DataFrame(schema=flight_list_schema)
     return pl.DataFrame(
         [flight_list_dict(f) for f in flights],

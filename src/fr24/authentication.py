@@ -20,7 +20,7 @@ from .types.json import (
 )
 from .utils import DEFAULT_HEADERS
 
-_log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_credentials(
@@ -78,7 +78,7 @@ async def login(
         t = creds.get("token")
         return await login_with_token_subscription_key(client, s, t)  # type: ignore[arg-type]
 
-    _log.warning(
+    logger.warning(
         "Expected username+password or subscriptionKey+Optional[token] pair,"
         "but one or both are missing. Falling back to anonymous access."
     )
@@ -123,14 +123,14 @@ async def login_with_token_subscription_key(
     try:
         payload = json.loads(base64.b64decode(token.split(".")[1]))
     except Exception as e:
-        _log.error(
+        logger.error(
             f"failed to parse token: {e}. Falling back to anonymous access"
         )
         return None
 
     if time.time() > (exp := payload["exp"]):
         exp_f = datetime.fromtimestamp(exp, timezone.utc).isoformat()
-        _log.error(
+        logger.error(
             f"token has expired at {exp_f}. Falling back to anonymous access"
         )
         return None

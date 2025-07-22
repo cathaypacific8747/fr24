@@ -4,11 +4,12 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
-from typing import IO, Annotated, Literal, Optional
+from typing import IO, Annotated, Literal, Optional, get_args
 
 import click
 import typer
 from rich.console import Console
+from rich.logging import RichHandler
 
 from . import BBOX_FRANCE_UIR, FR24, BoundingBox
 from .cache import PATH_CACHE
@@ -19,13 +20,18 @@ from .service import (
     LiveFeedResult,
     PlaybackResult,
 )
+from .types.cache import SupportedFormats
 from .utils import to_unix_timestamp
 
-app = typer.Typer(no_args_is_help=True)
-
-_log = logging.getLogger(__name__)
-_log.setLevel(logging.INFO)
 stderr = Console(stderr=True)  # `-o - > file.csv`: avoid polluting stdout
+logging.basicConfig(
+    level="INFO",
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(console=stderr)],
+)
+logger = logging.getLogger(__name__)
+app = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
 
 
 @app.command()
@@ -90,8 +96,7 @@ def create(
     import shutil
 
     if FP_CONFIG_FILE.exists() and FP_CONFIG_FILE.is_file() and not force:
-        stderr.print(
-            f"[bold red]error[/bold red]: "
+        logger.error(
             f"{FP_CONFIG_FILE} already exists, use `--force` to overwrite"
         )
         return
@@ -107,28 +112,24 @@ def create(
     )
 
 
-def get_success_message(
+def print_success_message(
     result: FlightListResult
     | PlaybackResult
     | LiveFeedResult
     | LiveFeedPlaybackResult,
     fp: Path | IO[bytes] | None,
     action: Literal["added", "wrote"] = "wrote",
-) -> str:
+) -> None:
     df = result.to_polars()
     num_rows = df.height
-    return (
-        "[bold green]success[/bold green]: "
+    logger.info(
         f"{action} {num_rows} rows to {fp or 'cache'}.\n"
         # FIXME: find a better way to compute the cached filepath
-        "Preview:\n"
-        f"{df.head()}"
     )
+    stderr.print(f"preview:\n{df.head()}")
 
 
-def resolve_path(path: Path | None) -> Path | IO[bytes] | None:
-    if path is None:
-        return None
+def resolve_path(path: Path) -> Path | IO[bytes]:
     if str(path) == "-":
         return sys.stdout.buffer
     return path.resolve()
@@ -139,7 +140,7 @@ def get_console(path: Path | IO[bytes] | None) -> Console:
 
 
 Output = Annotated[
-    Optional[Path],
+    Path,
     typer.Option(
         "-o",
         "--output",
@@ -158,7 +159,7 @@ Format = Annotated[
         "-f",
         "--format",
         help="Output format, `parquet` or `csv`",
-        click_type=click.Choice(["parquet", "csv"]),
+        click_type=click.Choice(get_args(SupportedFormats)),
     ),
 ]
 
@@ -189,7 +190,7 @@ def feed(
             )
         ),
     ] = "now",
-    output: Output = None,
+    output: Output = Path("feed.parquet"),
     format: Format = "parquet",
 ) -> None:
     """Fetches current (or playback of) live feed at a given time"""
@@ -207,7 +208,7 @@ def feed(
             else:
                 result = await fr24.live_feed_playback.fetch(bbox, timestamp=ts)
             result.write_table(fp, format=format)  # type: ignore[arg-type]
-            stderr.print(get_success_message(result, fp))
+            print_success_message(result, fp)
 
     asyncio.run(feed_())
 
@@ -235,7 +236,7 @@ def flight_list(
             "--all", help="Get all pages of flight list", is_flag=True
         ),
     ] = False,
-    output: Output = None,
+    output: Output = Path("flight_list.parquet"),
     format: Format = "parquet",
 ) -> None:
     """Fetches flight list for the given registration or flight number"""
@@ -256,16 +257,14 @@ def flight_list(
                 ):
                     results.append(result)
                     results.write_table(fp, format=format)  # type: ignore[arg-type]
-                    stderr.print(
-                        get_success_message(result, fp, action="added")
-                    )
+                    print_success_message(result, fp, action="added")
                     page += 1
             else:
                 result = await fr24.flight_list.fetch(
                     reg=reg, flight=flight, timestamp=timestamp_int_or_None
                 )
                 result.write_table(fp, format=format)  # type: ignore[arg-type]
-                stderr.print(get_success_message(result, fp))
+                print_success_message(result, fp)
 
     asyncio.run(flight_list_())
 
@@ -284,7 +283,7 @@ def playback(
             )
         ),
     ] = None,
-    output: Output = None,
+    output: Output = Path("playback.parquet"),
     format: Format = "parquet",
 ) -> None:
     """Fetches historical track playback data for the given flight"""
@@ -302,7 +301,7 @@ def playback(
                 flight_id=flight_id, timestamp=timestamp_int_or_None
             )
             result.write_table(fp, format=format)  # type: ignore[arg-type]
-            stderr.print(get_success_message(result, fp))
+            print_success_message(result, fp)
 
     asyncio.run(playback_())
 

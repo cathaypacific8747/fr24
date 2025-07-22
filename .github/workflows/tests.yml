@@ -45,6 +45,11 @@ jobs:
         run: |
           uv run ruff check src tests
           uv run ruff format --check src tests
+      
+      - name: Signature checking
+        continue-on-error: true
+        run: |
+          uv run --script scripts/check_signature.py
 
       # weird mypy false positive: Untyped decorator makes function "playback" untyped  [misc]
       - name: Type checking

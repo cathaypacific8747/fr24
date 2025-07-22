@@ -19,10 +19,9 @@ from typing import (
 
 from typing_extensions import dataclass_transform, runtime_checkable
 
-if sys.version_info < (3, 10):
-    SLOTS: dict[str, bool] = {}
-else:
-    SLOTS: dict[str, bool] = {"slots": True}
+dataclass_opts: dict[str, bool] = {}
+if sys.version_info >= (3, 10):
+    dataclass_opts["slots"] = True
 
 if TYPE_CHECKING:
     from typing import IO, Any, NoReturn
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
     @dataclass_transform(frozen_default=True)
     def dataclass_frozen(cls: type[_D]) -> type[_D]: ...
 else:
-    dataclass_frozen = dataclass(**SLOTS)
+    dataclass_frozen = dataclass(**dataclass_opts)
 
 
 DEFAULT_HEADERS = {
@@ -141,23 +140,27 @@ def to_flight_id_hex(flight_id: IntoFlightId) -> StrFlightIdHex:
     return f"{flight_id:x}"
 
 
-class BarePath(Path):
-    """A path to a file without an extension."""
+@dataclass_frozen
+class BarePath:
+    path: Path
 
 
-def format_bare_path(path: BarePath, format: SupportedFormats) -> BarePath:
+FileLike = Union[str, Path, IO[bytes], BarePath]
+
+
+def format_bare_path(path: BarePath, format: SupportedFormats) -> Path:
     if format == "parquet":
         suffix = ".parquet"
     elif format == "csv":
         suffix = ".csv"
     else:
         raise ValueError(f"unsupported format: `{format}`")
-    return path.with_suffix(suffix)
+    return path.path.with_suffix(suffix)
 
 
 def write_table(
     result: SupportsToPolars,
-    file: str | Path | IO[bytes] | BarePath,
+    file: FileLike,
     *,
     format: SupportedFormats = "parquet",
     **kwargs: Any,

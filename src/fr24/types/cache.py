@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Annotated, Any, Literal, get_type_hints
+from typing import Annotated, Any, Literal, TypedDict, Union, get_type_hints
 
+# NOTE: using `Union[X, Y]` instead of X | Y because get_type_hints with extras
+# on py39 fails
 import polars as pl
-from typing_extensions import TypedDict
 
 from . import IntFlightId, IntTimestampMs, IntTimestampS
 
@@ -52,32 +53,32 @@ def to_schema(obj: type[Any]) -> dict[str, pl.DataType]:
 
 
 class FlightListRecord(TypedDict):
-    flight_id: Annotated[IntFlightId | None, DType(pl.UInt64())]
-    number: Annotated[str | None, DType(pl.String())]
-    callsign: Annotated[str | None, DType(pl.String())]
-    icao24: Annotated[int | None, DType(pl.UInt32())]
-    registration: Annotated[str | None, DType(pl.String())]
+    flight_id: Annotated[Union[IntFlightId, None], DType(pl.UInt64())]
+    number: Annotated[Union[str, None], DType(pl.String())]
+    callsign: Annotated[Union[str, None], DType(pl.String())]
+    icao24: Annotated[Union[int, None], DType(pl.UInt32())]
+    registration: Annotated[Union[str, None], DType(pl.String())]
     typecode: Annotated[str, DType(pl.String())]
-    origin: Annotated[str | None, DType(pl.String())]
-    destination: Annotated[str | None, DType(pl.String())]
-    status: Annotated[str | None, DType(pl.String())]
+    origin: Annotated[Union[str, None], DType(pl.String())]
+    destination: Annotated[Union[str, None], DType(pl.String())]
+    status: Annotated[Union[str, None], DType(pl.String())]
     STOD: Annotated[
-        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+        Union[IntTimestampMs, None], DType(pl.Datetime("ms", time_zone="UTC"))
     ]
     ETOD: Annotated[
-        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+        Union[IntTimestampMs, None], DType(pl.Datetime("ms", time_zone="UTC"))
     ]
     ATOD: Annotated[
-        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+        Union[IntTimestampMs, None], DType(pl.Datetime("ms", time_zone="UTC"))
     ]
     STOA: Annotated[
-        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+        Union[IntTimestampMs, None], DType(pl.Datetime("ms", time_zone="UTC"))
     ]
     ETOA: Annotated[
-        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+        Union[IntTimestampMs, None], DType(pl.Datetime("ms", time_zone="UTC"))
     ]
     ATOA: Annotated[
-        IntTimestampMs | None, DType(pl.Datetime("ms", time_zone="UTC"))
+        Union[IntTimestampMs, None], DType(pl.Datetime("ms", time_zone="UTC"))
     ]
 
 
@@ -86,23 +87,23 @@ flight_list_schema = to_schema(FlightListRecord)
 
 class PlaybackTrackEMSRecord(TypedDict):
     timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
-    ias: Annotated[int | None, DType(pl.Int16())]
-    tas: Annotated[int | None, DType(pl.Int16())]
-    mach: Annotated[int | None, DType(pl.Int16())]
-    mcp: Annotated[int | None, DType(pl.Int32())]
-    fms: Annotated[int | None, DType(pl.Int32())]
-    autopilot: Annotated[int | None, DType(pl.Int8())]
-    oat: Annotated[int | None, DType(pl.Int8())]
-    track: Annotated[float | None, DType(pl.Float32())]
-    roll: Annotated[float | None, DType(pl.Float32())]
-    qnh: Annotated[int | None, DType(pl.UInt16())]
-    wind_dir: Annotated[int | None, DType(pl.Int16())]
-    wind_speed: Annotated[int | None, DType(pl.Int16())]
-    precision: Annotated[int | None, DType(pl.UInt8())]
-    altitude_gps: Annotated[int | None, DType(pl.Int32())]
-    emergency: Annotated[int | None, DType(pl.UInt8())]
-    tcas_acas: Annotated[int | None, DType(pl.UInt8())]
-    heading: Annotated[int | None, DType(pl.UInt16())]
+    ias: Annotated[Union[int, None], DType(pl.Int16())]
+    tas: Annotated[Union[int, None], DType(pl.Int16())]
+    mach: Annotated[Union[int, None], DType(pl.Int16())]
+    mcp: Annotated[Union[int, None], DType(pl.Int32())]
+    fms: Annotated[Union[int, None], DType(pl.Int32())]
+    autopilot: Annotated[Union[int, None], DType(pl.Int8())]
+    oat: Annotated[Union[int, None], DType(pl.Int8())]
+    track: Annotated[Union[float, None], DType(pl.Float32())]
+    roll: Annotated[Union[float, None], DType(pl.Float32())]
+    qnh: Annotated[Union[int, None], DType(pl.UInt16())]
+    wind_dir: Annotated[Union[int, None], DType(pl.Int16())]
+    wind_speed: Annotated[Union[int, None], DType(pl.Int16())]
+    precision: Annotated[Union[int, None], DType(pl.UInt8())]
+    altitude_gps: Annotated[Union[int, None], DType(pl.Int32())]
+    emergency: Annotated[Union[int, None], DType(pl.UInt8())]
+    tcas_acas: Annotated[Union[int, None], DType(pl.UInt8())]
+    heading: Annotated[Union[int, None], DType(pl.UInt16())]
 
 
 playback_track_ems_schema = to_schema(PlaybackTrackEMSRecord)
@@ -114,11 +115,11 @@ class PlaybackTrackRecord(TypedDict):
     longitude: Annotated[float, DType(pl.Float32())]
     altitude: Annotated[int, DType(pl.Int32())]
     ground_speed: Annotated[int, DType(pl.Int16())]
-    vertical_speed: Annotated[int | None, DType(pl.Int16())]
+    vertical_speed: Annotated[Union[int, None], DType(pl.Int16())]
     track: Annotated[int, DType(pl.Int16())]
     squawk: Annotated[int, DType(pl.UInt16())]
     ems: Annotated[
-        None | PlaybackTrackEMSRecord,
+        Union[None, PlaybackTrackEMSRecord],
         DType(pl.Struct(playback_track_ems_schema)),
     ]
 
@@ -155,7 +156,7 @@ class FlightRecord(TypedDict):
     eta: Annotated[int, DType(pl.UInt32())]
     squawk: Annotated[int, DType(pl.UInt16())]
     vertical_speed: Annotated[
-        int | None, DType(pl.Int16())
+        Union[int, None], DType(pl.Int16())
     ]  # 64 * 9-bit + 1-bit sign
     position_buffer: Annotated[
         list[RecentPositionRecord],
@@ -203,19 +204,19 @@ top_flights_schema = to_schema(TopFlightRecord)
 
 
 class EMSRecord(TypedDict):
-    ias: Annotated[int | None, DType(pl.Int16())]
-    tas: Annotated[int | None, DType(pl.Int16())]
-    mach: Annotated[int | None, DType(pl.Int16())]
-    mcp: Annotated[int | None, DType(pl.Int32())]
-    fms: Annotated[int | None, DType(pl.Int32())]
-    oat: Annotated[int | None, DType(pl.Int8())]
-    qnh: Annotated[int | None, DType(pl.UInt16())]
-    wind_dir: Annotated[int | None, DType(pl.Int16())]
-    wind_speed: Annotated[int | None, DType(pl.Int16())]
-    altitude_gps: Annotated[int | None, DType(pl.Int32())]
-    agpsdiff: Annotated[int | None, DType(pl.Int32())]
-    apflags: Annotated[int | None, DType(pl.Int32())]
-    rs: Annotated[int | None, DType(pl.Int32())]
+    ias: Annotated[Union[int, None], DType(pl.Int16())]
+    tas: Annotated[Union[int, None], DType(pl.Int16())]
+    mach: Annotated[Union[int, None], DType(pl.Int16())]
+    mcp: Annotated[Union[int, None], DType(pl.Int32())]
+    fms: Annotated[Union[int, None], DType(pl.Int32())]
+    oat: Annotated[Union[int, None], DType(pl.Int8())]
+    qnh: Annotated[Union[int, None], DType(pl.UInt16())]
+    wind_dir: Annotated[Union[int, None], DType(pl.Int16())]
+    wind_speed: Annotated[Union[int, None], DType(pl.Int16())]
+    altitude_gps: Annotated[Union[int, None], DType(pl.Int32())]
+    agpsdiff: Annotated[Union[int, None], DType(pl.Int32())]
+    apflags: Annotated[Union[int, None], DType(pl.Int32())]
+    rs: Annotated[Union[int, None], DType(pl.Int32())]
 
 
 ems_struct_schema = to_schema(EMSRecord)
@@ -225,10 +226,10 @@ class TrailPointRecord(TypedDict):
     timestamp: Annotated[IntTimestampS, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
-    altitude: Annotated[int | None, DType(pl.Int32())]
-    ground_speed: Annotated[int | None, DType(pl.Int16())]
-    track: Annotated[int | None, DType(pl.UInt16())]
-    vertical_speed: Annotated[int | None, DType(pl.Int16())]
+    altitude: Annotated[Union[int, None], DType(pl.Int32())]
+    ground_speed: Annotated[Union[int, None], DType(pl.Int16())]
+    track: Annotated[Union[int, None], DType(pl.UInt16())]
+    vertical_speed: Annotated[Union[int, None], DType(pl.Int16())]
 
 
 trail_point_schema = to_schema(TrailPointRecord)
@@ -243,8 +244,8 @@ class _AircraftRecord(TypedDict):
 class _FlightProgressRecord(TypedDict):
     traversed_distance: Annotated[int, DType(pl.UInt32())]
     remaining_distance: Annotated[int, DType(pl.UInt32())]
-    elapsed_time: Annotated[int | None, DType(pl.UInt32())]
-    remaining_time: Annotated[int | None, DType(pl.UInt32())]
+    elapsed_time: Annotated[Union[int, None], DType(pl.UInt32())]
+    remaining_time: Annotated[Union[int, None], DType(pl.UInt32())]
     eta: Annotated[int, DType(pl.UInt32())]
     great_circle_distance: Annotated[int, DType(pl.UInt32())]
     mean_flight_time: Annotated[int, DType(pl.UInt32())]
@@ -257,8 +258,8 @@ class _ScheduleRecord(TypedDict):
     diverted_id: Annotated[int, DType(pl.UInt32())]
     scheduled_departure: Annotated[IntTimestampS, DType(pl.UInt32())]
     scheduled_arrival: Annotated[IntTimestampS, DType(pl.UInt32())]
-    actual_departure: Annotated[IntTimestampS | None, DType(pl.UInt32())]
-    actual_arrival: Annotated[IntTimestampS | None, DType(pl.UInt32())]
+    actual_departure: Annotated[Union[IntTimestampS, None], DType(pl.UInt32())]
+    actual_arrival: Annotated[Union[IntTimestampS, None], DType(pl.UInt32())]
 
 
 class _FlightInfoRecord(TypedDict):
@@ -268,19 +269,19 @@ class _FlightInfoRecord(TypedDict):
     flightid: Annotated[IntFlightId, DType(pl.UInt32())]
     latitude: Annotated[float, DType(pl.Float32())]
     longitude: Annotated[float, DType(pl.Float32())]
-    track: Annotated[int | None, DType(pl.UInt16())]
+    track: Annotated[Union[int, None], DType(pl.UInt16())]
     altitude: Annotated[int, DType(pl.Int32())]
     ground_speed: Annotated[int, DType(pl.Int16())]
-    vertical_speed: Annotated[int | None, DType(pl.Int16())]
+    vertical_speed: Annotated[Union[int, None], DType(pl.Int16())]
     on_ground: Annotated[bool, DType(pl.Boolean())]
     callsign: Annotated[str, DType(pl.String())]
     squawk: Annotated[int, DType(pl.UInt16())]
-    ems: Annotated[None | EMSRecord, DType(pl.Struct(ems_struct_schema))]
+    ems: Annotated[Union[None, EMSRecord], DType(pl.Struct(ems_struct_schema))]
 
 
 class _FlightTrailRecord(TypedDict):
     flight_trail_list: Annotated[
-        None | list[TrailPointRecord],
+        Union[None, list[TrailPointRecord]],
         DType(pl.List(pl.Struct(trail_point_schema))),
     ]
 

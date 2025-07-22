@@ -69,7 +69,12 @@ from .proto.v1_pb2 import (
     TrailPoint,
     VisibilitySettings,
 )
-from .utils import SLOTS, get_current_timestamp, to_flight_id, to_unix_timestamp
+from .utils import (
+    dataclass_opts,
+    get_current_timestamp,
+    to_flight_id,
+    to_unix_timestamp,
+)
 
 if TYPE_CHECKING:
     from typing import Annotated, AsyncGenerator, Literal
@@ -141,7 +146,7 @@ class BoundingBox(NamedTuple):
     """Longitude, maximum, degrees"""
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
     bounding_box: BoundingBox
     stats: bool = False
@@ -155,9 +160,8 @@ class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
     fields: set[LiveFeedField] = field(
         default_factory=lambda: {"flight", "reg", "route", "type"}
     )
-    """Fields to include.
-
-    For unauthenticated users, a maximum of 4 fields can be included.
+    """Fields to include. For unauthenticated users, a maximum of 4 fields can
+    be included.
     When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
     can be included.
     """
@@ -249,7 +253,7 @@ def live_feed_df(
 #
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class LiveFeedPlaybackParams(SupportsToProto[PlaybackRequest]):
     bounding_box: BoundingBox
     stats: bool = False
@@ -264,7 +268,6 @@ class LiveFeedPlaybackParams(SupportsToProto[PlaybackRequest]):
         default_factory=lambda: {"flight", "reg", "route", "type"}
     )
     """Fields to include.
-
     For unauthenticated users, a maximum of 4 fields can be included.
     When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
     can be included.
@@ -332,7 +335,7 @@ IntoNearestFlightsRequest: TypeAlias = Union[
 ]
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class NearestFlightsParams(SupportsToProto[NearestFlightsRequest]):
     lat: float
     """Latitude, degrees, -90 to 90"""
@@ -385,7 +388,7 @@ def nearest_flights_df(
     )
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class LiveFlightsStatusParams(SupportsToProto[LiveFlightsStatusRequest]):
     flight_ids: Sequence[IntoFlightId]
     """List of flight IDs to get status for"""
@@ -450,7 +453,7 @@ async def search_index(
     return await client.send(request)
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class FollowFlightParams(SupportsToProto[FollowFlightRequest]):
     flight_id: IntoFlightId
     """Flight ID to fetch details for.
@@ -488,7 +491,7 @@ async def follow_flight_stream(
         await response.aclose()
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class TopFlightsParams(SupportsToProto[TopFlightsRequest]):
     limit: int = 10
     """Maximum number of top flights to return (1-10)"""
@@ -576,7 +579,7 @@ IntoFlightDetailsRequest: TypeAlias = Union[
 ]
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class FlightDetailsParams(SupportsToProto[FlightDetailsRequest]):
     flight_id: IntoFlightId
     """Flight ID to fetch details for.
@@ -724,7 +727,7 @@ IntoPlaybackFlightRequest: TypeAlias = Union[
 ]
 
 
-@dataclass(**SLOTS)
+@dataclass(**dataclass_opts)
 class PlaybackFlightParams(SupportsToProto[PlaybackFlightRequest]):
     flight_id: IntoFlightId
     """Flight ID to fetch details for.

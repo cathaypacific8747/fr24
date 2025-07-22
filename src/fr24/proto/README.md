@@ -23,8 +23,8 @@ unzip protoc-28.2-linux-x86_64.zip -d $HOME/.local
 
 cd into `./fr24` and run:
 ```command
-chmod +x scripts/proto-compile.sh
-scripts/proto-compile.sh
+chmod +x scripts/make.py
+scripts/make.py compile_proto
 ```
 
 ## Usage

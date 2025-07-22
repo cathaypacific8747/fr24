@@ -64,6 +64,11 @@ tui = ["textual>=1.0.0", "pandas>=2.2.3"]
 [tool.uv]
 default-groups = ["dev", "typing", "lint", "test", "docs"]
 
+# remove once https://github.com/mkdocstrings/griffe/commit/a8c5585c8a45a4d6b67bd5dc36d7054478d3873d
+# is released
+[tool.uv.sources]
+griffe = { git = "https://github.com/mkdocstrings/griffe.git", rev = "8ef1486e9b1f0872cca3b1cd2419144b702a0c1e" }
+
 [tool.ruff]
 lint.select = [
     "E",
