@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -19,6 +18,7 @@ from .types.cache import (
 )
 from .utils import (
     BarePath,
+    dataclass_frozen,
     scan_table,
     to_flight_id,
     to_unix_timestamp,
@@ -116,7 +116,7 @@ class CacheLike(Protocol):
         ...
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class GlobMixin(CacheLike):
     def glob(self, pattern: str) -> Generator[File, None, None]:
         """Yield all scannable files matching the given pattern."""
@@ -124,7 +124,7 @@ class GlobMixin(CacheLike):
             yield File(fp)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FlightListRegCache(GlobMixin):
     collection: Collection
 
@@ -143,7 +143,7 @@ class FlightListRegCache(GlobMixin):
         )
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FlightListFlightCache(GlobMixin):
     collection: Collection
 
@@ -162,7 +162,7 @@ class FlightListFlightCache(GlobMixin):
         )
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FlightListBy:
     reg: FlightListRegCache
     flight: FlightListFlightCache
@@ -173,7 +173,7 @@ class FlightListBy:
         return getattr(self, kind)  # type: ignore
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class PlaybackCache(GlobMixin):
     collection: Collection
 
@@ -195,8 +195,8 @@ class PlaybackCache(GlobMixin):
         )
 
 
-# NOTE: not allowing `now` literal for cache because it doesn't make sense
-@dataclass(frozen=True)
+# not allowing `now` literal for cache because it doesn't make sense
+@dataclass_frozen
 class TimestampedCache(GlobMixin):
     collection: Collection
     schema: dict[str, pl.DataType]
@@ -223,7 +223,7 @@ class TimestampedCache(GlobMixin):
         )
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class NearestFlightsCache(GlobMixin):
     collection: Collection
 
@@ -253,13 +253,13 @@ class NearestFlightsCache(GlobMixin):
             [fr24.utils.to_unix_timestamp][]. The `now` literal is not allowed.
         """
         return scan_table(
-            self.get_path(lat, lon, timestamp),
+            self.get_path(lon, lat, timestamp),
             format=format,
             schema=nearest_flights_schema,
         )
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FlightDetailsCache(GlobMixin):
     collection: Collection
     schema: dict[str, pl.DataType]
@@ -293,7 +293,7 @@ class FlightDetailsCache(GlobMixin):
         )
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class Collection:
     """A directory containing scannable files."""
 

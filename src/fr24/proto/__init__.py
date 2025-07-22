@@ -34,7 +34,7 @@ def to_proto(message_like: SupportsToProto[T] | T) -> T:
     )
 
 
-def encode_message(msg: T) -> bytes:
+def encode_message(msg: Message) -> bytes:
     """Encode to a length-prefixed message."""
     msg_bytes = msg.SerializeToString()
     return (

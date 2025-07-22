@@ -11,6 +11,5 @@ Read more about the protobuf definitions [here](https://github.com/cathaypacific
         filters:
             - "!DESCRIPTOR"
             - "!_FIELD_NUMBER$"
-            - "!__slots__"
             - "!_sym_db"
             - "!_globals"

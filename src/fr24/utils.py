@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import email.utils
 import logging
+import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -16,7 +17,12 @@ from typing import (
     overload,
 )
 
-from typing_extensions import runtime_checkable
+from typing_extensions import dataclass_transform, runtime_checkable
+
+if sys.version_info < (3, 10):
+    SLOTS: dict[str, bool] = {}
+else:
+    SLOTS: dict[str, bool] = {"slots": True}
 
 if TYPE_CHECKING:
     from typing import IO, Any, NoReturn
@@ -34,6 +40,13 @@ if TYPE_CHECKING:
     )
     from .types.cache import SupportedFormats
 
+    _D = TypeVar("_D")
+
+    @dataclass_transform(frozen_default=True)
+    def dataclass_frozen(cls: type[_D]) -> type[_D]: ...
+else:
+    dataclass_frozen = dataclass(**SLOTS)
+
 
 DEFAULT_HEADERS = {
     "User-Agent": (
@@ -42,8 +55,7 @@ DEFAULT_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;"
     "q=0.9,image/avif,image/webp,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
-    # TODO: use zstd instead - depend on httpx[zstd]
+    "Accept-Encoding": "gzip, deflate, zstd",  # prior to v0.2.0, this was `br`
     "Origin": "https://www.flightradar24.com",
     "Connection": "keep-alive",
     "Referer": "https://www.flightradar24.com/",
@@ -237,9 +249,8 @@ T = TypeVar("T")
 E = TypeVar("E")
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class Ok(Generic[T]):
-    __slots__ = ("_value",)  # py39 compat
     _value: T
 
     def ok(self) -> T:
@@ -258,9 +269,8 @@ class Ok(Generic[T]):
         return self._value
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class Err(Generic[E]):
-    __slots__ = ("_value",)
     _value: E
 
     def ok(self) -> None:

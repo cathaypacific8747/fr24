@@ -6,12 +6,14 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 import httpx
+import orjson
 import polars as pl
 
 from .types.cache import flight_list_schema, playback_track_schema
 from .types.json import AirportList, Find, FlightList, Playback
 from .utils import (
     DEFAULT_HEADERS,
+    SLOTS,
     get_current_timestamp,
     to_flight_id_hex,
     to_unix_timestamp,
@@ -45,7 +47,7 @@ _log = logging.getLogger(__name__)
 # serialise it to disk easily.
 
 
-@dataclass
+@dataclass(**SLOTS)
 class FlightListParams:
     """
     Parameters to fetch metadata/history of flights for
@@ -138,7 +140,7 @@ async def flight_list(
     return response
 
 
-@dataclass
+@dataclass(**SLOTS)
 class AirportListParams:
     """
     Request data to fetch metadata/history of flights
@@ -207,7 +209,7 @@ async def airport_list(
     return response
 
 
-@dataclass
+@dataclass(**SLOTS)
 class PlaybackParams:
     """
     Request data to fetch historical track playback data for a given flight.
@@ -260,7 +262,7 @@ async def playback(
     return response
 
 
-@dataclass
+@dataclass(**SLOTS)
 class FindParams:
     query: str
     """Airport, schedule (HKG-CDG), or aircraft."""
@@ -313,7 +315,6 @@ class _Parser(Generic[_TypedDictT]):
 
         :raises httpx.HTTPStatusError: if the response did not succeed
         """
-        import orjson
 
         response.raise_for_status()
         return cast(_TypedDictT, orjson.loads(response.content))

@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import IO, Annotated, Literal, Optional
 
 import click
-import rich
 import typer
 from rich.console import Console
 
@@ -26,14 +25,14 @@ app = typer.Typer(no_args_is_help=True)
 
 _log = logging.getLogger(__name__)
 _log.setLevel(logging.INFO)
-console_err = Console(stderr=True)
+stderr = Console(stderr=True)  # `-o - > file.csv`: avoid polluting stdout
 
 
 @app.command()
 def dirs() -> None:
     """Shows relevant directories"""
-    rich.print(f"Config: {PATH_CONFIG}")
-    rich.print(f" Cache: {PATH_CACHE}")
+    stderr.print(f"Config: {PATH_CONFIG}")
+    stderr.print(f" Cache: {PATH_CACHE}")
 
 
 @app.command()
@@ -72,10 +71,10 @@ def show() -> None:
         async with FR24() as fr24:
             await fr24.login()
             if fr24.http.auth is None:
-                console_err.print(ERR_MSG)
+                stderr.print(ERR_MSG)
             else:
-                rich.print("[bold green]success[/bold green]: authenticated")
-                rich.print(fr24.http.auth)
+                stderr.print("[bold green]success[/bold green]: authenticated")
+                stderr.print(fr24.http.auth)
 
     asyncio.run(show_())
 
@@ -91,7 +90,7 @@ def create(
     import shutil
 
     if FP_CONFIG_FILE.exists() and FP_CONFIG_FILE.is_file() and not force:
-        console_err.print(
+        stderr.print(
             f"[bold red]error[/bold red]: "
             f"{FP_CONFIG_FILE} already exists, use `--force` to overwrite"
         )
@@ -102,7 +101,7 @@ def create(
     )
     FP_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy(fp_config_template, FP_CONFIG_FILE)
-    rich.print(
+    stderr.print(
         "[bold green]success[/bold green]: "
         f"created template configuration file at {FP_CONFIG_FILE}"
     )
@@ -183,7 +182,6 @@ def feed(
     """Fetches current (or playback of) live feed at a given time"""
 
     fp = resolve_path(output)
-    console = get_console(fp)
     timestamp_int_or_None = (
         to_unix_timestamp(timestamp) if timestamp is not None else None
     )
@@ -199,11 +197,12 @@ def feed(
                     timestamp=timestamp_int_or_None
                 )
             result.write_table(fp, format=format)  # type: ignore[arg-type]
-            console.print(get_success_message(result, fp))
+            stderr.print(get_success_message(result, fp))
 
     asyncio.run(feed_())
 
 
+# NOTE: `Optional` because typer doesn't support it `|`
 @app.command()
 def flight_list(
     reg: Annotated[
@@ -233,7 +232,6 @@ def flight_list(
     """Fetches flight list for the given registration or flight number"""
 
     fp = resolve_path(output)
-    console = get_console(fp)
     timestamp_int_or_None = (
         to_unix_timestamp(timestamp) if timestamp is not None else None
     )
@@ -249,7 +247,7 @@ def flight_list(
                 ):
                     results.append(result)
                     results.write_table(fp, format=format)  # type: ignore[arg-type]
-                    console.print(
+                    stderr.print(
                         get_success_message(result, fp, action="added")
                     )
                     page += 1
@@ -258,7 +256,7 @@ def flight_list(
                     reg=reg, flight=flight, timestamp=timestamp_int_or_None
                 )
                 result.write_table(fp, format=format)  # type: ignore[arg-type]
-                console.print(get_success_message(result, fp))
+                stderr.print(get_success_message(result, fp))
 
     asyncio.run(flight_list_())
 
@@ -283,7 +281,6 @@ def playback(
     """Fetches historical track playback data for the given flight"""
 
     fp = resolve_path(output)
-    console = get_console(fp)
     timestamp_int_or_None = (
         to_unix_timestamp(timestamp) if timestamp is not None else None
     )
@@ -296,7 +293,7 @@ def playback(
                 flight_id=flight_id, timestamp=timestamp_int_or_None
             )
             result.write_table(fp, format=format)  # type: ignore[arg-type]
-            console.print(get_success_message(result, fp))
+            stderr.print(get_success_message(result, fp))
 
     asyncio.run(playback_())
 

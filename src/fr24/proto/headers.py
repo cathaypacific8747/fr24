@@ -5,7 +5,7 @@ from ..utils import DEFAULT_HEADERS
 
 from ..types.json import Authentication
 
-PLATFORM_VERSION = "25.062.1136"
+PLATFORM_VERSION = "25.197.0927"
 # see ./README.md.
 
 
@@ -25,8 +25,7 @@ def get_headers(auth: Authentication | None, *, device_id: None | str = None) ->
     headers = DEFAULT_HEADERS_GRPC.copy()
     if device_id is None:
         device_id = f"web-{secrets.token_urlsafe(32)}"
-    # TODO: we need to add fr24-platform as well: YY.DDD.HHMM
     headers["fr24-device-id"] = device_id
-    if auth is not None and auth["userData"]["accessToken"] is not None:
-        headers["authorization"] = f"Bearer {auth['userData']['accessToken']}"
-    return DEFAULT_HEADERS_GRPC.copy()
+    if auth is not None and (token := auth["userData"].get("accessToken")) is not None:
+        headers["authorization"] = f"Bearer {token}"
+    return headers

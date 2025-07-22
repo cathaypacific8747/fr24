@@ -81,8 +81,10 @@ from .types.json import (
     Playback,
 )
 from .utils import (
+    SLOTS,
     SupportsToDict,
     SupportsToPolars,
+    dataclass_frozen,
     get_current_timestamp,
     parse_server_timestamp,
     write_table,
@@ -101,14 +103,14 @@ if TYPE_CHECKING:
     from .types import IntTimestampS
     from .types.cache import SupportedFormats
 
-_log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 #
 # important traits and dataclasses
 #
 
 
-@dataclass
+@dataclass_frozen
 class ServiceFactory:
     http: HTTPClient
 
@@ -159,7 +161,7 @@ class SupportsFetch(Protocol[RequestT]):
         """Fetches data from the API."""
 
 
-@dataclass
+@dataclass_frozen
 class APIResult(Generic[RequestT]):
     """
     Wraps the raw `Response` with request context.
@@ -187,7 +189,7 @@ class SupportsWriteTable(Protocol):
 #
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FlightListService(SupportsFetch[FlightListParams]):
     """Flight list service."""
 
@@ -209,7 +211,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
             response=response,
         )
 
-    @dataclass
+    @dataclass(**SLOTS)
     class FetchAllArgs(FlightListParams):
         """Arguments for fetching all pages of the flight list."""
 
@@ -263,7 +265,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
         return FlightListResultCollection()
 
 
-@dataclass
+@dataclass_frozen
 class FlightListResult(
     APIResult[FlightListParams],
     SupportsToDict[FlightList],
@@ -328,13 +330,14 @@ class FlightListResultCollection(
                 ident_hash = hash((flight_id, stod))
                 if ident_hash in ident_hashes:
                     if stod is not None:
-                        _log.info(
+                        logger.info(
                             f"skipping duplicate: {flight_id=} and {stod=}"
                         )
                         continue
                     else:
-                        # changed from assert to avoid hard error
-                        _log.warning(f"unexpected empty STOD for {flight_id=}")
+                        logger.warning(
+                            f"unexpected empty STOD for {flight_id=}"
+                        )
                 ident_hashes.add(ident_hash)
                 flights_all.append(flight)
 
@@ -362,7 +365,7 @@ class FlightListResultCollection(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class PlaybackService(SupportsFetch[PlaybackParams]):
     """Playback service."""
 
@@ -390,7 +393,7 @@ class PlaybackService(SupportsFetch[PlaybackParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class PlaybackResult(
     APIResult[PlaybackParams],
     SupportsToDict[Playback],
@@ -414,7 +417,7 @@ class PlaybackResult(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class LiveFeedService(SupportsFetch[LiveFeedParams]):
     """Live feed service."""
 
@@ -440,7 +443,7 @@ class LiveFeedService(SupportsFetch[LiveFeedParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class LiveFeedResult(
     APIResult[LiveFeedParams],
     SupportsToProto[LiveFeedResponse],
@@ -470,7 +473,7 @@ class LiveFeedResult(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class LiveFeedPlaybackService(SupportsFetch[LiveFeedPlaybackParams]):
     """Live feed service."""
 
@@ -495,7 +498,7 @@ class LiveFeedPlaybackService(SupportsFetch[LiveFeedPlaybackParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class LiveFeedPlaybackResult(
     APIResult[LiveFeedPlaybackParams],
     SupportsToProto[PlaybackResponse],
@@ -523,7 +526,7 @@ class LiveFeedPlaybackResult(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class AirportListService(SupportsFetch[AirportListParams]):
     """Airport list service."""
 
@@ -546,7 +549,7 @@ class AirportListService(SupportsFetch[AirportListParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class AirportListResult(
     APIResult[AirportListParams],
     SupportsToDict[AirportList],
@@ -556,7 +559,7 @@ class AirportListResult(
         return airport_list_parse(self.response)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FindService(SupportsFetch[FindParams]):
     """Find service."""
 
@@ -579,7 +582,7 @@ class FindService(SupportsFetch[FindParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class FindResult(
     APIResult[FindParams],
     SupportsToDict[Find],
@@ -591,7 +594,7 @@ class FindResult(
         return find_parse(self.response)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
     """Nearest flights service."""
 
@@ -616,7 +619,7 @@ class NearestFlightsService(SupportsFetch[NearestFlightsParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class NearestFlightsResult(
     APIResult[NearestFlightsParams],
     SupportsToProto[NearestFlightsResponse],
@@ -645,12 +648,12 @@ class NearestFlightsResult(
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.nearest_flights.get_path(
-                self.request.lat, self.request.lon, self.timestamp
+                self.request.lon, self.request.lat, self.timestamp
             )
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
     """Live flights status service."""
 
@@ -677,7 +680,7 @@ class LiveFlightsStatusService(SupportsFetch[LiveFlightsStatusParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class LiveFlightsStatusResult(
     APIResult[LiveFlightsStatusParams],
     SupportsToProto[LiveFlightsStatusResponse],
@@ -709,7 +712,7 @@ class LiveFlightsStatusResult(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FollowFlightService:
     """Follow flight service for real-time streaming."""
 
@@ -734,7 +737,7 @@ class FollowFlightService:
             )
 
 
-@dataclass
+@dataclass_frozen
 class FollowFlightResult(
     SupportsToProto[FollowFlightResponse],
     SupportsToDict[dict[str, Any]],
@@ -749,7 +752,7 @@ class FollowFlightResult(
         return MessageToDict(self.to_proto(), preserving_proto_field_name=True)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class TopFlightsService(SupportsFetch[TopFlightsParams]):
     """Top flights service."""
 
@@ -774,7 +777,7 @@ class TopFlightsService(SupportsFetch[TopFlightsParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class TopFlightsResult(
     APIResult[TopFlightsParams],
     SupportsToProto[TopFlightsResponse],
@@ -804,7 +807,7 @@ class TopFlightsResult(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
     """Flight details service."""
 
@@ -829,7 +832,7 @@ class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class FlightDetailsResult(
     APIResult[FlightDetailsParams],
     SupportsToProto[FlightDetailsResponse],
@@ -861,7 +864,7 @@ class FlightDetailsResult(
         write_table(self, file, format=format)
 
 
-@dataclass(frozen=True)
+@dataclass_frozen
 class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
     """Playback flight service."""
 
@@ -884,7 +887,7 @@ class PlaybackFlightService(SupportsFetch[PlaybackFlightParams]):
         )
 
 
-@dataclass
+@dataclass_frozen
 class PlaybackFlightResult(
     APIResult[PlaybackFlightParams],
     SupportsToProto[PlaybackFlightResponse],

@@ -28,8 +28,8 @@ classifiers = [
 ]
 dependencies = [
     "appdirs>=1.4.4",
-    "httpx[brotli,http2]>=0.27.2",
-    "orjson>=3.10.14",
+    "httpx[zstd,http2]>=0.28.1",
+    "orjson>=3.11.0",
     "polars>=1.19.0",
     "protobuf==5.28.*",
 ]

@@ -26,12 +26,12 @@ from typing import TYPE_CHECKING, NamedTuple, Sequence, Union
 
 import httpx
 from google.protobuf.field_mask_pb2 import FieldMask
+from google.protobuf.message import Message
 from typing_extensions import override
 
 from .proto import (
     ProtoError,
     SupportsToProto,
-    T,
     encode_message,
     to_proto,
 )
@@ -72,11 +72,7 @@ from .proto.v1_pb2 import (
     VisibilitySettings,
 )
 from .static.bbox import LNGS_WORLD_STATIC
-from .utils import (
-    get_current_timestamp,
-    to_flight_id,
-    to_unix_timestamp,
-)
+from .utils import SLOTS, get_current_timestamp, to_flight_id, to_unix_timestamp
 
 if TYPE_CHECKING:
     from typing import Annotated, AsyncGenerator, Literal
@@ -107,7 +103,7 @@ if TYPE_CHECKING:
 
 def construct_request(
     method_name: str,
-    message: T,
+    message: Message,
     auth: None | Authentication = None,
 ) -> httpx.Request:
     """Construct the gRPC request with encoded gRPC body."""
@@ -159,7 +155,7 @@ BBOX_FRANCE_UIR = BoundingBox(42, 52, -8, 10)
 """Bounding box for france UIR"""
 
 
-@dataclass
+@dataclass(**SLOTS)
 class LiveFeedParams(SupportsToProto[LiveFeedRequest]):
     bounding_box: BoundingBox = BBOX_FRANCE_UIR
     stats: bool = False
@@ -267,11 +263,26 @@ def live_feed_df(
 #
 
 
-# TODO: refactor to allow more flexible timestamps
-# NOTE: composition would be better,
-# but we want a flat structure in the service API and avoid rewriting __init__
-@dataclass
-class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
+@dataclass(**SLOTS)
+class LiveFeedPlaybackParams(SupportsToProto[PlaybackRequest]):
+    bounding_box: BoundingBox = BBOX_FRANCE_UIR
+    stats: bool = False
+    """Whether to include stats in the given area."""
+    limit: int = 1500
+    """Maximum number of flights (should be set to 1500 for unauthorized users,
+    2000 for authorized users).
+    """
+    maxage: int = 14400
+    """Maximum time since last message update, seconds."""
+    fields: set[LiveFeedField] = field(
+        default_factory=lambda: {"flight", "reg", "route", "type"}
+    )
+    """Fields to include.
+
+    For unauthenticated users, a maximum of 4 fields can be included.
+    When authenticated, `squawk`, `vspeed`, `airspace`, `logo_id` and `age`
+    can be included.
+    """
     timestamp: IntoTimestamp | Literal["now"] = "now"
     """Start timestamp"""
     duration: int = 7
@@ -288,7 +299,13 @@ class LiveFeedPlaybackParams(LiveFeedParams, SupportsToProto[PlaybackRequest]):
         if timestamp == "now":
             timestamp = get_current_timestamp() - self.duration
         return PlaybackRequest(
-            live_feed_request=super().to_proto(),
+            live_feed_request=LiveFeedParams(
+                bounding_box=self.bounding_box,
+                stats=self.stats,
+                limit=self.limit,
+                maxage=self.maxage,
+                fields=self.fields,
+            ).to_proto(),
             timestamp=timestamp,
             prefetch=timestamp + self.duration,
             hfreq=self.hfreq,
@@ -330,7 +347,7 @@ IntoNearestFlightsRequest: TypeAlias = Union[
 ]
 
 
-@dataclass
+@dataclass(**SLOTS)
 class NearestFlightsParams(SupportsToProto[NearestFlightsRequest]):
     lat: float
     """Latitude, degrees, -90 to 90"""
@@ -383,7 +400,7 @@ def nearest_flights_df(
     )
 
 
-@dataclass
+@dataclass(**SLOTS)
 class LiveFlightsStatusParams(SupportsToProto[LiveFlightsStatusRequest]):
     flight_ids: Sequence[IntoFlightId]
     """List of flight IDs to get status for"""
@@ -448,7 +465,7 @@ async def search_index(
     return await client.send(request)
 
 
-@dataclass
+@dataclass(**SLOTS)
 class FollowFlightParams(SupportsToProto[FollowFlightRequest]):
     flight_id: IntoFlightId
     """Flight ID to fetch details for.
@@ -486,7 +503,7 @@ async def follow_flight_stream(
         await response.aclose()
 
 
-@dataclass
+@dataclass(**SLOTS)
 class TopFlightsParams(SupportsToProto[TopFlightsRequest]):
     limit: int = 10
     """Maximum number of top flights to return (1-10)"""
@@ -574,7 +591,7 @@ IntoFlightDetailsRequest: TypeAlias = Union[
 ]
 
 
-@dataclass
+@dataclass(**SLOTS)
 class FlightDetailsParams(SupportsToProto[FlightDetailsRequest]):
     flight_id: IntoFlightId
     """Flight ID to fetch details for.
@@ -722,7 +739,7 @@ IntoPlaybackFlightRequest: TypeAlias = Union[
 ]
 
 
-@dataclass
+@dataclass(**SLOTS)
 class PlaybackFlightParams(SupportsToProto[PlaybackFlightRequest]):
     flight_id: IntoFlightId
     """Flight ID to fetch details for.
