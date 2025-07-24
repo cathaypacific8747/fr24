@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://cathaypacific8747.github.io/fr24/usage/quickstart/">
+        <link rel="canonical" href="https://abc8747.github.io/fr24/usage/quickstart/">
       
       
         <link rel="prev" href="../cli/">
@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.3cba04c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -52,7 +52,9 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+      <link rel="stylesheet" href="../../css/mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -65,7 +67,7 @@
       
         <meta  property="og:description"  content="A library for downloading data from flightradar24.com with gRPC/JSON." >
       
-        <meta  property="og:image"  content="https://cathaypacific8747.github.io/fr24/assets/images/social/usage/quickstart.png" >
+        <meta  property="og:image"  content="https://abc8747.github.io/fr24/assets/images/social/usage/quickstart.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,7 +75,7 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://cathaypacific8747.github.io/fr24/usage/quickstart/" >
+        <meta  property="og:url"  content="https://abc8747.github.io/fr24/usage/quickstart/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
@@ -81,7 +83,7 @@
       
         <meta  name="twitter:description"  content="A library for downloading data from flightradar24.com with gRPC/JSON." >
       
-        <meta  name="twitter:image"  content="https://cathaypacific8747.github.io/fr24/assets/images/social/usage/quickstart.png" >
+        <meta  name="twitter:image"  content="https://abc8747.github.io/fr24/assets/images/social/usage/quickstart.png" >
       
     
     
@@ -104,7 +106,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#async" class="md-skip">
+        <a href="#library-quickstart" class="md-skip">
           Skip to content
         </a>
       
@@ -123,12 +125,12 @@
     <a href="../.." title="fr24" class="md-header__button md-logo" aria-label="fr24" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
       
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -156,7 +158,7 @@
     <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -166,7 +168,7 @@
     <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -174,30 +176,32 @@
       
     
     
-      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
-      <label class="md-header__button md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-      </label>
-      <div class="md-search" data-md-component="search" role="dialog">
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
       </nav>
       
@@ -216,16 +220,17 @@
     </div>
   </div>
 </div>
+      
     
     
       <div class="md-header__source">
-        <a href="https://github.com/cathaypacific8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/abc8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
-    cathaypacific8747/fr24
+    abc8747/fr24
   </div>
 </a>
       </div>
@@ -258,20 +263,20 @@
     <a href="../.." title="fr24" class="md-nav__button md-logo" aria-label="fr24" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     fr24
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/cathaypacific8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/abc8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
-    cathaypacific8747/fr24
+    abc8747/fr24
   </div>
 </a>
     </div>
@@ -288,8 +293,10 @@
       <a href="../.." class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Home
+    
   </span>
   
 
@@ -310,6 +317,7 @@
     
     
     
+    
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
@@ -320,8 +328,10 @@
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
+  
   <span class="md-ellipsis">
     Usage
+    
   </span>
   
 
@@ -345,8 +355,10 @@
       <a href="../cli/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     CLI
+    
   </span>
   
 
@@ -369,12 +381,16 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
   
+  
   <span class="md-ellipsis">
     Library Quickstart
+    
   </span>
   
 
@@ -384,8 +400,10 @@
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
+  
   <span class="md-ellipsis">
     Library Quickstart
+    
   </span>
   
 
@@ -397,6 +415,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -405,25 +425,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#async" class="md-nav__link">
-    <span class="md-ellipsis">
-      Async
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-fr24-class" class="md-nav__link">
-    <span class="md-ellipsis">
-      The FR24 Class
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The FR24 Class">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#initialisation" class="md-nav__link">
     <span class="md-ellipsis">
       Initialisation
@@ -431,47 +432,57 @@
   </a>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#data-fetching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Fetching
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion-to-other-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conversion to other formats
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-to-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Writing to a file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fetching-from-api" class="md-nav__link">
+  <a href="#writing" class="md-nav__link">
     <span class="md-ellipsis">
-      Fetching from API
+      Writing
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#transformation-to-arrow" class="md-nav__link">
+  <a href="#reading" class="md-nav__link">
     <span class="md-ellipsis">
-      Transformation to Arrow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#saving-to-disk" class="md-nav__link">
-    <span class="md-ellipsis">
-      Saving to Disk
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#storage-location" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage Location
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-from-disk" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reading from disk
+      Reading
     </span>
   </a>
   
@@ -479,15 +490,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Notes
-    </span>
-  </a>
   
 </li>
       
@@ -510,8 +512,10 @@
       <a href="../examples/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Example Gallery
+    
   </span>
   
 
@@ -531,8 +535,33 @@
       <a href="../authentication/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Directories
+    
   </span>
   
 
@@ -559,6 +588,7 @@
     
     
     
+    
     <li class="md-nav__item md-nav__item--nested">
       
         
@@ -571,8 +601,10 @@
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
+  
   <span class="md-ellipsis">
     API Reference
+    
   </span>
   
 
@@ -593,11 +625,13 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/" class="md-nav__link">
+      <a href="../../api/service/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
-    Core
+    Services
+    
   </span>
   
 
@@ -614,11 +648,36 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/functions/" class="md-nav__link">
+      <a href="../../api/cache/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
-    Functions
+    Cache
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/low_level/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Low Level API
+    
   </span>
   
 
@@ -638,8 +697,10 @@
       <a href="../../api/types/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Types
+    
   </span>
   
 
@@ -656,11 +717,13 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/base/" class="md-nav__link">
+      <a href="../../api/utils/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
-    Base Classes
+    Utilities
+    
   </span>
   
 
@@ -680,8 +743,10 @@
       <a href="../../api/protobuf/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Protobuf Definitions
+    
   </span>
   
 
@@ -694,6 +759,28 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/grpc_changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog (gRPC)
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -715,6 +802,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -723,25 +812,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#async" class="md-nav__link">
-    <span class="md-ellipsis">
-      Async
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-fr24-class" class="md-nav__link">
-    <span class="md-ellipsis">
-      The FR24 Class
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The FR24 Class">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#initialisation" class="md-nav__link">
     <span class="md-ellipsis">
       Initialisation
@@ -749,47 +819,57 @@
   </a>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#data-fetching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Fetching
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion-to-other-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conversion to other formats
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-to-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Writing to a file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fetching-from-api" class="md-nav__link">
+  <a href="#writing" class="md-nav__link">
     <span class="md-ellipsis">
-      Fetching from API
+      Writing
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#transformation-to-arrow" class="md-nav__link">
+  <a href="#reading" class="md-nav__link">
     <span class="md-ellipsis">
-      Transformation to Arrow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#saving-to-disk" class="md-nav__link">
-    <span class="md-ellipsis">
-      Saving to Disk
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#storage-location" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage Location
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-from-disk" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reading from disk
+      Reading
     </span>
   </a>
   
@@ -797,15 +877,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Notes
-    </span>
-  </a>
   
 </li>
       
@@ -823,156 +894,197 @@
                 
                   
 
+
   
   
 
 
-  <h1>Library Quickstart</h1>
-
-<h2 id="async">Async<a class="headerlink" href="#async" title="Permanent link">¤</a></h2>
+<h1 id="library-quickstart">Library Quickstart<a class="headerlink" href="#library-quickstart" title="Permanent link">¤</a></h1>
 <p>Most code is developed using asynchronous programming, enabling parallel execution of multiple queries and achieve high performance.</p>
 <p>Here is a quick example in case you are not familiar with this code style:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="python-script" name="__tabbed_1" type="radio" /><input id="jupyter-cell" name="__tabbed_1" type="radio" /><input id="output" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="python-script">Python Script</label><label for="jupyter-cell">Jupyter cell</label><label for="output">Output</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="python-script" name="__tabbed_1" type="radio" /><input id="result" name="__tabbed_1" type="radio" /><input id="resultto_proto" name="__tabbed_1" type="radio" /><input id="resultto_dict" name="__tabbed_1" type="radio" /><input id="resultto_polars" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="python-script">Python Script</label><label for="result"><code class="language-py3 highlight"><span class="n">result</span></code></label><label for="resultto_proto"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">to_proto</span><span class="p">()</span></code></label><label for="resultto_dict"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span></code></label><label for="resultto_polars"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">to_polars</span><span class="p">()</span></code></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">fr24.json</span> <span class="kn">import</span> <span class="n">find</span>
-<span class="kn">import</span> <span class="nn">httpx</span>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">BoundingBox</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># (1)!</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="n">list_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">find</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;Toulouse&quot;</span><span class="p">)</span>  <span class="c1"># (2)!</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">list_</span><span class="p">)</span>
+<span class="n">bbox</span> <span class="o">=</span> <span class="n">BoundingBox</span><span class="p">(</span><span class="n">south</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">north</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span> <span class="n">west</span><span class="o">=-</span><span class="mi">8</span><span class="p">,</span> <span class="n">east</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># (1)!</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span> <span class="c1"># (2)!</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_proto</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_polars</span><span class="p">())</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>  <span class="c1"># (3)!</span>
 </code></pre></div>
 <ol>
 <li>Wrap your code in an <code class="language-py3 highlight"><span class="k">async</span></code> function</li>
-<li><code class="language-py3 highlight"><span class="n">find</span><span class="p">()</span></code> is an asynchronous function - we need to <code class="language-py3 highlight"><span class="k">await</span></code> it</li>
-<li><code class="language-py3 highlight"><span class="n">main</span><span class="p">()</span></code> returns a coroutine object which does not run immediately - we need to run it on the event loop</li>
+<li><code class="language-py3 highlight"><span class="n">fetch</span><span class="p">()</span></code> is an asynchronous method - we need to <code class="language-py3 highlight"><span class="k">await</span></code> it</li>
+<li><code class="language-py3 highlight"><span class="n">main</span><span class="p">()</span></code> returns a coroutine object which does not run immediately - we need to run it on the event loop. If you are using Jupyter, a bare <code class="language-py3 highlight"><span class="k">await</span> <span class="n">main</span><span class="p">()</span></code> would do as well.</li>
 </ol>
 </div>
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.json</span> <span class="kn">import</span> <span class="n">find</span>
-<span class="kn">import</span> <span class="nn">httpx</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># (1)!</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="n">list_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">find</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;Toulouse&quot;</span><span class="p">)</span> <span class="c1"># (2)!</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">list_</span><span class="p">)</span>
-
-<span class="k">await</span> <span class="n">main</span><span class="p">()</span>
-</code></pre></div>
-<ol>
-<li>Wrap your code in an <code class="language-py3 highlight"><span class="k">async</span></code> function</li>
-<li><code class="language-py3 highlight"><span class="n">find</span><span class="p">()</span></code> is an asynchronous function - we need to <code class="language-py3 highlight"><span class="k">await</span></code> it</li>
-</ol>
-</div>
-<div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="p">{</span>
-    <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;TLS&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Toulouse Blagnac Airport (TLS / LFBO)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">43.628101</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="mf">1.367263</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">33922</span><span class="p">},</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;airport&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;match&quot;</span><span class="p">:</span> <span class="s2">&quot;begins&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="c1"># ...</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
-</div>
-</div>
-<h2 id="the-fr24-class">The <code class="language-py3 highlight"><span class="n">FR24</span></code> Class<a class="headerlink" href="#the-fr24-class" title="Permanent link">¤</a></h2>
-<p>Most of the core code are developed in <a href="../../api/functions/">many tiny functions</a> for flexibility.</p>
-<p>However, the <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FR24">FR24</a> class provides a convenient wrapper around them. It:</p>
-<ul>
-<li>Manages a shared HTTP client and authentication state</li>
-<li>Has three services:<ul>
-<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService"><strong>Live Feed</strong></a>: snapshot of all aircraft state vectors</li>
-<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FlightListService"><strong>Flight List</strong></a>: all historical flights for a given aircraft registration or flight number</li>
-<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.PlaybackService"><strong>Playback</strong></a>: historical trajectory for one flight.</li>
-</ul>
-</li>
-</ul>
-<p>Each service has its own async <code class="language-py3 highlight"><span class="o">.</span><span class="n">fetch</span><span class="p">()</span></code> method to retrieve raw data from the API. <code class="language-py3 highlight"><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span></code> can then be used to transform to an Apache Arrow table, and used to perform caching and downstream <code class="language-py3 highlight"><span class="n">pandas</span></code> operations.</p>
-<p>Here is an example for using the <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService"><strong>Live Feed</strong></a> service:</p>
-<h3 id="initialisation">Initialisation<a class="headerlink" href="#initialisation" title="Permanent link">¤</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="examplepy" name="__tabbed_2" type="radio" /><input id="response" name="__tabbed_2" type="radio" /><input id="datacdf" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="examplepy">example.py</label><label for="response"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="hll">    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
-</span>        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
-        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
-        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
-    <span class="p">},</span>
-    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
-            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
-            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
-            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
-            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
-            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
-            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
-            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="c1"># ... 15109 more items</span>
-    <span class="p">],</span>
+<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedResult</span><span class="p">(</span>
+    <span class="n">request</span><span class="o">=</span><span class="n">LiveFeedParams</span><span class="p">(</span>
+        <span class="n">bounding_box</span><span class="o">=</span><span class="n">BoundingBox</span><span class="p">(</span><span class="n">south</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">north</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span> <span class="n">west</span><span class="o">=-</span><span class="mi">8</span><span class="p">,</span> <span class="n">east</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+        <span class="n">stats</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span>
+        <span class="n">maxage</span><span class="o">=</span><span class="mi">14400</span><span class="p">,</span>
+        <span class="n">fields</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;route&#39;</span><span class="p">,</span> <span class="s1">&#39;flight&#39;</span><span class="p">,</span> <span class="s1">&#39;reg&#39;</span><span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">response</span><span class="o">=&lt;</span><span class="n">Response</span> <span class="p">[</span><span class="mi">200</span> <span class="n">OK</span><span class="p">]</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">timestamp</span><span class="o">=</span><span class="mi">1753072997</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
-0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
-1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
-2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
-3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
-4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
-...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
-15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
-15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
-15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
-15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
-15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
-
-[15100 rows x 16 columns]
+<div class="language-py highlight"><pre><span></span><code><span class="n">flights_list</span> <span class="p">{</span>
+  <span class="n">flightid</span><span class="p">:</span> <span class="mi">995675586</span>
+  <span class="n">lat</span><span class="p">:</span> <span class="mf">42.0227051</span>
+  <span class="n">lon</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.89851785</span>
+  <span class="n">track</span><span class="p">:</span> <span class="mi">30</span>
+  <span class="n">alt</span><span class="p">:</span> <span class="mi">39975</span>
+  <span class="n">speed</span><span class="p">:</span> <span class="mi">502</span>
+  <span class="n">icon</span><span class="p">:</span> <span class="n">A330</span>
+  <span class="n">timestamp</span><span class="p">:</span> <span class="mi">1753072999</span>
+  <span class="n">callsign</span><span class="p">:</span> <span class="s2">&quot;AFR754&quot;</span>
+  <span class="n">extra_info</span> <span class="p">{</span>
+    <span class="n">flight</span><span class="p">:</span> <span class="s2">&quot;AF754&quot;</span>
+    <span class="n">reg</span><span class="p">:</span> <span class="s2">&quot;F-HRBI&quot;</span>
+    <span class="n">route</span> <span class="p">{</span>
+      <span class="n">from</span><span class="p">:</span> <span class="s2">&quot;BZV&quot;</span>
+      <span class="n">to</span><span class="p">:</span> <span class="s2">&quot;CDG&quot;</span>
+    <span class="p">}</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="s2">&quot;B789&quot;</span>
+  <span class="p">}</span>
+  <span class="n">position_buffer</span> <span class="p">{</span>
+    <span class="n">recent_positions_list</span> <span class="p">{</span>
+      <span class="n">delta_lat</span><span class="p">:</span> <span class="mi">201</span>
+      <span class="n">delta_lon</span><span class="p">:</span> <span class="mi">162</span>
+      <span class="n">delta_ms</span><span class="p">:</span> <span class="mi">1030</span>
+    <span class="p">}</span>
+    <span class="n">recent_positions_list</span> <span class="p">{</span>
+      <span class="n">delta_lat</span><span class="p">:</span> <span class="mi">418</span>
+      <span class="n">delta_lon</span><span class="p">:</span> <span class="mi">340</span>
+      <span class="n">delta_ms</span><span class="p">:</span> <span class="mi">2060</span>
+    <span class="p">}</span>
+    <span class="o">...</span>
+  <span class="p">}</span>
+  <span class="n">timestamp_ms</span><span class="p">:</span> <span class="mi">1753072998785</span>
+<span class="p">}</span>
+<span class="o">...</span>
+<span class="n">server_time_ms</span><span class="p">:</span> <span class="mi">1753073001486</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;flights_list&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">995675586</span><span class="p">,</span>
+            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">42.022705</span><span class="p">,</span>
+            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.8985178</span><span class="p">,</span>
+            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+            <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">39975</span><span class="p">,</span>
+            <span class="s2">&quot;speed&quot;</span><span class="p">:</span> <span class="mi">502</span><span class="p">,</span>
+            <span class="s2">&quot;icon&quot;</span><span class="p">:</span> <span class="s2">&quot;A330&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1753072999</span><span class="p">,</span>
+            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;AFR754&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;extra_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;flight&quot;</span><span class="p">:</span> <span class="s2">&quot;AF754&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reg&quot;</span><span class="p">:</span> <span class="s2">&quot;F-HRBI&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;BZV&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;CDG&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;B789&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;position_buffer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;recent_positions_list&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">201</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">162</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">1030</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">418</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">2060</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">599</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">480</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">3050</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">837</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">674</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">4200</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1136</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">915</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">5730</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1335</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1075</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">6660</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1634</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1317</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">8200</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1835</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1479</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">9190</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">2032</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1635</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">10220</span><span class="p">},</span>
+                <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;timestamp_ms&quot;</span><span class="p">:</span> <span class="s2">&quot;1753072998785&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="o">...</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;server_time_ms&quot;</span><span class="p">:</span> <span class="s2">&quot;1753073001486&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code>shape: (1_383, 18)
+┌──────────────┬───────────┬───────────┬───────────┬───┬─────┬────────┬──────────────┬─────────────┐
+│ timestamp    ┆ flightid  ┆ latitude  ┆ longitude ┆ … ┆ eta ┆ squawk ┆ vertical_spe ┆ position_bu │
+│ ---          ┆ ---       ┆ ---       ┆ ---       ┆   ┆ --- ┆ ---    ┆ ed           ┆ ffer        │
+│ datetime[ms, ┆ u32       ┆ f32       ┆ f32       ┆   ┆ u32 ┆ u16    ┆ ---          ┆ ---         │
+│ UTC]         ┆           ┆           ┆           ┆   ┆     ┆        ┆ i16          ┆ list[struct │
+│              ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ [3]]        │
+╞══════════════╪═══════════╪═══════════╪═══════════╪═══╪═════╪════════╪══════════════╪═════════════╡
+│ 2025-07-21   ┆ 995675586 ┆ 42.022705 ┆ -2.898518 ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{201,162,1 │
+│ 04:43:18.785 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 030}, {418, │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 340,2060…   │
+│ 2025-07-21   ┆ 995726866 ┆ 42.01926  ┆ -2.377071 ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{200,89,10 │
+│ 04:43:18.908 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 20}, {442,1 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 98,2180}…   │
+│ 2025-07-21   ┆ 995727804 ┆ 42.206726 ┆ 0.818107  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{283,87,13 │
+│ 04:43:19.345 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 45}, {489,1 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 49,2340}…   │
+│ 2025-07-21   ┆ 995728695 ┆ 42.044865 ┆ 1.248098  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{188,-59,9 │
+│ 04:43:18.930 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 66}, {391,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 127,2036…   │
+│ 2025-07-21   ┆ 995730200 ┆ 42.262867 ┆ 1.626488  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{181,-153, │
+│ 04:43:19.262 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 1125}, {340 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-285,20…   │
+│ …            ┆ …         ┆ …         ┆ …         ┆ … ┆ …   ┆ …      ┆ …            ┆ …           │
+│ 2025-07-21   ┆ 995719413 ┆ 51.366852 ┆ 8.458804  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{183,-393, │
+│ 04:43:19.591 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 2161}, {274 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-593,32…   │
+│ 2025-07-21   ┆ 995728483 ┆ 51.609512 ┆ 9.095863  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{91,-295,9 │
+│ 04:43:18.941 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 70}, {184,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 608,1970…   │
+│ 2025-07-21   ┆ 995730833 ┆ 51.500927 ┆ 9.861908  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{-4,-274,1 │
+│ 04:43:18.857 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 090}, {-9,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 419,1680…   │
+│ 2025-07-21   ┆ 995729878 ┆ 51.558651 ┆ 9.883041  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{-59,-264, │
+│ 04:43:19.168 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 960}, {-146 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-643,23…   │
+│ 2025-07-21   ┆ 995730144 ┆ 50.797848 ┆ 9.983597  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{173,459,1 │
+│ 04:43:19.392 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 455}, {297, │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 793,2496…   │
+└──────────────┴───────────┴───────────┴───────────┴───┴─────┴────────┴──────────────┴─────────────┘
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>When <code class="language-py3 highlight"><span class="n">FR24</span><span class="p">()</span></code> is first initialised, it creates an unauthenticated <a href="https://www.python-httpx.org/async/">HTTPX client</a> under the hood.</p>
+<p>The following sections will break down what each line does under the hood.</p>
+<h2 id="initialisation">Initialisation<a class="headerlink" href="#initialisation" title="Permanent link">¤</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="examplepy" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="examplepy"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="hll">    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+</span>        <span class="o">...</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>When <code class="language-py3 highlight"><span class="n">FR24</span><span class="p">()</span></code> is first initialised, it creates an unauthenticated <a href="https://www.python-httpx.org/async/">HTTPX client</a> under the hood. It also manages authentication (subscription key and tokens).</p>
 <div class="admonition question">
 <p class="admonition-title">How to authenticate?</p>
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
         <span class="c1"># anonymous now</span>
         <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">login</span><span class="p">()</span> <span class="c1"># reads from environment or configuration file, or,</span>
@@ -983,280 +1095,318 @@
 </div>
 <div class="admonition question">
 <p class="admonition-title">How to pass in my own HTTPX client?</p>
-<p>To share clients across code, pass it into the <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FR24">fr24.core.FR24</a> constructor.</p>
-<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">httpx</span>
+<p>To share clients across code, pass it into the <a class="autorefs autorefs-internal" title="            FR24" href="../../api/service/#fr24.FR24">fr24.FR24</a> constructor.</p>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 
-<span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">http1</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">http2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">AsyncHTTPTransport</span><span class="p">(</span><span class="n">retries</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
         <span class="o">...</span>
 </code></pre></div>
 </div>
 <p>The <code class="language-py3 highlight"><span class="k">async</span> <span class="k">with</span></code> statement ensures that it is properly authenticated by calling the login endpoint (if necessary).</p>
-<h3 id="fetching-from-api">Fetching from API<a class="headerlink" href="#fetching-from-api" title="Permanent link">¤</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="jupyter-cell_1" name="__tabbed_3" type="radio" /><input id="response_1" name="__tabbed_3" type="radio" /><input id="datacdf_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_1">Jupyter cell</label><label for="response_1"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf_1"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<h2 id="data-fetching">Data Fetching<a class="headerlink" href="#data-fetching" title="Permanent link">¤</a></h2>
+<p>Next, <code class="language-py3 highlight"><span class="n">fr24</span></code> contains multiple <em>services</em>, each of which <a class="autorefs autorefs-internal" title="            SupportsFetch" href="../../api/service/#fr24.service.SupportsFetch">implements the <code class="language-py3 highlight"><span class="n">fetch</span></code> method</a>:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="examplepy_1" name="__tabbed_3" type="radio" /><input id="result_1" name="__tabbed_3" type="radio" /><input id="resultresponsecontent" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="examplepy_1"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label><label for="result_1"><code class="language-py3 highlight"><span class="n">result</span></code></label><label for="resultresponsecontent"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">content</span></code></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">BBOX_FRANCE_UIR</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
-<span class="hll">        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
-</span>        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
-        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
-</code></pre></div>
+<span class="hll">        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">BBOX_FRANCE_UIR</span><span class="p">)</span>
+</span><span class="hll">        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
-    <span class="p">},</span>
-    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
-            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
-            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
-            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
-            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
-            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
-            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
-            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="c1"># ... 15109 more items</span>
-    <span class="p">],</span>
+<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedResult</span><span class="p">(</span>
+    <span class="n">request</span><span class="o">=</span><span class="n">LiveFeedParams</span><span class="p">(</span>
+        <span class="n">bounding_box</span><span class="o">=</span><span class="n">BoundingBox</span><span class="p">(</span><span class="n">south</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">north</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span> <span class="n">west</span><span class="o">=-</span><span class="mi">8</span><span class="p">,</span> <span class="n">east</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+        <span class="n">stats</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span>
+        <span class="n">maxage</span><span class="o">=</span><span class="mi">14400</span><span class="p">,</span>
+        <span class="n">fields</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;route&#39;</span><span class="p">,</span> <span class="s1">&#39;flight&#39;</span><span class="p">,</span> <span class="s1">&#39;reg&#39;</span><span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">response</span><span class="o">=&lt;</span><span class="n">Response</span> <span class="p">[</span><span class="mi">200</span> <span class="n">OK</span><span class="p">]</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">timestamp</span><span class="o">=</span><span class="mi">1753072997</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
-0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
-1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
-2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
-3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
-4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
-...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
-15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
-15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
-15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
-15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
-15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
-
-[15100 rows x 16 columns]
+<div class="language-text highlight"><pre><span></span><code>b&#39;...truncated
+\x84\x02(\xa2\x160m8\x03@\x00H\xfc\xc1\xac\xbe\x06P\x00Z\x05DEGLC`\x00j\x1c\n\x00\x12\x06D-EGLC\x1a\n\n\x03KSF\x12
+\x03EIB&quot;\x04C172r6\n\x19\x08\xd3\xff\xff\xff\xff\xff\xff\xff\xff\x01\x10\xa5\xfc\xff\xff\xff\xff\xff\xff\xff\x01\x18
+\x8f%\n\x19\x08\xc4\xff\xff\xff\xff\xff\xff\xff\xff\x01\x10\xbd\xfb\xff\xff\xff\xff\xff\xff\xff\x01\x18\xb42x\xf5
+\xb0\xe3\x8b\xd72\n\x96\x01\x08\xd4\xa6\x8d\xcb\x03\x15\xb0$OB\x1dp\x0e\x1fA 
+\x12(\xbar0\xf3\x028\x05@\x00H\xfe\xc1\xac\xbe\x06P\x00Z\x06ECA4RT`\x00j\x1c\n\x00\x12\x06D-CFRT\x1a\n\n\x03FMM\x12
+\x03HAJ&quot;\x04C25CrA\n\x08\x08\xa2\x01\x10S\x18\x86\x08\n\t\x08\x8b\x03\x10\xcd\x01\x18\xa0\x10\n\t\x08\xd1\x05\x10
+\xf5\x02\x18\x8c!\n\t\x08\xf9\x06\x10\xd1\x03\x18\xac*\n\t\x08\xb7\n\x10\xbc\x05\x18\x8c=\n\t\x08\xed\x0b\x10\xa1\x06
+\x18\x9fEx\xf0\xc4\xe3\x8b\xd72\nN\x08\x80\xd3\x8c\xcb\x03\x15\x88\xa5OB\x1dO\xd6\x19A 
+\xf2\x01(\x96\x1a0\n8\x03@\x00H\xfe\xc1\xac\xbe\x06P\x00Z\x05DEGZZ`\x01j\x16\n\x00\x12\x06D-EGZZ\x1a\x04\n\x00\x12
+\x00&quot;\x04DA40r\x00x\xc4\xc1\xe3\x8b\xd72\n\x9c\x01\x08\x8f\x94\x8d\xcb\x03\x15\xfb\xb2OB\x1d\xeeL\x1fA 
+\n(\xa1Y0\xd6\x028\x07@\x00H\xff\xc1\xac\xbe\x06P\x00Z\x07AFR87MJ`\x00j&quot;\n\x06AF1838\x12\x06F-HBXE\x1a\n\n\x03CDG
+\x12\x03HAJ&quot;\x04E170r@\n\x08\x08\xdc\x01\x10&lt;\x18\xa2\x08\n\x08\x08\xf9\x02\x10f\x18\xb7\x12\n\t\x08\xed\x05\x10\xd3
+\x01\x18\x82&amp;\n\t\x08\x9e\x07\x10\x8a\x02\x18\xbd.\n\t\x08\xb9\x08\x10\xb8\x02\x18\xa76\n\t\x08\xb5\x0b\x10\xa3\x03
+\x18\xa1Gx\xb4\xcb\xe3\x8b\xd72 \x92\xe1\xe3\x8b\xd72\x80\x00\x00\x00\x0fgrpc-status:0\r\n&#39;
 </code></pre></div>
 </div>
 </div>
 </div>
-<p><code class="language-py3 highlight"><span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span></code> returns a <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService">LiveFeedService</a>, with the following methods:</p>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>Return type</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code class="language-py3 highlight"><span class="o">.</span><span class="n">fetch</span></code> - <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService.fetch">asynchronously query the the API for fresh data</a></td>
-<td><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedAPIResp">fr24.core.LiveFeedAPIResp</a></td>
-</tr>
-<tr>
-<td><code class="language-py3 highlight"><span class="o">.</span><span class="n">load</span></code> - <a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService.load">load a previously cached snapshot from the disk</a></td>
-<td><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedArrow">fr24.core.LiveFeedArrow</a></td>
-</tr>
-</tbody>
-</table>
-<p>You can retrieve:</p>
+<p>It returns a <a class="autorefs autorefs-internal" title="            LiveFeedResult" href="../../api/service/#fr24.service.LiveFeedResult">wrapped context and response</a>, which contains:</p>
 <ul>
-<li>the <a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.core.LiveFeedContext">context related to the request</a> with <code class="language-py3 highlight"><span class="n">response</span><span class="o">.</span><span class="n">ctx</span></code>;</li>
-<li>the <a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.cache.LiveFeedRecord">raw JSON response</a> as a list of typed dictionaries with <code class="language-py3 highlight"><span class="n">response</span><span class="o">.</span><span class="n">data</span></code>.</li>
+<li>the <a class="autorefs autorefs-internal" title="            LiveFeedParams
+
+
+  
+      dataclass
+  " href="../../api/low_level/#fr24.grpc.LiveFeedParams">context related to the request</a> under <code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">request</span></code>;</li>
+<li>the raw <a href="https://www.python-httpx.org/api/#response">HTTPX response</a> under <code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">response</span></code>:<ul>
+<li>the <strong>raw bytes under <code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">content</span></code></strong></li>
+<li>the HTTP status under <code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span></code></li>
+<li>the response headers under <code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span></code></li>
 </ul>
-<h3 id="transformation-to-arrow">Transformation to Arrow<a class="headerlink" href="#transformation-to-arrow" title="Permanent link">¤</a></h3>
-<p>In practice, you could directly pipe <code class="language-py3 highlight"><span class="n">response</span><span class="o">.</span><span class="n">data</span></code> into <code class="language-py3 highlight"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">()</span></code>, but pandas
-uses 64-bit integers by default and can be storage-inefficient.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="jupyter-cell_2" name="__tabbed_4" type="radio" /><input id="response_2" name="__tabbed_4" type="radio" /><input id="datacdf_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_2">Jupyter cell</label><label for="response_2"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf_2"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+</li>
+</ul>
+<p>As you can see, the raw bytes seem to be jarbled, somewhat resembling records of aircraft. In fact, the live feed API uses <a href="https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md">gRPC over HTTP2</a> and <a href="https://protobuf.dev/programming-guides/proto3/">protocol buffers</a>, a compact binary serialisation protocol.</p>
+<p>A further decoding step is needed.</p>
+<h2 id="conversion-to-other-formats">Conversion to other formats<a class="headerlink" href="#conversion-to-other-formats" title="Permanent link">¤</a></h2>
+<p>The <code class="language-py3 highlight"><span class="n">result</span></code> implements:</p>
+<ul>
+<li><a class="autorefs autorefs-internal" title="            SupportsToProto" href="../../api/protobuf/#fr24.proto.SupportsToProto">the <code class="language-py3 highlight"><span class="n">to_proto</span></code> method</a>, parsing it into a <strong>protobuf message</strong></li>
+<li><a class="autorefs autorefs-internal" title="            SupportsToDict" href="../../api/utils/#fr24.utils.SupportsToDict">the <code class="language-py3 highlight"><span class="n">to_dict</span></code> method</a>, parsing it into a <strong>Python dictionary</strong>;</li>
+<li><a class="autorefs autorefs-internal" title="            SupportsToPolars" href="../../api/utils/#fr24.utils.SupportsToPolars">the <code class="language-py3 highlight"><span class="n">to_polars</span></code> method</a>, parsing and transforming it into a <strong>polars DataFrame</strong>.</li>
+</ul>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:4"><input checked="checked" id="examplepy_2" name="__tabbed_4" type="radio" /><input id="resultto_proto_1" name="__tabbed_4" type="radio" /><input id="resultto_dict_1" name="__tabbed_4" type="radio" /><input id="resultto_polars_1" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="examplepy_2"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label><label for="resultto_proto_1"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">to_proto</span><span class="p">()</span></code></label><label for="resultto_dict_1"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span></code></label><label for="resultto_polars_1"><code class="language-py3 highlight"><span class="n">result</span><span class="o">.</span><span class="n">to_polars</span><span class="p">()</span></code></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">BBOX_FRANCE_UIR</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
-<span class="hll">        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
-</span>        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">BBOX_FRANCE_UIR</span><span class="p">)</span>
+<span class="hll">        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_proto</span><span class="p">())</span>
+</span><span class="hll">        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+</span><span class="hll">        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_polars</span><span class="p">())</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="n">flights_list</span> <span class="p">{</span>
+  <span class="n">flightid</span><span class="p">:</span> <span class="mi">995675586</span>
+  <span class="n">lat</span><span class="p">:</span> <span class="mf">42.0227051</span>
+  <span class="n">lon</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.89851785</span>
+  <span class="n">track</span><span class="p">:</span> <span class="mi">30</span>
+  <span class="n">alt</span><span class="p">:</span> <span class="mi">39975</span>
+  <span class="n">speed</span><span class="p">:</span> <span class="mi">502</span>
+  <span class="n">icon</span><span class="p">:</span> <span class="n">A330</span>
+  <span class="n">timestamp</span><span class="p">:</span> <span class="mi">1753072999</span>
+  <span class="n">callsign</span><span class="p">:</span> <span class="s2">&quot;AFR754&quot;</span>
+  <span class="n">extra_info</span> <span class="p">{</span>
+    <span class="n">flight</span><span class="p">:</span> <span class="s2">&quot;AF754&quot;</span>
+    <span class="n">reg</span><span class="p">:</span> <span class="s2">&quot;F-HRBI&quot;</span>
+    <span class="n">route</span> <span class="p">{</span>
+      <span class="n">from</span><span class="p">:</span> <span class="s2">&quot;BZV&quot;</span>
+      <span class="n">to</span><span class="p">:</span> <span class="s2">&quot;CDG&quot;</span>
+    <span class="p">}</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="s2">&quot;B789&quot;</span>
+  <span class="p">}</span>
+  <span class="n">position_buffer</span> <span class="p">{</span>
+    <span class="n">recent_positions_list</span> <span class="p">{</span>
+      <span class="n">delta_lat</span><span class="p">:</span> <span class="mi">201</span>
+      <span class="n">delta_lon</span><span class="p">:</span> <span class="mi">162</span>
+      <span class="n">delta_ms</span><span class="p">:</span> <span class="mi">1030</span>
+    <span class="p">}</span>
+    <span class="n">recent_positions_list</span> <span class="p">{</span>
+      <span class="n">delta_lat</span><span class="p">:</span> <span class="mi">418</span>
+      <span class="n">delta_lon</span><span class="p">:</span> <span class="mi">340</span>
+      <span class="n">delta_ms</span><span class="p">:</span> <span class="mi">2060</span>
+    <span class="p">}</span>
+    <span class="o">...</span>
+  <span class="p">}</span>
+  <span class="n">timestamp_ms</span><span class="p">:</span> <span class="mi">1753072998785</span>
+<span class="p">}</span>
+<span class="o">...</span>
+<span class="n">server_time_ms</span><span class="p">:</span> <span class="mi">1753073001486</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
-    <span class="p">},</span>
-    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+<div class="language-py highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;flights_list&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
-            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
-            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
-            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
-            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
-            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
-            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
-            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="c1"># ... 15109 more items</span>
+            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">995675586</span><span class="p">,</span>
+            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">42.022705</span><span class="p">,</span>
+            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.8985178</span><span class="p">,</span>
+            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+            <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">39975</span><span class="p">,</span>
+            <span class="s2">&quot;speed&quot;</span><span class="p">:</span> <span class="mi">502</span><span class="p">,</span>
+            <span class="s2">&quot;icon&quot;</span><span class="p">:</span> <span class="s2">&quot;A330&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1753072999</span><span class="p">,</span>
+            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;AFR754&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;extra_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;flight&quot;</span><span class="p">:</span> <span class="s2">&quot;AF754&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reg&quot;</span><span class="p">:</span> <span class="s2">&quot;F-HRBI&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;BZV&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;CDG&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;B789&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;position_buffer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;recent_positions_list&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">201</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">162</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">1030</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">418</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">2060</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">599</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">480</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">3050</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">837</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">674</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">4200</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1136</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">915</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">5730</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1335</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1075</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">6660</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1634</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1317</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">8200</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">1835</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1479</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">9190</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;delta_lat&quot;</span><span class="p">:</span> <span class="mi">2032</span><span class="p">,</span> <span class="s2">&quot;delta_lon&quot;</span><span class="p">:</span> <span class="mi">1635</span><span class="p">,</span> <span class="s2">&quot;delta_ms&quot;</span><span class="p">:</span> <span class="mi">10220</span><span class="p">},</span>
+                <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;timestamp_ms&quot;</span><span class="p">:</span> <span class="s2">&quot;1753072998785&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="o">...</span>
     <span class="p">],</span>
-<span class="p">)</span>
+    <span class="s2">&quot;server_time_ms&quot;</span><span class="p">:</span> <span class="s2">&quot;1753073001486&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
-0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
-1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
-2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
-3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
-4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
-...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
-15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
-15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
-15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
-15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
-15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
-
-[15100 rows x 16 columns]
+<div class="language-text highlight"><pre><span></span><code>shape: (1_383, 18)
+┌──────────────┬───────────┬───────────┬───────────┬───┬─────┬────────┬──────────────┬─────────────┐
+│ timestamp    ┆ flightid  ┆ latitude  ┆ longitude ┆ … ┆ eta ┆ squawk ┆ vertical_spe ┆ position_bu │
+│ ---          ┆ ---       ┆ ---       ┆ ---       ┆   ┆ --- ┆ ---    ┆ ed           ┆ ffer        │
+│ datetime[ms, ┆ u32       ┆ f32       ┆ f32       ┆   ┆ u32 ┆ u16    ┆ ---          ┆ ---         │
+│ UTC]         ┆           ┆           ┆           ┆   ┆     ┆        ┆ i16          ┆ list[struct │
+│              ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ [3]]        │
+╞══════════════╪═══════════╪═══════════╪═══════════╪═══╪═════╪════════╪══════════════╪═════════════╡
+│ 2025-07-21   ┆ 995675586 ┆ 42.022705 ┆ -2.898518 ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{201,162,1 │
+│ 04:43:18.785 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 030}, {418, │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 340,2060…   │
+│ 2025-07-21   ┆ 995726866 ┆ 42.01926  ┆ -2.377071 ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{200,89,10 │
+│ 04:43:18.908 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 20}, {442,1 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 98,2180}…   │
+│ 2025-07-21   ┆ 995727804 ┆ 42.206726 ┆ 0.818107  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{283,87,13 │
+│ 04:43:19.345 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 45}, {489,1 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 49,2340}…   │
+│ 2025-07-21   ┆ 995728695 ┆ 42.044865 ┆ 1.248098  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{188,-59,9 │
+│ 04:43:18.930 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 66}, {391,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 127,2036…   │
+│ 2025-07-21   ┆ 995730200 ┆ 42.262867 ┆ 1.626488  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{181,-153, │
+│ 04:43:19.262 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 1125}, {340 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-285,20…   │
+│ …            ┆ …         ┆ …         ┆ …         ┆ … ┆ …   ┆ …      ┆ …            ┆ …           │
+│ 2025-07-21   ┆ 995719413 ┆ 51.366852 ┆ 8.458804  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{183,-393, │
+│ 04:43:19.591 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 2161}, {274 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-593,32…   │
+│ 2025-07-21   ┆ 995728483 ┆ 51.609512 ┆ 9.095863  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{91,-295,9 │
+│ 04:43:18.941 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 70}, {184,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 608,1970…   │
+│ 2025-07-21   ┆ 995730833 ┆ 51.500927 ┆ 9.861908  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{-4,-274,1 │
+│ 04:43:18.857 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 090}, {-9,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 419,1680…   │
+│ 2025-07-21   ┆ 995729878 ┆ 51.558651 ┆ 9.883041  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{-59,-264, │
+│ 04:43:19.168 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 960}, {-146 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-643,23…   │
+│ 2025-07-21   ┆ 995730144 ┆ 50.797848 ┆ 9.983597  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{173,459,1 │
+│ 04:43:19.392 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 455}, {297, │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 793,2496…   │
+└──────────────┴───────────┴───────────┴───────────┴───┴─────┴────────┴──────────────┴─────────────┘
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>Instead, you can call <code class="language-py3 highlight"><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span></code>, which creates a new
-<a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.cache.live_feed_schema">strongly typed</a> Apache Arrow table from it.</p>
-<p><a href="https://arrow.apache.org/docs/index.html">Arrow</a> is a columnar data storage format
-with <a href="https://arrow.apache.org/docs/python/pandas.html">excellent interoperability</a>
-with <code class="language-py3 highlight"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></code>. You can retrieve:</p>
-<ul>
-<li>the <a class="autorefs autorefs-internal" href="../../api/types/#fr24.types.core.LiveFeedContext">context related to the request</a> with <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">ctx</span></code>;</li>
-<li>the underlying <a href="https://arrow.apache.org/docs/python/generated/pyarrow.Table.html">Arrow table</a> with <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">data</span></code>;</li>
-<li>get the pandas representation with <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code>.</li>
-</ul>
-<h3 id="saving-to-disk">Saving to Disk<a class="headerlink" href="#saving-to-disk" title="Permanent link">¤</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="jupyter-cell_3" name="__tabbed_5" type="radio" /><input id="response_3" name="__tabbed_5" type="radio" /><input id="datacdf_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_3">Jupyter cell</label><label for="response_3"><code class="language-py3 highlight"><span class="n">response</span></code></label><label for="datacdf_3"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<p><a href="https://docs.pola.rs/user-guide/getting-started/">Polars</a> is a dataframe library that implements the <a href="https://arrow.apache.org/docs/index.html">Arrow</a> columnar data storage format. Under the hood, <code class="language-py3 highlight"><span class="n">to_polars</span></code> utilises a <a class="autorefs autorefs-internal" title="            live_feed_schema
+
+
+  
+      module-attribute
+  " href="../../api/types/#fr24.types.cache.live_feed_schema">strongly typed schema</a> to reduce memory.</p>
+<p>If you wish, you can <a href="https://docs.pola.rs/api/python/stable/reference/dataframe/api/polars.DataFrame.to_pandas.html">convert the <code class="language-py3 highlight"><span class="n">polars</span></code> DataFrame into <code class="language-py3 highlight"><span class="n">pandas</span></code></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="language-py3 highlight"><span class="n">to_polars</span></code> tries to convert a <em>list of records</em> in the <code class="language-py3 highlight"><span class="n">result</span></code> into a 2D table. Extra metadata that does not fit in a table (e.g. airline information in the <a class="autorefs autorefs-internal" title="            FlightListService" href="../../api/service/#fr24.service.FlightListService">flight list service</a>) <strong>will be discarded</strong>.</p>
+</div>
+<h2 id="writing-to-a-file">Writing to a file<a class="headerlink" href="#writing-to-a-file" title="Permanent link">¤</a></h2>
+<p>You can write the data in JSON format:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:1"><input checked="checked" id="examplepy_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="examplepy_3"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">BBOX_FRANCE_UIR</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
-        <span class="n">datac</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span>
-<span class="hll">        <span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">BBOX_FRANCE_UIR</span><span class="p">)</span>
+<span class="hll">        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;path/to/some/file.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<p>Alternatively, you can serialize the tabular form of the data in the <a href="https://parquet.apache.org/">Parquet</a> data format.</p>
+<p><code class="language-py3 highlight"><span class="n">result</span></code> <a class="autorefs autorefs-internal" title="            SupportsWriteTable" href="../../api/service/#fr24.service.SupportsWriteTable">implements the <code class="language-py3 highlight"><span class="n">write_table</span></code> method</a>, which can be used to write to a file on the disk or a buffer, in the <code class="language-py3 highlight"><span class="n">parquet</span></code> or <code class="language-py3 highlight"><span class="n">csv</span></code> format:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:1"><input checked="checked" id="examplepy_4" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="examplepy_4"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">BBOX_FRANCE_UIR</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">BBOX_FRANCE_UIR</span><span class="p">)</span>
+<span class="hll">        <span class="n">result</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="s2">&quot;path/to/some/file.parquet&quot;</span><span class="p">)</span> <span class="c1"># (1)!</span>
+</span><span class="hll">        <span class="n">result</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="s2">&quot;path/to/some/file.csv&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span> <span class="c1"># (2)!</span>
 </span>
-<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
-</code></pre></div>
+<span class="hll">        <span class="n">buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+</span><span class="hll">        <span class="n">result</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></code></pre></div>
+<ol>
+<li>If the <code class="language-py3 highlight"><span class="nb">format</span></code> is not specified, it defaults to <code class="language-py3 highlight"><span class="n">parquet</span></code>.</li>
+<li>You must specify <code class="language-py3 highlight"><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span></code> - <code class="language-py3 highlight"><span class="n">write_table</span></code> does <strong>not</strong> infer from the file extension of the given path. </li>
+</ol>
 </div>
-<div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="n">LiveFeedAPIResp</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911907</span><span class="p">,</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;live&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;hfreq&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s2">&quot;/home/user/.cache/fr24&quot;</span><span class="p">),</span>
-    <span class="p">},</span>
-    <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1711911905</span><span class="p">,</span>
-            <span class="s2">&quot;flightid&quot;</span><span class="p">:</span> <span class="mi">882151247</span><span class="p">,</span>
-            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">12.432657241821289</span><span class="p">,</span>
-            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">172.14825439453125</span><span class="p">,</span>
-            <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
-            <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="mi">34000</span><span class="p">,</span>
-            <span class="s2">&quot;ground_speed&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
-            <span class="s2">&quot;vertical_speed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;on_ground&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;callsign&quot;</span><span class="p">:</span> <span class="s2">&quot;QFA7552&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="s2">&quot;N409MC&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;HNL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;AKL&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;typecode&quot;</span><span class="p">:</span> <span class="s2">&quot;B744&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="c1"># ... 15109 more items</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div>
 </div>
+</div>
+<h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">¤</a></h2>
+<h3 id="writing">Writing<a class="headerlink" href="#writing" title="Permanent link">¤</a></h3>
+<p>You can also write the table into a <a class="autorefs autorefs-internal" title="            FR24Cache" href="../../api/cache/#fr24.cache.FR24Cache">cache</a>:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:1"><input checked="checked" id="examplepy_5" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="examplepy_5"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label></div>
+<div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
-0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
-1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
-2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
-3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
-4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
-...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
-15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
-15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
-15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
-15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
-15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">FR24Cache</span><span class="p">,</span> <span class="n">BBOX_FRANCE_UIR</span>
 
-[15100 rows x 16 columns]
-</code></pre></div>
+<span class="hll"><span class="n">cache</span> <span class="o">=</span> <span class="n">FR24Cache</span><span class="p">(</span><span class="s2">&quot;path/to/some/directory/&quot;</span><span class="p">)</span>
+</span><span class="c1"># alternatively, use the default cache directory:</span>
+<span class="hll"><span class="n">cache</span> <span class="o">=</span> <span class="n">FR24Cache</span><span class="o">.</span><span class="n">default</span><span class="p">()</span> <span class="c1"># (1)!</span>
+</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">BBOX_FRANCE_UIR</span><span class="p">)</span>
+<span class="hll">        <span class="n">result</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+</span></code></pre></div>
+<ol>
+<li>
+<p>More information about the location of the default cache can be found <a href="../directories/">here</a>. You can also check the location by <a href="../cli/">running <code class="language-py3 highlight"><span class="n">fr24</span> <span class="n">dirs</span></code> in the shell</a>.</p>
+</li>
+<li>
+<p>In this case, the file is written to <code class="language-py3 highlight"><span class="p">{</span><span class="n">cache_dir</span><span class="p">}</span><span class="o">/</span><span class="n">feed</span><span class="o">/</span><span class="p">{</span><span class="n">timestamp</span><span class="p">}</span><span class="o">.</span><span class="n">parquet</span></code>.</p>
+</li>
+</ol>
 </div>
 </div>
 </div>
-<p><code class="language-py3 highlight"><span class="o">.</span><span class="n">save</span><span class="p">()</span></code> writes the table to the default cache directory<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> using the <a href="https://parquet.apache.org/">Parquet</a>
-data format.</p>
-<p>You can always check its exact location using <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">fp</span></code>. In general, where it gets saved is as follows:</p>
-<h3 id="storage-location">Storage Location<a class="headerlink" href="#storage-location" title="Permanent link">¤</a></h3>
-<ul>
-<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.LiveFeedService">Live feed</a><ul>
-<li><code class="language-py3 highlight"><span class="n">feed</span><span class="o">/</span><span class="p">{</span><span class="n">timestamp</span><span class="p">}</span><span class="o">.</span><span class="n">parquet</span></code></li>
-</ul>
-</li>
-<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.FlightListService">Flight list</a><ul>
-<li><code class="language-py3 highlight"><span class="n">flight_list</span><span class="o">/</span><span class="n">reg</span><span class="o">/</span><span class="p">{</span><span class="n">reg</span><span class="o">.</span><span class="n">upper</span><span class="p">()}</span><span class="o">.</span><span class="n">parquet</span></code>, or</li>
-<li><code class="language-py3 highlight"><span class="n">flight_list</span><span class="o">/</span><span class="n">flight</span><span class="o">/</span><span class="p">{</span><span class="n">iata_flight_num</span><span class="o">.</span><span class="n">upper</span><span class="p">()}</span><span class="o">.</span><span class="n">parquet</span></code></li>
-</ul>
-</li>
-<li><a class="autorefs autorefs-internal" href="../../api/core/#fr24.core.PlaybackService">Playback</a><ul>
-<li><code class="language-py3 highlight"><span class="n">playback</span><span class="o">/</span><span class="p">{</span><span class="n">fr24_hex_id</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span><span class="o">.</span><span class="n">parquet</span></code></li>
-</ul>
-</li>
-</ul>
-<p>It should resemble the following on Linux:
+<p>Files will be organised in the cache, with the structure shown <a href="../examples/#overview">here</a>:</p>
+<p>It should resemble the following on Linux:</p>
 <div class="language-text highlight"><pre><span></span><code>$ tree $HOME/.cache/fr24/feed
 /home/user/.cache/fr24
 ├── feed
-│   ├── 1711911907.parquet
+│   └── 1711911907.parquet
 ├── flight_list
 │   ├── flight
 │   │   └── CX8747.parquet
@@ -1265,58 +1415,74 @@ data format.</p>
 └── playback
     └── 2d81a27.parquet
 </code></pre></div>
-These directories are created automatically whenever <code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></code> is called.</p>
-<h3 id="reading-from-disk">Reading from disk<a class="headerlink" href="#reading-from-disk" title="Permanent link">¤</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="jupyter-cell_4" name="__tabbed_6" type="radio" /><input id="datacdf_4" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="jupyter-cell_4">Jupyter cell</label><label for="datacdf_4"><code class="language-py3 highlight"><span class="n">datac</span><span class="o">.</span><span class="n">df</span></code></label></div>
+<p>These directories are created automatically when <code class="language-py3 highlight"><span class="n">FR24Cache</span></code> is initialised.</p>
+<h3 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">¤</a></h3>
+<p><code class="language-py3 highlight"><span class="n">FR24Cache</span></code> resembles the <code class="language-py3 highlight"><span class="n">FR24</span></code> service class. You list all cached files under a collection with the <code class="language-py3 highlight"><span class="n">glob</span></code> method and lazily load the file with the <code class="language-py3 highlight"><span class="n">scan_table</span></code> method:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="examplepy_6" name="__tabbed_8" type="radio" /><input id="output" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="examplepy_6"><code class="language-py3 highlight"><span class="n">example</span><span class="o">.</span><span class="n">py</span></code></label><label for="output">Output</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fr24.core</span> <span class="kn">import</span> <span class="n">FR24</span>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24Cache</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">my_feed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">fr24</span><span class="p">:</span>
-<span class="hll">        <span class="n">datac</span> <span class="o">=</span> <span class="n">fr24</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="mi">1711911907</span><span class="p">)</span>
-</span>
-<span class="k">await</span> <span class="n">my_feed</span><span class="p">()</span>
-</code></pre></div>
+<span class="n">cache</span> <span class="o">=</span> <span class="n">FR24Cache</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+
+<span class="hll"><span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">cache</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
+</span>    <span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+<span class="hll">    <span class="n">lf</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">scan_table</span><span class="p">()</span>
+</span>    <span class="nb">print</span><span class="p">(</span><span class="n">lf</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+
+<span class="c1"># alternatively, scan one file:</span>
+<span class="hll"><span class="n">lf</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">scan_table</span><span class="p">(</span><span class="n">timestamp</span><span class="o">=</span><span class="mi">1733036597</span><span class="p">)</span>
+</span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code>        timestamp   flightid   latitude   longitude  track  altitude  ground_speed  on_ground callsign  source registration origin  destination typecode  eta  vertical_speed
-0      1711911905  882151247 -12.432657 -172.148254    203     34000           515      False  QFA7552       0       N409MC    HNL          AKL     B744    0               0
-1      1711911902  882203620 -16.504490 -178.940308    249     36000           460      False    VOZ76       0       VH-YIL    APW          BNE     B738    0               0
-2      1711911904  882212062 -13.240505 -176.195602    292         0             0       True  RLY0100       0       F-OCQZ    WLS                  DHC6    0               0
-3      1711911897  882145424  10.347591 -167.007263     56     37000           516      False    QFA15       5       VH-EBQ    BNE          LAX     A332    0               0
-4      1711911905  882199081  18.591330 -165.391083    247     32000           416      False   UAL132       3       N77296    HNL          MAJ     B738    0               0
-...           ...        ...        ...         ...    ...       ...           ...        ...      ...     ...          ...    ...          ...      ...  ...             ...
-15095  1711911897  882140495  53.746582  174.467392    258     38000           435      False  GTI8650       5       N710GT    LAX          HKG     B77L    0               0
-15096  1711911887  882155955  54.291172  175.606842     57     31000           515      False    UPS81       5       N628UP    PVG          ANC     B748    0               0
-15097  1711911673  882165589  57.548691  179.460800    246     36000           438      False   KAL258       4       HL8285    ANC          ICN     B77L    0               0
-15098  1711911901  882187089  56.527115  176.298798    242     38000           442      False   CKS936       4       N701CK    ANC          HFE     B744    0               0
-15099  1711911905  882137160  59.153641  179.730972    229     38000           471      False  KAL8286       5       HL8043    YYZ          ICN     B77L    0               0
-
-[15100 rows x 16 columns]
+<div class="language-text highlight"><pre><span></span><code>/home/user/.cache/fr24/feed/1733036597.parquet
+shape: (1_383, 18)
+┌──────────────┬───────────┬───────────┬───────────┬───┬─────┬────────┬──────────────┬─────────────┐
+│ timestamp    ┆ flightid  ┆ latitude  ┆ longitude ┆ … ┆ eta ┆ squawk ┆ vertical_spe ┆ position_bu │
+│ ---          ┆ ---       ┆ ---       ┆ ---       ┆   ┆ --- ┆ ---    ┆ ed           ┆ ffer        │
+│ datetime[ms, ┆ u32       ┆ f32       ┆ f32       ┆   ┆ u32 ┆ u16    ┆ ---          ┆ ---         │
+│ UTC]         ┆           ┆           ┆           ┆   ┆     ┆        ┆ i16          ┆ list[struct │
+│              ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ [3]]        │
+╞══════════════╪═══════════╪═══════════╪═══════════╪═══╪═════╪════════╪══════════════╪═════════════╡
+│ 2025-07-21   ┆ 995675586 ┆ 42.022705 ┆ -2.898518 ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{201,162,1 │
+│ 04:43:18.785 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 030}, {418, │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 340,2060…   │
+│ 2025-07-21   ┆ 995726866 ┆ 42.01926  ┆ -2.377071 ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{200,89,10 │
+│ 04:43:18.908 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 20}, {442,1 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 98,2180}…   │
+│ 2025-07-21   ┆ 995727804 ┆ 42.206726 ┆ 0.818107  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{283,87,13 │
+│ 04:43:19.345 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 45}, {489,1 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 49,2340}…   │
+│ 2025-07-21   ┆ 995728695 ┆ 42.044865 ┆ 1.248098  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{188,-59,9 │
+│ 04:43:18.930 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 66}, {391,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 127,2036…   │
+│ 2025-07-21   ┆ 995730200 ┆ 42.262867 ┆ 1.626488  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{181,-153, │
+│ 04:43:19.262 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 1125}, {340 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-285,20…   │
+│ …            ┆ …         ┆ …         ┆ …         ┆ … ┆ …   ┆ …      ┆ …            ┆ …           │
+│ 2025-07-21   ┆ 995719413 ┆ 51.366852 ┆ 8.458804  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{183,-393, │
+│ 04:43:19.591 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 2161}, {274 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-593,32…   │
+│ 2025-07-21   ┆ 995728483 ┆ 51.609512 ┆ 9.095863  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{91,-295,9 │
+│ 04:43:18.941 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 70}, {184,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 608,1970…   │
+│ 2025-07-21   ┆ 995730833 ┆ 51.500927 ┆ 9.861908  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{-4,-274,1 │
+│ 04:43:18.857 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 090}, {-9,- │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 419,1680…   │
+│ 2025-07-21   ┆ 995729878 ┆ 51.558651 ┆ 9.883041  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{-59,-264, │
+│ 04:43:19.168 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 960}, {-146 │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ ,-643,23…   │
+│ 2025-07-21   ┆ 995730144 ┆ 50.797848 ┆ 9.983597  ┆ … ┆ 0   ┆ 0      ┆ 0            ┆ [{173,459,1 │
+│ 04:43:19.392 ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 455}, {297, │
+│ UTC          ┆           ┆           ┆           ┆   ┆     ┆        ┆              ┆ 793,2496…   │
+└──────────────┴───────────┴───────────┴───────────┴───┴─────┴────────┴──────────────┴─────────────┘
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>To retrieve saved data, first pass in the unique identifier (timestamp in this case) to the <code class="language-py3 highlight"><span class="o">.</span><span class="n">load</span><span class="p">()</span></code>.</p>
-<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¤</a></h2>
-<p>Each service inherits from the <a class="autorefs autorefs-internal" href="../../api/base/#fr24.base.ServiceBase">fr24.base.ServiceBase</a> and have similar APIs demonstrated above.</p>
+<h1 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¤</a></h1>
 <p>See the <a href="../examples/">examples gallery</a> to learn more.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Pyarrow unfortunately do not provide type hints. You can however, generate the stubs to your <code class="language-py3 highlight"><span class="n">site</span><span class="o">-</span><span class="n">packages</span></code> directory with:
-<div class="language-sh highlight"><pre><span></span><code>$<span class="w"> </span>stubgen<span class="w"> </span>-p<span class="w"> </span>pyarrow<span class="w"> </span>-o<span class="w"> </span><span class="k">$(</span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from distutils.sysconfig import get_python_lib; print(get_python_lib())&quot;</span><span class="k">)</span>
-</code></pre></div></p>
-</div>
-<p>Intersphinx for this project could be found <a href="https://cathaypacific8747.github.io/fr24/objects.inv">here</a>.</p>
-<div class="footnote">
-<hr />
-<ol>
-<li id="fn:1">
-<p>You can check its location by <a href="../cli/#directories">running <code class="language-py3 highlight"><span class="n">fr24</span> <span class="n">dirs</span></code> in the shell</a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
-</li>
-</ol>
-</div>
+<p>Intersphinx for this project could be found <a href="https://abc8747.github.io/fr24/objects.inv">here</a>.</p>
 
 
 
@@ -1366,10 +1532,12 @@ These directories are created automatically whenever <code class="language-py3 h
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "navigation.expand"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "navigation.expand"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

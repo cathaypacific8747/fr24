@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://cathaypacific8747.github.io/fr24/">
+        <link rel="canonical" href="https://abc8747.github.io/fr24/">
       
       
       
@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.3cba04c6.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -50,7 +50,9 @@
     
       <link rel="stylesheet" href="assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+      <link rel="stylesheet" href="css/mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -59,11 +61,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Home" >
+        <meta  property="og:title"  content="fr24" >
       
         <meta  property="og:description"  content="A library for downloading data from flightradar24.com with gRPC/JSON." >
       
-        <meta  property="og:image"  content="https://cathaypacific8747.github.io/fr24/assets/images/social/index.png" >
+        <meta  property="og:image"  content="https://abc8747.github.io/fr24/assets/images/social/index.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -71,15 +73,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://cathaypacific8747.github.io/fr24/" >
+        <meta  property="og:url"  content="https://abc8747.github.io/fr24/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Home" >
+        <meta  name="twitter:title"  content="fr24" >
       
         <meta  name="twitter:description"  content="A library for downloading data from flightradar24.com with gRPC/JSON." >
       
-        <meta  name="twitter:image"  content="https://cathaypacific8747.github.io/fr24/assets/images/social/index.png" >
+        <meta  name="twitter:image"  content="https://abc8747.github.io/fr24/assets/images/social/index.png" >
       
     
     
@@ -102,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#installation" class="md-skip">
+        <a href="#fr24" class="md-skip">
           Skip to content
         </a>
       
@@ -121,12 +123,12 @@
     <a href="." title="fr24" class="md-header__button md-logo" aria-label="fr24" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
       
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -154,7 +156,7 @@
     <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -164,7 +166,7 @@
     <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -172,30 +174,32 @@
       
     
     
-      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
-      <label class="md-header__button md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-      </label>
-      <div class="md-search" data-md-component="search" role="dialog">
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
       </nav>
       
@@ -214,16 +218,17 @@
     </div>
   </div>
 </div>
+      
     
     
       <div class="md-header__source">
-        <a href="https://github.com/cathaypacific8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/abc8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
-    cathaypacific8747/fr24
+    abc8747/fr24
   </div>
 </a>
       </div>
@@ -256,20 +261,20 @@
     <a href="." title="fr24" class="md-nav__button md-logo" aria-label="fr24" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     fr24
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/cathaypacific8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/abc8747/fr24" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
-    cathaypacific8747/fr24
+    abc8747/fr24
   </div>
 </a>
     </div>
@@ -289,12 +294,16 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
   
+  
   <span class="md-ellipsis">
     Home
+    
   </span>
   
 
@@ -304,8 +313,10 @@
       <a href="." class="md-nav__link md-nav__link--active">
         
   
+  
   <span class="md-ellipsis">
     Home
+    
   </span>
   
 
@@ -317,12 +328,23 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Features
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
@@ -334,9 +356,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#license" class="md-nav__link">
+  <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
-      License
+      Examples
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disclaimer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disclaimer
     </span>
   </a>
   
@@ -360,6 +391,7 @@
     
     
     
+    
     <li class="md-nav__item md-nav__item--nested">
       
         
@@ -372,8 +404,10 @@
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
+  
   <span class="md-ellipsis">
     Usage
+    
   </span>
   
 
@@ -397,8 +431,10 @@
       <a href="usage/cli/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     CLI
+    
   </span>
   
 
@@ -418,8 +454,10 @@
       <a href="usage/quickstart/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Library Quickstart
+    
   </span>
   
 
@@ -439,8 +477,10 @@
       <a href="usage/examples/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Example Gallery
+    
   </span>
   
 
@@ -460,8 +500,33 @@
       <a href="usage/authentication/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="usage/directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Directories
+    
   </span>
   
 
@@ -488,6 +553,7 @@
     
     
     
+    
     <li class="md-nav__item md-nav__item--nested">
       
         
@@ -500,8 +566,10 @@
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
+  
   <span class="md-ellipsis">
     API Reference
+    
   </span>
   
 
@@ -522,11 +590,13 @@
   
   
     <li class="md-nav__item">
-      <a href="api/core/" class="md-nav__link">
+      <a href="api/service/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
-    Core
+    Services
+    
   </span>
   
 
@@ -543,11 +613,36 @@
   
   
     <li class="md-nav__item">
-      <a href="api/functions/" class="md-nav__link">
+      <a href="api/cache/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
-    Functions
+    Cache
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/low_level/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Low Level API
+    
   </span>
   
 
@@ -567,8 +662,10 @@
       <a href="api/types/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Types
+    
   </span>
   
 
@@ -585,11 +682,13 @@
   
   
     <li class="md-nav__item">
-      <a href="api/base/" class="md-nav__link">
+      <a href="api/utils/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
-    Base Classes
+    Utilities
+    
   </span>
   
 
@@ -609,8 +708,10 @@
       <a href="api/protobuf/" class="md-nav__link">
         
   
+  
   <span class="md-ellipsis">
     Protobuf Definitions
+    
   </span>
   
 
@@ -623,6 +724,28 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/grpc_changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog (gRPC)
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -644,12 +767,23 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Features
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
@@ -661,9 +795,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#license" class="md-nav__link">
+  <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
-      License
+      Examples
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disclaimer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disclaimer
     </span>
   </a>
   
@@ -683,57 +826,206 @@
                 
                   
 
+
   
   
 
 
-  <h1>Home</h1>
+<h1 id="fr24">fr24<a class="headerlink" href="#fr24" title="Permanent link">¤</a></h1>
+<p><a href="https://pypi.python.org/pypi/fr24"><img alt="image" src="https://img.shields.io/pypi/v/fr24.svg" /></a>
+<a href="https://pypi.python.org/pypi/fr24"><img alt="image" src="https://img.shields.io/pypi/l/fr24.svg" /></a>
+<a href="https://pypi.python.org/pypi/fr24"><img alt="image" src="https://img.shields.io/pypi/pyversions/fr24.svg" /></a>
+<a href="https://pypi.python.org/pypi/fr24"><img alt="image" src="https://img.shields.io/pypi/status/fr24" /></a></p>
+<p><code class="language-py3 highlight"><span class="n">fr24</span></code> is a Python library for data retrieval from <a href="https://flightradar24.com">Flightradar24</a> using <a href="https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md">gRPC</a> and JSON APIs.</p>
+<p>For a detailed quickstart, examples and references, please refer to the <a href="https://abc8747.github.io/fr24/usage/quickstart/">documentation</a>.</p>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">¤</a></h2>
+<p><code class="language-py3 highlight"><span class="n">fr24</span></code> supports the following endpoints:</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Live Feed</strong></td>
+<td>Current real-time flight data within a bounding box.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Live Feed Playback</strong></td>
+<td>Historical snapshot of live feed data for a specific time.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Flight List</strong></td>
+<td>List of flights based on registration or flight number.</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><strong>Playback</strong></td>
+<td>Historical state vectors data for a flight.</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><strong>Airport Arrivals</strong></td>
+<td>Aircraft arrival information for a given airport.</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><strong>Airport Search</strong></td>
+<td>Search for airports by keyword.</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><strong>Nearest Flights</strong></td>
+<td>Real-time flight data for aircraft within a given radius.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Follow Flight</strong> (streaming)</td>
+<td>Historical track and real-time updates for a live flight.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Top Flights</strong></td>
+<td>List of the most viewed flights.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Live Flight Status</strong></td>
+<td>Real-time status updates for live flights.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Flight Details</strong></td>
+<td>Detailed information for a live flight.</td>
+<td>gRPC</td>
+</tr>
+<tr>
+<td><strong>Playback Flight</strong></td>
+<td>Detailed information for a historical flight.</td>
+<td>gRPC</td>
+</tr>
+</tbody>
+</table>
+<!--
+| **Live Trail**                | Real-time trail data for a flight.                             | gRPC   |
+| **Historic Trail**            | Historical trail data for a flight.                            | gRPC   |
+-->
 
-<p>fr24 is a library for downloading data from <a href="https://flightradar24.com">Flightradar24</a> using <a href="https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md">gRPC</a> and JSON.</p>
-<p>It supports querying live feed snapshots/playback, trajectory history and other miscellaneous metadata.</p>
+<p><code class="language-py3 highlight"><span class="n">fr24</span></code> is built with modularity and performance in mind, utilising asynchronous programming to handle concurrent requests efficiently.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
-<p>For the latest stable version, create a new virtual environment and run:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="pip" name="__tabbed_1" type="radio" /><input id="poetry" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="pip">Pip</label><label for="poetry">Poetry</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
+<p>For the latest stable version:</p>
 <div class="language-sh highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>fr24
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-sh highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>fr24
+<p>For a development version, clone the repository and run in the directory:</p>
+<div class="language-sh highlight"><pre><span></span><code>uv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+uv<span class="w"> </span>sync<span class="w"> </span>--all-extras<span class="w"> </span>--dev
 </code></pre></div>
-</div>
-</div>
-</div>
-<p>For a development version, clone the repository and install it:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="pip_1" name="__tabbed_2" type="radio" /><input id="poetry_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="pip_1">Pip</label><label for="poetry_1">Poetry</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-sh highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cathaypacific8747/fr24.git
-<span class="nb">cd</span><span class="w"> </span>fr24
-pip<span class="w"> </span>install<span class="w"> </span>.
+<p>This installs all optional dependencies, typing, linting, testing and documentation tools.</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
+<p>Fetch live feed data for a specific bounding box:</p>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">BoundingBox</span>
+
+<span class="n">bbox</span> <span class="o">=</span> <span class="n">BoundingBox</span><span class="p">(</span><span class="n">south</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">north</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span> <span class="n">west</span><span class="o">=-</span><span class="mi">8</span><span class="p">,</span> <span class="n">east</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># access raw, undecoded bytes</span>
+        <span class="c1"># convert to other formats:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_proto</span><span class="p">())</span>  <span class="c1"># protobuf object</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>  <span class="c1"># nested dictionary</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_polars</span><span class="p">())</span>  <span class="c1"># polars dataframe</span>
+
+        <span class="c1"># write to a parquet file:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="s2">&quot;feed.parquet&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-sh highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cathaypacific8747/fr24.git
-<span class="nb">cd</span><span class="w"> </span>fr24
-poetry<span class="w"> </span>install
-poetry<span class="w"> </span>shell
+<p>To improve efficiency and reduce API calls, <code class="language-py3 highlight"><span class="n">fr24</span></code> provides a simple file-based cache:</p>
+<div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fr24</span><span class="w"> </span><span class="kn">import</span> <span class="n">FR24</span><span class="p">,</span> <span class="n">FR24Cache</span><span class="p">,</span> <span class="n">BBOX_FRANCE_UIR</span>
+
+<span class="n">cache</span> <span class="o">=</span> <span class="n">FR24Cache</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">FR24</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">BBOX_FRANCE_UIR</span><span class="p">)</span>
+        <span class="c1"># on Linux, this writes to ~/.cache/fr24/feed/{timestamp_s}.parquet</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">some_time_later</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">cache</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">live_feed</span><span class="o">.</span><span class="n">scan_table</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+    <span class="n">some_time_later</span><span class="p">()</span>
 </code></pre></div>
-</div>
-</div>
-</div>
-<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">¤</a></h2>
-<p><a href="https://github.com/cathaypacific8747/fr24/blob/master/LICENSE">MIT</a></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Code has been developed for educational purposes ONLY. Do not abuse it.</p>
-</div>
+<p><code class="language-py3 highlight"><span class="n">fr24</span></code> also comes with a CLI for quick data retrieval:</p>
+<div class="language-console highlight"><pre><span></span><code><span class="gp">$ </span>fr24<span class="w"> </span>live-feed<span class="w"> </span>--bounding-box<span class="w"> </span><span class="s2">&quot;42.0,52.0,-8.0,10.0&quot;</span><span class="w"> </span>-o<span class="w"> </span>feed.parquet
+<span class="go">[00:00:00] INFO     using environment `subscription_key` and      __init__.py:98</span>
+<span class="go">                    `token`                                                     </span>
+<span class="go">[00:00:00] INFO     HTTP Request: POST                           _client.py:1740</span>
+<span class="go">                    https://data-feed.flightradar24.com/fr24.fee                </span>
+<span class="go">                    d.api.v1.Feed/LiveFeed &quot;HTTP/2 200 OK&quot;                      </span>
+<span class="go">           INFO     wrote 1500 rows to                              utils.py:229</span>
+<span class="go">                    `/home/user/feed.parquet</span>
+<span class="gp">$ </span>duckdb<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;describe select * from &#39;feed.parquet&#39;&quot;</span><span class="p">;</span>
+<span class="go">┌─────────────────┬──────────────────────┬─────────┬───┬─────────┬─────────┐</span>
+<span class="go">│   column_name   │     column_type      │  null   │ … │ default │  extra  │</span>
+<span class="go">│     varchar     │       varchar        │ varchar │   │ varchar │ varchar │</span>
+<span class="go">├─────────────────┼──────────────────────┼─────────┼───┼─────────┼─────────┤</span>
+<span class="go">│ timestamp       │ TIMESTAMP WITH TIM…  │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ flightid        │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ latitude        │ FLOAT                │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ longitude       │ FLOAT                │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ track           │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ altitude        │ INTEGER              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ ground_speed    │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ on_ground       │ BOOLEAN              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ callsign        │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ source          │ UTINYINT             │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ registration    │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ origin          │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ destination     │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ typecode        │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ eta             │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ squawk          │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ vertical_speed  │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">│ position_buffer │ STRUCT(delta_lat I…  │ YES     │ … │ NULL    │ NULL    │</span>
+<span class="go">├─────────────────┴──────────────────────┴─────────┴───┴─────────┴─────────┤</span>
+<span class="go">│ 18 rows                                              6 columns (5 shown) │</span>
+<span class="go">└──────────────────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+<p>For a full list of commands and options, run:</p>
+<div class="language-sh highlight"><pre><span></span><code>fr24<span class="w"> </span>--help
+</code></pre></div>
+<p><code class="language-py3 highlight"><span class="n">fr24</span></code> also comes with a TUI - search for flights directly in your terminal:</p>
+<div class="language-sh highlight"><pre><span></span><code>fr24<span class="w"> </span>tui
+</code></pre></div>
+<h2 id="disclaimer">Disclaimer<a class="headerlink" href="#disclaimer" title="Permanent link">¤</a></h2>
+<blockquote>
+<p>[!IMPORTANT]<br />
+Code has been developed for educational purposes ONLY. Do not abuse it.</p>
+</blockquote>
 <div class="language-json highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;copyright&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Copyright (c) 2014-2023 Flightradar24 AB. All rights reserved.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;copyright&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Copyright (c) 2014-2025 Flightradar24 AB. All rights reserved.&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;legalNotice&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The contents of this file and all derived data are the property of Flightradar24 AB for use exclusively by its products and applications. Using, modifying or redistributing the data without the prior written permission of Flightradar24 AB is not allowed and may result in prosecutions.&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>Official Flightradar24 API: <a href="https://fr24api.flightradar24.com/">https://fr24api.flightradar24.com/</a></p>
 
 
 
@@ -783,10 +1075,12 @@ poetry<span class="w"> </span>shell
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "navigation.expand"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "navigation.expand"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

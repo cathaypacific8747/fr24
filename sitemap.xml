@@ -1,53 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/api/base/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/cache/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/api/core/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/grpc_changelog/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/api/functions/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/low_level/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/api/protobuf/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/protobuf/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/api/types/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/service/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/usage/authentication/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/types/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/usage/cli/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/api/utils/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/usage/examples/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/usage/authentication/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
     <url>
-         <loc>https://cathaypacific8747.github.io/fr24/usage/quickstart/</loc>
-         <lastmod>2024-08-08</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://abc8747.github.io/fr24/usage/cli/</loc>
+         <lastmod>2025-07-24</lastmod>
+    </url>
+    <url>
+         <loc>https://abc8747.github.io/fr24/usage/directories/</loc>
+         <lastmod>2025-07-24</lastmod>
+    </url>
+    <url>
+         <loc>https://abc8747.github.io/fr24/usage/examples/</loc>
+         <lastmod>2025-07-24</lastmod>
+    </url>
+    <url>
+         <loc>https://abc8747.github.io/fr24/usage/quickstart/</loc>
+         <lastmod>2025-07-24</lastmod>
     </url>
 </urlset>
