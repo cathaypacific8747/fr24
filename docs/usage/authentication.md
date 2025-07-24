@@ -30,7 +30,7 @@ Set the following environment variables:
 
 Alternatively, you can also create a configuration file in the [config directory](./directories.md).
 
-An example of it can be found at [`fr24.example.conf`](https://github.com/cathaypacific8747/fr24/blob/master/fr24.example.conf), and can be generated with the command:
+An example of it can be found at [`fr24.example.conf`](https://github.com/abc8747/fr24/blob/master/fr24.example.conf), and can be generated with the command:
 
 === "Shell"
 

@@ -11,7 +11,7 @@ async def my_playback() -> None:
         result = await fr24.playback.fetch(0x2FB3041)  # (1)!
         df = result.to_polars()
         print(df)
-        rich.print(fr24.playback.metadata(result.to_dict()))
+        rich.print(result.metadata())
         result.write_table(FR24Cache.default())
 
 await my_playback()

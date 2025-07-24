@@ -222,4 +222,4 @@ These directories are created automatically when `FR24Cache` is initialised.
 See the [examples gallery](./examples.md) to learn more.
 
 
-Intersphinx for this project could be found [here](https://cathaypacific8747.github.io/fr24/objects.inv).
+Intersphinx for this project could be found [here](https://abc8747.github.io/fr24/objects.inv).

@@ -140,11 +140,6 @@ Dump the historical track playback data.
     --8<-- "docs/usage/cli_output.txt:fr24_playback"
     ```
 
-=== "Example Output"
-
-    ```console
-    $ fr24 playback --flight-id 2d81a27 --format csv -o -
-    ```
 
 ### `nearest-flights`, `live-flights-status`, `flight-details`, `top-flights`, `playback-flight`
 

@@ -35,9 +35,9 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/cathaypacific8747/fr24.git"
-Documentation = "https://cathaypacific8747.github.io/fr24/"
-Issues = "https://github.com/cathaypacific8747/fr24/issues"
+Repository = "https://github.com/abc8747/fr24.git"
+Documentation = "https://abc8747.github.io/fr24/"
+Issues = "https://github.com/abc8747/fr24/issues"
 
 [dependency-groups]
 dev = [

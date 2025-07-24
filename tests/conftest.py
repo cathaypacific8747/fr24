@@ -1,17 +1,20 @@
+import logging
 import tempfile
 from pathlib import Path
 from typing import AsyncGenerator
 
 import httpx
 import pytest
+from rich.logging import RichHandler
 
 from fr24 import FR24, FR24Cache
-from fr24.utils import intercept_logs_with_loguru
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    # captures httpx requests
-    intercept_logs_with_loguru()
+    FORMAT = "%(message)s"
+    logging.basicConfig(
+        level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+    )
 
 
 @pytest.fixture(scope="session")

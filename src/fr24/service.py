@@ -442,13 +442,6 @@ class PlaybackService(SupportsFetch[PlaybackParams]):
             response=response,
         )
 
-    @classmethod
-    def metadata(cls, response_dict: Playback) -> dict[str, Any]:
-        # TODO: reconsider if we really want this here
-        return playback_metadata_dict(
-            response_dict["result"]["response"]["data"]["flight"]
-        )
-
 
 @dataclass_frozen
 class PlaybackResult(
@@ -462,6 +455,12 @@ class PlaybackResult(
 
     def to_polars(self) -> pl.DataFrame:
         return playback_df(self.to_dict())
+
+    def metadata(self) -> dict[str, Any]:
+        """Extracts flight metadata from the response."""
+        return playback_metadata_dict(
+            self.to_dict()["result"]["response"]["data"]["flight"]
+        )
 
     def write_table(
         self,

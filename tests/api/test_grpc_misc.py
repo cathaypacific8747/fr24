@@ -86,7 +86,7 @@ async def test_historic_trail(
 
 
 def test_parse_data_grpc_status_error() -> None:
-    """Fix for: https://github.com/cathaypacific8747/fr24/issues/68"""
+    """Fix for: https://github.com/abc8747/fr24/issues/68"""
     from fr24.proto import GrpcError, parse_data
     from fr24.proto.v1_pb2 import FollowFlightResponse
 

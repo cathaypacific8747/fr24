@@ -7,7 +7,7 @@
 
 `fr24` is a Python library for data retrieval from [Flightradar24](https://flightradar24.com) using [gRPC](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md) and JSON APIs.
 
-For a detailed quickstart, examples and references, please refer to the [documentation](https://cathaypacific8747.github.io/fr24/usage/quickstart/).
+For a detailed quickstart, examples and references, please refer to the [documentation](https://abc8747.github.io/fr24/usage/quickstart/).
 
 ## Features
 
