@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
@@ -25,6 +26,8 @@ if TYPE_CHECKING:
         TokenSubscriptionKey,
         UsernamePassword,
     )
+
+logger = logging.getLogger(__name__)
 
 
 class FR24:
@@ -89,6 +92,12 @@ class FR24:
         """
         self.http = await self.http.with_login(creds)
         self._build_factory(self.http)
+        if (auth := self.http.auth) is None:
+            logger.info("no authentication provided, using anonymous access")
+        elif "subscription_key" in (message := auth.get("message", "")):
+            logger.info(message)
+        else:
+            logger.info("using username and password")
 
     async def __aenter__(self) -> Self:
         await self.http.__aenter__()

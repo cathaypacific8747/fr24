@@ -79,8 +79,8 @@ async def login(
         return await login_with_token_subscription_key(client, s, t)  # type: ignore[arg-type]
 
     logger.warning(
-        "Expected username+password or subscriptionKey+Optional[token] pair,"
-        "but one or both are missing. Falling back to anonymous access."
+        "expected username+password or subscriptionKey+Optional[token] pair,"
+        "but one or both are missing. falling back to anonymous access."
     )
     return None
 
@@ -123,15 +123,16 @@ async def login_with_token_subscription_key(
     try:
         payload = json.loads(base64.b64decode(token.split(".")[1]))
     except Exception as e:
-        logger.error(
-            f"failed to parse token: {e}. Falling back to anonymous access"
+        logger.warning(
+            f"failed to parse token: {e}. falling back to anonymous access"
         )
         return None
 
-    if time.time() > (exp := payload["exp"]):
-        exp_f = datetime.fromtimestamp(exp, timezone.utc).isoformat()
-        logger.error(
-            f"token has expired at {exp_f}. Falling back to anonymous access"
+    exp = payload["exp"]
+    exp_f = datetime.fromtimestamp(exp, timezone.utc).isoformat()
+    if time.time() > exp:
+        logger.warning(
+            f"token has expired at {exp_f}. falling back to anonymous access"
         )
         return None
 

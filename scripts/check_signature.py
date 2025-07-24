@@ -1,11 +1,10 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.10"
 # dependencies = [
-#     "griffe",
+#     "griffe>=1.8.0",
+#     "typing-extensions",
 # ]
-# [tool.uv.sources]
-# griffe = { git = "https://github.com/mkdocstrings/griffe.git", rev = "8ef1486e9b1f0872cca3b1cd2419144b702a0c1e" }
 # ///
 from __future__ import annotations
 
@@ -17,18 +16,22 @@ from typing import Any, Generator
 
 import griffe
 from _griffe.extensions.dataclasses import _set_dataclass_init
+from typing_extensions import TypeAlias
 
 logger = griffe.get_logger(__name__)
+
+DataclassPath: TypeAlias = str
+"""The canonical path of a dataclass."""
 
 
 class FR24CheckSignatureExtension(griffe.Extension):
     def __init__(
         self,
-        method_decorator_path: str = "fr24.types.static_check_signature",
+        decorator_path: str = "fr24.utils.static_check_signature",
     ) -> None:
         super().__init__()
-        self.method_decorator_path = method_decorator_path
-        self.methods_to_check: dict[griffe.Function, griffe.ExprName] = {}
+        self.decorator_path = decorator_path
+        self.methods_to_check: dict[griffe.Function, DataclassPath] = {}
         self.method_signature_issues = 0
 
     def on_function_instance(
@@ -39,28 +42,28 @@ class FR24CheckSignatureExtension(griffe.Extension):
         agent: griffe.Visitor | griffe.Inspector,
         **kwargs: Any,
     ) -> None:
-        dataclass: griffe.ExprName | None = None
+        dataclass_path: DataclassPath | None = None
         for decorator in func.decorators:
-            if decorator.callable_path == self.method_decorator_path:
+            if decorator.callable_path == self.decorator_path:
                 args = decorator.value
+                assert isinstance(args, griffe.ExprCall)
+                dataclass_name = args.arguments[0]
                 assert (
-                    isinstance(args, griffe.ExprCall)
+                    isinstance(dataclass_name, griffe.ExprName)
                     and len(args.arguments) == 1
                 )
-                arg0 = args.arguments[0]
-                assert isinstance(arg0, griffe.ExprName)
-                dataclass = arg0
+                dataclass_path = dataclass_name.canonical_path
                 break
-        if dataclass:
-            self.methods_to_check[func] = dataclass
+        if dataclass_path is not None:
+            self.methods_to_check[func] = dataclass_path
 
     def on_package_loaded(
         self, *, pkg: griffe.Module, loader: griffe.GriffeLoader, **kwargs: Any
     ) -> None:
         self.method_signature_issues = 0
-        for meth, dataclass_name in self.methods_to_check.items():
+        for func, dataclass_path in self.methods_to_check.items():
             self.method_signature_issues += len(
-                collect_errors(loader, meth, dataclass_name)
+                collect_issues(loader.modules_collection, func, dataclass_path)
             )
 
 
@@ -69,65 +72,66 @@ def cleandoc(text: str) -> str:
     return " ".join(part.strip() for part in text.split("\n"))
 
 
-def collect_errors(
-    loader: griffe.GriffeLoader,
-    meth: griffe.Function,
-    dataclass_name: griffe.ExprName,
+def collect_issues(
+    modules_collection: griffe.ModulesCollection,
+    method: griffe.Function,
+    dataclass_path: DataclassPath,
 ) -> list[str]:
-    method_args = meth.parameters
-    dc = loader.modules_collection[dataclass_name.canonical_path]
-    _set_dataclass_init(dc)
-    dataclass_init: griffe.Function = dc["__init__"]
+    method_params = method.parameters
+    spec_dataclass = modules_collection[dataclass_path]
+    _set_dataclass_init(spec_dataclass)
     param_docs = {}
-    if meth.docstring:
-        parsed_sections = meth.docstring.parse(griffe.Parser.sphinx)
+    if method.docstring:
+        parsed_sections = method.docstring.parse(griffe.Parser.sphinx)
         for section in parsed_sections:
             if section.kind == griffe.DocstringSectionKind.parameters:
                 for param in section.value:
                     param_docs[param.name] = cleandoc(param.description)
-    errors = []
+    issues = []
+    klass_init: griffe.Function = spec_dataclass["__init__"]
+    dataclass_params = klass_init.parameters._params
     for i, (method_arg, dataclass_field) in enumerate(
-        zip(method_args, dataclass_init.parameters)
+        zip(method_params, dataclass_params)
     ):
         if method_arg != dataclass_field:
-            errors.append(
+            issues.append(
                 f"argument {i} `{method_arg.name}`: name or kind mismatch\n"
                 f"    expected `{dataclass_field}`\n"
                 f"         got `{method_arg}`"
             )
 
-        dm_text = param_docs.get(method_arg.name, None)
-        df_text = (
+        method_param_doc = param_docs.get(method_arg.name, None)
+        dataclass_field_doc = (
             cleandoc(d.value) if (d := dataclass_field.docstring) else None
         )
-        if dm_text != df_text:
-            errors.append(
+        if method_param_doc != dataclass_field_doc:
+            issues.append(
                 f"argument {i} `{method_arg.name}`: docstring mismatch\n"
-                f"    expected `{df_text}`\n"
-                f"         got `{dm_text}`"
+                f"    expected `{dataclass_field_doc}`\n"
+                f"         got `{method_param_doc}`"
             )
-    if errors:
-        path = f"({meth.relative_filepath}:{meth.lineno})"
-        s = "s" if len(errors) > 1 else ""
+    if issues:
+        path = f"({method.relative_filepath}:{method.lineno})"
+        s = "s" if len(issues) > 1 else ""
         err_str = (
-            f"{len(errors)} error{s} in `{meth.canonical_path}` {path}:\n"
-            + "\n".join(f"  - {error}" for error in errors)
+            f"{len(issues)} issue{s} in `{method.canonical_path}` {path}:\n"
+            + "\n".join(f"  - {issue}" for issue in issues)
             + "\n= help: update it to something like:\n```py\n"
-            + "".join(gen_signature_from_dataclass(meth, dataclass_init))
+            + "".join(gen_sphinx_signature(method, dataclass_params))
             + "\n```"
         )
         logger.warning(err_str)
-    return errors
+    return issues
 
 
-def gen_signature_from_dataclass(
-    method: griffe.Function, dataclass_init: griffe.Function
+def gen_sphinx_signature(
+    method: griffe.Function, dataclass_parameters: list[griffe.Parameter]
 ) -> Generator[str, None, None]:
     if "async" in method.labels:
         yield "async "
     yield f"def {method.path.split('.')[-1]}("
-    n_args = len(dataclass_init.parameters)
-    for i, field in enumerate(dataclass_init.parameters):
+    n_args = len(dataclass_parameters)
+    for i, field in enumerate(dataclass_parameters):
         yield field.name
         if field.annotation is not None:
             yield f": {field.annotation}"
@@ -136,12 +140,12 @@ def gen_signature_from_dataclass(
         if i < n_args - 1:
             yield ", "
     yield ")"
-    if (r := method.returns) is not None:
-        yield f" -> {r}"
+    if (return_annotation := method.returns) is not None:
+        yield f" -> {return_annotation}"
     yield ":"
 
     doc_lines = []
-    for param in dataclass_init.parameters:
+    for param in dataclass_parameters:
         if param.docstring:
             doc_lines.append(f":param {param.name}: {param.docstring.value}")
     if doc_lines:

@@ -309,4 +309,4 @@ class PlaybackFlightRecord(
 
 
 playback_flight_schema = to_schema(PlaybackFlightRecord)
-SupportedFormats = Literal["parquet", "csv"]  # TODO: support ndjson
+TabularFileFmt = Literal["parquet", "csv"]  # TODO: support ndjson

@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from typing_extensions import Literal
 
     from .types import IntoFlightId, IntoTimestamp
-    from .types.cache import SupportedFormats
+    from .types.cache import TabularFileFmt
 
 
 PATH_CACHE = Path(user_cache_dir("fr24"))
@@ -75,19 +75,7 @@ class FR24Cache:
             Collection(self.path / "playback_flight"),
             schema=playback_flight_schema,
         )
-        # not putting it in `Collection.__post_init__` to avoid side effects
-        for col in (
-            self.flight_list.reg.collection,
-            self.flight_list.flight.collection,
-            self.playback.collection,
-            self.live_feed.collection,
-            self.nearest_flights.collection,
-            self.live_flights_status.collection,
-            self.top_flights.collection,
-            self.flight_details.collection,
-            self.playback_flight.collection,
-        ):
-            col.path.mkdir(parents=True, exist_ok=True)
+        # mkdir not necessary: write_table will create them automatically
 
 
 class CacheLike(Protocol):
@@ -118,7 +106,7 @@ class FlightListRegCache(GlobMixin):
         return self.collection.new_bare_path(reg.upper())
 
     def scan_table(
-        self, reg: str, *, format: SupportedFormats = "parquet"
+        self, reg: str, *, format: TabularFileFmt = "parquet"
     ) -> pl.LazyFrame:
         """Lazily load a flight list file from this collection.
 
@@ -137,7 +125,7 @@ class FlightListFlightCache(GlobMixin):
         return self.collection.new_bare_path(flight.upper())
 
     def scan_table(
-        self, flight: str, *, format: SupportedFormats = "parquet"
+        self, flight: str, *, format: TabularFileFmt = "parquet"
     ) -> pl.LazyFrame:
         """Lazily load a flight list file from this collection.
 
@@ -168,7 +156,7 @@ class PlaybackCache(GlobMixin):
         return self.collection.new_bare_path(ident)
 
     def scan_table(
-        self, flight_id: IntoFlightId, *, format: SupportedFormats = "parquet"
+        self, flight_id: IntoFlightId, *, format: TabularFileFmt = "parquet"
     ) -> pl.LazyFrame:
         """Lazily load a playback file.
 
@@ -197,7 +185,7 @@ class TimestampedCache(GlobMixin):
         self,
         timestamp: IntoTimestamp | str,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
     ) -> pl.LazyFrame:
         """Lazily load a timestamped file.
 
@@ -229,7 +217,7 @@ class NearestFlightsCache(GlobMixin):
         lat: float,
         timestamp: IntoTimestamp | str,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
     ) -> pl.LazyFrame:
         """Lazily load a nearest flights file.
 
@@ -264,7 +252,7 @@ class FlightDetailsCache(GlobMixin):
         flight_id: IntoFlightId,
         timestamp: IntoTimestamp | str,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
     ) -> pl.LazyFrame:
         """Lazily load a flight details file.
 
@@ -292,7 +280,7 @@ class Collection:
 
 class File(Path):
     @property
-    def format(self) -> SupportedFormats:
+    def format(self) -> TabularFileFmt:
         # TODO: perform validation, though it is not critical
         return self.suffix[1:]  # type: ignore
 

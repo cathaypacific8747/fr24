@@ -7,6 +7,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncGenerator,
+    AsyncIterator,
     Generic,
     Literal,
     Protocol,
@@ -20,6 +21,7 @@ from typing_extensions import runtime_checkable
 
 from .cache import FR24Cache
 from .grpc import (
+    BoundingBox,
     FlightDetailsParams,
     FollowFlightParams,
     LiveFeedParams,
@@ -73,7 +75,9 @@ from .proto.v1_pb2 import (
     RestrictionVisibility,
     TopFlightsResponse,
 )
-from .types import static_check_signature
+from .types import IntoFlightId, IntoTimestamp, IntTimestampS
+from .types.cache import TabularFileFmt
+from .types.grpc import LiveFeedField
 from .types.json import (
     FLIGHT_LIST_EMPTY,
     AirportList,
@@ -82,6 +86,7 @@ from .types.json import (
     Playback,
 )
 from .utils import (
+    FileExistsBehaviour,
     FileLike,
     SupportsToDict,
     SupportsToPolars,
@@ -89,22 +94,16 @@ from .utils import (
     dataclass_opts,
     get_current_timestamp,
     parse_server_timestamp,
+    static_check_signature,
     write_table,
 )
 
 if TYPE_CHECKING:
-    from typing import Any, AsyncIterator
-
     import httpx
     import polars as pl
     from typing_extensions import TypeAlias
 
     from . import HTTPClient
-    from .cache import FR24Cache
-    from .grpc import BoundingBox
-    from .types import IntoFlightId, IntoTimestamp, IntTimestampS
-    from .types.cache import SupportedFormats
-    from .types.grpc import LiveFeedField
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +182,13 @@ WriteLocation: TypeAlias = Union[FileLike, FR24Cache]
 
 @runtime_checkable
 class SupportsWriteTable(Protocol):
-    def write_table(self, file: WriteLocation) -> None:
+    def write_table(
+        self,
+        file: WriteLocation,
+        *,
+        format: TabularFileFmt,
+        when_file_exists: FileExistsBehaviour = "backup",
+    ) -> None:
         """Writes the object to the given file path."""
 
 
@@ -235,6 +240,8 @@ class FlightListService(SupportsFetch[FlightListParams]):
 
         delay: int = field(default=5)
         """Delay between requests in seconds."""
+        max_pages: int | None = field(default=None)
+        """Maximum number of pages to fetch."""
 
     @static_check_signature(FetchAllArgs)
     async def fetch_all(
@@ -245,6 +252,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
         limit: int = 10,
         timestamp: IntoTimestamp | Literal["now"] | None = "now",
         delay: int = 5,
+        max_pages: int | None = None,
     ) -> AsyncIterator[FlightListResult]:
         """Fetch all pages of the flight list.
 
@@ -254,6 +262,7 @@ class FlightListService(SupportsFetch[FlightListParams]):
         :param limit: Number of results per page - use `100` if authenticated.
         :param timestamp: Show flights with ATD before this Unix timestamp
         :param delay: Delay between requests in seconds.
+        :param max_pages: Maximum number of pages to fetch.
         """
         # TODO: something nasty with async generators is happening here
         # (httpx leak)
@@ -272,6 +281,8 @@ class FlightListService(SupportsFetch[FlightListParams]):
             if (data := response_dict["result"]["response"]["data"]) is None:
                 break
             yield result
+            if max_pages is not None and page >= max_pages:
+                break
             page += 1
 
             # NOTE: for the next request, we have to both:
@@ -315,13 +326,16 @@ class FlightListResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.flight_list(self.request.kind).get_path(
                 self.request.ident
             )
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 class FlightListResultCollection(
@@ -382,7 +396,8 @@ class FlightListResultCollection(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if not self:
             raise ValueError(
@@ -393,7 +408,9 @@ class FlightListResultCollection(
             file = file.flight_list(self[0].request.kind).get_path(
                 self[0].request.ident
             )
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -450,11 +467,14 @@ class PlaybackResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.playback.get_path(self.request.flight_id)
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -529,11 +549,14 @@ class LiveFeedResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.live_feed.get_path(self.timestamp)
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -614,11 +637,14 @@ class LiveFeedPlaybackResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.live_feed.get_path(self.request.timestamp)
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -771,13 +797,16 @@ class NearestFlightsResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.nearest_flights.get_path(
                 self.request.lon, self.request.lat, self.timestamp
             )
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -833,11 +862,14 @@ class LiveFlightsStatusResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.live_flights_status.get_path(self.timestamp)
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -939,11 +971,14 @@ class TopFlightsResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.top_flights.get_path(self.timestamp)
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -956,9 +991,9 @@ class FlightDetailsService(SupportsFetch[FlightDetailsParams]):
     async def fetch(
         self,
         flight_id: IntoFlightId,
-        restriction_mode: RestrictionVisibility.ValueType
-        | str
-        | bytes = RestrictionVisibility.NOT_VISIBLE,
+        restriction_mode: (
+            RestrictionVisibility.ValueType | str | bytes
+        ) = RestrictionVisibility.NOT_VISIBLE,
         verbose: bool = True,
     ) -> FlightDetailsResult:
         """Fetch flight details.
@@ -1013,13 +1048,16 @@ class FlightDetailsResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.flight_details.get_path(
                 self.request.flight_id, self.timestamp
             )
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )
 
 
 @dataclass_frozen
@@ -1076,10 +1114,13 @@ class PlaybackFlightResult(
         self,
         file: WriteLocation,
         *,
-        format: SupportedFormats = "parquet",
+        format: TabularFileFmt = "parquet",
+        when_file_exists: FileExistsBehaviour = "backup",
     ) -> None:
         if isinstance(file, FR24Cache):
             file = file.playback_flight.get_path(
                 self.request.flight_id, self.request.timestamp
             )
-        write_table(self, file, format=format)
+        write_table(
+            self, file, format=format, when_file_exists=when_file_exists
+        )

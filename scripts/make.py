@@ -1,12 +1,11 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.10"
 # dependencies = [
-#     "griffe",
+#     "griffe>=1.8.0",
+#     "typing-extensions",
 #     "typer"
 # ]
-# [tool.uv.sources]
-# griffe = { git = "https://github.com/mkdocstrings/griffe.git", rev = "8ef1486e9b1f0872cca3b1cd2419144b702a0c1e" }
 # ///
 from __future__ import annotations
 

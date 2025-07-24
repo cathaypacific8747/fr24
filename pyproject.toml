@@ -40,7 +40,14 @@ Documentation = "https://cathaypacific8747.github.io/fr24/"
 Issues = "https://github.com/cathaypacific8747/fr24/issues"
 
 [dependency-groups]
-dev = ["ipykernel>=6.29.5", "textual-dev>=1.6.1"]
+dev = [
+    "ipykernel>=6.29.5",
+    "textual-dev>=1.6.1",
+    { include-group = "typing" },
+    { include-group = "lint" },
+    { include-group = "test" },
+    { include-group = "docs" },
+]
 typing = ["mypy-protobuf>=3.6.0", "mypy>=1.13.0", "types-protobuf==5.28.*"]
 lint = ["ruff>=0.7.2"]
 test = [
@@ -50,7 +57,11 @@ test = [
     "pytest>=8.3.3",
     "fr24[rich]",
 ]
-docs = ["mkdocs-material[imaging]>=9.5.43", "mkdocstrings-python>=1.13.0"]
+docs = [
+    "mkdocs-material[imaging]>=9.5.43",
+    "mkdocstrings-python>=1.13.0",
+    "griffe>=1.8.0",
+]
 
 [project.scripts]
 fr24 = 'fr24.cli:app'
@@ -60,14 +71,6 @@ rich = ["loguru", "rich"]
 cli = ["typer>=0.15.1"]
 tui = ["textual>=1.0.0", "pandas>=2.2.3"]
 
-# default-groups = ["dev"] by default, overriding for now
-[tool.uv]
-default-groups = ["dev", "typing", "lint", "test", "docs"]
-
-# remove once https://github.com/mkdocstrings/griffe/commit/a8c5585c8a45a4d6b67bd5dc36d7054478d3873d
-# is released
-[tool.uv.sources]
-griffe = { git = "https://github.com/mkdocstrings/griffe.git", rev = "8ef1486e9b1f0872cca3b1cd2419144b702a0c1e" }
 
 [tool.ruff]
 lint.select = [

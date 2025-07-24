@@ -2,29 +2,40 @@ from __future__ import annotations
 
 import email.utils
 import logging
+import re
 import sys
 import time
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import (
+    IO,
     TYPE_CHECKING,
+    Any,
+    Callable,
     Generic,
+    Iterator,
     Literal,
+    NamedTuple,
     Protocol,
+    Sequence,
     TypeVar,
     Union,
     overload,
 )
 
-from typing_extensions import dataclass_transform, runtime_checkable
+from typing_extensions import (
+    assert_never,
+    dataclass_transform,
+    runtime_checkable,
+)
 
 dataclass_opts: dict[str, bool] = {}
 if sys.version_info >= (3, 10):
     dataclass_opts["slots"] = True
 
 if TYPE_CHECKING:
-    from typing import IO, Any, NoReturn
+    from typing import NoReturn
 
     import httpx
     import polars as pl
@@ -37,7 +48,7 @@ if TYPE_CHECKING:
         IntTimestampS,
         StrFlightIdHex,
     )
-    from .types.cache import SupportedFormats
+    from .types.cache import TabularFileFmt
 
     _D = TypeVar("_D")
 
@@ -46,6 +57,7 @@ if TYPE_CHECKING:
 else:
     dataclass_frozen = dataclass(**dataclass_opts)
 
+logger = logging.getLogger(__name__)
 
 DEFAULT_HEADERS = {
     "User-Agent": (
@@ -148,7 +160,7 @@ class BarePath:
 FileLike = Union[str, Path, IO[bytes], BarePath]
 
 
-def format_bare_path(path: BarePath, format: SupportedFormats) -> Path:
+def format_bare_path(path: BarePath, format: TabularFileFmt) -> Path:
     if format == "parquet":
         suffix = ".parquet"
     elif format == "csv":
@@ -158,11 +170,35 @@ def format_bare_path(path: BarePath, format: SupportedFormats) -> Path:
     return path.path.with_suffix(suffix)
 
 
+FileExistsBehaviour: TypeAlias = Literal["backup", "error", "overwrite"]
+
+
+def _handle_existing_file(
+    path: Path, when_file_exists: FileExistsBehaviour
+) -> None:
+    if not path.exists():
+        return
+    if when_file_exists == "backup":
+        timestamp = datetime.now(tz=timezone.utc).isoformat()
+        backup_path = path.with_suffix(f"{path.suffix}.bkp.{timestamp}")
+        path.rename(backup_path)
+        logger.info(
+            f"file `{path}` already exists, moved it to `{backup_path}`"
+        )
+    elif when_file_exists == "error":
+        raise FileExistsError(f"refused to overwrite existing file at `{path}`")
+    elif when_file_exists == "overwrite":
+        pass
+    else:
+        assert_never(when_file_exists)
+
+
 def write_table(
     result: SupportsToPolars,
     file: FileLike,
     *,
-    format: SupportedFormats = "parquet",
+    format: TabularFileFmt = "parquet",
+    when_file_exists: FileExistsBehaviour = "backup",
     **kwargs: Any,
 ) -> None:
     """Writes the table as the specified format via polars.
@@ -176,6 +212,7 @@ def write_table(
     if isinstance(file, str):
         file = Path(file)
     if isinstance(file, Path):
+        _handle_existing_file(file, when_file_exists)
         file.parent.mkdir(parents=True, exist_ok=True)
 
     data = result.to_polars()
@@ -189,12 +226,13 @@ def write_table(
         data.write_csv(file, **kwargs)
     else:
         raise ValueError(f"unsupported format: `{format}`")
+    logger.info(f"wrote {data.height} rows to `{file}`")
 
 
 def scan_table(
-    file: Path | IO[bytes] | BarePath,
+    file: FileLike,
     *,
-    format: SupportedFormats = "parquet",
+    format: TabularFileFmt = "parquet",
     schema: dict[str, pl.DataType] | None = None,
 ) -> pl.LazyFrame:
     """
@@ -350,3 +388,99 @@ def intercept_logs_with_loguru(
         logger_module = logging.getLogger(logger_name)
         logger_module.handlers = [InterceptHandler(level=level)]
         logger_module.propagate = False
+
+
+M = TypeVar("M", bound=Callable[..., Any])
+
+
+def static_check_signature(dataclass: Any) -> Callable[[M], M]:
+    '''Marker to signal the static analyser that the decorated method or
+    function should be checked against the signature of the given dataclass.
+
+    Many of our low level APIs use 1) parameters stored in a single flat
+    dataclass, and 2) functions that take in this dataclass:
+    ```py
+    @dataclass
+    class LiveFeedParams:
+        bbox_south: float
+        """Latitude, minimum, degrees"""
+        bbox_north: float
+        bbox_west: float
+        bbox_east: float
+        flight_id: int
+        # ... other params ...
+
+    def live_feed(params: LiveFeedParams, ...):
+        ...
+    ```
+    but service methods and CLIs expect a flat signature:
+    ```py
+    from fr24.utils import static_check_signature
+
+    @static_check_signature(LiveFeedParams)
+    def live_feed_cli(
+        bbox_south: float,
+        bbox_north: float,
+        bbox_west: float,
+        bbox_east: float,
+        flight_id: int
+        # ... other params ...
+    ):
+        """:param bbox_south: The southern latitude of the bounding box.
+        ..."""
+        ...
+    ```
+    `./scripts/check_signature.py` uses static analysis to:
+
+    1. scan for all uses of the decorator
+    2. for each member of the dataclass, collect all docstrings, members names
+       and types
+    3. for each argument of the decorated method, parse the sphinx docstring,
+       names and types
+    4. compare them.
+    '''
+
+    def decorator(method: M) -> M:
+        return method
+
+    return decorator
+
+
+# for use in cli
+_SPHINX_PARAM = re.compile(r"\s*:param\s+(?P<name>\w+):\s*(?P<doc>.*)")
+
+
+class ParamDetail(NamedTuple):
+    name: str
+    description: str
+
+
+@dataclass
+class SphinxParser:
+    """A poor man's parser for Sphinx docstrings and its `:param:` directive."""
+
+    text: str
+    name: str | None = None
+    doc_lines: list[str] = field(default_factory=list)
+
+    def __iter__(self) -> Iterator[str | ParamDetail]:
+        for line in self.text.splitlines():
+            if match := _SPHINX_PARAM.match(line):
+                if self.name is not None:
+                    yield ParamDetail(
+                        self.name, _join_doc_lines(self.doc_lines)
+                    )
+                elif self.doc_lines:  # header
+                    yield _join_doc_lines(self.doc_lines)
+                self.name = match.group("name")
+                self.doc_lines = [match.group("doc")]
+            else:
+                self.doc_lines.append(line)
+        if self.name:
+            yield ParamDetail(self.name, _join_doc_lines(self.doc_lines))
+        else:
+            yield _join_doc_lines(self.doc_lines)
+
+
+def _join_doc_lines(doc_frags: Sequence[str]) -> str:
+    return " ".join(line.strip() for line in doc_frags)

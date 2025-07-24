@@ -361,7 +361,7 @@ For maximum control, you can also use `fr24` in a procedural style. You will hav
 
 === "Jupyter cell"
 
-    ```py hl_lines="17"
+    ```py hl_lines="19"
     --8<-- "docs/usage/scripts/30_flight_list.py:script0"
     ```
 
@@ -392,7 +392,7 @@ For maximum control, you can also use `fr24` in a procedural style. You will hav
 === "Jupyter cell"
 
     ```py
-    --8<-- "docs/usage/scripts/32_arrivals.py:script1"
+    --8<-- "docs/usage/scripts/32_arrivals.py:script0"
     ```
 
 === "`df`"

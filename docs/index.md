@@ -25,6 +25,8 @@ For a detailed quickstart, examples and references, please refer to the [documen
 | **Follow Flight** (streaming) | Historical track and real-time updates for a live flight.  | gRPC |
 | **Top Flights**               | List of the most viewed flights.                           | gRPC |
 | **Live Flight Status**        | Real-time status updates for live flights.                 | gRPC |
+| **Flight Details**            | Detailed information for a live flight.                    | gRPC |
+| **Playback Flight**           | Detailed information for a historical flight.              | gRPC |
 <!--
 | **Live Trail**                | Real-time trail data for a flight.                             | gRPC   |
 | **Historic Trail**            | Historical trail data for a flight.                            | gRPC   |
@@ -45,7 +47,7 @@ For a development version, clone the repository and run in the directory:
 ```sh
 uv venv
 source .venv/bin/activate
-uv sync --all-extras --all-groups
+uv sync --all-extras --dev
 ```
 
 This installs all optional dependencies, typing, linting, testing and documentation tools.
@@ -106,33 +108,40 @@ if __name__ == "__main__":
 `fr24` also comes with a CLI for quick data retrieval:
 
 ```console
-$ fr24 feed -o feed.parquet
+$ fr24 live-feed --bounding-box "42.0,52.0,-8.0,10.0" -o feed.parquet
+[00:00:00] INFO     using environment `subscription_key` and      __init__.py:98
+                    `token`                                                     
+[00:00:00] INFO     HTTP Request: POST                           _client.py:1740
+                    https://data-feed.flightradar24.com/fr24.fee                
+                    d.api.v1.Feed/LiveFeed "HTTP/2 200 OK"                      
+           INFO     wrote 1500 rows to                              utils.py:229
+                    `/home/user/feed.parquet
 $ duckdb -c "describe select * from 'feed.parquet'";
-┌─────────────────┬───────────────────────────────────────────────────────────────────┬─────────┬─────────┬─────────┬─────────┐
-│   column_name   │                            column_type                            │  null   │   key   │ default │  extra  │
-│     varchar     │                              varchar                              │ varchar │ varchar │ varchar │ varchar │
-├─────────────────┼───────────────────────────────────────────────────────────────────┼─────────┼─────────┼─────────┼─────────┤
-│ timestamp       │ TIMESTAMP WITH TIME ZONE                                          │ YES     │ NULL    │ NULL    │ NULL    │
-│ flightid        │ UINTEGER                                                          │ YES     │ NULL    │ NULL    │ NULL    │
-│ latitude        │ FLOAT                                                             │ YES     │ NULL    │ NULL    │ NULL    │
-│ longitude       │ FLOAT                                                             │ YES     │ NULL    │ NULL    │ NULL    │
-│ track           │ USMALLINT                                                         │ YES     │ NULL    │ NULL    │ NULL    │
-│ altitude        │ INTEGER                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ ground_speed    │ SMALLINT                                                          │ YES     │ NULL    │ NULL    │ NULL    │
-│ on_ground       │ BOOLEAN                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ callsign        │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ source          │ UTINYINT                                                          │ YES     │ NULL    │ NULL    │ NULL    │
-│ registration    │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ origin          │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ destination     │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ typecode        │ VARCHAR                                                           │ YES     │ NULL    │ NULL    │ NULL    │
-│ eta             │ UINTEGER                                                          │ YES     │ NULL    │ NULL    │ NULL    │
-│ squawk          │ USMALLINT                                                         │ YES     │ NULL    │ NULL    │ NULL    │
-│ vertical_speed  │ SMALLINT                                                          │ YES     │ NULL    │ NULL    │ NULL    │
-│ position_buffer │ STRUCT(delta_lat INTEGER, delta_lon INTEGER, delta_ms UINTEGER)[] │ YES     │ NULL    │ NULL    │ NULL    │
-├─────────────────┴───────────────────────────────────────────────────────────────────┴─────────┴─────────┴─────────┴─────────┤
-│ 18 rows                                                                                                           6 columns │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────┬──────────────────────┬─────────┬───┬─────────┬─────────┐
+│   column_name   │     column_type      │  null   │ … │ default │  extra  │
+│     varchar     │       varchar        │ varchar │   │ varchar │ varchar │
+├─────────────────┼──────────────────────┼─────────┼───┼─────────┼─────────┤
+│ timestamp       │ TIMESTAMP WITH TIM…  │ YES     │ … │ NULL    │ NULL    │
+│ flightid        │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │
+│ latitude        │ FLOAT                │ YES     │ … │ NULL    │ NULL    │
+│ longitude       │ FLOAT                │ YES     │ … │ NULL    │ NULL    │
+│ track           │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │
+│ altitude        │ INTEGER              │ YES     │ … │ NULL    │ NULL    │
+│ ground_speed    │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+│ on_ground       │ BOOLEAN              │ YES     │ … │ NULL    │ NULL    │
+│ callsign        │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+│ source          │ UTINYINT             │ YES     │ … │ NULL    │ NULL    │
+│ registration    │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+│ origin          │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+│ destination     │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+│ typecode        │ VARCHAR              │ YES     │ … │ NULL    │ NULL    │
+│ eta             │ UINTEGER             │ YES     │ … │ NULL    │ NULL    │
+│ squawk          │ USMALLINT            │ YES     │ … │ NULL    │ NULL    │
+│ vertical_speed  │ SMALLINT             │ YES     │ … │ NULL    │ NULL    │
+│ position_buffer │ STRUCT(delta_lat I…  │ YES     │ … │ NULL    │ NULL    │
+├─────────────────┴──────────────────────┴─────────┴───┴─────────┴─────────┤
+│ 18 rows                                              6 columns (5 shown) │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 For a full list of commands and options, run:
